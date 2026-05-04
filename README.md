@@ -1,59 +1,35 @@
-# GrepoHub
+# Grepo Hub
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.9.
+Grepo Hub is a browser-based Grepolis companion app for city planning, unit planning, references, guides, timing tools, and future battle simulation support.
 
-## Development server
+The project is built with Angular and is intended to be developed as both a useful companion tool and a learning project.
 
-To start a local development server, run:
+## Documentation
 
-```bash
-ng serve
-```
+Project documentation is stored in the [`docs`](./docs) directory.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Recommended reading order:
 
-## Code scaffolding
+1. [`01-project-vision.md`](./docs/01-project-vision.md)
+2. [`02-features.md`](./docs/02-features.md)
+3. [`03-layout-and-navigation.md`](./docs/03-layout-and-navigation.md)
+4. [`04-data-and-import-export.md`](./docs/04-data-and-import-export.md)
+5. [`05-time-tools.md`](./docs/05-time-tools.md)
+6. [`06-mvp-roadmap.md`](./docs/06-mvp-roadmap.md)
+7. [`07-angular-setup.md`](./docs/07-angular-setup.md)
+8. [`08-architecture.md`](./docs/08-architecture.md)
+9. [`09-development-notes.md`](./docs/09-development-notes.md)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Planned pages
 
-```bash
-ng generate component component-name
-```
+- Home / Dashboard
+- City Planner
+- Troops Planner
+- References
+- Guides
+- Time Tools
+- Battle Simulator
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Development status
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Planning / requirements specification phase.
