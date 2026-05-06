@@ -1,0 +1,13 @@
+<main class="app">
+  <nav class="main-nav" aria-label="Main navigation">
+    <a routerLink="/">Grepo Hub</a>
+
+    @for (item of navItems; track item.path) {
+      <a [routerLink]="item.path">
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <router-outlet />
+</main>

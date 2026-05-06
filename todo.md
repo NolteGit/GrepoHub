@@ -70,54 +70,141 @@ Goal: navigate between pages without building the final app shell yet.
 
 ### 2.1 Add simple navigation links
 
-- [ ] Add a small navigation area in `app.html` above `<router-outlet />`.
-- [ ] Add links to Home, City Planner, Troops Planner, References, Guides, Time Tools, and Battle Simulator.
-- [ ] Use Angular `routerLink`.
-- [ ] Keep the navigation plain and unstyled at first.
+- [x] Add a small navigation area in `app.html` above `<router-outlet />`.
+- [x] Add links to Home, City Planner, Troops Planner, References, Guides, Time Tools, and Battle Simulator.
+- [x] Use Angular `routerLink`.
+- [x] Keep the navigation plain and unstyled at first.
 
 ### 2.2 Check navigation manually
 
-- [ ] Click every navigation link.
-- [ ] Confirm the URL changes.
-- [ ] Confirm the correct placeholder page appears.
-- [ ] Run `npm run build`.
+- [x] Click every navigation link.
+- [x] Confirm the URL changes.
+- [x] Confirm the correct placeholder page appears.
+- [x] Run `npm run build`.
 
 ### 2.3 Add very light styling
 
-- [ ] Add spacing around the app.
-- [ ] Make the navigation readable.
-- [ ] Highlight nothing yet unless it is easy.
-- [ ] Avoid spending too much time on design.
+- [x] Add spacing around the app.
+- [x] Make the navigation readable.
+- [x] Highlight nothing yet unless it is easy.
+- [x] Avoid spending too much time on design.
 
 ---
 
-## Phase 3 — App shell, but still simple
+## Phase 3 — Responsive app shell, but still simple
 
 Goal: introduce the future layout structure without making it complex.
 
-### 3.1 Create layout components
+The app shell should provide the global structure of the app:
+
+- global header navigation
+- routed page content
+
+It should not include a permanent global sidebar. Page-specific side panels, configuration areas, guide/reference links, filters, and simulator settings will be handled later inside the individual pages.
+
+### 3.1 Create app shell component
 
 Create:
 
-- [ ] `AppShellComponent`
-- [ ] `TopBarComponent`
-- [ ] `NavigationComponent` or `NavigationDrawerComponent`
+- [x] `AppShellComponent`
 
-### 3.2 Move layout markup
+For now:
 
-- [ ] Move the navigation markup into the navigation component.
-- [ ] Add a simple top bar with the app name.
-- [ ] Keep the routed page content in the shell.
-- [ ] Confirm all routes still work.
+- [x] Render `<app-shell />` from `AppComponent`.
+- [x] Move the existing navigation markup into `AppShellComponent`.
+- [x] Move `<router-outlet />` into `AppShellComponent`.
+- [x] Keep the layout simple.
+- [x] Do not create separate `TopBarComponent`, `NavigationComponent`, or `NavigationDrawerComponent` yet.
+- [x] Do not add mobile behavior yet.
+- [x] Confirm all existing routes still render inside the shell.
 
-### 3.3 Add current page title later
+### 3.2 Define global navigation items
+
+Create a central list of main navigation items inside the app shell.
+
+Include:
+
+- [x] City Planner
+- [x] Troops Planner
+- [x] Tools
+- [x] Guides
+- [x] Time Tools
+- [x] Battle Simulator
+- [x] Settings
+
+Keep `Home` separate because it should be represented by the app logo/name on the left side of the header.
+
+Each navigation item should eventually contain:
+
+- [x] label
+- [x] route/path
+- [x] optional icon later
+
+### 3.3 Build the desktop header navigation
+
+Create a simple desktop header layout inside `AppShellComponent`.
+
+Include:
+
+- [ ] Home logo / app name on the left
+- [ ] Main navigation links across the top
+- [ ] Time quick-action button on the right
+
+The time quick-action button is only a placeholder for now.
+
+### 3.4 Add active navigation styling
+
+- [ ] Highlight the currently active page in the desktop navigation.
+
+Use Angular route styling with `routerLinkActive`.
+
+Later, also apply the same active state to the mobile menu once the mobile menu exists.
+
+### 3.5 Add mobile header behavior later
+
+Do not overbuild this immediately unless the desktop shell is stable.
+
+For mobile:
+
+- [ ] Hide desktop navigation links on small screens.
+- [ ] Show a burger menu button.
+- [ ] Keep the Home logo / app name visible.
+- [ ] Keep the time quick-action button visible.
+- [ ] Show navigation links in a dropdown/drawer when the burger button is opened.
+
+This mobile behavior can still live inside `AppShellComponent` at first.
+
+### 3.6 Keep routed page content stable inside the shell
+
+The routed page content now belongs inside `AppShellComponent`.
+
+- [ ] Keep `<router-outlet></router-outlet>` inside the shell.
+- [ ] Keep the shell responsible only for global layout.
+- [ ] Do not add page-specific logic to the shell.
+- [ ] Confirm all routes still work after each shell change.
+
+### 3.7 Prepare page-specific side-panel pattern later
+
+Do not implement this fully in Phase 3 unless needed.
+
+Later, pages can use their own page-specific side panels, for example:
+
+- [ ] City Planner configuration panel
+- [ ] Troops Planner configuration panel
+- [ ] Tools links/references panel
+- [ ] Guides categories/references panel
+- [ ] Time Tools configuration panel
+- [ ] Battle Simulator configuration panel
+
+These panels belong inside individual pages, not in the global app shell.
+
+### 3.8 Add current page title later
 
 Do not do this immediately unless the shell is stable.
 
 - [ ] Decide how page titles should be stored.
 - [ ] Add route `data.title` values.
-- [ ] Show the current route title in the top bar.
-
+- [ ] Show the current route title in the header, if still useful.
 ---
 
 ## Phase 4 — Dashboard cards
