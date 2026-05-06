@@ -2,11 +2,14 @@
   "name": "grepo-hub",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "clean": "rimraf dist .angular coverage",
+    "clean:all": "rimraf dist .angular coverage node_modules package-lock.json",
+    "reinstall": "npm run clean:all && npm install",
+    "verify": "npm run clean && npm install && npm run build",
+    "zip:clean": "npm run clean && bestzip grepo-hub-clean.zip docs public src .vscode .editorconfig .gitignore .prettierrc angular.json package.json package-lock.json README.md tsconfig.json tsconfig.app.json tsconfig.spec.json"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
@@ -24,8 +27,10 @@
     "@angular/build": "^21.2.9",
     "@angular/cli": "^21.2.9",
     "@angular/compiler-cli": "^21.2.0",
+    "bestzip": "^2.2.3",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
+    "rimraf": "^6.1.3",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

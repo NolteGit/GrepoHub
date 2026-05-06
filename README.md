@@ -6,7 +6,7 @@ The project is built with Angular and is intended to be developed as both a usef
 
 ## Documentation
 
-Project documentation is stored in the [`docs`](./docs) directory.
+Project documentation is stored in the [`docs`](./docs) directory. The slow step-by-step development checklist is stored in [`TODO.md`](./TODO.md).
 
 Recommended reading order:
 
@@ -19,6 +19,7 @@ Recommended reading order:
 7. [`07-angular-setup.md`](./docs/07-angular-setup.md)
 8. [`08-architecture.md`](./docs/08-architecture.md)
 9. [`09-development-notes.md`](./docs/09-development-notes.md)
+10. [`TODO.md`](./TODO.md)
 
 ## Planned pages
 
@@ -32,4 +33,4 @@ Recommended reading order:
 
 ## Development status
 
-Planning / requirements specification phase.
+Early implementation setup. The Angular project exists and the planning documents are in place, but the app currently has no real pages, no configured routes, no layout shell, and no feature implementation yet. The next recommended step is to create the first Home page and route before adding more pages.
