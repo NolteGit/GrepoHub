@@ -26,41 +26,41 @@ Goal: create real page components and routes, but keep them visually simple.
 
 ### 1.1 Create the Home page
 
-- [ ] Generate or create a `home` page component.
-- [ ] Move the current `Grepo Hub` title from `app.html` into the Home page.
-- [ ] Add a short subtitle: `Grepolis companion app`.
-- [ ] Do not add cards yet.
-- [ ] Do not add styling yet, except minimal spacing if needed.
+- [x] Generate or create a `home` page component.
+- [x] Move the current `Grepo Hub` title from `app.html` into the Home page.
+- [x] Add a short subtitle: `Grepolis companion app`.
+- [x] Do not add cards yet.
+- [x] Do not add styling yet, except minimal spacing if needed.
 
 ### 1.2 Add the first route
 
-- [ ] Add a route for `/` that shows the Home page.
-- [ ] Keep `app.html` simple and only render `<router-outlet />`.
-- [ ] Start the app and confirm the Home page still appears.
-- [ ] Run `npm run build`.
+- [x] Add a route for `/` that shows the Home page.
+- [x] Keep `app.html` simple and only render `<router-outlet />`.
+- [x] Start the app and confirm the Home page still appears.
+- [x] Run `npm run build`.
 
 ### 1.3 Create placeholder pages
 
 Create empty/simple placeholder pages for:
 
-- [ ] City Planner
-- [ ] Troops Planner
-- [ ] References
-- [ ] Guides
-- [ ] Time Tools
-- [ ] Battle Simulator
+- [x] City Planner
+- [x] Troops Planner
+- [x] References
+- [x] Guides
+- [x] Time Tools
+- [x] Battle Simulator
 
 Each placeholder page should only contain:
 
-- [ ] A page title.
-- [ ] One short sentence saying the feature is planned.
+- [x] A page title.
+- [x] One short sentence saying the feature is planned.
 
 ### 1.4 Add placeholder routes
 
-- [ ] Add routes for all placeholder pages.
-- [ ] Visit each route manually in the browser.
-- [ ] Confirm each page loads without errors.
-- [ ] Run `npm run build`.
+- [x] Add routes for all placeholder pages.
+- [x] Visit each route manually in the browser.
+- [x] Confirm each page loads without errors.
+- [x] Run `npm run build`.
 
 ---
 
