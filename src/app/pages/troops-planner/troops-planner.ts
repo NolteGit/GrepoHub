@@ -13,4 +13,16 @@ export class TroopsPlanner {
   private readonly gameDataService = inject(GameDataService);
 
   protected readonly units$ = this.gameDataService.getUnitDefinitions();
+
+  protected readonly unitAmounts: Record<string, number> = {};
+
+  protected getUnitAmount(unitId: string): number {
+    return this.unitAmounts[unitId] ?? 0;
+  }
+
+  protected updateUnitAmount(unitId: string, value: string): void {
+    const amount = Number(value);
+
+    this.unitAmounts[unitId] = Number.isFinite(amount) && amount > 0 ? amount : 0;
+  }
 }

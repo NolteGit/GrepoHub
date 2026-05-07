@@ -1,13 +1,49 @@
-<h1>Troops Planner</h1>
+<section class="troops-planner-page">
+  <header class="troops-planner-page__header">
+    <h1>Troops Planner</h1>
+    <p>Preview unit costs before building a full planner.</p>
+  </header>
 
-<p>Plan unit compositions and resource costs.</p>
+  @if (units$ | async; as units) {
+    <section class="troops-planner-page__unit-list" aria-label="Available units">
+      <h2>Units</h2>
 
-@if (units$ | async; as units) {
-  <p>Units loaded: {{ units.length }}</p>
+      <table class="unit-table">
+        <thead>
+          <tr>
+            <th>Unit</th>
+            <th>Amount</th>
+            <th>Population</th>
+            <th>Wood</th>
+            <th>Stone</th>
+            <th>Silver</th>
+          </tr>
+        </thead>
 
-  @if (units.length > 0) {
-    <p>First unit: {{ units[0].name }}</p>
+        <tbody>
+          @for (unit of units; track unit.id) {
+            <tr>
+              <td>{{ unit.name }}</td>
+              <td>
+                <input
+                  class="unit-table__amount-input"
+                  type="number"
+                  min="0"
+                  [value]="getUnitAmount(unit.id)"
+                  (input)="updateUnitAmount(unit.id, $any($event.target).value)"
+                  [attr.aria-label]="'Amount of ' + unit.name"
+                />
+              </td>
+              <td>{{ unit.population }}</td>
+              <td>{{ unit.wood }}</td>
+              <td>{{ unit.stone }}</td>
+              <td>{{ unit.silver }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <p>Loading units...</p>
   }
-} @else {
-  <p>Loading units...</p>
-}
+</section>

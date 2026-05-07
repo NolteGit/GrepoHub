@@ -1,0 +1,47 @@
+.troops-planner-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.troops-planner-page__header h1 {
+  margin: 0 0 0.5rem;
+}
+
+.troops-planner-page__header p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.troops-planner-page__unit-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.troops-planner-page__unit-list h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.unit-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.unit-table th,
+.unit-table td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.unit-table th {
+  font-weight: 600;
+  color: #374151;
+}
+
+.unit-table__amount-input {
+  width: 5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.5rem;
+}

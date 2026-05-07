@@ -514,35 +514,39 @@ Notes:
 
 Goal: build one very small useful thing before starting the full planners.
 
-Recommended first mini-feature: a simple Troops cost preview.
+Current mini-feature: a simple Troops unit amount preview.
 
 ### 7.1 Show units on the Troops Planner page
 
-- [ ] Load units using the data service from Phase 6.
-- [ ] Show a simple list of units.
-- [ ] Keep the display minimal.
-- [ ] Do not add filters yet.
-- [ ] Do not add grouping yet.
+- [x] Load units using the data service from Phase 6.
+- [x] Show a simple list of units.
+- [x] Keep the display minimal.
+- [x] Do not add filters yet.
+- [x] Do not add grouping yet.
 
 ### 7.2 Add one input per unit
 
-- [ ] Add a number input for each unit.
-- [ ] Default all amounts to `0`.
-- [ ] Keep the values local to the component.
+- [x] Add a number input for each unit.
+- [x] Default all amounts to `0`.
+- [x] Keep the values local to the component.
 
-### 7.3 Calculate totals
+### 7.3 Calculate totals later
 
-- [ ] Calculate total population.
-- [ ] Calculate total wood.
-- [ ] Calculate total stone.
-- [ ] Calculate total silver.
+Do not implement this yet.
+
+The planner logic will likely be reworked later with real planning rules, versions, filters, and special cases.
+
+- [ ] Calculate total population later.
+- [ ] Calculate total wood later.
+- [ ] Calculate total stone later.
+- [ ] Calculate total silver later.
 - [ ] Optional later: calculate total favor.
 
 ### 7.4 Keep it local only
 
-- [ ] Do not save anything yet.
-- [ ] Do not import/export yet.
-- [ ] Do not add complicated validation yet.
+- [x] Do not save anything yet.
+- [x] Do not import/export yet.
+- [x] Do not add complicated validation yet.
 
 ---
 
