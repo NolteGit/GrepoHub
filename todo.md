@@ -95,12 +95,12 @@ Goal: navigate between pages without building the final app shell yet.
 
 Goal: introduce the future layout structure without making it complex.
 
-The app shell should provide the global structure of the app:
+The app shell provides the global structure of the app:
 
-- global header navigation
+- global desktop header navigation
 - routed page content
 
-It should not include a permanent global sidebar. Page-specific side panels, configuration areas, guide/reference links, filters, and simulator settings will be handled later inside the individual pages.
+It does not include a permanent global sidebar. Page-specific side panels, configuration areas, guide/reference links, filters, and simulator settings will be handled later inside the individual pages.
 
 ### 3.1 Create app shell component
 
@@ -126,19 +126,23 @@ Include:
 
 - [x] City Planner
 - [x] Troops Planner
-- [x] Tools
+- [x] References
 - [x] Guides
 - [x] Time Tools
 - [x] Battle Simulator
-- [x] Settings
 
-Keep `Home` separate because it should be represented by the app logo/name on the left side of the header.
+Not included for now:
+
+- [x] Settings removed for now.
+- [x] Tools renamed back to References.
+
+Keep `Home` separate because it is represented by the app logo/name on the left side of the header.
 
 Each navigation item should eventually contain:
 
 - [x] label
 - [x] route/path
-- [x] optional icon later
+- [ ] optional icon later
 
 ### 3.3 Build the desktop header navigation
 
@@ -146,15 +150,15 @@ Create a simple desktop header layout inside `AppShellComponent`.
 
 Include:
 
-- [ ] Home logo / app name on the left
-- [ ] Main navigation links across the top
-- [ ] Time quick-action button on the right
+- [x] Home logo / app name on the left
+- [x] Main navigation links across the top
+- [x] Time quick-action button on the right
 
 The time quick-action button is only a placeholder for now.
 
 ### 3.4 Add active navigation styling
 
-- [ ] Highlight the currently active page in the desktop navigation.
+- [x] Highlight the currently active page in the desktop navigation.
 
 Use Angular route styling with `routerLinkActive`.
 
@@ -162,9 +166,9 @@ Later, also apply the same active state to the mobile menu once the mobile menu 
 
 ### 3.5 Add mobile header behavior later
 
-Do not overbuild this immediately unless the desktop shell is stable.
+Do not implement this in the current desktop-focused phase.
 
-For mobile:
+For mobile later:
 
 - [ ] Hide desktop navigation links on small screens.
 - [ ] Show a burger menu button.
@@ -172,16 +176,16 @@ For mobile:
 - [ ] Keep the time quick-action button visible.
 - [ ] Show navigation links in a dropdown/drawer when the burger button is opened.
 
-This mobile behavior can still live inside `AppShellComponent` at first.
+Mobile behavior will be handled in a later responsive/mobile refinement phase.
 
 ### 3.6 Keep routed page content stable inside the shell
 
-The routed page content now belongs inside `AppShellComponent`.
+The routed page content belongs inside `AppShellComponent`.
 
-- [ ] Keep `<router-outlet></router-outlet>` inside the shell.
-- [ ] Keep the shell responsible only for global layout.
-- [ ] Do not add page-specific logic to the shell.
-- [ ] Confirm all routes still work after each shell change.
+- [x] Keep `<router-outlet></router-outlet>` inside the shell.
+- [x] Keep the shell responsible only for global layout.
+- [x] Do not add page-specific logic to the shell.
+- [x] Confirm all routes still work after shell changes.
 
 ### 3.7 Prepare page-specific side-panel pattern later
 
@@ -191,8 +195,8 @@ Later, pages can use their own page-specific side panels, for example:
 
 - [ ] City Planner configuration panel
 - [ ] Troops Planner configuration panel
-- [ ] Tools links/references panel
-- [ ] Guides categories/references panel
+- [ ] References links / document panel
+- [ ] Guides categories / references panel
 - [ ] Time Tools configuration panel
 - [ ] Battle Simulator configuration panel
 
@@ -200,94 +204,248 @@ These panels belong inside individual pages, not in the global app shell.
 
 ### 3.8 Add current page title later
 
-Do not do this immediately unless the shell is stable.
+Do not do this immediately unless the shell is stable and the header still needs more orientation.
 
+- [ ] Decide whether the active navigation link is enough.
 - [ ] Decide how page titles should be stored.
-- [ ] Add route `data.title` values.
-- [ ] Show the current route title in the header, if still useful.
+- [ ] Add route `data.title` values if needed.
+- [ ] Show the current route title in the header only if it adds value.
+
+### 3.9 Phase 3 cleanup checklist
+
+Before fully closing Phase 3:
+
+- [x] Navigation item names match existing routes.
+- [x] Settings link removed until a Settings page is needed.
+- [x] References route is used instead of Tools.
+- [x] App shell contains only global layout.
+- [x] Page-specific side panels are deferred.
+- [ ] Run `npm run build`.
+- [ ] Run `npm run start` and click through all desktop navigation links.
 ---
 
 ## Phase 4 — Dashboard cards
 
-Goal: make the Home page feel like a real dashboard.
+Goal: make the Home page feel like a real dashboard and entry point to the main app sections.
 
-### 4.1 Add simple cards
+### 4.1 Add simple dashboard cards
 
 On the Home page, add cards for:
 
-- [ ] City Planning
-- [ ] Unit Planning
-- [ ] References
-- [ ] Guides
-- [ ] Time Tools
-- [ ] Battle Simulator
+- [x] City Planning
+- [x] Unit Planning
+- [x] References
+- [x] Guides
+- [x] Time Tools
+- [x] Battle Simulator
+
+Each card should have:
+
+- [x] title
+- [x] short description
+- [x] route target
+
+Do not add feature logic yet.
 
 ### 4.2 Link cards to routes
 
-- [ ] Make each card link to its page.
-- [ ] Keep card content short.
-- [ ] Do not add feature logic yet.
+- [x] Make each card link to its page.
+- [x] Keep card content short.
+- [x] Make the whole card clickable.
+- [x] Confirm all card links route correctly.
 
-### 4.3 Add About placeholder
+### 4.3 Move About information to later
 
-- [ ] Add a small About button or link.
-- [ ] For now, it may show simple text on the page.
-- [ ] A modal can come later.
+Do not implement About information in Phase 4.
 
+The Home page should stay focused on the dashboard cards for now. About information can be added much later when the app has more stable content, versioning, credits, data sources, or project context.
+
+Preferred future options:
+
+- [ ] Footer-style About link.
+- [ ] About modal.
+
+Possible future About content:
+
+- [ ] Short app purpose.
+- [ ] Version information.
+- [ ] Credits.
+- [ ] Data sources / references.
+- [ ] Project or GitHub link.
+- [ ] Disclaimer if needed.
 ---
 
-## Phase 5 — First tiny data files
+## Phase 5 — First local data files
 
 Goal: add the first local game data without building full planners yet.
 
+This phase introduces static local data files for units, buildings, and translations. The app does not need to load or display this data yet.
+
 ### 5.1 Create asset folders
 
-- [ ] Create `src/assets/data/`.
-- [ ] Create `src/assets/i18n/`.
+- [x] Create `src/assets/data/`.
+- [x] Create `src/assets/i18n/`.
+- [x] Add `.gitkeep` files if the folders would otherwise be empty.
 
-### 5.2 Add tiny unit data
+### 5.2 Add unit data
 
-- [ ] Create `src/assets/data/units.json`.
-- [ ] Add only 2 or 3 units first.
-- [ ] Use simple fields like `id`, `name`, `population`, `wood`, `stone`, `silver`.
+- [x] Create `src/assets/data/units.json`.
+- [x] Start with local unit data based on the wiki tables.
+- [x] Use stable IDs such as `swordsman`, `slinger`, `light_ship`, `fire_ship`.
+- [x] Keep English unit names in the unit data for now.
+- [x] Add resource fields: `wood`, `stone`, `silver`, `favor`, `population`.
+- [x] Add combat fields: `attackType`, `attack`, `defenseNaval`, `defenseBlunt`, `defenseSharp`, `defenseDistance`.
+- [x] Add utility fields: `lootCapacity`, `transportCapacity`, `speed`, `recruitmentTimeMinutes`.
+- [x] Add mythical metadata: `isMythical`, `god`.
+
+Notes:
+
+- `attackType` should use one of: `naval`, `blunt`, `sharp`, `distance`.
+- Use `null` for values that are intentionally not normal numeric values.
+- Fire Ship / Brander should use `attack: null` later because it does not use normal attack calculation.
+- Fire Ship / Brander needs special battle-simulation behavior later because it trades 1-for-1 against ships.
+- Light Ship and Fire Ship are easy to confuse:
+  - `light_ship` = English “Light Ship”, German “Feuerschiff”
+  - `fire_ship` = English “Fire Ship”, German “Brander”
+- Ladon is a special case because wiki versions differ and its attack is a range.
+- Ladon should be reviewed separately before battle simulation logic is implemented.
+
+Future unit data tasks:
+
+- [ ] Decide how to model special-case units such as Ladon.
+- [ ] Decide whether to add fields such as `unitCategory`, `role`, or `isFlying`.
+- [ ] Create a TypeScript unit model later, for example `src/app/models/unit.model.ts`.
+- [ ] Validate unit data once it is loaded by the app.
 
 ### 5.3 Add tiny building data
 
-- [ ] Create `src/assets/data/buildings.json`.
-- [ ] Add only 2 or 3 buildings first.
-- [ ] Use simple fields like `id`, `name`, `maxLevel`.
+- [x] Create `src/assets/data/buildings.json`.
+- [x] Add only 2 or 3 buildings first.
+- [x] Use simple fields like `id`, `name`, `maxLevel`.
 
-### 5.4 Add tiny translation files
+Do not add full building costs, dependencies, effects, or upgrade times yet.
 
-- [ ] Create `src/assets/i18n/en.json`.
-- [ ] Create `src/assets/i18n/de.json`.
-- [ ] Add only page titles and navigation labels first.
+### 5.4 Add translation files
 
----
+- [x] Create `src/assets/i18n/en.json`.
+- [x] Create `src/assets/i18n/de.json`.
+- [x] Add app/navigation labels.
+- [x] Add Home/dashboard card labels.
+- [x] Add resource labels.
+- [x] Add unit attribute labels.
+- [x] Add attack type labels.
+- [x] Add god labels.
+- [x] Add unit name labels.
 
-## Phase 6 — First service only
+Notes:
 
-Goal: learn how Angular services load static JSON data.
+- Translation files are prepared assets only.
+- The app does not use them yet.
+- Do not add a translation library yet.
+- Later, decide between Angular built-in i18n, `ngx-translate`, or a small custom translation service.
+- Keep `units.json` language-independent where possible by using stable IDs.
+- Localized unit names belong in `src/assets/i18n/en.json` and `src/assets/i18n/de.json`.
 
-### 6.1 Create UnitDataService
+Future translation tasks:
 
-- [ ] Create a service for unit data.
-- [ ] Load `units.json`.
-- [ ] Return the list of units.
-- [ ] Keep error handling simple.
+- [ ] Decide how translations should be loaded.
+- [ ] Decide whether the app needs a language switcher.
+- [ ] Decide whether game data names should always come from i18n keys.
 
-### 6.2 Display units on References page
+## Phase 5 — First local data files
 
-- [ ] Use `UnitDataService` in the References page.
-- [ ] Display unit names only.
-- [ ] Then display population and costs.
-- [ ] Do not build sorting/filtering yet.
+Goal: add the first local game data without building full planners yet.
 
-### 6.3 Build check
+This phase introduces static local data files for units, buildings, and translations. The app does not need to load or display this data yet.
 
-- [ ] Run `npm run build`.
-- [ ] Fix only errors that appear.
+### 5.1 Create asset folders
 
+- [x] Create `src/assets/data/`.
+- [x] Create `src/assets/i18n/`.
+- [x] Add `.gitkeep` files if the folders would otherwise be empty.
+
+### 5.2 Add unit data
+
+- [x] Create `src/assets/data/units.json`.
+- [x] Start with local unit data based on the wiki tables.
+- [x] Use stable IDs such as `swordsman`, `slinger`, `light_ship`, `fire_ship`.
+- [x] Keep English unit names in the unit data for now.
+- [x] Add resource fields: `wood`, `stone`, `silver`, `favor`, `population`.
+- [x] Add combat fields: `attackType`, `attack`, `defenseNaval`, `defenseBlunt`, `defenseSharp`, `defenseDistance`.
+- [x] Add utility fields: `lootCapacity`, `transportCapacity`, `speed`, `recruitmentTimeMinutes`.
+- [x] Add mythical metadata: `isMythical`, `god`.
+
+Notes:
+
+- `attackType` should use one of: `naval`, `blunt`, `sharp`, `distance`.
+- Use `null` for values that are intentionally not normal numeric values.
+- Fire Ship / Brander should use `attack: null` because it does not use normal attack calculation.
+- Fire Ship / Brander needs special battle-simulation behavior later because it trades 1-for-1 against ships.
+- Light Ship and Fire Ship are easy to confuse:
+  - `light_ship` = English “Light Ship”, German “Feuerschiff”
+  - `fire_ship` = English “Fire Ship”, German “Brander”
+- Ladon is a special case because wiki versions differ and its attack is a range.
+- Ladon should be reviewed separately before battle simulation logic is implemented.
+
+Future unit data tasks:
+
+- [ ] Decide how to model special-case units such as Ladon.
+- [ ] Decide whether to add fields such as `unitCategory`, `role`, or `isFlying`.
+- [ ] Create a TypeScript unit model later, for example `src/app/models/unit.model.ts`.
+- [ ] Validate unit data once it is loaded by the app.
+
+### 5.3 Add building data
+
+- [x] Create `src/assets/data/buildings.json`.
+- [x] Extract the available buildings from the wiki overview.
+- [x] Use stable IDs such as `senate`, `timber_camp`, `marketplace`, `city_wall`.
+- [x] Keep English building names in the building data for now.
+- [x] Add simple fields: `id`, `name`, `category`, `maxLevel`, `wood`, `stone`, `silver`, `population`, `constructionTimeMinutes`.
+- [x] Use `null` for unknown building values for now.
+
+Notes:
+
+- Building data currently contains the known building list, not full building-level data.
+- Building costs, population usage, max levels, effects, dependencies, and construction times need more detailed source data later.
+- Special buildings are marked with `category: "special"`.
+- Agora is included as `category: "overview"` because it is not a normal buildable building in the same sense.
+
+Future building data tasks:
+
+- [ ] Verify max levels.
+- [ ] Add building costs per level.
+- [ ] Add construction times per level.
+- [ ] Add population requirements per level.
+- [ ] Add building dependencies.
+- [ ] Decide how to model special building exclusivity.
+
+### 5.4 Add translation files
+
+- [x] Create `src/assets/i18n/en.json`.
+- [x] Create `src/assets/i18n/de.json`.
+- [x] Add app/navigation labels.
+- [x] Add Home/dashboard card labels.
+- [x] Add resource labels.
+- [x] Add unit attribute labels.
+- [x] Add attack type labels.
+- [x] Add god labels.
+- [x] Add unit name labels.
+- [x] Add building name labels.
+
+Notes:
+
+- Translation files are prepared assets only.
+- The app does not use them yet.
+- Do not add a translation library yet.
+- Later, decide between Angular built-in i18n, `ngx-translate`, or a small custom translation service.
+- Keep `units.json` and `buildings.json` language-independent where possible by using stable IDs.
+- Localized unit and building names belong in `src/assets/i18n/en.json` and `src/assets/i18n/de.json`.
+
+Future translation tasks:
+
+- [ ] Decide how translations should be loaded.
+- [ ] Decide whether the app needs a language switcher.
+- [ ] Decide whether game data names should always come from i18n keys.
 ---
 
 ## Phase 7 — First useful mini-feature

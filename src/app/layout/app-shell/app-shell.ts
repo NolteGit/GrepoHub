@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 type NavItem = {
   label: string;
@@ -9,7 +9,7 @@ type NavItem = {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })
@@ -38,10 +38,6 @@ export class AppShell {
     {
       label: 'Battle Simulator',
       path: '/battle-simulator',
-    },
-    {
-      label: 'Settings',
-      path: '/settings',
     },
   ];
 }

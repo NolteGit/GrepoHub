@@ -1,3 +1,17 @@
-<h1>Grepo Hub</h1>
+<section class="home-page">
+  <header class="home-page__hero">
+    <h1>Grepo Hub</h1>
+    <p>
+      Your companion workspace for planning, references, guides, timers, and battle preparation.
+    </p>
+  </header>
 
-<p>Grepolis companion app</p>
+  <section class="dashboard-grid" aria-label="Dashboard sections">
+    @for (card of dashboardCards; track card.path) {
+      <a class="dashboard-card" [routerLink]="card.path">
+        <h2>{{ card.title }}</h2>
+        <p>{{ card.description }}</p>
+      </a>
+    }
+  </section>
+</section>

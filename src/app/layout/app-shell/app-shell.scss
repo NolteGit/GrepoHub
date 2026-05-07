@@ -1,19 +1,65 @@
-.app {
-  padding: 1rem;
+.app-shell {
+  min-height: 100vh;
 }
 
-.main-nav {
+.app-shell__header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.main-nav a {
+.app-shell__brand {
+  flex: 0 0 auto;
+  font-weight: 700;
   text-decoration: none;
   color: inherit;
+  white-space: nowrap;
 }
 
-.main-nav a:hover {
-  text-decoration: underline;
+.app-shell__brand.active {
+  color: #2563eb;
+}
+
+.app-shell__nav {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.app-shell__nav-link {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.app-shell__nav-link:hover {
+  background: #f3f4f6;
+}
+
+.app-shell__nav-link.active {
+  background: #e0ecff;
+  color: #2563eb;
+}
+
+.app-shell__time-action {
+  flex: 0 0 auto;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.app-shell__time-action:hover {
+  background: #f3f4f6;
+}
+
+.app-shell__main {
+  padding: 1rem;
 }
