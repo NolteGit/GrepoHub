@@ -1,49 +1,488 @@
 <section class="troops-planner-page">
   <header class="troops-planner-page__header">
-    <h1>Troops Planner</h1>
-    <p>Preview unit costs before building a full planner.</p>
+    <div>
+      <h1>{{ 'troopsPlanner.title' | translate }}</h1>
+      <p>{{ 'troopsPlanner.description' | translate }}</p>
+    </div>
+
+    <div class="troops-planner-page__configuration-bar">
+      <label class="troops-planner-page__configuration-select">
+        <span>{{ 'troopsPlanner.configuration' | translate }}</span>
+
+        <select
+          [ngModel]="selectedConfigurationId()"
+          (ngModelChange)="selectConfiguration($event)"
+        >
+          @for (configuration of configurations(); track configuration.id) {
+            <option [value]="configuration.id">{{ configuration.name }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" (click)="saveConfigurations()">
+        {{ 'troopsPlanner.save' | translate }}
+      </button>
+
+      <button type="button" (click)="saveAsNewConfiguration()">
+        {{ 'troopsPlanner.saveAsNew' | translate }}
+      </button>
+
+      @if (selectedConfiguration().isPreset) {
+        <button type="button" (click)="resetSelectedConfiguration()">
+          {{ 'troopsPlanner.resetPreset' | translate }}
+        </button>
+      }
+    </div>
   </header>
 
-  @if (units$ | async; as units) {
-    <section class="troops-planner-page__unit-list" aria-label="Available units">
-      <h2>Units</h2>
+  <div class="troops-planner-page__content">
+    <section class="troops-planner-card troops-planner-card--units">
+      <div class="unit-sections">
+        <section class="unit-section">
+          <div class="unit-section__title">
+            {{ 'troopsPlanner.landUnits' | translate }}
+          </div>
 
-      <table class="unit-table">
-        <thead>
-          <tr>
-            <th>Unit</th>
-            <th>Amount</th>
-            <th>Population</th>
-            <th>Wood</th>
-            <th>Stone</th>
-            <th>Silver</th>
-          </tr>
-        </thead>
+          <div class="unit-list">
+            @for (unit of regularLandUnits(); track unit.id) {
+              <ng-container
+                *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: false }"
+              ></ng-container>
+            }
+          </div>
+        </section>
 
-        <tbody>
-          @for (unit of units; track unit.id) {
-            <tr>
-              <td>{{ unit.name }}</td>
-              <td>
-                <input
-                  class="unit-table__amount-input"
-                  type="number"
-                  min="0"
-                  [value]="getUnitAmount(unit.id)"
-                  (input)="updateUnitAmount(unit.id, $any($event.target).value)"
-                  [attr.aria-label]="'Amount of ' + unit.name"
-                />
-              </td>
-              <td>{{ unit.population }}</td>
-              <td>{{ unit.wood }}</td>
-              <td>{{ unit.stone }}</td>
-              <td>{{ unit.silver }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+        <section class="unit-section">
+          <div class="unit-section__title">
+            {{ 'troopsPlanner.seaUnits' | translate }}
+          </div>
+
+          <div class="unit-list">
+            @for (unit of regularSeaUnits(); track unit.id) {
+              <ng-container
+                *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: true }"
+              ></ng-container>
+            }
+          </div>
+        </section>
+
+        <section class="unit-section">
+          <div class="unit-section__title">
+            {{ 'troopsPlanner.mythicalUnits' | translate }}
+          </div>
+
+          <div class="unit-list">
+            @for (unit of mythicalUnits(); track unit.id) {
+              <ng-container
+                *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: unit.type === 'sea' }"
+              ></ng-container>
+            }
+          </div>
+        </section>
+      </div>
     </section>
-  } @else {
-    <p>Loading units...</p>
-  }
+
+    <aside class="troops-planner-page__side">
+      <section class="troops-planner-card">
+        <header class="troops-planner-card__header">
+          <h2>{{ 'troopsPlanner.summary' | translate }}</h2>
+          <p>{{ selectedConfiguration().name }}</p>
+        </header>
+
+        <div class="summary-overview">
+          <div class="key-metrics">
+            <div class="key-metrics__population-grid">
+              <div
+                class="key-metric key-metric--population key-metric--population-total"
+                [attr.title]="'troopsPlanner.populationTotal' | translate"
+              >
+                <span>
+                  <img [src]="getResourceIconPath('population')" alt="" />
+                  {{ 'troopsPlanner.populationTotal' | translate }}
+                </span>
+                <strong>{{ totals().population }}</strong>
+              </div>
+
+              <div
+                class="key-metric key-metric--population"
+                [attr.title]="'troopsPlanner.populationLand' | translate"
+              >
+                <span>{{ 'troopsPlanner.populationLand' | translate }}</span>
+                <strong>{{ totals().landPopulation }}</strong>
+              </div>
+
+              <div
+                class="key-metric key-metric--population"
+                [attr.title]="'troopsPlanner.populationSea' | translate"
+              >
+                <span>{{ 'troopsPlanner.populationSea' | translate }}</span>
+                <strong>{{ totals().seaPopulation }}</strong>
+              </div>
+            </div>
+
+            <div class="transport-equation">
+              <div
+                class="transport-equation__item transport-equation__item--cap"
+                [attr.title]="'unitAttribute.transportCapacity' | translate"
+              >
+                <div class="transport-equation__cap-grid">
+                  <span class="transport-equation__label transport-equation__cap-label">
+                    <img [src]="getBattleIconPath('capacity')" alt="" />
+                    {{ 'troopsPlanner.transportCapacityShort' | translate }}
+                  </span>
+
+                  <label
+                    class="transport-equation__bunks-toggle"
+                    [attr.title]="'troopsPlanner.modifier.bunksHint' | translate"
+                  >
+                    <input
+                      type="checkbox"
+                      [ngModel]="selectedConfiguration().modifiers.bunks"
+                      (ngModelChange)="updateModifier('bunks', $event)"
+                    />
+                    <span>{{ 'troopsPlanner.modifier.bunks' | translate }}</span>
+                  </label>
+
+                  <strong class="transport-equation__cap-value">
+                    {{ totals().transportCapacity }}
+                  </strong>
+
+                  <strong
+                    class="transport-equation__bunks-bonus"
+                    [class.transport-equation__bunks-bonus--active]="
+                      selectedConfiguration().modifiers.bunks
+                    "
+                  >
+                    +{{ bunksCapacityBonus() }}
+                  </strong>
+                </div>
+              </div>
+
+              <div
+                class="transport-equation__item"
+                [attr.title]="'unitAttribute.transportSpace' | translate"
+              >
+                <span class="transport-equation__label">
+                  <img [src]="getBattleIconPath('capacity')" alt="" />
+                  {{ 'troopsPlanner.transportUsedShort' | translate }}
+                </span>
+                <strong>{{ totals().transportSpace }}</strong>
+              </div>
+
+              <div
+                class="transport-equation__item"
+                [class.transport-equation__item--warning]="transportDelta() < 0"
+                [attr.title]="'troopsPlanner.transportBalance' | translate"
+              >
+                <span class="transport-equation__label">
+                  {{ 'troopsPlanner.transportBalanceShort' | translate }}
+                </span>
+                <strong>{{ transportDelta() }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="combat-summary combat-summary--compact">
+            <div class="combat-summary__section">
+              <div class="combat-summary__label">OFF</div>
+
+              <div class="combat-summary__grid">
+                <div
+                  class="combat-summary__item"
+                  [attr.title]="'unitAttribute.attackBlunt' | translate"
+                >
+                  <img [src]="getBattleIconPath('attackBlunt')" alt="" />
+                  <strong>{{ attackTotals().blunt }}</strong>
+                </div>
+
+                <div
+                  class="combat-summary__item"
+                  [attr.title]="'unitAttribute.attackSharp' | translate"
+                >
+                  <img [src]="getBattleIconPath('attackSharp')" alt="" />
+                  <strong>{{ attackTotals().sharp }}</strong>
+                </div>
+
+                <div
+                  class="combat-summary__item combat-summary__item--land-end"
+                  [attr.title]="'unitAttribute.attackDistance' | translate"
+                >
+                  <img [src]="getBattleIconPath('attackDistance')" alt="" />
+                  <strong>{{ attackTotals().distance }}</strong>
+                </div>
+
+                <div
+                  class="combat-summary__item"
+                  [attr.title]="'unitAttribute.attackSea' | translate"
+                >
+                  <img [src]="getBattleIconPath('attackSea')" alt="" />
+                  <strong>{{ attackTotals().sea }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="combat-summary__divider"></div>
+
+            <div class="combat-summary__section">
+              <div class="combat-summary__label">DEF</div>
+
+              <div class="combat-summary__grid">
+                <div
+                  class="combat-summary__item"
+                  [attr.title]="'unitAttribute.defenseBlunt' | translate"
+                >
+                  <img [src]="getBattleIconPath('defenseBlunt')" alt="" />
+                  <strong>{{ totals().defenseBlunt }}</strong>
+                </div>
+
+                <div
+                  class="combat-summary__item"
+                  [attr.title]="'unitAttribute.defenseSharp' | translate"
+                >
+                  <img [src]="getBattleIconPath('defenseSharp')" alt="" />
+                  <strong>{{ totals().defenseSharp }}</strong>
+                </div>
+
+                <div
+                  class="combat-summary__item combat-summary__item--land-end"
+                  [attr.title]="'unitAttribute.defenseDistance' | translate"
+                >
+                  <img [src]="getBattleIconPath('defenseDistance')" alt="" />
+                  <strong>{{ totals().defenseDistance }}</strong>
+                </div>
+
+                <div
+                  class="combat-summary__item"
+                  [attr.title]="'unitAttribute.defenseSea' | translate"
+                >
+                  <img [src]="getBattleIconPath('defenseSea')" alt="" />
+                  <strong>{{ totals().defenseSea }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <details class="troops-planner-card troops-planner-card--details">
+        <summary class="troops-planner-card__summary-toggle">
+          <div class="troops-planner-card__summary-text">
+            <h2>{{ 'troopsPlanner.economyDetails' | translate }}</h2>
+          </div>
+
+          <span class="troops-planner-card__summary-icon">⌄</span>
+        </summary>
+
+        <div class="summary-list">
+          <div class="summary-row">
+            <span>{{ 'troopsPlanner.totalUnits' | translate }}</span>
+            <strong>{{ totalUnitCount() }}</strong>
+          </div>
+
+          <div class="summary-row summary-row--icon">
+            <span>
+              <img [src]="getResourceIconPath('wood')" alt="" />
+              {{ 'resource.wood' | translate }}
+            </span>
+            <strong>{{ totals().wood }}</strong>
+          </div>
+
+          <div class="summary-row summary-row--icon">
+            <span>
+              <img [src]="getResourceIconPath('stone')" alt="" />
+              {{ 'resource.stone' | translate }}
+            </span>
+            <strong>{{ totals().stone }}</strong>
+          </div>
+
+          <div class="summary-row summary-row--icon">
+            <span>
+              <img [src]="getResourceIconPath('silver')" alt="" />
+              {{ 'resource.silver' | translate }}
+            </span>
+            <strong>{{ totals().silver }}</strong>
+          </div>
+
+          <div class="summary-row summary-row--icon">
+            <span>
+              <img [src]="getResourceIconPath('favor')" alt="" />
+              {{ 'resource.favor' | translate }}
+            </span>
+            <strong>{{ totals().favor }}</strong>
+          </div>
+
+          @if (slowestSpeed() !== null) {
+            <div class="summary-row summary-row--icon">
+              <span>
+                <img [src]="getBattleIconPath('speed')" alt="" />
+                {{ 'troopsPlanner.slowestSpeed' | translate }}
+              </span>
+              <strong>{{ slowestSpeed() }}</strong>
+            </div>
+          }
+
+          @if (hasRecruitmentTimeData()) {
+            <div class="summary-row summary-row--icon">
+              <span>
+                <img [src]="getResourceIconPath('buildtime')" alt="" />
+                {{ 'troopsPlanner.totalRecruitmentTime' | translate }}
+              </span>
+              <strong>{{ formatDuration(totalRecruitmentTimeMinutes()) }}</strong>
+            </div>
+          }
+        </div>
+      </details>
+    </aside>
+  </div>
 </section>
+
+<ng-template #unitRow let-unit="unit" let-isSea="isSea">
+  <article class="unit-row-item" [class.unit-row-item--active]="getUnitAmount(unit.id) > 0">
+    <div class="unit-row-item__main">
+      @if (getUnitIconPath(unit.id)) {
+        <img
+          class="unit-row-item__image"
+          [src]="getUnitIconPath(unit.id)"
+          [alt]="unit.nameKey | translate"
+        />
+      }
+
+      <div class="unit-row-item__text">
+        <h4>{{ unit.nameKey | translate }}</h4>
+
+        <div class="unit-row-item__stats">
+          <span class="icon-value" [title]="'resource.population' | translate">
+            <img [src]="getResourceIconPath('population')" alt="" />
+            {{ unit.cost.population }}
+          </span>
+
+          @if (isSea) {
+            @if (isTransportShip(unit)) {
+              <span
+                class="icon-value"
+                [title]="'unitAttribute.transportCapacity' | translate"
+              >
+                <img [src]="getBattleIconPath('capacity')" alt="" />
+                {{ unit.transportCapacity }}
+              </span>
+            } @else {
+              <span class="icon-value" [title]="'unitAttribute.attackSea' | translate">
+                <img [src]="getBattleIconPath('attackSea')" alt="" />
+                {{ getDisplayedAttackValue(unit, true) }}
+              </span>
+
+              <span class="icon-value" [title]="'unitAttribute.defenseSea' | translate">
+                <img [src]="getBattleIconPath('defenseSea')" alt="" />
+                {{ unit.defenseSea }}
+              </span>
+            }
+          } @else {
+            <span
+              class="icon-value"
+              [title]="getAttackTitleKey(unit, false) | translate"
+            >
+              <img [src]="getDisplayedAttackIconPath(unit, false)" alt="" />
+              {{ getDisplayedAttackValue(unit, false) }}
+            </span>
+
+            @if (unit.transportSpace > 0) {
+              <span class="icon-value" [title]="'unitAttribute.transportSpace' | translate">
+                <img [src]="getBattleIconPath('capacity')" alt="" />
+                {{ unit.transportSpace }}
+              </span>
+            }
+
+            <span
+              class="unit-defense-chip"
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="'troopsPlanner.defenseDetails' | translate"
+            >
+              <img [src]="getBattleIconPath('defenseBlunt')" alt="" />
+
+              <span class="unit-defense-popover">
+                <span class="popover-row">
+                  <img [src]="getBattleIconPath('defenseBlunt')" alt="" />
+                  {{ unit.defenseBlunt }}
+                </span>
+
+                <span class="popover-row">
+                  <img [src]="getBattleIconPath('defenseSharp')" alt="" />
+                  {{ unit.defenseSharp }}
+                </span>
+
+                <span class="popover-row">
+                  <img [src]="getBattleIconPath('defenseDistance')" alt="" />
+                  {{ unit.defenseDistance }}
+                </span>
+              </span>
+            </span>
+          }
+
+          <span
+            class="unit-cost-chip"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="'troopsPlanner.costDetails' | translate"
+          >
+            {{ 'troopsPlanner.costsShort' | translate }}
+
+            <span class="unit-cost-popover">
+              <span class="popover-row">
+                <img [src]="getResourceIconPath('wood')" alt="" />
+                {{ unit.cost.wood }}
+              </span>
+
+              <span class="popover-row">
+                <img [src]="getResourceIconPath('stone')" alt="" />
+                {{ unit.cost.stone }}
+              </span>
+
+              <span class="popover-row">
+                <img [src]="getResourceIconPath('silver')" alt="" />
+                {{ unit.cost.silver }}
+              </span>
+
+              <span class="popover-row">
+                <img [src]="getResourceIconPath('favor')" alt="" />
+                {{ unit.cost.favor }}
+              </span>
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="unit-row-item__actions">
+      <div class="unit-stepper">
+        <button
+          type="button"
+          class="unit-stepper__button"
+          (click)="stepUnitAmount(unit.id, -1)"
+          [disabled]="getUnitAmount(unit.id) <= 0"
+        >
+          −
+        </button>
+
+        <input
+          type="number"
+          min="0"
+          step="1"
+          [ngModel]="getUnitAmount(unit.id)"
+          (ngModelChange)="updateUnitAmount(unit.id, $event)"
+          [attr.aria-label]="
+            ('troopsPlanner.amountOf' | translate) + ' ' + (unit.nameKey | translate)
+          "
+        />
+
+        <button
+          type="button"
+          class="unit-stepper__button"
+          (click)="stepUnitAmount(unit.id, 1)"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  </article>
+</ng-template>

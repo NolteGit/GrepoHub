@@ -253,7 +253,7 @@ export class CityPlanner {
 
     const fileName = fileNameMap[buildingId];
 
-    return fileName ? `/assets/images/${fileName}.webp` : '';
+    return fileName ? `/assets/images/buildings/${fileName}.webp` : '';
   }
 
   protected getSelectedSpecialBuildingImagePath(

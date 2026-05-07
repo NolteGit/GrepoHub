@@ -39,11 +39,6 @@
 
   <div class="city-planner-page__content">
     <section class="city-planner-card city-planner-card--layout">
-      <header class="city-planner-card__header">
-        <h2>{{ 'cityPlanner.buildingsAndLevels' | translate }}</h2>
-        <p>{{ 'cityPlanner.buildingsHint' | translate }}</p>
-      </header>
-
       <div class="city-layout">
         @for (row of buildingLayoutRows; track $index) {
           <div class="city-layout__row" [class.city-layout__row--single]="row.length === 1">
