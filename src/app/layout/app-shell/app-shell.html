@@ -1,37 +1,68 @@
 <div class="app-shell">
   <header class="app-shell__header">
-    <a
-      class="app-shell__brand"
-      routerLink="/"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      aria-label="Go to home page"
-    >
-      Grepo Hub
-    </a>
+    <div class="app-shell__header-inner">
+      <a
+        class="app-shell__brand"
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [attr.aria-label]="'nav.homeAria' | translate"
+      >
+        <span class="app-shell__brand-mark">
+          <img
+            src="/assets/images/grepo-hub-compass-logo.png"
+            alt=""
+            class="app-shell__brand-logo"
+          />
+        </span>
+      </a>
 
-    <nav class="app-shell__nav" aria-label="Main navigation">
-      @for (item of navItems; track item.path) {
-        <a
-          class="app-shell__nav-link"
-          [routerLink]="item.path"
-          routerLinkActive="active"
+      <nav class="app-shell__nav" [attr.aria-label]="'nav.mainAria' | translate">
+        @for (item of navItems; track item.path) {
+          <a
+            class="app-shell__nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+          >
+            {{ item.labelKey | translate }}
+          </a>
+        }
+      </nav>
+
+      <div class="app-shell__actions">
+        <button
+          class="app-shell__language-action"
+          type="button"
+          (click)="toggleLanguage()"
+          [attr.aria-label]="
+            translationService.currentLanguage() === 'en'
+              ? ('language.switchToGerman' | translate)
+              : ('language.switchToEnglish' | translate)
+          "
         >
-          {{ item.label }}
-        </a>
-      }
-    </nav>
+          @if (translationService.currentLanguage() === 'en') {
+            <span class="app-shell__language-flag">🇩🇪</span>
+            <span>DE</span>
+          } @else {
+            <span class="app-shell__language-flag">🇬🇧</span>
+            <span>EN</span>
+          }
+        </button>
 
-    <button
-      class="app-shell__time-action"
-      type="button"
-      aria-label="Open time quick actions"
-    >
-      ⏱
-    </button>
+        <button
+          class="app-shell__time-action"
+          type="button"
+          [attr.aria-label]="'nav.timeQuickActionsAria' | translate"
+        >
+          ⏱
+        </button>
+      </div>
+    </div>
   </header>
 
   <main class="app-shell__main">
-    <router-outlet />
+    <div class="app-shell__content">
+      <router-outlet />
+    </div>
   </main>
 </div>

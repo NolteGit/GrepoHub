@@ -1,43 +1,51 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { TranslationService } from '../../services/translation.service';
+
 type NavItem = {
-  label: string;
+  labelKey: string;
   path: string;
-  icon?: string;
 };
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, TranslatePipe],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })
 export class AppShell {
+  protected readonly translationService = inject(TranslationService);
+
   protected readonly navItems: NavItem[] = [
     {
-      label: 'City Planner',
+      labelKey: 'nav.cityPlanner',
       path: '/city-planner',
     },
     {
-      label: 'Troops Planner',
+      labelKey: 'nav.troopsPlanner',
       path: '/troops-planner',
     },
     {
-      label: 'References',
+      labelKey: 'nav.references',
       path: '/references',
     },
     {
-      label: 'Guides',
+      labelKey: 'nav.guides',
       path: '/guides',
     },
     {
-      label: 'Time Tools',
+      labelKey: 'nav.timeTools',
       path: '/time-tools',
     },
     {
-      label: 'Battle Simulator',
+      labelKey: 'nav.battleSimulator',
       path: '/battle-simulator',
     },
   ];
+
+  protected toggleLanguage(): void {
+    this.translationService.toggleLanguage();
+  }
 }

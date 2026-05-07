@@ -2,243 +2,243 @@
   {
     "id": "senate",
     "name": "Senate",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "timber_camp",
     "name": "Timber Camp",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "farm",
     "name": "Farm",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "quarry",
     "name": "Quarry",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "warehouse",
     "name": "Warehouse",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "silver_mine",
     "name": "Silver Mine",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "barracks",
     "name": "Barracks",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "temple",
     "name": "Temple",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "marketplace",
     "name": "Marketplace",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "harbour",
     "name": "Harbour",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "academy",
     "name": "Academy",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "city_wall",
     "name": "City Wall",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "cave",
     "name": "Cave",
-    "category": "main",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   },
   {
     "id": "theatre",
     "name": "Theatre",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "thermal_baths",
     "name": "Thermal Baths",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "library",
     "name": "Library",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "lighthouse",
     "name": "Lighthouse",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "tower",
     "name": "Tower",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "divine_statue",
     "name": "Divine Statue",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "oracle",
     "name": "Oracle",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "merchants_shop",
     "name": "Merchant's Shop",
-    "category": "special",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": true
   },
   {
     "id": "agora",
     "name": "Agora",
-    "category": "overview",
     "maxLevel": null,
     "wood": null,
     "stone": null,
     "silver": null,
     "population": null,
-    "constructionTimeMinutes": null
+    "constructionTimeMinutes": null,
+    "isSpecial": false
   }
 ]

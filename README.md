@@ -2,27 +2,32 @@
 
 Grepo Hub is a browser-based Grepolis companion app for city planning, unit planning, references, guides, timing tools, and future battle simulation support.
 
-The project is built with Angular and is intended to be developed as both a useful companion tool and a learning project.
+## Current status
+
+The Angular skeleton is in place and running with:
+
+- app shell and main navigation
+- routed placeholder pages
+- dashboard cards on the home page
+- static game data for units and buildings
+- early troops planner table with editable unit amounts
+- compact translation layer for UI text
+
+The next focus is to turn the existing skeleton into useful vertical slices, starting with the Troops Planner and then improving City Planner data usage.
 
 ## Documentation
 
-Project documentation is stored in the [`docs`](./docs) directory. The slow step-by-step development checklist is stored in [`TODO.md`](./TODO.md).
+Project documentation lives in [`docs`](./docs). The active development checklist is [`todo.md`](./todo.md).
 
-Recommended reading order:
+## Development
 
-1. [`01-project-vision.md`](./docs/01-project-vision.md)
-2. [`02-features.md`](./docs/02-features.md)
-3. [`03-layout-and-navigation.md`](./docs/03-layout-and-navigation.md)
-4. [`04-data-and-import-export.md`](./docs/04-data-and-import-export.md)
-5. [`05-time-tools.md`](./docs/05-time-tools.md)
-6. [`06-mvp-roadmap.md`](./docs/06-mvp-roadmap.md)
-7. [`07-angular-setup.md`](./docs/07-angular-setup.md)
-8. [`08-architecture.md`](./docs/08-architecture.md)
-9. [`09-development-notes.md`](./docs/09-development-notes.md)
-10. [`TODO.md`](./TODO.md)
+```bash
+npm install
+npm run start
+npm run build
+npm run test
 
-## Planned pages
-
+## Main pages
 - Home / Dashboard
 - City Planner
 - Troops Planner
@@ -30,7 +35,3 @@ Recommended reading order:
 - Guides
 - Time Tools
 - Battle Simulator
-
-## Development status
-
-Early implementation setup. The Angular project exists and the planning documents are in place, but the app currently has no real pages, no configured routes, no layout shell, and no feature implementation yet. The next recommended step is to create the first Home page and route before adding more pages.

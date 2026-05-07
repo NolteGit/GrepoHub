@@ -9,7 +9,7 @@
     "clean:all": "rimraf dist .angular coverage node_modules package-lock.json",
     "reinstall": "npm run clean:all && npm install",
     "verify": "npm run clean && npm install && npm run build",
-    "zip:clean": "npm run clean && bestzip grepo-hub-clean.zip docs public src .vscode .editorconfig .gitignore .prettierrc angular.json package.json package-lock.json README.md tsconfig.json tsconfig.app.json tsconfig.spec.json",
+    "zip:clean": "npm run clean && rimraf grepo-hub-clean.zip && bestzip grepo-hub-clean.zip docs/ public/ src/ .vscode/ .editorconfig .gitignore .prettierrc angular.json package.json package-lock.json README.md todo.md tsconfig.json tsconfig.app.json tsconfig.spec.json",
     "dev:clean": "npm run clean && npm run build && npm run start"
   },
   "private": true,

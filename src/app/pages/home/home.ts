@@ -1,51 +1,58 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-type DashboardCard = {
-  title: string;
-  description: string;
-  path: string;
-};
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
+type DashboardCard = {
+  titleKey: string;
+  descriptionKey: string;
+  path: string;
+  featured: boolean;
+};
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-
 export class Home {
   protected readonly dashboardCards: DashboardCard[] = [
     {
-      title: 'City Planning',
-      description: 'Plan and organize city development.',
+      titleKey: 'dashboard.cityPlanning.title',
+      descriptionKey: 'dashboard.cityPlanning.description',
       path: '/city-planner',
+      featured: true,
     },
     {
-      title: 'Unit Planning',
-      description: 'Prepare unit compositions and planning notes.',
+      titleKey: 'dashboard.unitPlanning.title',
+      descriptionKey: 'dashboard.unitPlanning.description',
       path: '/troops-planner',
+      featured: true,
     },
     {
-      title: 'References',
-      description: 'Look up useful game information and reference material.',
+      titleKey: 'dashboard.references.title',
+      descriptionKey: 'dashboard.references.description',
       path: '/references',
+      featured: false,
     },
     {
-      title: 'Guides',
-      description: 'Collect and browse strategy guides and explanations.',
+      titleKey: 'dashboard.guides.title',
+      descriptionKey: 'dashboard.guides.description',
       path: '/guides',
+      featured: false,
     },
     {
-      title: 'Time Tools',
-      description: 'Access timers and time-based planning tools.',
+      titleKey: 'dashboard.timeTools.title',
+      descriptionKey: 'dashboard.timeTools.description',
       path: '/time-tools',
+      featured: false,
     },
     {
-      title: 'Battle Simulator',
-      description: 'Prepare future battle simulation and comparison tools.',
+      titleKey: 'dashboard.battleSimulator.title',
+      descriptionKey: 'dashboard.battleSimulator.description',
       path: '/battle-simulator',
+      featured: false,
     },
   ];
 }

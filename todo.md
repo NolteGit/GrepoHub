@@ -1,22 +1,76 @@
 # Grepo Hub TODO
 
-This TODO is intentionally slow and step-by-step. The goal is to avoid building too many things at once.
+Requirement engineering part 2.
+
+This TODO reflects the current uploaded project state. The first clickable skeleton is now in place, so the next work should be about stabilizing the foundation, deciding the first real planner workflow, and then building one feature slice at a time.
+
+---
 
 ## Current repo state
 
 The repository currently contains:
 
-- A clean Angular project setup.
-- Basic project documentation in `docs/`.
-- A simple root app placeholder in `src/app/app.html`.
-- Empty Angular routes in `src/app/app.routes.ts`.
-- No real pages yet.
-- No layout components yet.
-- No static game data files yet.
-- No services yet.
+- [x] Clean Angular project setup.
+- [x] Basic project documentation in `docs/`.
+- [x] Routed page structure.
+- [x] Global `AppShellComponent` with top navigation.
+- [x] Home dashboard with feature cards.
+- [x] Placeholder pages for the planned main sections.
+- [x] Static JSON asset folders under `public/assets/data/` and `public/assets/i18n/`.
+- [x] Initial `units.json` and `buildings.json` data files.
+- [x] Initial `en.json` and `de.json` translation files.
+- [x] Initial `GameDataService` for loading unit and building data.
+- [x] Early Troops Planner data preview with editable amount inputs.
+- [x] Early City Planner data loading preview.
 
-The next goal is not to build the full MVP. The next goal is to make the app clickable with one tiny step at a time.
+Current important caveats:
 
+- [ ] Build/test status should be rechecked locally because dependencies were not available during this review.
+- [ ] Some generated/default tests are probably outdated after routing/app-shell changes.
+- [ ] `README.md` still describes the older state and should be updated later.
+- [ ] The docs and implementation now differ in a few places, especially around top-bar behavior, mobile navigation, asset paths, and current implementation status.
+- [ ] Static data exists, but the schema should be reviewed before more features depend on it.
+- [ ] Translation files exist, but the UI still uses hardcoded labels.
+
+---
+
+## Review notes from current implementation
+
+### What looks good
+
+- [x] The app now has the right high-level page skeleton.
+- [x] Navigation is centralized in the app shell.
+- [x] Home works as a simple dashboard entry point.
+- [x] The planned page split still makes sense:
+  - Home
+  - City Planner
+  - Troops Planner
+  - References
+  - Guides
+  - Time Tools
+  - Battle Simulator
+- [x] Static game data loading has started in a sensible way.
+- [x] Troops Planner is a good first feature candidate because it already has real data and user input.
+- [x] Battle Simulator is correctly still delayed.
+
+### What should be cleaned up before deeper feature work
+
+- [ ] Update stale tests.
+- [ ] Update stale README status.
+- [ ] Decide whether asset paths should stay under `public/assets/...` or move to `src/assets/...`.
+- [ ] Align `Building` model with `buildings.json`.
+- [ ] Decide whether translation is needed now or after the first feature slice.
+- [ ] Avoid adding too many layout components before the first real planner flow is clear.
+
+### Recommended direction
+
+The best next step is not another big layout phase. The app shell is good enough for now. The next useful step should be one vertical feature slice, preferably Troops Planner, because it already has:
+
+- loaded game data,
+- editable amounts,
+- clear calculations,
+- later save/load,
+- later TXT import/export.
 
 ---
 
@@ -27,21 +81,18 @@ Goal: create real page components and routes, but keep them visually simple.
 ### 1.1 Create the Home page
 
 - [x] Generate or create a `home` page component.
-- [x] Move the current `Grepo Hub` title from `app.html` into the Home page.
-- [x] Add a short subtitle: `Grepolis companion app`.
-- [x] Do not add cards yet.
-- [x] Do not add styling yet, except minimal spacing if needed.
+- [x] Move the `Grepo Hub` title from `app.html` into the Home page.
+- [x] Add a short subtitle.
+- [x] Keep styling minimal.
 
 ### 1.2 Add the first route
 
 - [x] Add a route for `/` that shows the Home page.
-- [x] Keep `app.html` simple and only render `<router-outlet />`.
-- [x] Start the app and confirm the Home page still appears.
-- [x] Run `npm run build`.
+- [x] Keep `app.html` simple.
+- [x] Render the routed content through the app shell.
+- [x] Re-run `npm run build` locally.
 
 ### 1.3 Create placeholder pages
-
-Create empty/simple placeholder pages for:
 
 - [x] City Planner
 - [x] Troops Planner
@@ -50,17 +101,12 @@ Create empty/simple placeholder pages for:
 - [x] Time Tools
 - [x] Battle Simulator
 
-Each placeholder page should only contain:
-
-- [x] A page title.
-- [x] One short sentence saying the feature is planned.
-
 ### 1.4 Add placeholder routes
 
 - [x] Add routes for all placeholder pages.
-- [x] Visit each route manually in the browser.
-- [x] Confirm each page loads without errors.
-- [x] Run `npm run build`.
+- [x] Confirm route names are consistent with docs.
+- [x] Manually click through all routes after the latest changes.
+- [x] Re-run `npm run build` locally.
 
 ---
 
@@ -70,24 +116,25 @@ Goal: navigate between pages without building the final app shell yet.
 
 ### 2.1 Add simple navigation links
 
-- [x] Add a small navigation area in `app.html` above `<router-outlet />`.
-- [x] Add links to Home, City Planner, Troops Planner, References, Guides, Time Tools, and Battle Simulator.
+- [x] Add navigation links.
 - [x] Use Angular `routerLink`.
-- [x] Keep the navigation plain and unstyled at first.
+- [x] Include Home through the brand/logo link.
+- [x] Include City Planner, Troops Planner, References, Guides, Time Tools, and Battle Simulator.
 
 ### 2.2 Check navigation manually
 
-- [x] Click every navigation link.
+- [x] Navigation markup exists.
+- [x] Click every navigation link locally.
 - [x] Confirm the URL changes.
-- [x] Confirm the correct placeholder page appears.
-- [x] Run `npm run build`.
+- [x] Confirm the correct page appears.
+- [x] Re-run `npm run build` locally.
 
 ### 2.3 Add very light styling
 
 - [x] Add spacing around the app.
-- [x] Make the navigation readable.
-- [x] Highlight nothing yet unless it is easy.
-- [x] Avoid spending too much time on design.
+- [x] Make navigation readable.
+- [x] Add active navigation styling.
+- [x] Avoid heavy design work for now.
 
 ---
 
@@ -97,114 +144,80 @@ Goal: introduce the future layout structure without making it complex.
 
 The app shell provides the global structure of the app:
 
-- global desktop header navigation
-- routed page content
+- global desktop header navigation,
+- routed page content,
+- placeholder time quick-action.
 
-It does not include a permanent global sidebar. Page-specific side panels, configuration areas, guide/reference links, filters, and simulator settings will be handled later inside the individual pages.
+It does not include a permanent global sidebar. Page-specific panels should live inside individual pages later.
 
 ### 3.1 Create app shell component
 
-Create:
-
-- [x] `AppShellComponent`
-
-For now:
-
+- [x] Create `AppShellComponent`.
 - [x] Render `<app-shell />` from `AppComponent`.
-- [x] Move the existing navigation markup into `AppShellComponent`.
+- [x] Move navigation markup into `AppShellComponent`.
 - [x] Move `<router-outlet />` into `AppShellComponent`.
 - [x] Keep the layout simple.
 - [x] Do not create separate `TopBarComponent`, `NavigationComponent`, or `NavigationDrawerComponent` yet.
-- [x] Do not add mobile behavior yet.
-- [x] Confirm all existing routes still render inside the shell.
+- [x] Confirm all routes still render inside the shell.
 
 ### 3.2 Define global navigation items
 
-Create a central list of main navigation items inside the app shell.
-
-Include:
-
-- [x] City Planner
-- [x] Troops Planner
-- [x] References
-- [x] Guides
-- [x] Time Tools
-- [x] Battle Simulator
-
-Not included for now:
-
-- [x] Settings removed for now.
-- [x] Tools renamed back to References.
-
-Keep `Home` separate because it is represented by the app logo/name on the left side of the header.
-
-Each navigation item should eventually contain:
-
-- [x] label
-- [x] route/path
-- [ ] optional icon later
+- [x] Create a central nav item list inside the app shell.
+- [x] Include City Planner.
+- [x] Include Troops Planner.
+- [x] Include References.
+- [x] Include Guides.
+- [x] Include Time Tools.
+- [x] Include Battle Simulator.
+- [x] Keep Home separate as app brand/logo.
+- [x] Store `label` and `path`.
+- [ ] Add optional icon metadata later only if useful.
 
 ### 3.3 Build the desktop header navigation
 
-Create a simple desktop header layout inside `AppShellComponent`.
-
-Include:
-
-- [x] Home logo / app name on the left
-- [x] Main navigation links across the top
-- [x] Time quick-action button on the right
-
-The time quick-action button is only a placeholder for now.
+- [x] Home logo / app name on the left.
+- [x] Main navigation links across the top.
+- [x] Time quick-action button on the right.
+- [ ] Decide later whether the quick-action should open a timer menu, navigate to Time Tools, or stay disabled until timers exist.
 
 ### 3.4 Add active navigation styling
 
-- [x] Highlight the currently active page in the desktop navigation.
-
-Use Angular route styling with `routerLinkActive`.
-
-Later, also apply the same active state to the mobile menu once the mobile menu exists.
+- [x] Highlight currently active desktop navigation link.
+- [x] Use `routerLinkActive`.
+- [ ] Later apply equivalent active styling to mobile navigation.
 
 ### 3.5 Add mobile header behavior later
 
-Do not implement this in the current desktop-focused phase.
-
-For mobile later:
+Do not implement this until the desktop skeleton and first feature slice feel stable.
 
 - [ ] Hide desktop navigation links on small screens.
 - [ ] Show a burger menu button.
 - [ ] Keep the Home logo / app name visible.
-- [ ] Keep the time quick-action button visible.
-- [ ] Show navigation links in a dropdown/drawer when the burger button is opened.
-
-Mobile behavior will be handled in a later responsive/mobile refinement phase.
+- [ ] Keep the time quick-action button visible or decide to simplify it on mobile.
+- [ ] Show navigation links in a dropdown or drawer.
+- [ ] Confirm keyboard accessibility and closing behavior.
 
 ### 3.6 Keep routed page content stable inside the shell
 
-The routed page content belongs inside `AppShellComponent`.
-
-- [x] Keep `<router-outlet></router-outlet>` inside the shell.
-- [x] Keep the shell responsible only for global layout.
+- [x] Keep `<router-outlet />` inside the shell.
+- [x] Keep shell responsible only for global layout.
 - [x] Do not add page-specific logic to the shell.
 - [x] Confirm all routes still work after shell changes.
 
 ### 3.7 Prepare page-specific side-panel pattern later
 
-Do not implement this fully in Phase 3 unless needed.
+Do not implement this fully yet.
 
-Later, pages can use their own page-specific side panels, for example:
-
-- [ ] City Planner configuration panel
-- [ ] Troops Planner configuration panel
-- [ ] References links / document panel
-- [ ] Guides categories / references panel
-- [ ] Time Tools configuration panel
-- [ ] Battle Simulator configuration panel
-
-These panels belong inside individual pages, not in the global app shell.
+- [ ] City Planner configuration panel.
+- [ ] Troops Planner configuration panel.
+- [ ] References category/filter panel.
+- [ ] Guides category/filter panel.
+- [ ] Time Tools configuration panel.
+- [ ] Battle Simulator configuration panel.
 
 ### 3.8 Add current page title later
 
-Do not do this immediately unless the shell is stable and the header still needs more orientation.
+Do not do this immediately unless the header needs more orientation.
 
 - [ ] Decide whether the active navigation link is enough.
 - [ ] Decide how page titles should be stored.
@@ -213,15 +226,15 @@ Do not do this immediately unless the shell is stable and the header still needs
 
 ### 3.9 Phase 3 cleanup checklist
 
-Before fully closing Phase 3:
-
 - [x] Navigation item names match existing routes.
 - [x] Settings link removed until a Settings page is needed.
 - [x] References route is used instead of Tools.
 - [x] App shell contains only global layout.
 - [x] Page-specific side panels are deferred.
-- [ ] Run `npm run build`.
+- [ ] Run `npm run build` locally.
 - [ ] Run `npm run start` and click through all desktop navigation links.
+- [ ] Run `npm run test` after test cleanup.
+
 ---
 
 ## Phase 4 — Dashboard cards
@@ -230,8 +243,6 @@ Goal: make the Home page feel like a real dashboard and entry point to the main 
 
 ### 4.1 Add simple dashboard cards
 
-On the Home page, add cards for:
-
 - [x] City Planning
 - [x] Unit Planning
 - [x] References
@@ -239,357 +250,420 @@ On the Home page, add cards for:
 - [x] Time Tools
 - [x] Battle Simulator
 
-Each card should have:
+### 4.2 Improve dashboard card usability later
 
-- [x] title
-- [x] short description
-- [x] route target
+- [ ] Add card styling.
+- [ ] Add hover/focus states.
+- [ ] Make cards visually different from plain links.
+- [ ] Consider short status labels such as `MVP`, `Planned`, or `Later`.
+- [ ] Add About link/dialog later.
 
-Do not add feature logic yet.
+### 4.3 Avoid over-polishing now
 
-### 4.2 Link cards to routes
-
-- [x] Make each card link to its page.
-- [x] Keep card content short.
-- [x] Make the whole card clickable.
-- [x] Confirm all card links route correctly.
-
-### 4.3 Move About information to later
-
-Do not implement About information in Phase 4.
-
-The Home page should stay focused on the dashboard cards for now. About information can be added much later when the app has more stable content, versioning, credits, data sources, or project context.
-
-Preferred future options:
-
-- [ ] Footer-style About link.
-- [ ] About modal.
-
-Possible future About content:
-
-- [ ] Short app purpose.
-- [ ] Version information.
-- [ ] Credits.
-- [ ] Data sources / references.
-- [ ] Project or GitHub link.
-- [ ] Disclaimer if needed.
----
-
-## Phase 5 — First local data files
-
-Goal: add the first local game data without building full planners yet.
-
-This phase introduces static local data files for units, buildings, and translations. The app does not need to load or display this data yet.
-
-### 5.1 Create asset folders
-
-- [x] Create `src/assets/data/`.
-- [x] Create `src/assets/i18n/`.
-- [x] Add `.gitkeep` files if the folders would otherwise be empty.
-
-### 5.2 Add unit data
-
-- [x] Create `src/assets/data/units.json`.
-- [x] Start with local unit data based on the wiki tables.
-- [x] Use stable IDs such as `swordsman`, `slinger`, `light_ship`, `fire_ship`.
-- [x] Keep English unit names in the unit data for now.
-- [x] Add resource fields: `wood`, `stone`, `silver`, `favor`, `population`.
-- [x] Add combat fields: `attackType`, `attack`, `defenseNaval`, `defenseBlunt`, `defenseSharp`, `defenseDistance`.
-- [x] Add utility fields: `lootCapacity`, `transportCapacity`, `speed`, `recruitmentTimeMinutes`.
-- [x] Add mythical metadata: `isMythical`, `god`.
-
-Notes:
-
-- `attackType` should use one of: `naval`, `blunt`, `sharp`, `distance`.
-- Use `null` for values that are intentionally not normal numeric values.
-- Fire Ship / Brander should use `attack: null` later because it does not use normal attack calculation.
-- Fire Ship / Brander needs special battle-simulation behavior later because it trades 1-for-1 against ships.
-- Light Ship and Fire Ship are easy to confuse:
-  - `light_ship` = English “Light Ship”, German “Feuerschiff”
-  - `fire_ship` = English “Fire Ship”, German “Brander”
-- Ladon is a special case because wiki versions differ and its attack is a range.
-- Ladon should be reviewed separately before battle simulation logic is implemented.
-
-Future unit data tasks:
-
-- [ ] Decide how to model special-case units such as Ladon.
-- [ ] Decide whether to add fields such as `unitCategory`, `role`, or `isFlying`.
-- [ ] Create a TypeScript unit model later, for example `src/app/models/unit.model.ts`.
-- [ ] Validate unit data once it is loaded by the app.
-
-### 5.3 Add tiny building data
-
-- [x] Create `src/assets/data/buildings.json`.
-- [x] Add only 2 or 3 buildings first.
-- [x] Use simple fields like `id`, `name`, `maxLevel`.
-
-Do not add full building costs, dependencies, effects, or upgrade times yet.
-
-### 5.4 Add translation files
-
-- [x] Create `src/assets/i18n/en.json`.
-- [x] Create `src/assets/i18n/de.json`.
-- [x] Add app/navigation labels.
-- [x] Add Home/dashboard card labels.
-- [x] Add resource labels.
-- [x] Add unit attribute labels.
-- [x] Add attack type labels.
-- [x] Add god labels.
-- [x] Add unit name labels.
-
-Notes:
-
-- Translation files are prepared assets only.
-- The app does not use them yet.
-- Do not add a translation library yet.
-- Later, decide between Angular built-in i18n, `ngx-translate`, or a small custom translation service.
-- Keep `units.json` language-independent where possible by using stable IDs.
-- Localized unit names belong in `src/assets/i18n/en.json` and `src/assets/i18n/de.json`.
-
-Future translation tasks:
-
-- [ ] Decide how translations should be loaded.
-- [ ] Decide whether the app needs a language switcher.
-- [ ] Decide whether game data names should always come from i18n keys.
-
-## Phase 5 — First local data files
-
-Goal: add the first local game data without building full planners yet.
-
-This phase introduces static local data files for units, buildings, and translations. The app does not need to load or display this data yet.
-
-### 5.1 Create asset folders
-
-- [x] Create `src/assets/data/`.
-- [x] Create `src/assets/i18n/`.
-- [x] Add `.gitkeep` files if the folders would otherwise be empty.
-
-### 5.2 Add unit data
-
-- [x] Create `src/assets/data/units.json`.
-- [x] Start with local unit data based on the wiki tables.
-- [x] Use stable IDs such as `swordsman`, `slinger`, `light_ship`, `fire_ship`.
-- [x] Keep English unit names in the unit data for now.
-- [x] Add resource fields: `wood`, `stone`, `silver`, `favor`, `population`.
-- [x] Add combat fields: `attackType`, `attack`, `defenseNaval`, `defenseBlunt`, `defenseSharp`, `defenseDistance`.
-- [x] Add utility fields: `lootCapacity`, `transportCapacity`, `speed`, `recruitmentTimeMinutes`.
-- [x] Add mythical metadata: `isMythical`, `god`.
-
-Notes:
-
-- `attackType` should use one of: `naval`, `blunt`, `sharp`, `distance`.
-- Use `null` for values that are intentionally not normal numeric values.
-- Fire Ship / Brander should use `attack: null` because it does not use normal attack calculation.
-- Fire Ship / Brander needs special battle-simulation behavior later because it trades 1-for-1 against ships.
-- Light Ship and Fire Ship are easy to confuse:
-  - `light_ship` = English “Light Ship”, German “Feuerschiff”
-  - `fire_ship` = English “Fire Ship”, German “Brander”
-- Ladon is a special case because wiki versions differ and its attack is a range.
-- Ladon should be reviewed separately before battle simulation logic is implemented.
-
-Future unit data tasks:
-
-- [ ] Decide how to model special-case units such as Ladon.
-- [ ] Decide whether to add fields such as `unitCategory`, `role`, or `isFlying`.
-- [ ] Create a TypeScript unit model later.
-- [ ] Validate unit data once it is loaded by the app.
-
-### 5.3 Add building data
-
-- [x] Create `src/assets/data/buildings.json`.
-- [x] Extract the available buildings from the wiki overview.
-- [x] Use stable IDs such as `senate`, `timber_camp`, `marketplace`, `city_wall`.
-- [x] Keep English building names in the building data for now.
-- [x] Add simple fields: `id`, `name`, `category`, `maxLevel`, `wood`, `stone`, `silver`, `population`, `constructionTimeMinutes`.
-- [x] Use `null` for unknown building values for now.
-
-Notes:
-
-- Building data currently contains the known building list, not full building-level data.
-- Building costs, population usage, max levels, effects, dependencies, and construction times need more detailed source data later.
-- Special buildings are marked with `category: "special"`.
-- Agora is included as `category: "overview"` because it is not a normal buildable building in the same sense.
-
-Future building data tasks:
-
-- [ ] Verify max levels.
-- [ ] Add building costs per level.
-- [ ] Add construction times per level.
-- [ ] Add population requirements per level.
-- [ ] Add building dependencies.
-- [ ] Decide how to model special building exclusivity.
-
-### 5.4 Add translation files
-
-- [x] Create `src/assets/i18n/en.json`.
-- [x] Create `src/assets/i18n/de.json`.
-- [x] Add app/navigation labels.
-- [x] Add Home/dashboard card labels.
-- [x] Add resource labels.
-- [x] Add unit attribute labels.
-- [x] Add attack type labels.
-- [x] Add god labels.
-- [x] Add unit name labels.
-- [x] Add building name labels.
-
-Notes:
-
-- Translation files are prepared assets only.
-- The app does not use them yet.
-- Do not add a translation library yet.
-- Later, decide between Angular built-in i18n, `ngx-translate`, or a small custom translation service.
-- Keep `units.json` and `buildings.json` language-independent where possible by using stable IDs.
-- Localized unit and building names belong in `src/assets/i18n/en.json` and `src/assets/i18n/de.json`.
-
-Future translation tasks:
-
-- [ ] Decide how translations should be loaded.
-- [ ] Decide whether the app needs a language switcher.
-- [ ] Decide whether game data names should always come from i18n keys.
+- [x] Keep the dashboard simple.
+- [ ] Do not spend major time on visual design before the first real planner workflow exists.
 
 ---
 
-## Phase 6 — Load local data into Angular
+## Phase 5 — Static game data foundation
 
-Goal: teach the app how to read the local JSON files without building planners yet.
+Goal: make sure the basic data foundation is reliable before planner logic depends on it.
 
-This phase connects the static files from Phase 5 to Angular code. The goal is only to load and expose the data in a clean way.
+### 5.1 Static data files
 
-### 6.1 Create TypeScript data models
+- [x] Add `public/assets/data/units.json`.
+- [x] Add `public/assets/data/buildings.json`.
+- [x] Add `public/assets/i18n/en.json`.
+- [x] Add `public/assets/i18n/de.json`.
 
-- [x] Create `src/app/models/unit.model.ts`.
-- [x] Create `src/app/models/building.model.ts`.
-- [x] Keep the models close to the JSON structure.
-- [x] Allow nullable values where the data intentionally uses `null`.
+### 5.2 Data service
 
-### 6.2 Create a local data service
+- [x] Add `GameDataService`.
+- [x] Load units via `getUnitDefinitions()`.
+- [x] Load buildings via `getBuildingDefinitions()`.
+- [ ] Decide whether to keep one combined `GameDataService` or split later into `UnitDataService` and `BuildingDataService`.
+- [ ] Add basic error handling or safe fallback behavior later.
 
-- [x] Create `src/app/services/game-data.service.ts`.
-- [x] Load unit definitions from `/assets/data/units.json`.
-- [x] Load building definitions from `/assets/data/buildings.json`.
-- [x] Return typed data.
-- [x] Do not add filtering, searching, or calculations yet.
+### 5.3 Review data schemas
 
-### 6.3 Make Angular able to fetch local JSON
+Important before planner logic grows.
 
-- [x] Check whether the app already has HTTP support configured.
-- [x] Add Angular HTTP support in the app configuration if needed.
-- [x] Confirm local assets can be loaded from `/assets/data/units.json`.
-- [x] Confirm local assets can be loaded from `/assets/data/buildings.json`.
+- [ ] Align `Building` model with `buildings.json`.
+  - Current model has `isSpecial`.
+  - Current JSON uses `category`.
+- [ ] Decide whether building category should be typed as `main | special`.
+- [ ] Decide whether building `maxLevel` should stay nullable at first.
+- [ ] Decide whether missing building costs should stay `null` or be omitted.
+- [ ] Review whether all unit fields are needed for the Troops Planner MVP.
+- [ ] Add explicit unit category/group if needed later:
+  - land,
+  - naval,
+  - mythical,
+  - support/special.
 
-Notes:
+### 5.4 Data validation later
 
-- Static files are served from `public/assets/...`.
-- The app uses browser paths like `/assets/data/units.json`.
-- No backend logic was added.
-
-### 6.4 Test data loading in simple matching pages
-
-- [x] Use Troops Planner page for unit data.
-- [x] Use City Planner page for building data.
-- [x] On Troops Planner, show number of units loaded.
-- [x] On Troops Planner, show the first unit name.
-- [x] On City Planner, show number of buildings loaded.
-- [x] On City Planner, show the first building name.
-- [x] Do not build full tables yet.
-- [x] Do not add planner logic yet.
-
-### 6.5 Keep translations prepared but unused
-
-- [x] Do not load `en.json` or `de.json` yet.
-- [x] Do not add a language switcher yet.
-- [x] Do not add a translation library yet.
-- [x] Keep translation loading for a later phase.
-
-### 6.6 Phase 6 cleanup checklist
-
-- [x] Run `npm run build`.
-- [x] Run `npm run start`.
-- [x] Confirm City Planner can display loaded building data.
-- [x] Confirm Troops Planner can display loaded unit data.
-- [x] Confirm no real planner logic was added yet.
----
-
-## Phase 7 — First useful mini-feature
-
-Goal: build one very small useful thing before starting the full planners.
-
-Current mini-feature: a simple Troops unit amount preview.
-
-### 7.1 Show units on the Troops Planner page
-
-- [x] Load units using the data service from Phase 6.
-- [x] Show a simple list of units.
-- [x] Keep the display minimal.
-- [x] Do not add filters yet.
-- [x] Do not add grouping yet.
-
-### 7.2 Add one input per unit
-
-- [x] Add a number input for each unit.
-- [x] Default all amounts to `0`.
-- [x] Keep the values local to the component.
-
-### 7.3 Calculate totals later
-
-Do not implement this yet.
-
-The planner logic will likely be reworked later with real planning rules, versions, filters, and special cases.
-
-- [ ] Calculate total population later.
-- [ ] Calculate total wood later.
-- [ ] Calculate total stone later.
-- [ ] Calculate total silver later.
-- [ ] Optional later: calculate total favor.
-
-### 7.4 Keep it local only
-
-- [x] Do not save anything yet.
-- [x] Do not import/export yet.
-- [x] Do not add complicated validation yet.
+- [ ] Add lightweight validation tests for JSON shape.
+- [ ] Check that every unit has an i18n key.
+- [ ] Check that every building has an i18n key.
+- [ ] Check that numeric values are non-negative.
+- [ ] Check that IDs are unique.
 
 ---
 
-## Phase 8 — Local save later
+## Phase 6 — Test and build cleanup
 
-Only start this after the mini-feature works.
+Goal: make the project stable before adding more feature code.
 
-- [ ] Create a small storage service.
-- [ ] Save one troops plan to LocalStorage.
-- [ ] Load it again after page refresh.
+This phase should be done soon because some generated tests no longer match the app shape.
+
+### 6.1 App test cleanup
+
+- [ ] Update `app.spec.ts` so it no longer expects the root app itself to render an `h1` directly.
+- [ ] Provide router testing setup where needed.
+- [ ] Test that `App` creates successfully.
+- [ ] Optionally test that `AppShell` is present.
+
+### 6.2 Page test cleanup
+
+- [ ] Update `CityPlanner` test to provide `HttpClient` or mock `GameDataService`.
+- [ ] Update `TroopsPlanner` test to provide `HttpClient` or mock `GameDataService`.
+- [ ] Keep placeholder page tests simple.
+- [ ] Avoid over-testing visual layout for now.
+
+### 6.3 Build verification
+
+- [ ] Run `npm install` or `npm ci` locally.
+- [ ] Run `npm run build`.
+- [ ] Run `npm run test`.
+- [ ] Fix any failing generated tests before adding larger features.
+
+---
+
+## Phase 7 — Troops Planner vertical slice
+
+Recommended next real feature slice.
+
+Goal: turn the current unit preview into a useful mini-planner without adding import/export or storage yet.
+
+### 7.1 Decide first Troops Planner MVP behavior
+
+Discuss and decide:
+
+- [ ] Should the planner support one city/template at a time first?
+- [ ] Should it support named troop presets immediately or later?
+- [ ] Should land and naval units be separated from the beginning?
+- [ ] Should mythical units be shown by default or filtered?
+- [ ] Which totals are most useful first?
+
+Recommended first version:
+
+- one unnamed troop plan,
+- list all units,
+- editable amount per unit,
+- show calculated totals,
+- no save/load yet,
+- no import/export yet.
+
+### 7.2 Add calculated totals
+
+- [ ] Total population.
+- [ ] Total wood.
+- [ ] Total stone.
+- [ ] Total silver.
+- [ ] Total favor.
+- [ ] Total transport capacity.
+- [ ] Total loot capacity.
+- [ ] Optional total attack by attack type later.
+- [ ] Optional defensive totals later.
+
+### 7.3 Improve input behavior
+
+- [ ] Prevent negative values.
+- [ ] Treat empty input as zero.
+- [ ] Decide whether decimals should be rounded or rejected.
 - [ ] Add a clear/reset button.
+- [ ] Consider quick increment controls later.
+
+### 7.4 Improve table structure
+
+- [ ] Add a simple totals summary above or below the table.
+- [ ] Consider separating land/naval/mythical units.
+- [ ] Consider hiding less important columns for the first MVP.
+- [ ] Consider responsive table behavior.
+
+### 7.5 Extract calculation logic
+
+- [ ] Move unit total calculation out of the template.
+- [ ] Consider a small pure utility function or service.
+- [ ] Add unit tests for total calculation.
 
 ---
 
-## Phase 9 — Import/export later
+## Phase 8 — City Planner vertical slice
 
-Only start this after local save works.
+Goal: turn the current building data preview into the first usable city planning screen.
 
-- [ ] Define the TXT format for one troops plan.
-- [ ] Export the current plan as TXT text.
-- [ ] Import the same TXT text again.
-- [ ] Validate missing or unknown unit IDs.
+Start this after Troops Planner direction is clear, unless City Planner becomes the preferred next focus.
 
-## Parking lot — Do not start yet
+### 8.1 Decide first City Planner MVP behavior
 
-These ideas are valid, but should wait:
+Discuss and decide:
 
-- [ ] Full City Planner.
-- [ ] Academy Planner details.
-- [ ] Full timer system.
-- [ ] Active timer dropdown.
-- [ ] Advanced translations.
-- [ ] Battle Simulator logic.
-- [ ] User accounts.
-- [ ] Backend/database.
-- [ ] Grepolis client integration.
-- [ ] Complex styling/theme work.
-- [ ] Mobile polish.
+- [ ] Should the first city plan be one unnamed city?
+- [ ] Should each building have a target level input?
+- [ ] Should current level also be tracked or only target level?
+- [ ] Should special buildings be shown together with normal buildings or separately?
+- [ ] Should Academy be visible immediately or delayed?
+
+Recommended first version:
+
+- one unnamed city plan,
+- building list,
+- target level input,
+- separate normal/special building grouping,
+- no academy planning yet,
+- no save/load yet,
+- no import/export yet.
+
+### 8.2 Building level inputs
+
+- [ ] Show all buildings from `buildings.json`.
+- [ ] Add target level input per building.
+- [ ] Clamp values to allowed range once `maxLevel` exists.
+- [ ] Separate main and special buildings.
+- [ ] Add reset button.
+
+### 8.3 City summary later
+
+- [ ] Total planned population usage.
+- [ ] Total planned resources.
+- [ ] Total build time if data becomes available.
+- [ ] Special building warning/limit if relevant.
+
+### 8.4 Academy extension later
+
+- [ ] Decide academy model.
+- [ ] Decide whether academy is a collapsible panel, tab, or modal.
+- [ ] Add research JSON only when needed.
+- [ ] Include academy data in TXT import/export later.
 
 ---
 
-## Suggested next single task
+## Phase 9 — Local storage and saved configurations
 
-Start with **Phase 1.1: Create the Home page**.
+Goal: save user-created plans locally after basic planner input works.
 
-Do only that, then run the app and check that nothing broke.
+Do not start this before at least one planner has useful editable state.
+
+### 9.1 Storage model decisions
+
+- [ ] Define `TroopPlan` model.
+- [ ] Define `CityPlan` model.
+- [ ] Decide required fields:
+  - id,
+  - name,
+  - createdAt,
+  - updatedAt,
+  - values.
+- [ ] Decide whether versioning is needed in saved data.
+
+### 9.2 Storage service
+
+- [ ] Create a local storage helper/service.
+- [ ] Use namespaced keys such as `grepoHub.troopPlans` and `grepoHub.cityPlans`.
+- [ ] Add safe JSON parsing.
+- [ ] Add fallback for corrupted local storage data.
+- [ ] Add tests for storage service.
+
+### 9.3 Planner configuration sidebar
+
+- [ ] Add saved plan list inside Troops Planner.
+- [ ] Add saved plan list inside City Planner.
+- [ ] Load selected plan into inputs.
+- [ ] Create new plan.
+- [ ] Rename plan.
+- [ ] Delete plan.
+- [ ] Duplicate plan later.
+
+---
+
+## Phase 10 — TXT import/export
+
+Goal: exchange planner configurations in a simple, human-readable format.
+
+Do not start this until the saved plan shape is clear.
+
+### 10.1 TXT format decisions
+
+- [ ] Define first TXT format for Troop Plans.
+- [ ] Define first TXT format for City Plans.
+- [ ] Decide whether format should be strict or forgiving.
+- [ ] Decide how comments should work.
+- [ ] Decide how unknown units/buildings should be handled.
+
+### 10.2 Export
+
+- [ ] Export one troop plan to TXT.
+- [ ] Export one city plan to TXT.
+- [ ] Add copy-to-clipboard button.
+- [ ] Add download TXT button later.
+
+### 10.3 Import
+
+- [ ] Import one troop plan from TXT.
+- [ ] Import one city plan from TXT.
+- [ ] Show parse errors clearly.
+- [ ] Allow preview before applying imported data.
+- [ ] Add tests for parser and exporter.
+
+---
+
+## Phase 11 — Translation integration
+
+Goal: use the existing translation files in the UI.
+
+This can wait until the first feature slice is stable.
+
+### 11.1 Decide translation approach
+
+- [ ] Decide whether to build a tiny custom translation service.
+- [ ] Decide whether to use Angular i18n later instead.
+- [ ] Decide where selected language is stored.
+- [ ] Decide whether German is needed in the first usable MVP.
+
+### 11.2 Translation service
+
+- [ ] Load `en.json`.
+- [ ] Load `de.json`.
+- [ ] Add fallback to English.
+- [ ] Add simple `translate(key)` function or pipe.
+- [ ] Add local storage for selected language later.
+
+### 11.3 Apply translations gradually
+
+- [ ] App shell navigation.
+- [ ] Home dashboard cards.
+- [ ] Resource labels.
+- [ ] Unit names.
+- [ ] Building names.
+- [ ] Planner buttons and summaries.
+
+---
+
+## Phase 12 — Time Tools foundation
+
+Goal: build timing tools after the first planner workflow is useful.
+
+### 12.1 First Time Tools decision
+
+Discuss before coding:
+
+- [ ] Should first timing tool be countdown, alarm, stopwatch, or travel-time calculator?
+- [ ] Should active timers appear in top bar immediately?
+- [ ] Should browser notifications be delayed?
+
+Recommended first version:
+
+- simple countdown,
+- active countdown list on Time Tools page,
+- top-bar indicator later.
+
+### 12.2 Timer service later
+
+- [ ] Create shared timer service.
+- [ ] Support countdowns.
+- [ ] Support alarms.
+- [ ] Support stopwatches.
+- [ ] Keep timers alive while switching pages.
+- [ ] Decide local storage behavior.
+- [ ] Add tests for timer logic.
+
+---
+
+## Phase 13 — References and Guides
+
+Goal: make the informational pages useful without overbuilding them.
+
+### 13.1 References first version
+
+- [ ] Show unit reference data from `units.json`.
+- [ ] Show building reference data from `buildings.json`.
+- [ ] Add simple category filters later.
+- [ ] Add external links later.
+
+### 13.2 Guides first version
+
+- [ ] Decide whether guide content is local markdown/text or external links.
+- [ ] Add first few guide entries manually.
+- [ ] Add categories later.
+- [ ] Keep Guides separate from factual References.
+
+---
+
+## Phase 14 — Battle Simulator placeholder
+
+Goal: keep the route visible but avoid spending major time here too early.
+
+- [x] Route exists.
+- [x] Placeholder page exists.
+- [ ] Add a short “planned later” explanation.
+- [ ] Add disabled/mock inputs only if useful for planning.
+- [ ] Do not implement real simulation until units, settings, modifiers, and formulas are clear.
+
+---
+
+## Open discussion points
+
+These are the main things worth discussing before the next coding session.
+
+### Next page / feature choice
+
+- [ ] Continue with Troops Planner first?
+- [ ] Switch to City Planner first?
+- [ ] Build References as a data display page first?
+- [ ] Build Time Tools first because the top bar already hints at timers?
+
+Recommended: Troops Planner first.
+
+### Planner behavior
+
+- [ ] One active plan or multiple saved plans immediately?
+- [ ] Should plans have names from the beginning?
+- [ ] Should import/export happen before local save/load or after?
+- [ ] Should planner pages use sidebars early or keep everything in one column first?
+
+Recommended: one active unnamed plan first, then totals, then save/load, then import/export.
+
+### Data decisions
+
+- [ ] Finalize unit fields needed for the first Troops Planner.
+- [ ] Finalize building fields needed for the first City Planner.
+- [ ] Decide whether game data should be English-only internally with translations via i18n keys.
+- [ ] Decide whether IDs should be the only stable references in saved plans.
+
+Recommended: store IDs in plans, not names.
+
+### Layout decisions
+
+- [ ] Keep desktop header as-is for now?
+- [ ] Add mobile burger soon or wait?
+- [ ] Add current page title or rely on active nav state?
+- [ ] Make time quick-action navigate to Time Tools or leave as placeholder?
+
+Recommended: keep layout as-is until one planner is useful.
+
+---
+
+## Suggested immediate next steps
+
+Best next coding sequence:
+
+1. Fix/refresh tests enough that build/test status is trustworthy.
+2. Update `README.md` status later, not urgent for feature work.
+3. Align `Building` model with `buildings.json`.
+4. Continue Troops Planner as first vertical slice.
+5. Add calculated troop totals.
+6. Extract troop total calculation into testable logic.
+7. Only then discuss save/load and TXT import/export.
+

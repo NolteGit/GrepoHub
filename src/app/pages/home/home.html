@@ -1,16 +1,23 @@
 <section class="home-page">
   <header class="home-page__hero">
-    <h1>Grepo Hub</h1>
-    <p>
-      Your companion workspace for planning, references, guides, timers, and battle preparation.
+    <p class="home-page__eyebrow">{{ 'home.eyebrow' | translate }}</p>
+    <h1>{{ 'home.title' | translate }}</h1>
+    <p class="home-page__subtitle">
+      {{ 'home.subtitle' | translate }}
     </p>
   </header>
 
-  <section class="dashboard-grid" aria-label="Dashboard sections">
+  <section class="dashboard-grid" [attr.aria-label]="'home.dashboardAria' | translate">
     @for (card of dashboardCards; track card.path) {
-      <a class="dashboard-card" [routerLink]="card.path">
-        <h2>{{ card.title }}</h2>
-        <p>{{ card.description }}</p>
+      <a
+        class="dashboard-card"
+        [class.dashboard-card--featured]="card.featured"
+        [routerLink]="card.path"
+      >
+        <div class="dashboard-card__content">
+          <h2>{{ card.titleKey | translate }}</h2>
+          <p>{{ card.descriptionKey | translate }}</p>
+        </div>
       </a>
     }
   </section>

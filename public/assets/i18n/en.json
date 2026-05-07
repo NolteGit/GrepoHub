@@ -2,6 +2,9 @@
   "app.name": "Grepo Hub",
 
   "nav.home": "Home",
+  "nav.homeAria": "Go to home page",
+  "nav.mainAria": "Main navigation",
+  "nav.timeQuickActionsAria": "Open time quick actions",
   "nav.cityPlanner": "City Planner",
   "nav.troopsPlanner": "Troops Planner",
   "nav.references": "References",
@@ -9,26 +12,56 @@
   "nav.timeTools": "Time Tools",
   "nav.battleSimulator": "Battle Simulator",
 
+  "home.eyebrow": "Grepolis Toolkit",
   "home.title": "Grepo Hub",
-  "home.subtitle": "Your companion workspace for planning, references, guides, timers, and battle preparation.",
+  "home.subtitle": "Your central workspace for city planning, troop preparation, references, guides, timers, and future battle tools.",
+  "home.dashboardAria": "Home dashboard",
 
   "dashboard.cityPlanning.title": "City Planning",
-  "dashboard.cityPlanning.description": "Plan and organize city development.",
+  "dashboard.cityPlanning.description": "Plan your city development, compare building choices, and prepare cleaner build paths.",
 
   "dashboard.unitPlanning.title": "Unit Planning",
-  "dashboard.unitPlanning.description": "Prepare unit compositions and planning notes.",
+  "dashboard.unitPlanning.description": "Prepare troop compositions, estimate costs, and shape your army plans before recruiting.",
 
   "dashboard.references.title": "References",
-  "dashboard.references.description": "Look up useful game information and reference material.",
+  "dashboard.references.description": "Browse important game information, unit data, and useful lookup material.",
 
   "dashboard.guides.title": "Guides",
-  "dashboard.guides.description": "Collect and browse strategy guides and explanations.",
+  "dashboard.guides.description": "Collect strategies, notes, and practical explanations for common gameplay situations.",
 
   "dashboard.timeTools.title": "Time Tools",
-  "dashboard.timeTools.description": "Access timers and time-based planning tools.",
+  "dashboard.timeTools.description": "Use timing helpers and future utility tools for more precise planning.",
 
-  "dashboard.battleSimulator.title": "Battle Simulator",
-  "dashboard.battleSimulator.description": "Prepare future battle simulation and comparison tools.",
+  "dashboard.battleSimulator.title": "Simulator",
+  "dashboard.battleSimulator.description": "Prepare for future battle calculation and comparison features.",
+
+  "cityPlanner.title": "City Planner",
+  "cityPlanner.subtitle": "Plan building levels and city development.",
+  "cityPlanner.loadedCount": "Buildings loaded",
+  "cityPlanner.firstBuilding": "First building",
+  "cityPlanner.loading": "Loading buildings...",
+
+  "troopsPlanner.title": "Troops Planner",
+  "troopsPlanner.subtitle": "Preview unit costs before building a full planner.",
+  "troopsPlanner.unitsTitle": "Units",
+  "troopsPlanner.unitsAria": "Available units",
+  "troopsPlanner.amountOf": "Amount of",
+  "troopsPlanner.loading": "Loading units...",
+
+  "battleSimulator.title": "Battle Simulator",
+  "battleSimulator.placeholder": "This feature is planned.",
+
+  "guides.title": "Guides",
+  "guides.placeholder": "This feature is planned.",
+
+  "references.title": "References",
+  "references.placeholder": "This feature is planned.",
+
+  "timeTools.title": "Time Tools",
+  "timeTools.placeholder": "This feature is planned.",
+
+  "table.unit": "Unit",
+  "table.amount": "Amount",
 
   "resource.wood": "Wood",
   "resource.stone": "Stone",
@@ -63,6 +96,29 @@
   "god.aphrodite": "Aphrodite",
   "god.ares": "Ares",
   "god.all": "All Gods",
+
+  "building.senate": "Senate",
+  "building.timber_camp": "Timber Camp",
+  "building.farm": "Farm",
+  "building.quarry": "Quarry",
+  "building.warehouse": "Warehouse",
+  "building.silver_mine": "Silver Mine",
+  "building.barracks": "Barracks",
+  "building.temple": "Temple",
+  "building.marketplace": "Marketplace",
+  "building.harbour": "Harbour",
+  "building.academy": "Academy",
+  "building.city_wall": "City Wall",
+  "building.cave": "Cave",
+  "building.theatre": "Theatre",
+  "building.thermal_baths": "Thermal Baths",
+  "building.library": "Library",
+  "building.lighthouse": "Lighthouse",
+  "building.tower": "Tower",
+  "building.divine_statue": "Divine Statue",
+  "building.oracle": "Oracle",
+  "building.merchants_shop": "Merchant's Shop",
+  "building.agora": "Agora",
 
   "unit.militia": "Militia",
   "unit.swordsman": "Swordsman",
