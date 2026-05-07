@@ -1,13 +1,142 @@
-<h1>City Planner</h1>
+<section class="city-planner-page">
+  <header class="city-planner-page__header">
+    <div>
+      <h1>{{ 'cityPlanner.title' | translate }}</h1>
+      <p>{{ 'cityPlanner.subtitle' | translate }}</p>
+    </div>
 
-<p>Plan building levels and city development.</p>
+    <div class="city-planner-page__configuration-bar">
+      <label class="city-planner-page__configuration-select">
+        <span>{{ 'cityPlanner.configuration' | translate }}</span>
 
-@if (buildings$ | async; as buildings) {
-  <p>Buildings loaded: {{ buildings.length }}</p>
+        <select
+          [ngModel]="selectedConfigurationId()"
+          (ngModelChange)="selectConfiguration($event)"
+        >
+          @for (configuration of configurations(); track configuration.id) {
+            <option [value]="configuration.id">
+              {{ configuration.name }}
+            </option>
+          }
+        </select>
+      </label>
 
-  @if (buildings.length > 0) {
-    <p>First building: {{ buildings[0].name }}</p>
-  }
-} @else {
-  <p>Loading buildings...</p>
-}
+      <button type="button" (click)="saveConfigurations()">
+        {{ 'cityPlanner.save' | translate }}
+      </button>
+
+      <button type="button" (click)="saveAsNewConfiguration()">
+        {{ 'cityPlanner.saveAsNew' | translate }}
+      </button>
+
+      @if (selectedConfiguration().isPreset) {
+        <button type="button" (click)="resetSelectedConfiguration()">
+          {{ 'cityPlanner.resetPreset' | translate }}
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="city-planner-page__content">
+    <section class="city-planner-card city-planner-card--form">
+      <header class="city-planner-card__header">
+        <h2>{{ 'cityPlanner.buildingsAndLevels' | translate }}</h2>
+        <p>{{ 'cityPlanner.buildingsHint' | translate }}</p>
+      </header>
+
+      <div class="city-planner-form">
+        @for (building of buildingDefinitions; track building.id) {
+          <div class="city-planner-form__row">
+            <label [for]="'building-' + building.id">
+              {{ 'building.' + building.id | translate }}
+            </label>
+
+            <input
+              [id]="'building-' + building.id"
+              type="number"
+              min="0"
+              [max]="building.maxLevel"
+              [ngModel]="getBuildingLevel(building.id)"
+              (ngModelChange)="updateBuildingLevel(building.id, $event)"
+            />
+
+            <span
+              class="city-planner-form__population"
+              [class.city-planner-form__population--positive]="
+                getBuildingPopulation(building.id, getBuildingLevel(building.id)) > 0
+              "
+              [class.city-planner-form__population--negative]="
+                getBuildingPopulation(building.id, getBuildingLevel(building.id)) < 0
+              "
+            >
+              {{
+                getBuildingPopulation(building.id, getBuildingLevel(building.id)) > 0
+                  ? '+'
+                  : ''
+              }}{{ getBuildingPopulation(building.id, getBuildingLevel(building.id)) }}
+            </span>
+          </div>
+        }
+      </div>
+    </section>
+
+    <aside class="city-planner-page__side">
+      <section class="city-planner-card">
+        <header class="city-planner-card__header">
+          <h2>{{ 'cityPlanner.modifiers' | translate }}</h2>
+          <p>{{ 'cityPlanner.modifiersHint' | translate }}</p>
+        </header>
+
+        <div class="city-planner-modifiers">
+          @for (modifier of modifierDefinitions; track modifier.id) {
+            <label class="city-planner-modifiers__item">
+              <input
+                type="checkbox"
+                [ngModel]="selectedConfiguration().modifiers[modifier.id]"
+                (ngModelChange)="updateModifier(modifier.id, $event)"
+              />
+
+              <span>{{ 'cityPlanner.modifier.' + modifier.id | translate }}</span>
+
+              <strong
+                [class.city-planner-modifiers__population--positive]="
+                  getModifierPopulation(modifier.id) > 0
+                "
+              >
+                {{
+                  getModifierPopulation(modifier.id) > 0
+                    ? '+'
+                    : ''
+                }}{{ getModifierPopulation(modifier.id) }}
+              </strong>
+            </label>
+          }
+        </div>
+      </section>
+
+      <section class="city-planner-card">
+        <header class="city-planner-card__header">
+          <h2>{{ 'cityPlanner.summary' | translate }}</h2>
+          <p>{{ selectedConfiguration().name }}</p>
+        </header>
+
+        <dl class="city-planner-summary">
+          <div>
+            <dt>{{ 'cityPlanner.populationCapacity' | translate }}</dt>
+            <dd>{{ populationCapacity() }}</dd>
+          </div>
+
+          <div>
+            <dt>{{ 'cityPlanner.usedPopulation' | translate }}</dt>
+            <dd>{{ usedPopulation() }}</dd>
+          </div>
+
+          <div class="city-planner-summary__result">
+            <dt>{{ 'cityPlanner.freePopulation' | translate }}</dt>
+            <dd>{{ freePopulation() }}</dd>
+          </div>
+        </dl>
+      </section>
+    </aside>
+  </div>
+</section>
