@@ -38,45 +38,145 @@
   </header>
 
   <div class="city-planner-page__content">
-    <section class="city-planner-card city-planner-card--form">
+    <section class="city-planner-card city-planner-card--layout">
       <header class="city-planner-card__header">
         <h2>{{ 'cityPlanner.buildingsAndLevels' | translate }}</h2>
         <p>{{ 'cityPlanner.buildingsHint' | translate }}</p>
       </header>
 
-      <div class="city-planner-form">
-        @for (building of buildingDefinitions; track building.id) {
-          <div class="city-planner-form__row">
-            <label [for]="'building-' + building.id">
-              {{ 'building.' + building.id | translate }}
-            </label>
+      <div class="city-layout">
+        @for (row of buildingLayoutRows; track $index) {
+          <div class="city-layout__row" [class.city-layout__row--single]="row.length === 1">
+            @for (buildingId of row; track buildingId) {
+              @if (getBuildingDefinition(buildingId); as building) {
+                <article class="city-building-tile">
+                  @if (getBuildingImagePath(building.id)) {
+                    <img
+                      class="city-building-tile__icon"
+                      [src]="getBuildingImagePath(building.id)"
+                      [alt]="'building.' + building.id | translate"
+                    />
+                  }
 
-            <input
-              [id]="'building-' + building.id"
-              type="number"
-              min="0"
-              [max]="building.maxLevel"
-              [ngModel]="getBuildingLevel(building.id)"
-              (ngModelChange)="updateBuildingLevel(building.id, $event)"
-            />
+                  <div class="city-building-tile__header">
+                    <h3>{{ 'building.' + building.id | translate }}</h3>
 
-            <span
-              class="city-planner-form__population"
-              [class.city-planner-form__population--positive]="
-                getBuildingPopulation(building.id, getBuildingLevel(building.id)) > 0
-              "
-              [class.city-planner-form__population--negative]="
-                getBuildingPopulation(building.id, getBuildingLevel(building.id)) < 0
-              "
-            >
-              {{
-                getBuildingPopulation(building.id, getBuildingLevel(building.id)) > 0
-                  ? '+'
-                  : ''
-              }}{{ getBuildingPopulation(building.id, getBuildingLevel(building.id)) }}
-            </span>
+                    <span
+                      class="city-building-tile__population"
+                      [class.city-building-tile__population--positive]="
+                        getBuildingPopulation(building.id, getBuildingLevel(building.id)) > 0
+                      "
+                      [class.city-building-tile__population--negative]="
+                        getBuildingPopulation(building.id, getBuildingLevel(building.id)) < 0
+                      "
+                    >
+                      <span class="city-building-tile__population-value">
+                        {{
+                          getBuildingPopulation(building.id, getBuildingLevel(building.id)) > 0
+                            ? '+'
+                            : ''
+                        }}{{ getBuildingPopulation(building.id, getBuildingLevel(building.id)) }}
+                      </span>
+                      <span class="city-building-tile__population-unit">
+                        {{ 'cityPlanner.populationShort' | translate }}
+                      </span>
+                    </span>
+                  </div>
+
+                  <div class="city-building-tile__control">
+                    <label [for]="'building-' + building.id">
+                      {{ 'cityPlanner.level' | translate }}
+                    </label>
+
+                    <div class="city-stepper">
+                      <button
+                        type="button"
+                        class="city-stepper__button"
+                        (click)="stepBuildingLevel(building.id, -1)"
+                        [disabled]="getBuildingLevel(building.id) <= 0"
+                      >
+                        −
+                      </button>
+
+                      <input
+                        [id]="'building-' + building.id"
+                        type="number"
+                        min="0"
+                        step="1"
+                        [max]="building.maxLevel"
+                        [ngModel]="getBuildingLevel(building.id)"
+                        (ngModelChange)="updateBuildingLevel(building.id, $event)"
+                      />
+
+                      <button
+                        type="button"
+                        class="city-stepper__button"
+                        (click)="stepBuildingLevel(building.id, 1)"
+                        [disabled]="getBuildingLevel(building.id) >= building.maxLevel"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              }
+            }
           </div>
         }
+
+        <div class="city-layout__special-slots">
+          @for (slot of specialBuildingSlotDefinitions; track slot.id) {
+            <article class="city-building-tile city-building-tile--special">
+              @if (getSelectedSpecialBuildingImagePath(slot.id)) {
+                <img
+                  class="city-building-tile__icon"
+                  [src]="getSelectedSpecialBuildingImagePath(slot.id)"
+                  [alt]="getSpecialBuildingOptionLabelKey(getSelectedSpecialBuilding(slot.id)) | translate"
+                />
+              }
+
+              <div class="city-building-tile__header">
+                <h3>{{ 'cityPlanner.specialBuilding.' + slot.id | translate }}</h3>
+
+                <span
+                  class="city-building-tile__population"
+                  [class.city-building-tile__population--positive]="
+                    getSpecialBuildingPopulation(getSelectedSpecialBuilding(slot.id)) > 0
+                  "
+                  [class.city-building-tile__population--negative]="
+                    getSpecialBuildingPopulation(getSelectedSpecialBuilding(slot.id)) < 0
+                  "
+                >
+                  <span class="city-building-tile__population-value">
+                    {{
+                      getSpecialBuildingPopulation(getSelectedSpecialBuilding(slot.id)) > 0
+                        ? '+'
+                        : ''
+                    }}{{ getSpecialBuildingPopulation(getSelectedSpecialBuilding(slot.id)) }}
+                  </span>
+                  <span class="city-building-tile__population-unit">
+                    {{ 'cityPlanner.populationShort' | translate }}
+                  </span>
+                </span>
+              </div>
+
+              <div class="city-building-tile__control city-building-tile__control--select">
+                <select
+                  [id]="'special-building-' + slot.id"
+                  [attr.aria-label]="'cityPlanner.specialBuilding.' + slot.id | translate"
+                  [ngModel]="getSelectedSpecialBuilding(slot.id)"
+                  (ngModelChange)="updateSpecialBuilding(slot.id, $event)"
+                >
+                  @for (optionId of slot.optionIds; track optionId) {
+                    <option [value]="optionId">
+                      {{ getSpecialBuildingOptionLabelKey(optionId) | translate }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </article>
+          }
+        </div>
       </div>
     </section>
 
@@ -100,16 +200,77 @@
 
               <strong
                 [class.city-planner-modifiers__population--positive]="
-                  getModifierPopulation(modifier.id) > 0
+                  getDisplayedModifierPopulation(modifier.id) > 0
                 "
               >
                 {{
-                  getModifierPopulation(modifier.id) > 0
+                  getDisplayedModifierPopulation(modifier.id) > 0
                     ? '+'
                     : ''
-                }}{{ getModifierPopulation(modifier.id) }}
+                }}{{ getDisplayedModifierPopulation(modifier.id) }}
               </strong>
             </label>
+          }
+        </div>
+
+        <div class="city-planner-side-fields">
+          @if (getBuildingDefinition('land_expansion'); as landExpansion) {
+            <div class="city-planner-side-field">
+              <label [for]="'building-' + landExpansion.id">
+                {{ 'building.' + landExpansion.id | translate }}
+              </label>
+
+              <div class="city-planner-side-field__control">
+                <span class="city-planner-side-field__hint">
+                  {{ 'cityPlanner.level' | translate }}
+                </span>
+
+                <div class="city-stepper city-stepper--side">
+                  <button
+                    type="button"
+                    class="city-stepper__button"
+                    (click)="stepBuildingLevel(landExpansion.id, -1)"
+                    [disabled]="getBuildingLevel(landExpansion.id) <= 0"
+                  >
+                    −
+                  </button>
+
+                  <input
+                    [id]="'building-' + landExpansion.id"
+                    type="number"
+                    min="0"
+                    step="1"
+                    [max]="landExpansion.maxLevel"
+                    [ngModel]="getBuildingLevel(landExpansion.id)"
+                    (ngModelChange)="updateBuildingLevel(landExpansion.id, $event)"
+                  />
+
+                  <button
+                    type="button"
+                    class="city-stepper__button"
+                    (click)="stepBuildingLevel(landExpansion.id, 1)"
+                    [disabled]="getBuildingLevel(landExpansion.id) >= landExpansion.maxLevel"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <strong
+                  [class.city-planner-side-field__population--positive]="
+                    getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id)) > 0
+                  "
+                  [class.city-planner-side-field__population--negative]="
+                    getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id)) < 0
+                  "
+                >
+                  {{
+                    getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id)) > 0
+                      ? '+'
+                      : ''
+                  }}{{ getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id)) }}
+                </strong>
+              </div>
+            </div>
           }
         </div>
       </section>
@@ -131,7 +292,10 @@
             <dd>{{ usedPopulation() }}</dd>
           </div>
 
-          <div class="city-planner-summary__result">
+          <div
+            class="city-planner-summary__result"
+            [class.city-planner-summary__result--negative]="freePopulation() < 0"
+          >
             <dt>{{ 'cityPlanner.freePopulation' | translate }}</dt>
             <dd>{{ freePopulation() }}</dd>
           </div>
