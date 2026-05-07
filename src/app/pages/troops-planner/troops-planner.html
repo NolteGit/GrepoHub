@@ -1,3 +1,13 @@
 <h1>Troops Planner</h1>
 
-<p>This feature is planned.</p>
+<p>Plan unit compositions and resource costs.</p>
+
+@if (units$ | async; as units) {
+  <p>Units loaded: {{ units.length }}</p>
+
+  @if (units.length > 0) {
+    <p>First unit: {{ units[0].name }}</p>
+  }
+} @else {
+  <p>Loading units...</p>
+}

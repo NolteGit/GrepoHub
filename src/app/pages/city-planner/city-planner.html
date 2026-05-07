@@ -1,3 +1,13 @@
 <h1>City Planner</h1>
 
-<p>This feature is planned.</p>
+<p>Plan building levels and city development.</p>
+
+@if (buildings$ | async; as buildings) {
+  <p>Buildings loaded: {{ buildings.length }}</p>
+
+  @if (buildings.length > 0) {
+    <p>First building: {{ buildings[0].name }}</p>
+  }
+} @else {
+  <p>Loading buildings...</p>
+}

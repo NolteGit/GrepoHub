@@ -391,7 +391,7 @@ Future unit data tasks:
 
 - [ ] Decide how to model special-case units such as Ladon.
 - [ ] Decide whether to add fields such as `unitCategory`, `role`, or `isFlying`.
-- [ ] Create a TypeScript unit model later, for example `src/app/models/unit.model.ts`.
+- [ ] Create a TypeScript unit model later.
 - [ ] Validate unit data once it is loaded by the app.
 
 ### 5.3 Add building data
@@ -446,6 +446,68 @@ Future translation tasks:
 - [ ] Decide how translations should be loaded.
 - [ ] Decide whether the app needs a language switcher.
 - [ ] Decide whether game data names should always come from i18n keys.
+
+---
+
+## Phase 6 — Load local data into Angular
+
+Goal: teach the app how to read the local JSON files without building planners yet.
+
+This phase connects the static files from Phase 5 to Angular code. The goal is only to load and expose the data in a clean way.
+
+### 6.1 Create TypeScript data models
+
+- [x] Create `src/app/models/unit.model.ts`.
+- [x] Create `src/app/models/building.model.ts`.
+- [x] Keep the models close to the JSON structure.
+- [x] Allow nullable values where the data intentionally uses `null`.
+
+### 6.2 Create a local data service
+
+- [x] Create `src/app/services/game-data.service.ts`.
+- [x] Load unit definitions from `/assets/data/units.json`.
+- [x] Load building definitions from `/assets/data/buildings.json`.
+- [x] Return typed data.
+- [x] Do not add filtering, searching, or calculations yet.
+
+### 6.3 Make Angular able to fetch local JSON
+
+- [x] Check whether the app already has HTTP support configured.
+- [x] Add Angular HTTP support in the app configuration if needed.
+- [x] Confirm local assets can be loaded from `/assets/data/units.json`.
+- [x] Confirm local assets can be loaded from `/assets/data/buildings.json`.
+
+Notes:
+
+- Static files are served from `public/assets/...`.
+- The app uses browser paths like `/assets/data/units.json`.
+- No backend logic was added.
+
+### 6.4 Test data loading in simple matching pages
+
+- [x] Use Troops Planner page for unit data.
+- [x] Use City Planner page for building data.
+- [x] On Troops Planner, show number of units loaded.
+- [x] On Troops Planner, show the first unit name.
+- [x] On City Planner, show number of buildings loaded.
+- [x] On City Planner, show the first building name.
+- [x] Do not build full tables yet.
+- [x] Do not add planner logic yet.
+
+### 6.5 Keep translations prepared but unused
+
+- [x] Do not load `en.json` or `de.json` yet.
+- [x] Do not add a language switcher yet.
+- [x] Do not add a translation library yet.
+- [x] Keep translation loading for a later phase.
+
+### 6.6 Phase 6 cleanup checklist
+
+- [x] Run `npm run build`.
+- [x] Run `npm run start`.
+- [x] Confirm City Planner can display loaded building data.
+- [x] Confirm Troops Planner can display loaded unit data.
+- [x] Confirm no real planner logic was added yet.
 ---
 
 ## Phase 7 — First useful mini-feature
@@ -454,20 +516,29 @@ Goal: build one very small useful thing before starting the full planners.
 
 Recommended first mini-feature: a simple Troops cost preview.
 
-### 7.1 Add one input per unit
+### 7.1 Show units on the Troops Planner page
 
-- [ ] On the Troops Planner page, show units from `units.json`.
+- [ ] Load units using the data service from Phase 6.
+- [ ] Show a simple list of units.
+- [ ] Keep the display minimal.
+- [ ] Do not add filters yet.
+- [ ] Do not add grouping yet.
+
+### 7.2 Add one input per unit
+
 - [ ] Add a number input for each unit.
 - [ ] Default all amounts to `0`.
+- [ ] Keep the values local to the component.
 
-### 7.2 Calculate totals
+### 7.3 Calculate totals
 
 - [ ] Calculate total population.
 - [ ] Calculate total wood.
 - [ ] Calculate total stone.
 - [ ] Calculate total silver.
+- [ ] Optional later: calculate total favor.
 
-### 7.3 Keep it local only
+### 7.4 Keep it local only
 
 - [ ] Do not save anything yet.
 - [ ] Do not import/export yet.
@@ -494,8 +565,6 @@ Only start this after local save works.
 - [ ] Export the current plan as TXT text.
 - [ ] Import the same TXT text again.
 - [ ] Validate missing or unknown unit IDs.
-
----
 
 ## Parking lot — Do not start yet
 
