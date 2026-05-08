@@ -1,3 +1,230 @@
-<h1>References</h1>
+<section class="references-page">
+  <header class="references-hero">
+    <div class="references-hero__content">
+      <div class="references-hero__copy">
+        <h1>References</h1>
+        <p>Quick links, tools, documents, and guides in one place.</p>
+      </div>
 
-<p>This feature is planned.</p>
+      <nav class="hero-quick-links" aria-label="Important quick links">
+        @for (link of quickLinks; track link.id) {
+          <a
+            class="hero-quick-link"
+            [href]="quickLinkUrl(link)"
+            target="_blank"
+            rel="noreferrer"
+            [title]="link.title"
+            [attr.data-tooltip]="link.title"
+            [attr.aria-label]="link.title"
+          >
+            <img [src]="link.iconPath" [alt]="link.title" />
+          </a>
+        }
+      </nav>
+    </div>
+  </header>
+
+  <section class="knowledge-browser">
+    <aside class="resource-sidebar" aria-label="Reference navigation">
+      <div class="resource-sidebar__controls">
+        <label class="resource-search">
+          <span>Search resources</span>
+          <input
+            type="search"
+            placeholder="Search tools, guides, docs..."
+            [value]="searchTerm()"
+            (input)="updateSearchTerm($event)"
+          />
+        </label>
+
+        <div class="type-filters" aria-label="Resource type filters">
+          @for (filter of typeFilters; track filter.value) {
+            <button
+              type="button"
+              [class.active]="selectedType() === filter.value"
+              (click)="selectType(filter.value)"
+            >
+              {{ filter.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <nav class="resource-list">
+        @for (resource of filteredResources(); track resource.id) {
+          <article class="resource-nav-card" [class.active]="isSelectedResource(resource)">
+            <button
+              type="button"
+              class="resource-nav-card__trigger"
+              (click)="selectResource(resource)"
+            >
+              <strong>{{ resource.title }}</strong>
+              <span class="resource-nav-card__meta">
+                {{ resource.category }} · {{ typeLabel(resource.type) }}
+              </span>
+            </button>
+
+            @if (isSelectedResource(resource) && resource.sections.length > 0) {
+              <div class="resource-nav-card__sections">
+                @for (section of resource.sections; track section.id) {
+                  <button
+                    type="button"
+                    [class.active]="isSelectedSection(resource, section.id)"
+                    (click)="selectSection(resource, section.id)"
+                  >
+                    {{ section.title }}
+                  </button>
+                }
+              </div>
+            }
+          </article>
+        } @empty {
+          <p class="resource-list__empty">No matching resources found.</p>
+        }
+      </nav>
+    </aside>
+
+    <article class="reading-pane">
+      @if (isOverviewMode()) {
+        <section class="overview-tile-grid overview-tile-grid--landing" aria-label="Core sections">
+          @for (resource of filteredResources(); track resource.id) {
+            <button type="button" class="overview-tile" (click)="selectResource(resource)">
+              <div class="overview-tile__content">
+                <p class="overview-tile__meta">
+                  {{ resource.category }} · {{ typeLabel(resource.type) }}
+                </p>
+                <h3>{{ resource.title }}</h3>
+                <p class="overview-tile__description">{{ resource.description }}</p>
+              </div>
+            </button>
+          } @empty {
+            <p class="resource-list__empty">No matching resources found.</p>
+          }
+        </section>
+      } @else {
+        @if (selectedResource(); as resource) {
+          @let section = selectedSection();
+
+          <header class="reading-pane__header">
+            <div class="reading-pane__header-main">
+              <div>
+                <p class="reading-pane__type">
+                  {{ resource.category }} · {{ typeLabel(resource.type) }}
+                </p>
+                <h2>{{ resource.title }}</h2>
+                <p>{{ resource.description }}</p>
+              </div>
+
+              <div class="reading-pane__tags" aria-label="Tags">
+                @for (tag of resource.tags; track tag) {
+                  <span>{{ tag }}</span>
+                }
+              </div>
+            </div>
+
+            <button type="button" class="back-to-overview" (click)="showOverview()">
+              Back to overview
+            </button>
+          </header>
+
+          @if (section) {
+            <section class="focus-section">
+              <p class="focus-section__label">Selected section</p>
+              <h3>{{ section.title }}</h3>
+              <p>{{ section.summary }}</p>
+            </section>
+          }
+
+          @if (resource.type === 'tool-guide') {
+            <section class="content-block">
+              <h3>Recommended flow</h3>
+              <ol class="setup-steps">
+                <li>Install Tampermonkey or the required userscript manager.</li>
+                <li>Open the approved install link from this page only.</li>
+                <li>Enable the script and reload Grepolis.</li>
+                <li>Check the script version against the stable reference below.</li>
+              </ol>
+            </section>
+
+            <section class="content-block">
+              <div class="content-block__heading">
+                <h3>Latest stable script references</h3>
+                <p>Replace or extend these cards with your own approved in-game tools later.</p>
+              </div>
+
+              <div class="script-grid">
+                @for (script of resource.scripts ?? []; track script.id) {
+                  <article class="script-card">
+                    <div class="script-card__header">
+                      <h4>{{ script.title }}</h4>
+                      <span>{{ script.status }}</span>
+                    </div>
+                    <p>{{ script.description }}</p>
+                    <dl>
+                      <div>
+                        <dt>Version</dt>
+                        <dd>{{ script.version }}</dd>
+                      </div>
+                    </dl>
+                    <div class="script-card__actions">
+                      @if (script.installUrl) {
+                        <a [href]="script.installUrl" target="_blank" rel="noreferrer">
+                          Open install link
+                        </a>
+                      }
+                      @if (script.downloadPath) {
+                        <a [href]="script.downloadPath" download>Download copy</a>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+            </section>
+          } @else if (resource.type === 'reference-document') {
+            <section class="content-block document-placeholder">
+              <h3>Document reader placeholder</h3>
+              <p>
+                Add local PDF/Word exports under <code>public/assets/docs</code>, then set
+                <code>filePath</code> in the resource registry. The reading pane can later embed
+                PDFs or show converted Markdown content here.
+              </p>
+            </section>
+          } @else if (resource.type === 'external-link') {
+            <section class="content-block external-resource-card">
+              <h3>External resource</h3>
+              <p>
+                Use this layout for curated links that deserve context but are not important enough
+                for the compact quick-link area.
+              </p>
+              @if (resource.externalUrl) {
+                <a [href]="resource.externalUrl" target="_blank" rel="noreferrer">
+                  Open resource
+                </a>
+              }
+            </section>
+          } @else {
+            <section class="content-block">
+              <h3>Guide content placeholder</h3>
+              <p>
+                This can become a rendered Markdown guide, an embedded document, or a custom guide
+                page with cards and checklists.
+              </p>
+            </section>
+          }
+
+          <section class="content-block section-overview">
+            <h3>Sections</h3>
+            <div class="section-grid">
+              @for (item of resource.sections; track item.id) {
+                <button type="button" (click)="selectSection(resource, item.id)">
+                  <strong>{{ item.title }}</strong>
+                  <span>{{ item.summary }}</span>
+                </button>
+              }
+            </div>
+          </section>
+        }
+      }
+    </article>
+  </section>
+</section>

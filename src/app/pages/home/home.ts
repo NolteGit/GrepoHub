@@ -18,41 +18,35 @@ type DashboardCard = {
 })
 export class Home {
   protected readonly dashboardCards: DashboardCard[] = [
-    {
-      titleKey: 'dashboard.cityPlanning.title',
-      descriptionKey: 'dashboard.cityPlanning.description',
-      path: '/city-planner',
-      featured: true,
-    },
-    {
-      titleKey: 'dashboard.unitPlanning.title',
-      descriptionKey: 'dashboard.unitPlanning.description',
-      path: '/troops-planner',
-      featured: true,
-    },
-    {
-      titleKey: 'dashboard.references.title',
-      descriptionKey: 'dashboard.references.description',
-      path: '/references',
-      featured: false,
-    },
-    {
-      titleKey: 'dashboard.guides.title',
-      descriptionKey: 'dashboard.guides.description',
-      path: '/guides',
-      featured: false,
-    },
-    {
-      titleKey: 'dashboard.timeTools.title',
-      descriptionKey: 'dashboard.timeTools.description',
-      path: '/time-tools',
-      featured: false,
-    },
-    {
-      titleKey: 'dashboard.battleSimulator.title',
-      descriptionKey: 'dashboard.battleSimulator.description',
-      path: '/battle-simulator',
-      featured: false,
-    },
-  ];
+  {
+    titleKey: 'dashboard.cityPlanning.title',
+    descriptionKey: 'dashboard.cityPlanning.description',
+    path: '/city-planner',
+    featured: true,
+  },
+  {
+    titleKey: 'dashboard.unitPlanning.title',
+    descriptionKey: 'dashboard.unitPlanning.description',
+    path: '/troops-planner',
+    featured: true,
+  },
+  {
+    titleKey: 'dashboard.references.title',
+    descriptionKey: 'dashboard.references.description',
+    path: '/references',
+    featured: false,
+  },
+  {
+    titleKey: 'dashboard.timeTools.title',
+    descriptionKey: 'dashboard.timeTools.description',
+    path: '/time-tools',
+    featured: false,
+  },
+  {
+    titleKey: 'dashboard.battleSimulator.title',
+    descriptionKey: 'dashboard.battleSimulator.description',
+    path: '/battle-simulator',
+    featured: false,
+  },
+];
 }
