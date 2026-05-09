@@ -8,12 +8,65 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [attr.aria-label]="'nav.homeAria' | translate"
       >
-        <span class="app-shell__brand-mark">
-          <img
-            src="/assets/images/grepo-hub-compass-logo.png"
-            alt=""
-            class="app-shell__brand-logo"
-          />
+        <span class="app-shell__brand-mark" aria-hidden="true">
+          <svg
+            class="app-shell__brand-compass"
+            viewBox="0 0 320 320"
+            focusable="false"
+          >
+            <defs>
+              <radialGradient id="navCompassCore" cx="50%" cy="50%" r="58%">
+                <stop offset="0%" stop-color="#003566" stop-opacity="0.88" />
+                <stop offset="58%" stop-color="#001d3d" stop-opacity="0.82" />
+                <stop offset="100%" stop-color="#000814" stop-opacity="0.1" />
+              </radialGradient>
+              <linearGradient id="navNeedleGold" x1="0%" x2="100%" y1="0%" y2="0%">
+                <stop offset="0%" stop-color="#ffc300" />
+                <stop offset="48%" stop-color="#fff8dc" />
+                <stop offset="100%" stop-color="#ffd60a" />
+              </linearGradient>
+              <linearGradient id="navNeedleTail" x1="0%" x2="100%" y1="0%" y2="0%">
+                <stop offset="0%" stop-color="#fff8dc" stop-opacity="0.86" />
+                <stop offset="100%" stop-color="#ffc300" stop-opacity="0.78" />
+              </linearGradient>
+            </defs>
+
+            <circle class="app-shell__brand-aura" cx="160" cy="160" r="143" />
+            <circle class="app-shell__brand-base" cx="160" cy="160" r="128" />
+            <circle class="app-shell__brand-ring app-shell__brand-ring--outer" cx="160" cy="160" r="126" />
+            <circle class="app-shell__brand-ring app-shell__brand-ring--broken" cx="160" cy="160" r="104" />
+            <circle class="app-shell__brand-ring app-shell__brand-ring--inner" cx="160" cy="160" r="63" />
+
+            <path class="app-shell__brand-axis" d="M160 42V278" />
+            <path class="app-shell__brand-axis" d="M42 160H278" />
+            <path class="app-shell__brand-axis app-shell__brand-axis--soft" d="M76.6 76.6L243.4 243.4" />
+            <path class="app-shell__brand-axis app-shell__brand-axis--soft" d="M243.4 76.6L76.6 243.4" />
+
+            <path
+              class="app-shell__brand-star app-shell__brand-star--long"
+              d="M160 28L176 130L292 160L176 190L160 292L144 190L28 160L144 130Z"
+            />
+            <path
+              class="app-shell__brand-star app-shell__brand-star--short"
+              d="M160 78L174 146L242 160L174 174L160 242L146 174L78 160L146 146Z"
+            />
+
+            <g class="app-shell__brand-nodes">
+              <circle cx="160" cy="34" r="9" />
+              <circle cx="286" cy="160" r="9" />
+              <circle cx="160" cy="286" r="9" />
+              <circle cx="34" cy="160" r="9" />
+            </g>
+
+            <g class="app-shell__brand-needle">
+              <path class="app-shell__brand-needle-head" d="M160 42L180 160L160 144L140 160Z" />
+              <path class="app-shell__brand-needle-tail" d="M160 278L140 160L160 176L180 160Z" />
+            </g>
+
+            <circle class="app-shell__brand-hub-shadow" cx="160" cy="160" r="25" />
+            <circle class="app-shell__brand-hub" cx="160" cy="160" r="17" />
+            <circle class="app-shell__brand-hub-dot" cx="160" cy="160" r="5" />
+          </svg>
         </span>
       </a>
 
@@ -47,14 +100,6 @@
             <span class="app-shell__language-flag">🇬🇧</span>
             <span>EN</span>
           }
-        </button>
-
-        <button
-          class="app-shell__time-action"
-          type="button"
-          [attr.aria-label]="'nav.timeQuickActionsAria' | translate"
-        >
-          ⏱
         </button>
       </div>
     </div>

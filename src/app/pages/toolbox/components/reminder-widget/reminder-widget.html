@@ -1,0 +1,206 @@
+<section class="reminder-strip" aria-label="Alarm, timer, and stopwatch widget">
+  <article
+    class="quick-card reminder-card timer-widget"
+    [attr.data-mode]="activeMode"
+    aria-label="Alarm, timer, and stopwatch widget"
+  >
+    <h2 class="timer-widget__title">Reminder Tools</h2>
+
+    <div class="timer-widget__tabs" role="tablist" aria-label="Timer modes">
+      @for (mode of reminderModes; track mode.id) {
+        <button
+          type="button"
+          role="tab"
+          class="timer-widget__tab"
+          [class.timer-widget__tab--active]="activeMode === mode.id"
+          [attr.aria-selected]="activeMode === mode.id"
+          (click)="reminderModeSelected.emit(mode.id)"
+        >
+          {{ mode.label }}
+        </button>
+      }
+    </div>
+
+    @if (activeMode === 'alarm') {
+      <section class="timer-widget__panel" id="alarm" role="tabpanel" aria-label="Alarm">
+        <div class="timer-widget__display-row">
+          <span class="timer-widget__display-spacer" aria-hidden="true"></span>
+
+          <div class="timer-widget__time-block">
+            <span class="timer-widget__label">{{ alarmStatus }}</span>
+            <input
+              type="text"
+              class="timer-widget__time-input"
+              inputmode="numeric"
+              aria-label="Alarm time"
+              readonly
+              [value]="alarmDraft.alarmTime"
+              (focus)="timeInputEditStarted.emit({ mode: 'alarm', event: $event })"
+              (keydown)="timeInputKeydown.emit({ mode: 'alarm', event: $event })"
+              (blur)="timeInputEditFinished.emit('alarm')"
+            />
+          </div>
+
+          <div class="timer-widget__side-panel">
+            <label class="timer-widget__name-field">
+              <span>Name</span>
+              <input
+                type="text"
+                [value]="alarmDraft.alarmLabel"
+                (input)="draftUpdated.emit({ toolId: 'alarm', field: 'alarmLabel', event: $event })"
+              />
+            </label>
+
+            <button type="button" class="timer-widget__side-action" (click)="alarmArmed.emit()">
+              Activate
+            </button>
+          </div>
+        </div>
+
+        <div class="timer-widget__preset-row" aria-label="Quick alarm presets">
+          @for (preset of alarmPresets; track preset.time) {
+            <button type="button" class="timer-widget__preset" (click)="alarmPresetSelected.emit(preset.time)">
+              {{ preset.label }}
+            </button>
+          }
+          <button
+            type="button"
+            class="timer-widget__preset timer-widget__preset--reset"
+            aria-label="Reset alarm"
+            (click)="alarmPresetSelected.emit('22:59:00')"
+          >
+            ↻
+          </button>
+        </div>
+      </section>
+    } @else if (activeMode === 'timer') {
+      <section class="timer-widget__panel" id="countdown" role="tabpanel" aria-label="Timer">
+        <div class="timer-widget__display-row">
+          <button
+            type="button"
+            class="timer-widget__icon-button"
+            [attr.aria-label]="countdownRunning ? 'Pause timer' : 'Start timer'"
+            [attr.aria-pressed]="countdownRunning"
+            (click)="countdownToggled.emit()"
+          >
+            {{ countdownRunning ? 'Ⅱ' : '▶' }}
+          </button>
+
+          <div class="timer-widget__time-block">
+            <span class="timer-widget__label">{{ countdownStatus }}</span>
+            <input
+              type="text"
+              class="timer-widget__time-input"
+              inputmode="numeric"
+              aria-label="Timer duration"
+              readonly
+              [disabled]="countdownRunning"
+              [value]="countdownDisplay"
+              (focus)="timeInputEditStarted.emit({ mode: 'timer', event: $event })"
+              (keydown)="timeInputKeydown.emit({ mode: 'timer', event: $event })"
+              (blur)="timeInputEditFinished.emit('timer')"
+            />
+          </div>
+
+          <div class="timer-widget__side-panel">
+            <label class="timer-widget__name-field">
+              <span>Name</span>
+              <input
+                type="text"
+                [value]="countdownDraft.countdownLabel"
+                (input)="draftUpdated.emit({ toolId: 'countdown', field: 'countdownLabel', event: $event })"
+              />
+            </label>
+
+            <button
+              type="button"
+              class="timer-widget__side-action"
+              [disabled]="!canAddCountdownToQueue"
+              (click)="countdownAdded.emit()"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div class="timer-widget__preset-row" aria-label="Quick timer presets">
+          @for (preset of timerPresets; track preset.seconds) {
+            <button
+              type="button"
+              class="timer-widget__preset"
+              [disabled]="countdownRunning"
+              (click)="countdownPresetSelected.emit(preset.seconds)"
+            >
+              {{ preset.label }}
+            </button>
+          }
+          <button
+            type="button"
+            class="timer-widget__preset timer-widget__preset--reset"
+            aria-label="Reset timer"
+            (click)="countdownReset.emit()"
+          >
+            Reset
+          </button>
+        </div>
+      </section>
+    } @else {
+      <section class="timer-widget__panel" id="stopwatch" role="tabpanel" aria-label="Stopwatch">
+        <div class="timer-widget__display-row">
+          <button
+            type="button"
+            class="timer-widget__icon-button"
+            [attr.aria-label]="stopwatchRunning ? 'Pause stopwatch' : 'Start stopwatch'"
+            [attr.aria-pressed]="stopwatchRunning"
+            (click)="stopwatchToggled.emit()"
+          >
+            {{ stopwatchRunning ? 'Ⅱ' : '▶' }}
+          </button>
+
+          <div class="timer-widget__time-block">
+            <span class="timer-widget__label">{{ stopwatchStatus }}</span>
+            <input
+              type="text"
+              class="timer-widget__time-input"
+              inputmode="numeric"
+              aria-label="Stopwatch time"
+              readonly
+              [disabled]="stopwatchRunning"
+              [value]="stopwatchDisplay"
+              (focus)="timeInputEditStarted.emit({ mode: 'stopwatch', event: $event })"
+              (keydown)="timeInputKeydown.emit({ mode: 'stopwatch', event: $event })"
+              (blur)="timeInputEditFinished.emit('stopwatch')"
+            />
+          </div>
+
+          <div class="timer-widget__side-panel">
+            <label class="timer-widget__name-field">
+              <span>Name</span>
+              <input
+                type="text"
+                [value]="stopwatchDraft.stopwatchLabel"
+                (input)="draftUpdated.emit({ toolId: 'stopwatch', field: 'stopwatchLabel', event: $event })"
+              />
+            </label>
+
+            <button
+              type="button"
+              class="timer-widget__side-action"
+              [disabled]="!canAddStopwatchToQueue"
+              (click)="stopwatchAdded.emit()"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div class="timer-widget__preset-row timer-widget__preset-row--compact" aria-label="Stopwatch actions">
+          <button type="button" class="timer-widget__preset timer-widget__preset--reset" (click)="stopwatchReset.emit()">
+            Reset
+          </button>
+        </div>
+      </section>
+    }
+  </article>
+</section>
+

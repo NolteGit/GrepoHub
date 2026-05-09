@@ -1,0 +1,107 @@
+<article class="quick-card time-card" id="time-calculator">
+  <header class="time-card__header">
+    <h2>Time calculation</h2>
+  </header>
+
+  <div class="time-math" aria-label="Time calculation">
+    <div class="time-math__labels" aria-hidden="true">
+      <span>Hours</span>
+      <span>Minutes</span>
+      <span>Seconds</span>
+    </div>
+
+    <div class="time-math__row time-math__row--base">
+      <span class="time-math__spacer" aria-hidden="true"></span>
+      <label class="time-segment-field" title="Click and type HHMMSS">
+        <span class="sr-only">Time 1</span>
+        <input
+          type="text"
+          class="time-segment-field__input"
+          inputmode="numeric"
+          aria-label="Time 1"
+          readonly
+          [value]="baseDisplay"
+          (focus)="timeInputEditStarted.emit({ mode: 'time-base', event: $event })"
+          (keydown)="timeInputKeydown.emit({ mode: 'time-base', event: $event })"
+          (blur)="timeInputEditFinished.emit('time-base')"
+        />
+        <span class="time-segment-field__part">{{ timePart(baseDisplay, 'hours') }}</span>
+        <span class="time-segment-field__colon">:</span>
+        <span class="time-segment-field__part">{{ timePart(baseDisplay, 'minutes') }}</span>
+        <span class="time-segment-field__colon">:</span>
+        <span class="time-segment-field__part">{{ timePart(baseDisplay, 'seconds') }}</span>
+      </label>
+      <button
+        type="button"
+        class="time-math__action time-math__action--primary"
+        title="Use current time for Time 1"
+        (click)="currentTimeRequested.emit('time-calculator')"
+      >
+        Now
+      </button>
+    </div>
+
+    <div
+      class="time-math__row time-math__row--delta"
+      [class.time-math__row--subtract]="draft.timeDirection === 'subtract'"
+    >
+      <button
+        type="button"
+        class="time-math__operator time-math__operator--toggle"
+        [class.time-math__operator--subtract]="draft.timeDirection === 'subtract'"
+        [attr.aria-pressed]="draft.timeDirection === 'subtract'"
+        [attr.aria-label]="draft.timeDirection === 'add' ? 'Switch to subtract' : 'Switch to add'"
+        title="Toggle add/subtract"
+        (click)="directionToggled.emit()"
+      >
+        {{ draft.timeDirection === 'add' ? '+' : '−' }}
+      </button>
+
+      <label class="time-segment-field time-segment-field--delta" title="Click and type HHMMSS">
+        <span class="sr-only">Time 2</span>
+        <input
+          type="text"
+          class="time-segment-field__input"
+          inputmode="numeric"
+          aria-label="Time 2 duration"
+          readonly
+          [value]="deltaDisplay"
+          (focus)="timeInputEditStarted.emit({ mode: 'time-offset', event: $event })"
+          (keydown)="timeInputKeydown.emit({ mode: 'time-offset', event: $event })"
+          (blur)="timeInputEditFinished.emit('time-offset')"
+        />
+        <span class="time-segment-field__part">{{ timePart(deltaDisplay, 'hours') }}</span>
+        <span class="time-segment-field__colon">:</span>
+        <span class="time-segment-field__part">{{ timePart(deltaDisplay, 'minutes') }}</span>
+        <span class="time-segment-field__colon">:</span>
+        <span class="time-segment-field__part">{{ timePart(deltaDisplay, 'seconds') }}</span>
+      </label>
+      <button
+        type="button"
+        class="time-math__action time-math__action--icon"
+        aria-label="Reset Time 2"
+        title="Reset Time 2"
+        (click)="timeOffsetReset.emit()"
+      >
+        ↻
+      </button>
+    </div>
+
+    <div class="time-math__divider" aria-hidden="true"></div>
+
+    <div class="time-math__row time-math__row--result">
+      <span class="time-math__result-marker">
+        Result
+        <span aria-hidden="true">=</span>
+      </span>
+      <output class="time-segment-field time-segment-field--result" aria-label="Time calculation result">
+        <span class="time-segment-field__part">{{ timePart(result, 'hours') }}</span>
+        <span class="time-segment-field__colon">:</span>
+        <span class="time-segment-field__part">{{ timePart(result, 'minutes') }}</span>
+        <span class="time-segment-field__colon">:</span>
+        <span class="time-segment-field__part">{{ timePart(result, 'seconds') }}</span>
+      </output>
+      <span class="time-math__spacer" aria-hidden="true"></span>
+    </div>
+  </div>
+</article>

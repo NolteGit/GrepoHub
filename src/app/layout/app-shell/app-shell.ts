@@ -32,16 +32,8 @@ export class AppShell {
       path: '/references',
     },
     {
-      labelKey: 'nav.guides',
-      path: '/guides',
-    },
-    {
-      labelKey: 'nav.timeTools',
-      path: '/time-tools',
-    },
-    {
-      labelKey: 'nav.battleSimulator',
-      path: '/battle-simulator',
+      labelKey: 'nav.toolbox',
+      path: '/toolbox',
     },
   ];
 

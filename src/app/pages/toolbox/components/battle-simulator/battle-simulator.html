@@ -1,0 +1,42 @@
+<section class="simulator-section" id="battle-simulator" aria-label="Battle simulator placeholder">
+  <header class="simulator-toolbar">
+    <div>
+      <span>{{ summary.eyebrow }}</span>
+      <h2>{{ summary.title }}</h2>
+    </div>
+
+    <div class="simulator-actions" aria-label="Simulator configuration actions">
+      <button type="button">Load config</button>
+      <button type="button">Save config</button>
+    </div>
+  </header>
+
+  <div class="simulator-workspace">
+    <section class="battle-setup-row">
+      <label class="battle-side-card">
+        <span>Attacker</span>
+        <input
+          type="text"
+          [value]="draft.attackerPreset"
+          (input)="draftUpdated.emit({ toolId: 'battle-simulator', field: 'attackerPreset', event: $event })"
+        />
+      </label>
+
+      <div class="battle-versus">VS</div>
+
+      <label class="battle-side-card">
+        <span>Defender</span>
+        <input
+          type="text"
+          [value]="draft.defenderPreset"
+          (input)="draftUpdated.emit({ toolId: 'battle-simulator', field: 'defenderPreset', event: $event })"
+        />
+      </label>
+    </section>
+
+    <div class="battle-placeholder-copy">
+      <strong>Battle simulator workspace</strong>
+      <p>This lower area is reserved for the full troop table, modifiers, presets, and result comparison.</p>
+    </div>
+  </div>
+</section>

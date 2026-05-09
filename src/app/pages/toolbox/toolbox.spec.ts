@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TimeTools } from './time-tools';
+import { Toolbox } from './toolbox';
 
-describe('TimeTools', () => {
-  let component: TimeTools;
-  let fixture: ComponentFixture<TimeTools>;
+describe('Toolbox', () => {
+  let component: Toolbox;
+  let fixture: ComponentFixture<Toolbox>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TimeTools],
+      imports: [Toolbox],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TimeTools);
+    fixture = TestBed.createComponent(Toolbox);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

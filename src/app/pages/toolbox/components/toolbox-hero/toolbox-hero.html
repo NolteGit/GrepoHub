@@ -1,0 +1,23 @@
+<header class="toolbox-hero">
+  <div class="toolbox-hero__copy">
+    <h1>{{ 'toolbox.title' | translate }}</h1>
+    <p>{{ 'toolbox.description' | translate }}</p>
+  </div>
+
+  <div class="toolbox-hero__clock" aria-label="Current time">
+    <time class="toolbox-hero__clock-value" [attr.datetime]="currentIsoTime()">
+      {{ currentTime() }}
+    </time>
+    <select
+      class="toolbox-hero__timezone"
+      aria-label="Timezone"
+      [value]="selectedTimeZoneId()"
+      [attr.title]="timeZoneDescription()"
+      (change)="selectTimeZone($event)"
+    >
+      @for (option of timeZoneOptions; track option.id) {
+        <option [value]="option.id">{{ timeZoneOptionLabel(option) }}</option>
+      }
+    </select>
+  </div>
+</header>

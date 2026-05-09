@@ -1,0 +1,110 @@
+@use '../../styles/toolbox-mixins' as *;
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.toolbox-hero {
+  @include shell(1.35rem, var(--prussian-blue));
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 2rem);
+  padding: clamp(1rem, 1.5vw, 1.25rem);
+
+  h1 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.052em;
+    text-shadow: 0 3px 0 rgba(0, 8, 20, 0.72);
+  }
+
+  p {
+    margin: 0.55rem 0 0;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+}
+
+.toolbox-hero__copy {
+  min-width: 0;
+}
+
+.toolbox-hero__clock {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  min-width: 0;
+  padding-inline-end: clamp(0.35rem, 0.9vw, 1rem);
+  text-align: right;
+}
+
+.toolbox-hero__clock-value {
+  color: var(--text-primary);
+  font-size: clamp(1.7rem, 2.5vw, 2.45rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+  letter-spacing: 0.035em;
+  line-height: 0.95;
+  text-shadow: 0 2px 0 rgba(0, 8, 20, 0.56);
+  white-space: nowrap;
+}
+
+.toolbox-hero__timezone {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  padding: 0;
+  text-align: right;
+  text-transform: uppercase;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  option {
+    background: var(--prussian-blue);
+    color: var(--text-primary);
+  }
+}
+
+@media (max-width: 1320px) {
+  .toolbox-hero {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .toolbox-hero__clock {
+    justify-content: flex-start;
+    padding-inline-end: 0;
+    text-align: left;
+  }
+}
+
+@media (max-width: 720px) {
+  .toolbox-hero {
+    padding: 0.9rem;
+    border-radius: 1rem;
+  }
+
+  .toolbox-hero__clock {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}

@@ -39,6 +39,7 @@
 }
 
 .references-hero h1,
+.references-hero__title,
 .reading-pane h2,
 .reading-pane h3,
 .script-card h4,
@@ -47,9 +48,13 @@
   color: var(--text-primary);
 }
 
-.references-hero h1 {
-  font-size: clamp(2rem, 2.4vw, 2.7rem);
+.references-hero h1,
+.references-hero__title {
+  font-size: clamp(2rem, 3vw, 3rem);
   line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  text-shadow: 0 2px 0 rgba(255, 195, 0, 0.16);
 }
 
 .references-hero p:last-child,

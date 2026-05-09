@@ -1,0 +1,127 @@
+@use './styles/toolbox-mixins' as *;
+
+.toolbox-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.quick-console {
+  @include shell(1.35rem, var(--prussian-blue));
+
+  display: grid;
+  grid-template-columns:
+    minmax(17rem, 0.78fr)
+    minmax(21.5rem, 0.9fr)
+    minmax(31rem, 1.55fr)
+    minmax(17rem, 0.82fr);
+  align-items: stretch;
+  grid-auto-rows: minmax(0, 18.5rem);
+  gap: clamp(0.75rem, 1vw, 1rem);
+  padding: clamp(0.55rem, 0.8vw, 0.75rem);
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 15% 18%, rgba(255, 214, 10, 0.055), transparent 10rem),
+      radial-gradient(circle at 85% 76%, rgba(255, 214, 10, 0.045), transparent 12rem),
+      linear-gradient(135deg, rgba(0, 8, 20, 0.12), transparent 45%, rgba(0, 8, 20, 0.18));
+    opacity: 0.9;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+app-quick-calculator,
+app-time-calculator,
+app-reminder-widget,
+app-active-timer-queue {
+  align-self: stretch;
+  display: block;
+  min-height: 0;
+  height: 100%;
+}
+
+app-active-timer-queue {
+  align-self: stretch;
+  height: 100%;
+  max-height: 18.5rem;
+  overflow: hidden;
+}
+
+@media (max-width: 1680px) {
+  .quick-console {
+    grid-template-columns:
+      minmax(16rem, 0.76fr)
+      minmax(20rem, 0.9fr)
+      minmax(28rem, 1.4fr)
+      minmax(15rem, 0.76fr);
+  }
+}
+
+@media (max-width: 1420px) {
+  .quick-console {
+    grid-template-columns: minmax(12.5rem, 0.64fr) minmax(20rem, 0.92fr) minmax(13rem, 0.62fr);
+  }
+
+  app-active-timer-queue {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  app-reminder-widget {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1120px) {
+  .quick-console {
+    grid-template-columns: minmax(12.5rem, 0.8fr) minmax(20rem, 1fr);
+  }
+
+  .quick-console {
+    grid-auto-rows: minmax(0, auto);
+  }
+
+  app-active-timer-queue {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    height: 22rem;
+    max-height: 22rem;
+  }
+}
+
+@media (max-width: 840px) {
+  .quick-console {
+    grid-template-columns: 1fr;
+  }
+
+  app-reminder-widget,
+  app-active-timer-queue {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .toolbox-page {
+    gap: 0.8rem;
+  }
+
+  .quick-console {
+    padding: 0.9rem;
+    border-radius: 1rem;
+  }
+
+  app-active-timer-queue {
+    height: 24rem;
+    max-height: 24rem;
+  }
+}
+

@@ -1,43 +1,26 @@
 {
   "app.name": "Grepo Hub",
-
   "nav.home": "Home",
   "nav.homeAria": "Go to home page",
   "nav.mainAria": "Main navigation",
-  "nav.timeQuickActionsAria": "Open time quick actions",
   "nav.cityPlanner": "City Planner",
   "nav.troopsPlanner": "Troops Planner",
   "nav.references": "References",
-  "nav.guides": "Guides",
-  "nav.timeTools": "Time Tools",
-  "nav.battleSimulator": "Battle Simulator",
-
+  "nav.toolbox": "Toolbox",
   "language.switchToEnglish": "Switch to English",
   "language.switchToGerman": "Switch to German",
-
-  "home.eyebrow": "Grepolis Toolkit",
   "home.title": "Grepo Hub",
-  "home.subtitle": "Your central workspace for city planning, troop preparation, references, guides, timers, and future battle tools.",
+  "home.subtitle": "Your central workspace for city planning, troop preparation, references, and tools.",
   "home.dashboardAria": "Home dashboard",
-
+  "home.compassIdle": "Choose your path",
   "dashboard.cityPlanning.title": "City Planning",
   "dashboard.cityPlanning.description": "Plan your city development, compare building choices, and prepare cleaner build paths.",
-
-  "dashboard.unitPlanning.title": "Unit Planning",
+  "dashboard.unitPlanning.title": "Troops Planning",
   "dashboard.unitPlanning.description": "Prepare troop compositions, estimate costs, and shape your army plans before recruiting.",
-
   "dashboard.references.title": "References",
   "dashboard.references.description": "Browse important game information, unit data, and useful lookup material.",
-
-  "dashboard.guides.title": "Guides",
-  "dashboard.guides.description": "Collect strategies, notes, and practical explanations for common gameplay situations.",
-
-  "dashboard.timeTools.title": "Time Tools",
-  "dashboard.timeTools.description": "Use timing helpers and future utility tools for more precise planning.",
-
-  "dashboard.battleSimulator.title": "Simulator",
-  "dashboard.battleSimulator.description": "Prepare for future battle calculation and comparison features.",
-
+  "dashboard.toolbox.title": "Toolbox",
+  "dashboard.toolbox.description": "Collect future helpers, calculators, and utility features in one central place.",
   "cityPlanner.title": "City Planner",
   "cityPlanner.subtitle": "Plan building levels, city development, and preview the population effect.",
   "cityPlanner.loadedCount": "Buildings loaded",
@@ -63,7 +46,6 @@
   "cityPlanner.specialBuilding.slot1": "Special Building 1",
   "cityPlanner.specialBuilding.slot2": "Special Building 2",
   "cityPlanner.populationShort": "pop",
-
   "troopsPlanner.title": "Troops Planner",
   "troopsPlanner.description": "Plan troop compositions, costs, population, transport needs, combat values, and restrictions.",
   "troopsPlanner.configuration": "Configuration",
@@ -110,28 +92,15 @@
   "troopsPlanner.transportCapacityShort": "CAP",
   "troopsPlanner.transportUsedShort": "USED",
   "troopsPlanner.transportBalanceShort": "BAL",
-
-  "battleSimulator.title": "Battle Simulator",
-  "battleSimulator.placeholder": "This feature is planned.",
-
-  "guides.title": "Guides",
-  "guides.placeholder": "This feature is planned.",
-
   "references.title": "References",
   "references.placeholder": "This feature is planned.",
-
-  "timeTools.title": "Time Tools",
-  "timeTools.placeholder": "This feature is planned.",
-
   "table.unit": "Unit",
   "table.amount": "Amount",
-
   "resource.wood": "Wood",
   "resource.stone": "Stone",
   "resource.silver": "Silver",
   "resource.favor": "Favor",
   "resource.population": "Population",
-
   "unitAttribute.attack": "Attack",
   "unitAttribute.attackBlunt": "Attack (blunt)",
   "unitAttribute.attackSharp": "Attack (sharp)",
@@ -150,12 +119,10 @@
   "unitAttribute.recruitmentTimeMinutes": "Recruitment Time",
   "unitAttribute.isMythical": "Mythical Unit",
   "unitAttribute.god": "God",
-
   "attackType.naval": "Naval",
   "attackType.blunt": "Blunt",
   "attackType.sharp": "Sharp",
   "attackType.distance": "Distance",
-
   "god.zeus": "Zeus",
   "god.poseidon": "Poseidon",
   "god.hera": "Hera",
@@ -165,7 +132,6 @@
   "god.aphrodite": "Aphrodite",
   "god.ares": "Ares",
   "god.all": "All Gods",
-
   "building.senate": "Senate",
   "building.timber_camp": "Timber Camp",
   "building.farm": "Farm",
@@ -189,7 +155,6 @@
   "building.merchants_shop": "Merchant's Shop",
   "building.agora": "Agora",
   "building.land_expansion": "Land Expansion",
-
   "unit.militia": "Militia",
   "unit.swordsman": "Swordsman",
   "unit.slinger": "Slinger",
@@ -221,5 +186,10 @@
   "unit.satyr": "Satyr",
   "unit.ladon": "Ladon",
   "unit.spartoi": "Spartoi",
-  "unit.divine_envoy": "Divine Envoy"
+  "unit.divine_envoy": "Divine Envoy",
+  "toolbox.eyebrow": "Tools",
+  "toolbox.title": "Toolbox",
+  "toolbox.description": "Future utility features, calculators, and smaller tools will live here without expanding the home page again.",
+  "toolbox.placeholderTitle": "Ready for the next tools",
+  "toolbox.placeholderText": "The previously separate time tools and simulator areas were removed from the navigation and dashboard. New small tools can be collected here later."
 }
