@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { appTestProviders } from '../../testing/app-test-providers';
 import { TroopsPlanner } from './troops-planner';
 
 describe('TroopsPlanner', () => {
@@ -9,6 +10,7 @@ describe('TroopsPlanner', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TroopsPlanner],
+      providers: [...appTestProviders],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TroopsPlanner);

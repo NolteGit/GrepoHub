@@ -71,9 +71,11 @@
     />
   </section>
 
-  <app-battle-simulator
-    [summary]="battleSimulator"
-    [draft]="draftFor('battle-simulator')"
-    (draftUpdated)="updateDraft($event.toolId, $event.field, $event.event)"
-  />
+  @if (showBattleSimulator) {
+    <app-battle-simulator
+      [summary]="battleSimulator"
+      [draft]="draftFor('battle-simulator')"
+      (draftUpdated)="updateDraft($event.toolId, $event.field, $event.event)"
+    />
+  }
 </section>

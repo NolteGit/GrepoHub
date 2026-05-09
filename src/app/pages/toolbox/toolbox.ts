@@ -41,6 +41,7 @@ import {
   styleUrl: './toolbox.scss',
 })
 export class Toolbox implements OnDestroy {
+  showBattleSimulator = false;
   private readonly storageKey = 'grepo-hub-toolbox-dashboard-state';
   private readonly toolIds: ToolId[] = [
     'quick-calculator',
