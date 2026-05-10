@@ -25,8 +25,30 @@
         {{ 'cityPlanner.save' | translate }}
       </button>
 
-      <button type="button" (click)="saveAsNewConfiguration()">
+      <button type="button" (click)="exportActivePlanAsJson()">
+        {{ 'planConfig.exportJson' | translate }}
+      </button>
+
+      <button type="button" (click)="planImportInput.click()">
+        {{ 'planConfig.importJson' | translate }}
+      </button>
+      <input
+        #planImportInput
+        type="file"
+        accept="application/json,.json,.grepo-plan.json"
+        hidden
+        (change)="importPlanFromJsonFile($event)"
+      />
+
+      <button type="button" (click)="deleteActivePlan()">
+        {{ 'planConfig.delete' | translate }}
+      </button>
+<button type="button" (click)="saveAsNewConfiguration()">
         {{ 'cityPlanner.saveAsNew' | translate }}
+      </button>
+
+      <button type="button" (click)="clearActivePlan()">
+        {{ 'planConfig.clear' | translate }}
       </button>
 
       @if (selectedConfiguration().isPreset) {
@@ -34,6 +56,10 @@
           {{ 'cityPlanner.resetPreset' | translate }}
         </button>
       }
+
+      <p class="city-planner-page__storage-note">
+        {{ 'planConfig.localStorageNotice' | translate }}
+      </p>
     </div>
   </header>
 
@@ -241,28 +267,8 @@
                   {{ 'cityPlanner.level' | translate }}
                 </span>
 
-                <div class="city-stepper city-stepper--side">
+                                <div class="city-stepper city-stepper--side city-stepper--land-expansion">
                   <button
-                        type="button"
-                        class="city-stepper__button city-stepper__limit-button"
-                        (click)="setBuildingToMinLevel(landExpansion.id)"
-                        [disabled]="getBuildingLevel(landExpansion.id) <= getBuildingMinLevel(landExpansion.id)"
-                        [attr.aria-label]="getBuildingLimitTargetAriaLabel(landExpansion.id, 'min')"
-                      >
-                        MIN
-                      </button>
-
-                      <button
-                        type="button"
-                        class="city-stepper__button city-stepper__limit-button"
-                        (click)="setBuildingToMaxLevel(landExpansion.id)"
-                        [disabled]="getBuildingLevel(landExpansion.id) >= getBuildingMaxLevel(landExpansion.id)"
-                        [attr.aria-label]="getBuildingLimitTargetAriaLabel(landExpansion.id, 'max')"
-                      >
-                        MAX
-                      </button>
-
-                      <button
                     type="button"
                     class="city-stepper__button"
                     (click)="stepBuildingLevel(landExpansion.id, -1)"
@@ -271,16 +277,16 @@
                     −
                   </button>
 
-                  <select
+                  <input
                     [id]="'building-' + landExpansion.id"
-                    class="city-stepper__select"
+                    class="city-stepper__input city-stepper__input--land-expansion"
+                    type="number"
+                    min="0"
+                    step="1"
+                    [max]="landExpansion.maxLevel"
                     [ngModel]="getBuildingLevel(landExpansion.id)"
                     (ngModelChange)="updateBuildingLevel(landExpansion.id, $event)"
-                  >
-                    @for (level of getBuildingLevelOptions(landExpansion.id, landExpansion.maxLevel); track level) {
-                      <option [ngValue]="level">{{ level }}</option>
-                    }
-                  </select>
+                  />
 
                   <button
                     type="button"
@@ -340,4 +346,185 @@
       </section>
     </aside>
   </div>
+
+  
+
+  
+
+  @if (deletePlanDialogOpen()) {
+    <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelDeleteActivePlan()">
+      <section
+        class="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'delete-plan-dialog-title'"
+        [attr.aria-describedby]="'delete-plan-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="confirm-dialog__icon" aria-hidden="true">!</div>
+
+        <div class="confirm-dialog__body">
+          <h2 id="delete-plan-dialog-title">
+            {{ 'planConfig.deleteDialog.title' | translate }}
+          </h2>
+          <p id="delete-plan-dialog-description">
+            {{ 'planConfig.deleteDialog.message' | translate }}
+          </p>
+          <p class="confirm-dialog__plan-name">
+            {{ activePlanName() }}
+          </p>
+        </div>
+
+        <div class="confirm-dialog__actions">
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--secondary"
+            (click)="cancelDeleteActivePlan()"
+          >
+            {{ 'planConfig.deleteDialog.cancel' | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--danger"
+            (click)="confirmDeleteActivePlan()"
+          >
+            {{ 'planConfig.deleteDialog.confirm' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (planDeleteResultDialog(); as dialog) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="closePlanDeleteResultDialog()">
+      <section
+        class="plan-dialog"
+        [class.plan-dialog--error]="dialog.isError"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'plan-delete-result-dialog-title'"
+        [attr.aria-describedby]="'plan-delete-result-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          {{ dialog.isError ? '!' : '✓' }}
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="plan-delete-result-dialog-title">
+            {{ (dialog.isError ? 'planConfig.deleteDialog.errorTitle' : 'planConfig.deleteDialog.successTitle') | translate }}
+          </h2>
+          <p id="plan-delete-result-dialog-description">
+            {{ (dialog.isError ? 'planConfig.deleteDialog.errorMessage' : 'planConfig.deleteDialog.successMessage') | translate }}
+          </p>
+
+          @if (dialog.detailLines.length > 0) {
+            <ul class="plan-dialog__details">
+              @for (line of dialog.detailLines; track line) {
+                <li>{{ line }}</li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--primary"
+            (click)="closePlanDeleteResultDialog()"
+          >
+            {{ 'planConfig.deleteDialog.ok' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (planImportDialog(); as dialog) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="closePlanImportDialog()">
+      <section
+        class="plan-dialog"
+        [class.plan-dialog--error]="dialog.isError"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'plan-import-dialog-title'"
+        [attr.aria-describedby]="'plan-import-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          {{ dialog.isError ? '!' : '✓' }}
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="plan-import-dialog-title">
+            {{ (dialog.isError ? 'planConfig.importDialog.errorTitle' : 'planConfig.importDialog.successTitle') | translate }}
+          </h2>
+          <p id="plan-import-dialog-description">
+            {{ (dialog.isError ? 'planConfig.importDialog.errorMessage' : 'planConfig.importDialog.successMessage') | translate }}
+          </p>
+
+          @if (dialog.detailLines.length > 0) {
+            <ul class="plan-dialog__details">
+              @for (line of dialog.detailLines; track line) {
+                <li>{{ line }}</li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--primary"
+            (click)="closePlanImportDialog()"
+          >
+            {{ 'planConfig.importDialog.ok' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (clearPlanDialogOpen()) {
+    <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelClearActivePlan()">
+      <section
+        class="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'clear-plan-dialog-title'"
+        [attr.aria-describedby]="'clear-plan-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="confirm-dialog__icon" aria-hidden="true">!</div>
+
+        <div class="confirm-dialog__body">
+          <h2 id="clear-plan-dialog-title">
+            {{ 'planConfig.clearCityDialog.title' | translate }}
+          </h2>
+          <p id="clear-plan-dialog-description">
+            {{ 'planConfig.clearCityDialog.message' | translate }}
+          </p>
+        </div>
+
+        <div class="confirm-dialog__actions">
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--secondary"
+            (click)="cancelClearActivePlan()"
+          >
+            {{ 'planConfig.clearDialog.cancel' | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--danger"
+            (click)="confirmClearActivePlan()"
+          >
+            {{ 'planConfig.clearCityDialog.confirm' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 </section>

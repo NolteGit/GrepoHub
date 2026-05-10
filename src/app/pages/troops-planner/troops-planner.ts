@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
@@ -9,6 +9,8 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
 
+type TroopUnitSectionId = 'land' | 'sea' | 'mythical';
+
 @Component({
   selector: 'app-troops-planner',
   imports: [FormsModule, NgTemplateOutlet, TranslatePipe],
@@ -16,8 +18,31 @@ import { PlanConfigService } from '../../services/plan-config.service';
   styleUrl: './troops-planner.scss',
 })
 export class TroopsPlanner {
+  protected readonly planImportDialog = signal<{
+    readonly isError: boolean;
+    readonly detailLines: readonly string[];
+  } | null>(null);
+
+  protected readonly clearPlanDialogOpen = signal(false);
+
+  private readonly maxUnitAmount = 2500;
+  private readonly unitAmountOptions: readonly number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500];
+
+  protected readonly collapsedUnitSections = signal<Record<TroopUnitSectionId, boolean>>({
+    land: false,
+    sea: false,
+    mythical: false,
+  });
+
   private readonly gameDataService = inject(GameDataService);
   private readonly planConfigService = inject(PlanConfigService);
+  protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
+  protected readonly activePlanName = computed(() => this.planConfigService.activePlan().name);
+  protected readonly deletePlanDialogOpen = signal(false);
+  protected readonly planDeleteResultDialog = signal<{
+    readonly isError: boolean;
+    readonly detailLines: readonly string[];
+  } | null>(null);
 
   protected readonly units = toSignal(this.gameDataService.getUnitDefinitions(), {
     initialValue: [] as Unit[],
@@ -174,12 +199,226 @@ export class TroopsPlanner {
     return this.totalRecruitmentTimeMinutes() > 0;
   });
 
+  protected isUnitSectionCollapsed(sectionId: TroopUnitSectionId): boolean {
+    return this.collapsedUnitSections()[sectionId];
+  }
+
+  protected toggleUnitSection(sectionId: TroopUnitSectionId): void {
+    this.collapsedUnitSections.update((sections) => ({
+      ...sections,
+      [sectionId]: !sections[sectionId],
+    }));
+  }
+
   protected selectConfiguration(configurationId: string): void {
     this.planConfigService.selectPlan(configurationId);
   }
 
   protected saveConfigurations(): void {
     this.planConfigService.savePlans();
+  }
+  protected exportActivePlanAsJson(): void {
+    const exportedAt = new Date().toISOString();
+    const exportIdSuffix = exportedAt.replace(/\D/g, '').slice(0, 14);
+    const activePlan = this.preparePlanForExport(
+      structuredClone(this.planConfigService.activePlan()) as Record<string, unknown>,
+      exportedAt,
+      exportIdSuffix,
+    );
+    const exportBundle = {
+      format: 'grepo-hub-plan-config',
+      version: 1,
+      exportedAt,
+      plans: [activePlan],
+    };
+    const planName = typeof activePlan['name'] === 'string' ? activePlan['name'] : 'grepo-plan';
+    const fileName = this.sanitizeFileName(planName) + '.grepo-plan.json';
+
+    this.downloadTextFile(fileName, JSON.stringify(exportBundle, null, 2), 'application/json');
+  }
+  protected importPlanFromJsonFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      try {
+        const content = typeof reader.result === 'string' ? reader.result : '';
+        const result = this.planConfigService.importJsonAsNewPlans(content);
+
+        this.showPlanImportSuccessDialog(result.plans);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Could not import plan file.';
+
+        this.showPlanImportErrorDialog(message);
+      } finally {
+        input.value = '';
+      }
+    };
+
+    reader.onerror = () => {
+      this.showPlanImportErrorDialog('Could not read plan file.');
+      input.value = '';
+    };
+
+    reader.readAsText(file);
+  }
+
+  protected deleteActivePlan(): void {
+    if (!this.canDeleteActivePlan()) {
+      this.showPlanDeleteResultDialog(['Default presets cannot be deleted. Duplicate or import a plan first.'], true);
+      return;
+    }
+
+    this.deletePlanDialogOpen.set(true);
+  }
+
+  protected cancelDeleteActivePlan(): void {
+    this.deletePlanDialogOpen.set(false);
+  }
+
+  protected confirmDeleteActivePlan(): void {
+    this.deletePlanDialogOpen.set(false);
+
+    const result = this.planConfigService.deleteActivePlan();
+
+    if (!result) {
+      this.showPlanDeleteResultDialog(['Default presets cannot be deleted. Duplicate or import a plan first.'], true);
+      return;
+    }
+
+    this.showPlanDeleteResultDialog([
+      result.deletedPlanName + ' deleted.',
+      'Now selected: ' + result.selectedPlanName + '.',
+    ]);
+  }
+
+  protected closePlanDeleteResultDialog(): void {
+    this.planDeleteResultDialog.set(null);
+  }
+
+  private showPlanDeleteResultDialog(detailLines: readonly string[], isError = false): void {
+    this.planDeleteResultDialog.set({
+      isError,
+      detailLines,
+    });
+  }
+
+  protected closePlanImportDialog(): void {
+    this.planImportDialog.set(null);
+  }
+
+  private showPlanImportSuccessDialog(
+    importedPlans: readonly { readonly name: string; readonly requestedName: string; readonly renamed: boolean }[],
+  ): void {
+    const detailLines = importedPlans.map((plan) =>
+      plan.renamed ? plan.requestedName + ' → ' + plan.name : plan.name,
+    );
+
+    this.planImportDialog.set({
+      isError: false,
+      detailLines,
+    });
+  }
+
+  private showPlanImportErrorDialog(message: string): void {
+    this.planImportDialog.set({
+      isError: true,
+      detailLines: [message],
+    });
+  }
+  private preparePlanForExport(
+    plan: Record<string, unknown>,
+    exportedAt: string,
+    exportIdSuffix: string,
+  ): Record<string, unknown> {
+    const portablePlan = this.removeNullishValues(plan) as Record<string, unknown>;
+    const planName = typeof portablePlan['name'] === 'string' ? portablePlan['name'] : 'Grepo Plan';
+
+    delete portablePlan['isPreset'];
+    portablePlan['id'] = this.createPortableExportId('plan', planName, exportIdSuffix);
+    portablePlan['createdAt'] = typeof portablePlan['createdAt'] === 'string' ? portablePlan['createdAt'] : exportedAt;
+    portablePlan['updatedAt'] = exportedAt;
+    portablePlan['settings'] = this.removeNullishValues(
+      this.isPlainRecord(portablePlan['settings']) ? portablePlan['settings'] : {},
+    );
+
+    const cityPlan = portablePlan['cityPlan'];
+
+    if (this.isPlainRecord(cityPlan)) {
+      const portableCityPlan = this.removeNullishValues(cityPlan) as Record<string, unknown>;
+      const cityPlanName = typeof portableCityPlan['name'] === 'string' ? portableCityPlan['name'] : planName + ' City';
+
+      delete portableCityPlan['isPreset'];
+      portableCityPlan['id'] = this.createPortableExportId('city', cityPlanName, exportIdSuffix);
+      portablePlan['cityPlan'] = portableCityPlan;
+    }
+
+    const troopPlan = portablePlan['troopPlan'];
+
+    if (this.isPlainRecord(troopPlan)) {
+      const portableTroopPlan = this.removeNullishValues(troopPlan) as Record<string, unknown>;
+      const troopPlanName = typeof portableTroopPlan['name'] === 'string' ? portableTroopPlan['name'] : planName + ' Troops';
+
+      delete portableTroopPlan['isPreset'];
+      portableTroopPlan['id'] = this.createPortableExportId('troops', troopPlanName, exportIdSuffix);
+      portablePlan['troopPlan'] = portableTroopPlan;
+    }
+
+    return portablePlan;
+  }
+
+  private createPortableExportId(prefix: string, name: string, exportIdSuffix: string): string {
+    return prefix + '-' + this.sanitizeFileName(name) + '-' + exportIdSuffix;
+  }
+
+  private removeNullishValues(value: unknown): unknown {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.removeNullishValues(item));
+    }
+
+    if (!this.isPlainRecord(value)) {
+      return value;
+    }
+
+    return Object.entries(value).reduce<Record<string, unknown>>((cleanedValue, [key, item]) => {
+      if (item !== null && item !== undefined) {
+        cleanedValue[key] = this.removeNullishValues(item);
+      }
+
+      return cleanedValue;
+    }, {});
+  }
+
+  private isPlainRecord(value: unknown): value is Record<string, unknown> {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  }
+
+
+  private downloadTextFile(fileName: string, content: string, mimeType: string): void {
+    const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private sanitizeFileName(value: string): string {
+    const sanitizedValue = value
+      .trim()
+      .replace(/[^a-z0-9._-]+/gi, '-')
+      .replace(/^-+|-+$/g, '')
+      .toLowerCase();
+
+    return sanitizedValue || 'grepo-plan';
   }
 
   protected saveAsNewConfiguration(): void {
@@ -192,6 +431,19 @@ export class TroopsPlanner {
 
     this.planConfigService.duplicateActivePlan(name);
   }
+  protected clearActivePlan(): void {
+    this.clearPlanDialogOpen.set(true);
+  }
+
+  protected cancelClearActivePlan(): void {
+    this.clearPlanDialogOpen.set(false);
+  }
+
+  protected confirmClearActivePlan(): void {
+    this.clearPlanDialogOpen.set(false);
+    this.planConfigService.clearActiveTroopPlan();
+  }
+
 
   protected resetSelectedConfiguration(): void {
     this.planConfigService.resetActiveTroopPlan();
@@ -206,10 +458,24 @@ export class TroopsPlanner {
     });
   }
 
+  protected getUnitAmountOptions(unitId: string): readonly number[] {
+    const amount = this.getUnitAmount(unitId);
+
+    if (this.unitAmountOptions.includes(amount)) {
+      return this.unitAmountOptions;
+    }
+
+    if (!Number.isFinite(amount) || amount < 0 || amount > this.maxUnitAmount) {
+      return this.unitAmountOptions;
+    }
+
+    return [...this.unitAmountOptions, amount].sort((left, right) => left - right);
+  }
+
   protected updateUnitAmount(unitId: string, value: string | number): void {
     const parsedValue = Number(value);
     const safeAmount = Number.isFinite(parsedValue) ? parsedValue : 0;
-    const amount = Math.max(Math.round(safeAmount), 0);
+    const amount = Math.min(Math.max(Math.round(safeAmount), 0), this.maxUnitAmount);
 
     this.updateSelectedConfiguration({
       unitAmounts: {
@@ -220,7 +486,31 @@ export class TroopsPlanner {
   }
 
   protected stepUnitAmount(unitId: string, delta: number): void {
-    this.updateUnitAmount(unitId, this.getUnitAmount(unitId) + delta);
+    const direction = Math.sign(delta);
+
+    if (direction === 0) {
+      return;
+    }
+
+    const currentAmount = this.getUnitAmount(unitId);
+    const options = this.getUnitAmountOptions(unitId);
+    const currentIndex = options.indexOf(currentAmount);
+
+    if (currentIndex >= 0) {
+      const nextIndex = Math.min(
+        Math.max(currentIndex + direction, 0),
+        options.length - 1,
+      );
+      this.updateUnitAmount(unitId, options[nextIndex]);
+      return;
+    }
+
+    const nextAmount =
+      direction > 0
+        ? (options.find((option) => option > currentAmount) ?? options[options.length - 1])
+        : ([...options].reverse().find((option) => option < currentAmount) ?? options[0]);
+
+    this.updateUnitAmount(unitId, nextAmount);
   }
 
   protected getUnitAmount(unitId: string): number {

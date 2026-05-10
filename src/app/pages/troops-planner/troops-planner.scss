@@ -418,7 +418,7 @@
 }
 
 .unit-stepper__button,
-.unit-stepper input {
+.unit-stepper select {
   min-height: 1.9rem;
   border: 1px solid var(--border-soft);
   border-radius: 0.55rem;
@@ -426,17 +426,6 @@
   color: var(--text-primary);
   font-weight: 800;
   text-align: center;
-}
-
-.unit-stepper input[type='number'] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-.unit-stepper input[type='number']::-webkit-outer-spin-button,
-.unit-stepper input[type='number']::-webkit-inner-spin-button {
-  margin: 0;
-  -webkit-appearance: none;
 }
 
 .unit-stepper__button {
@@ -786,3 +775,303 @@
     grid-template-columns: 2rem minmax(0, 1fr) 2rem;
   }
 }
+
+.troops-planner-page__storage-note {
+  flex-basis: 100%;
+  margin: -0.15rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.unit-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0 0.35rem;
+  border-bottom: 1px solid rgba(255, 214, 10, 0.08);
+}
+
+.unit-section__header .unit-section__title {
+  padding: 0;
+  border-bottom: 0;
+}
+
+.unit-section__collapse-button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.unit-section__collapse-button:hover,
+.unit-section__collapse-button:focus-visible {
+  background: transparent;
+  border-color: transparent;
+  color: #fff2a8;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.unit-section__collapse-icon {
+  display: inline-block;
+  transform: rotate(0deg);
+  transform-origin: center;
+  transition: transform 160ms ease;
+}
+
+.unit-section--collapsed .unit-section__collapse-icon {
+  transform: rotate(-90deg);
+}
+
+.unit-section--collapsed {
+  gap: 0;
+}
+
+.unit-stepper select {
+  min-width: 0;
+  padding: 0 0.55rem;
+  cursor: pointer;
+  text-align: center;
+  text-align-last: center;
+}
+
+.unit-stepper select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.confirm-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 8, 18, 0.74);
+  backdrop-filter: blur(4px);
+}
+
+.confirm-dialog {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  width: min(30rem, 100%);
+  padding: 1.25rem;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(0, 58, 101, 0.98), rgba(0, 30, 58, 0.98));
+  border: 1px solid #ffd400;
+  border-radius: 1rem;
+  box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.55);
+}
+
+.confirm-dialog__icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: #001e3a;
+  font-weight: 900;
+  background: #ffd400;
+  border-radius: 999px;
+  box-shadow: 0 0 0 0.25rem rgba(255, 212, 0, 0.16);
+}
+
+.confirm-dialog__body h2 {
+  margin: 0 0 0.45rem;
+  color: #ffd400;
+  font-size: 1.1rem;
+}
+
+.confirm-dialog__body p {
+  margin: 0;
+  color: #dcefff;
+  line-height: 1.45;
+}
+
+.confirm-dialog__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+}
+
+.confirm-dialog__button {
+  min-width: 7rem;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: #064f86;
+  border: 1px solid rgba(255, 212, 0, 0.32);
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.confirm-dialog__button:hover {
+  transform: translateY(-1px);
+}
+
+.confirm-dialog__button--secondary {
+  color: #dcefff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(220, 239, 255, 0.22);
+}
+
+.confirm-dialog__button--danger {
+  color: #001e3a;
+  background: #ffd400;
+  border-color: #ffe36b;
+}
+
+@media (max-width: 34rem) {
+  .confirm-dialog {
+    grid-template-columns: 1fr;
+  }
+
+  .confirm-dialog__actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-dialog__button {
+    width: 100%;
+  }
+}
+
+.plan-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 8, 18, 0.74);
+  backdrop-filter: blur(4px);
+}
+
+.plan-dialog {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  width: min(32rem, 100%);
+  padding: 1.25rem;
+  color: #ffffff;
+  background:
+    linear-gradient(135deg, rgba(0, 58, 101, 0.98), rgba(0, 30, 58, 0.98));
+  border: 1px solid #ffd400;
+  border-radius: 1rem;
+  box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.55);
+}
+
+.plan-dialog__icon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: #001e3a;
+  font-weight: 900;
+  background: #ffd400;
+  border-radius: 999px;
+  box-shadow: 0 0 0 0.25rem rgba(255, 212, 0, 0.16);
+}
+
+.plan-dialog--error .plan-dialog__icon {
+  color: #ffffff;
+  background: #ff5c7a;
+  box-shadow: 0 0 0 0.25rem rgba(255, 92, 122, 0.16);
+}
+
+.plan-dialog__body h2 {
+  margin: 0 0 0.45rem;
+  color: #ffd400;
+  font-size: 1.1rem;
+}
+
+.plan-dialog__body p {
+  margin: 0;
+  color: #dcefff;
+  line-height: 1.45;
+}
+
+.plan-dialog__details {
+  display: grid;
+  gap: 0.4rem;
+  max-height: 13rem;
+  margin: 0.85rem 0 0;
+  padding: 0.75rem 0.9rem 0.75rem 1.75rem;
+  overflow: auto;
+  color: #ffffff;
+  background: rgba(0, 18, 36, 0.38);
+  border: 1px solid rgba(255, 212, 0, 0.22);
+  border-radius: 0.75rem;
+}
+
+.plan-dialog__details li::marker {
+  color: #ffd400;
+}
+
+.plan-dialog__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+}
+
+.plan-dialog__button {
+  min-width: 7rem;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
+  color: #001e3a;
+  background: #ffd400;
+  border: 1px solid #ffe36b;
+  border-radius: 0.75rem;
+  cursor: pointer;
+}
+
+.plan-dialog__button:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 34rem) {
+  .plan-dialog {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-dialog__actions {
+    flex-direction: column-reverse;
+  }
+
+  .plan-dialog__button {
+    width: 100%;
+  }
+}
+
+.confirm-dialog__plan-name {
+  display: inline-block;
+  margin-top: 0.75rem !important;
+  padding: 0.45rem 0.65rem;
+  color: #ffffff !important;
+  font-weight: 900;
+  background: rgba(0, 18, 36, 0.45);
+  border: 1px solid rgba(255, 212, 0, 0.28);
+  border-radius: 0.6rem;
+}
+

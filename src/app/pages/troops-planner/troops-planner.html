@@ -23,8 +23,30 @@
         {{ 'troopsPlanner.save' | translate }}
       </button>
 
-      <button type="button" (click)="saveAsNewConfiguration()">
+      <button type="button" (click)="exportActivePlanAsJson()">
+        {{ 'planConfig.exportJson' | translate }}
+      </button>
+
+      <button type="button" (click)="planImportInput.click()">
+        {{ 'planConfig.importJson' | translate }}
+      </button>
+      <input
+        #planImportInput
+        type="file"
+        accept="application/json,.json,.grepo-plan.json"
+        hidden
+        (change)="importPlanFromJsonFile($event)"
+      />
+
+      <button type="button" (click)="deleteActivePlan()">
+        {{ 'planConfig.delete' | translate }}
+      </button>
+<button type="button" (click)="saveAsNewConfiguration()">
         {{ 'troopsPlanner.saveAsNew' | translate }}
+      </button>
+
+      <button type="button" (click)="clearActivePlan()">
+        {{ 'planConfig.clear' | translate }}
       </button>
 
       @if (selectedConfiguration().isPreset) {
@@ -32,52 +54,125 @@
           {{ 'troopsPlanner.resetPreset' | translate }}
         </button>
       }
+
+      <p class="troops-planner-page__storage-note">
+        {{ 'planConfig.localStorageNotice' | translate }}
+      </p>
     </div>
   </header>
 
   <div class="troops-planner-page__content">
     <section class="troops-planner-card troops-planner-card--units">
       <div class="unit-sections">
-        <section class="unit-section">
-          <div class="unit-section__title">
-            {{ 'troopsPlanner.landUnits' | translate }}
-          </div>
+        <section class="unit-section" [class.unit-section--collapsed]="isUnitSectionCollapsed('land')">
+          <header class="unit-section__header">
+            <div class="unit-section__title">
+              {{ 'troopsPlanner.landUnits' | translate }}
+            </div>
 
-          <div class="unit-list">
+            <button
+              type="button"
+              class="unit-section__collapse-button"
+              (click)="toggleUnitSection('land')"
+              [attr.aria-expanded]="!isUnitSectionCollapsed('land')"
+              [attr.aria-label]="
+                (isUnitSectionCollapsed('land')
+                  ? 'troopsPlanner.expandSection'
+                  : 'troopsPlanner.collapseSection') | translate
+              "
+              [title]="
+                (isUnitSectionCollapsed('land')
+                  ? 'troopsPlanner.expandSection'
+                  : 'troopsPlanner.collapseSection') | translate
+              "
+            >
+              <span class="unit-section__collapse-icon" aria-hidden="true">⌄</span>
+            </button>
+          </header>
+
+          @if (!isUnitSectionCollapsed('land')) {
+            <div class="unit-list">
             @for (unit of regularLandUnits(); track unit.id) {
               <ng-container
                 *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: false }"
               ></ng-container>
             }
-          </div>
+            </div>
+          }
         </section>
 
-        <section class="unit-section">
-          <div class="unit-section__title">
-            {{ 'troopsPlanner.seaUnits' | translate }}
-          </div>
+        <section class="unit-section" [class.unit-section--collapsed]="isUnitSectionCollapsed('sea')">
+          <header class="unit-section__header">
+            <div class="unit-section__title">
+              {{ 'troopsPlanner.seaUnits' | translate }}
+            </div>
 
-          <div class="unit-list">
+            <button
+              type="button"
+              class="unit-section__collapse-button"
+              (click)="toggleUnitSection('sea')"
+              [attr.aria-expanded]="!isUnitSectionCollapsed('sea')"
+              [attr.aria-label]="
+                (isUnitSectionCollapsed('sea')
+                  ? 'troopsPlanner.expandSection'
+                  : 'troopsPlanner.collapseSection') | translate
+              "
+              [title]="
+                (isUnitSectionCollapsed('sea')
+                  ? 'troopsPlanner.expandSection'
+                  : 'troopsPlanner.collapseSection') | translate
+              "
+            >
+              <span class="unit-section__collapse-icon" aria-hidden="true">⌄</span>
+            </button>
+          </header>
+
+          @if (!isUnitSectionCollapsed('sea')) {
+            <div class="unit-list">
             @for (unit of regularSeaUnits(); track unit.id) {
               <ng-container
                 *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: true }"
               ></ng-container>
             }
-          </div>
+            </div>
+          }
         </section>
 
-        <section class="unit-section">
-          <div class="unit-section__title">
-            {{ 'troopsPlanner.mythicalUnits' | translate }}
-          </div>
+        <section class="unit-section" [class.unit-section--collapsed]="isUnitSectionCollapsed('mythical')">
+          <header class="unit-section__header">
+            <div class="unit-section__title">
+              {{ 'troopsPlanner.mythicalUnits' | translate }}
+            </div>
 
-          <div class="unit-list">
+            <button
+              type="button"
+              class="unit-section__collapse-button"
+              (click)="toggleUnitSection('mythical')"
+              [attr.aria-expanded]="!isUnitSectionCollapsed('mythical')"
+              [attr.aria-label]="
+                (isUnitSectionCollapsed('mythical')
+                  ? 'troopsPlanner.expandSection'
+                  : 'troopsPlanner.collapseSection') | translate
+              "
+              [title]="
+                (isUnitSectionCollapsed('mythical')
+                  ? 'troopsPlanner.expandSection'
+                  : 'troopsPlanner.collapseSection') | translate
+              "
+            >
+              <span class="unit-section__collapse-icon" aria-hidden="true">⌄</span>
+            </button>
+          </header>
+
+          @if (!isUnitSectionCollapsed('mythical')) {
+            <div class="unit-list">
             @for (unit of mythicalUnits(); track unit.id) {
               <ng-container
                 *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: unit.type === 'sea' }"
               ></ng-container>
             }
-          </div>
+            </div>
+          }
         </section>
       </div>
     </section>
@@ -334,6 +429,187 @@
       </details>
     </aside>
   </div>
+
+  
+
+  
+
+  @if (deletePlanDialogOpen()) {
+    <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelDeleteActivePlan()">
+      <section
+        class="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'delete-plan-dialog-title'"
+        [attr.aria-describedby]="'delete-plan-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="confirm-dialog__icon" aria-hidden="true">!</div>
+
+        <div class="confirm-dialog__body">
+          <h2 id="delete-plan-dialog-title">
+            {{ 'planConfig.deleteDialog.title' | translate }}
+          </h2>
+          <p id="delete-plan-dialog-description">
+            {{ 'planConfig.deleteDialog.message' | translate }}
+          </p>
+          <p class="confirm-dialog__plan-name">
+            {{ activePlanName() }}
+          </p>
+        </div>
+
+        <div class="confirm-dialog__actions">
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--secondary"
+            (click)="cancelDeleteActivePlan()"
+          >
+            {{ 'planConfig.deleteDialog.cancel' | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--danger"
+            (click)="confirmDeleteActivePlan()"
+          >
+            {{ 'planConfig.deleteDialog.confirm' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (planDeleteResultDialog(); as dialog) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="closePlanDeleteResultDialog()">
+      <section
+        class="plan-dialog"
+        [class.plan-dialog--error]="dialog.isError"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'plan-delete-result-dialog-title'"
+        [attr.aria-describedby]="'plan-delete-result-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          {{ dialog.isError ? '!' : '✓' }}
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="plan-delete-result-dialog-title">
+            {{ (dialog.isError ? 'planConfig.deleteDialog.errorTitle' : 'planConfig.deleteDialog.successTitle') | translate }}
+          </h2>
+          <p id="plan-delete-result-dialog-description">
+            {{ (dialog.isError ? 'planConfig.deleteDialog.errorMessage' : 'planConfig.deleteDialog.successMessage') | translate }}
+          </p>
+
+          @if (dialog.detailLines.length > 0) {
+            <ul class="plan-dialog__details">
+              @for (line of dialog.detailLines; track line) {
+                <li>{{ line }}</li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--primary"
+            (click)="closePlanDeleteResultDialog()"
+          >
+            {{ 'planConfig.deleteDialog.ok' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (planImportDialog(); as dialog) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="closePlanImportDialog()">
+      <section
+        class="plan-dialog"
+        [class.plan-dialog--error]="dialog.isError"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'plan-import-dialog-title'"
+        [attr.aria-describedby]="'plan-import-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          {{ dialog.isError ? '!' : '✓' }}
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="plan-import-dialog-title">
+            {{ (dialog.isError ? 'planConfig.importDialog.errorTitle' : 'planConfig.importDialog.successTitle') | translate }}
+          </h2>
+          <p id="plan-import-dialog-description">
+            {{ (dialog.isError ? 'planConfig.importDialog.errorMessage' : 'planConfig.importDialog.successMessage') | translate }}
+          </p>
+
+          @if (dialog.detailLines.length > 0) {
+            <ul class="plan-dialog__details">
+              @for (line of dialog.detailLines; track line) {
+                <li>{{ line }}</li>
+              }
+            </ul>
+          }
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--primary"
+            (click)="closePlanImportDialog()"
+          >
+            {{ 'planConfig.importDialog.ok' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (clearPlanDialogOpen()) {
+    <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelClearActivePlan()">
+      <section
+        class="confirm-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'clear-plan-dialog-title'"
+        [attr.aria-describedby]="'clear-plan-dialog-description'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="confirm-dialog__icon" aria-hidden="true">!</div>
+
+        <div class="confirm-dialog__body">
+          <h2 id="clear-plan-dialog-title">
+            {{ 'planConfig.clearTroopDialog.title' | translate }}
+          </h2>
+          <p id="clear-plan-dialog-description">
+            {{ 'planConfig.clearTroopDialog.message' | translate }}
+          </p>
+        </div>
+
+        <div class="confirm-dialog__actions">
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--secondary"
+            (click)="cancelClearActivePlan()"
+          >
+            {{ 'planConfig.clearDialog.cancel' | translate }}
+          </button>
+
+          <button
+            type="button"
+            class="confirm-dialog__button confirm-dialog__button--danger"
+            (click)="confirmClearActivePlan()"
+          >
+            {{ 'planConfig.clearTroopDialog.confirm' | translate }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 </section>
 
 <ng-template #unitRow let-unit="unit" let-isSea="isSea">
@@ -464,16 +740,17 @@
           −
         </button>
 
-        <input
-          type="number"
-          min="0"
-          step="1"
+        <select
           [ngModel]="getUnitAmount(unit.id)"
           (ngModelChange)="updateUnitAmount(unit.id, $event)"
           [attr.aria-label]="
             ('troopsPlanner.amountOf' | translate) + ' ' + (unit.nameKey | translate)
           "
-        />
+        >
+          @for (amount of getUnitAmountOptions(unit.id); track amount) {
+            <option [ngValue]="amount">{{ amount }}</option>
+          }
+        </select>
 
         <button
           type="button"
