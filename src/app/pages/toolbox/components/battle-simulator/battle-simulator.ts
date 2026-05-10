@@ -1,14 +1,16 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { DraftUpdateEvent, ToolDraft } from '../../models/toolbox.models';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 type BattleSimulatorSummary = {
-  title: string;
-  eyebrow: string;
+  titleKey: string;
+  eyebrowKey: string;
 };
 
 @Component({
   selector: 'app-battle-simulator',
+  imports: [TranslatePipe],
   templateUrl: './battle-simulator.html',
   styleUrl: './battle-simulator.scss',
 })

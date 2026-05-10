@@ -167,7 +167,8 @@
 
 .time-math__divider {
   height: 1px;
-  margin: 0.08rem calc(2.35rem + clamp(0.28rem, 0.48vw, 0.46rem)) 0.04rem calc(3.35rem + clamp(0.28rem, 0.48vw, 0.46rem));
+  margin: 0.08rem calc(2.35rem + clamp(0.28rem, 0.48vw, 0.46rem)) 0.04rem
+    calc(3.35rem + clamp(0.28rem, 0.48vw, 0.46rem));
   background: linear-gradient(90deg, rgba(255, 214, 10, 0.55), rgba(255, 214, 10, 0.16));
   box-shadow: 0 1px 0 rgba(0, 8, 20, 0.65);
 }
@@ -358,7 +359,6 @@
     margin-left: 0;
   }
 }
-
 
 /* heading-left-polish */
 .time-card__header {

@@ -31,7 +31,6 @@ The first version should be kept small and understandable. Features should be im
 - Small static JSON data files for core game information
 - Simple and quick UI for use while playing
 
-
 ## MVP scope summary
 
 The MVP should focus on:

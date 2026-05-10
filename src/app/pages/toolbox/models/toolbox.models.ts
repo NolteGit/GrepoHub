@@ -7,8 +7,8 @@ export type ToolId =
   | 'alarm';
 
 export type CalculatorOperator = 'add' | 'subtract' | 'multiply' | 'divide';
-export type CalculatorAction = 'clear' | 'backspace' | 'sign' | 'equals';
-export type TimeDirection = 'add' | 'subtract';
+type CalculatorAction = 'clear' | 'backspace' | 'sign' | 'equals';
+type TimeDirection = 'add' | 'subtract';
 export type TimePart = 'hours' | 'minutes' | 'seconds';
 export type TimeOffsetField = 'offsetHours' | 'offsetMinutes' | 'offsetSeconds';
 export type CountdownField = 'countdownMinutes' | 'countdownSeconds';
@@ -43,24 +43,7 @@ export type CalculatorButton = {
   operator?: CalculatorOperator;
   action?: CalculatorAction;
   className?: string;
-  ariaLabel?: string;
-};
-
-export type TimePartControl = {
-  part: TimePart;
-  label: string;
-  max: number;
-};
-
-export type TimeOffsetControl = {
-  field: TimeOffsetField;
-  label: string;
-};
-
-export type CountdownPartControl = {
-  field: CountdownField;
-  label: string;
-  maxLength: number;
+  ariaLabelKey?: string;
 };
 
 export type QueuedStopwatch = {
@@ -93,7 +76,7 @@ export type ActiveTimerItem = {
   type: 'countdown-queue' | 'stopwatch-queue' | 'alarm';
   label: string;
   value: string;
-  state: string;
+  stateKey: string;
   tone: 'running' | 'paused' | 'armed' | 'done';
   running: boolean;
 };
@@ -104,7 +87,7 @@ export type StoredToolboxState = {
 
 export type ReminderModeOption = {
   id: ReminderMode;
-  label: string;
+  labelKey: string;
 };
 
 export type AlarmPreset = {

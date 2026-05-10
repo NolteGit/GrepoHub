@@ -49,7 +49,6 @@ const createPlanPreset = (
   };
 };
 
-
 const emptyCityPlan: CityConfiguration = {
   id: 'preset-empty-city',
   name: 'Empty City',
@@ -103,18 +102,8 @@ const createEmptyPlanPreset = (): PlanConfig => ({
 
 export const planConfigPresets: PlanConfig[] = [
   createEmptyPlanPreset(),
-  createPlanPreset(
-    'preset-balanced-plan',
-    'Balanced',
-    'preset-balanced-city',
-    'balanced-army',
-  ),
-  createPlanPreset(
-    'preset-fresh-land-plan',
-    'Fresh Land',
-    'preset-fresh-city',
-    'land-offense',
-  ),
+  createPlanPreset('preset-balanced-plan', 'Balanced', 'preset-balanced-city', 'balanced-army'),
+  createPlanPreset('preset-fresh-land-plan', 'Fresh Land', 'preset-fresh-city', 'land-offense'),
   createPlanPreset(
     'preset-naval-defense-plan',
     'Naval Defense',
@@ -122,5 +111,3 @@ export const planConfigPresets: PlanConfig[] = [
     'naval-defense',
   ),
 ];
-
-export const planConfigPresetVersion = PLAN_CONFIG_VERSION;

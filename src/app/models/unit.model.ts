@@ -1,8 +1,8 @@
 export type AttackType = 'naval' | 'blunt' | 'sharp' | 'distance';
 
-export type UnitType = 'land' | 'sea';
+type UnitType = 'land' | 'sea';
 
-export type God =
+type God =
   | 'zeus'
   | 'poseidon'
   | 'hera'
@@ -13,7 +13,7 @@ export type God =
   | 'ares'
   | 'all';
 
-export type UnitCost = {
+type UnitCost = {
   wood: number;
   stone: number;
   silver: number;

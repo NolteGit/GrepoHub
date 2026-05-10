@@ -1,24 +1,24 @@
 <article class="quick-card time-card" id="time-calculator">
   <header class="time-card__header">
-    <h2>Time calculation</h2>
+    <h2>{{ 'toolbox.timeCalculator.title' | translate }}</h2>
   </header>
 
-  <div class="time-math" aria-label="Time calculation">
+  <div class="time-math" [attr.aria-label]="'toolbox.timeCalculator.title' | translate">
     <div class="time-math__labels" aria-hidden="true">
-      <span>Hours</span>
-      <span>Minutes</span>
-      <span>Seconds</span>
+      <span>{{ 'toolbox.time.hours' | translate }}</span>
+      <span>{{ 'toolbox.time.minutes' | translate }}</span>
+      <span>{{ 'toolbox.time.seconds' | translate }}</span>
     </div>
 
     <div class="time-math__row time-math__row--base">
       <span class="time-math__spacer" aria-hidden="true"></span>
-      <label class="time-segment-field" title="Click and type HHMMSS">
-        <span class="sr-only">Time 1</span>
+      <label class="time-segment-field" [title]="'toolbox.time.typeHint' | translate">
+        <span class="sr-only">{{ 'toolbox.timeCalculator.time1' | translate }}</span>
         <input
           type="text"
           class="time-segment-field__input"
           inputmode="numeric"
-          aria-label="Time 1"
+          [attr.aria-label]="'toolbox.timeCalculator.time1' | translate"
           readonly
           [value]="baseDisplay"
           (focus)="timeInputEditStarted.emit({ mode: 'time-base', event: $event })"
@@ -34,10 +34,10 @@
       <button
         type="button"
         class="time-math__action time-math__action--primary"
-        title="Use current time for Time 1"
+        [title]="'toolbox.timeCalculator.nowTitle' | translate"
         (click)="currentTimeRequested.emit('time-calculator')"
       >
-        Now
+        {{ 'toolbox.timeCalculator.now' | translate }}
       </button>
     </div>
 
@@ -50,20 +50,28 @@
         class="time-math__operator time-math__operator--toggle"
         [class.time-math__operator--subtract]="draft.timeDirection === 'subtract'"
         [attr.aria-pressed]="draft.timeDirection === 'subtract'"
-        [attr.aria-label]="draft.timeDirection === 'add' ? 'Switch to subtract' : 'Switch to add'"
-        title="Toggle add/subtract"
+        [attr.aria-label]="
+          (draft.timeDirection === 'add'
+            ? 'toolbox.timeCalculator.switchSubtract'
+            : 'toolbox.timeCalculator.switchAdd'
+          ) | translate
+        "
+        [title]="'toolbox.timeCalculator.toggleDirection' | translate"
         (click)="directionToggled.emit()"
       >
         {{ draft.timeDirection === 'add' ? '+' : '−' }}
       </button>
 
-      <label class="time-segment-field time-segment-field--delta" title="Click and type HHMMSS">
-        <span class="sr-only">Time 2</span>
+      <label
+        class="time-segment-field time-segment-field--delta"
+        [title]="'toolbox.time.typeHint' | translate"
+      >
+        <span class="sr-only">{{ 'toolbox.timeCalculator.time2' | translate }}</span>
         <input
           type="text"
           class="time-segment-field__input"
           inputmode="numeric"
-          aria-label="Time 2 duration"
+          [attr.aria-label]="'toolbox.timeCalculator.time2Duration' | translate"
           readonly
           [value]="deltaDisplay"
           (focus)="timeInputEditStarted.emit({ mode: 'time-offset', event: $event })"
@@ -79,8 +87,8 @@
       <button
         type="button"
         class="time-math__action time-math__action--icon"
-        aria-label="Reset Time 2"
-        title="Reset Time 2"
+        [attr.aria-label]="'toolbox.timeCalculator.resetTime2' | translate"
+        [title]="'toolbox.timeCalculator.resetTime2' | translate"
         (click)="timeOffsetReset.emit()"
       >
         ↻
@@ -91,10 +99,13 @@
 
     <div class="time-math__row time-math__row--result">
       <span class="time-math__result-marker">
-        Result
+        {{ 'toolbox.timeCalculator.result' | translate }}
         <span aria-hidden="true">=</span>
       </span>
-      <output class="time-segment-field time-segment-field--result" aria-label="Time calculation result">
+      <output
+        class="time-segment-field time-segment-field--result"
+        [attr.aria-label]="'toolbox.timeCalculator.resultAria' | translate"
+      >
         <span class="time-segment-field__part">{{ timePart(result, 'hours') }}</span>
         <span class="time-segment-field__colon">:</span>
         <span class="time-segment-field__part">{{ timePart(result, 'minutes') }}</span>

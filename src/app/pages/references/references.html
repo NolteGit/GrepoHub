@@ -2,11 +2,11 @@
   <header class="references-hero">
     <div class="references-hero__content">
       <div class="references-hero__copy">
-        <h1 class="references-hero__title">References</h1>
-        <p>Quick links, tools, documents, and guides in one place.</p>
+        <h1 class="references-hero__title">{{ 'references.title' | translate }}</h1>
+        <p>{{ 'references.subtitle' | translate }}</p>
       </div>
 
-      <nav class="hero-quick-links" aria-label="Important quick links">
+      <nav class="hero-quick-links" [attr.aria-label]="'references.quickLinksAria' | translate">
         @for (link of quickLinks; track link.id) {
           <a
             class="hero-quick-link"
@@ -25,26 +25,26 @@
   </header>
 
   <section class="knowledge-browser">
-    <aside class="resource-sidebar" aria-label="Reference navigation">
+    <aside class="resource-sidebar" [attr.aria-label]="'references.navigationAria' | translate">
       <div class="resource-sidebar__controls">
         <label class="resource-search">
-          <span>Search resources</span>
+          <span>{{ 'references.search.label' | translate }}</span>
           <input
             type="search"
-            placeholder="Search tools, guides, docs..."
+            [placeholder]="'references.search.placeholder' | translate"
             [value]="searchTerm()"
             (input)="updateSearchTerm($event)"
           />
         </label>
 
-        <div class="type-filters" aria-label="Resource type filters">
+        <div class="type-filters" [attr.aria-label]="'references.typeFiltersAria' | translate">
           @for (filter of typeFilters; track filter.value) {
             <button
               type="button"
               [class.active]="selectedType() === filter.value"
               (click)="selectType(filter.value)"
             >
-              {{ filter.label }}
+              {{ filter.labelKey | translate }}
             </button>
           }
         </div>
@@ -58,9 +58,9 @@
               class="resource-nav-card__trigger"
               (click)="selectResource(resource)"
             >
-              <strong>{{ resource.title }}</strong>
+              <strong>{{ resourceTitle(resource) }}</strong>
               <span class="resource-nav-card__meta">
-                {{ resource.category }} · {{ typeLabel(resource.type) }}
+                {{ resourceCategory(resource) }} · {{ typeLabelKey(resource.type) | translate }}
               </span>
             </button>
 
@@ -72,33 +72,36 @@
                     [class.active]="isSelectedSection(resource, section.id)"
                     (click)="selectSection(resource, section.id)"
                   >
-                    {{ section.title }}
+                    {{ sectionTitle(resource, section.id, section.title) }}
                   </button>
                 }
               </div>
             }
           </article>
         } @empty {
-          <p class="resource-list__empty">No matching resources found.</p>
+          <p class="resource-list__empty">{{ 'references.empty' | translate }}</p>
         }
       </nav>
     </aside>
 
     <article class="reading-pane">
       @if (isOverviewMode()) {
-        <section class="overview-tile-grid overview-tile-grid--landing" aria-label="Core sections">
+        <section
+          class="overview-tile-grid overview-tile-grid--landing"
+          [attr.aria-label]="'references.coreSectionsAria' | translate"
+        >
           @for (resource of filteredResources(); track resource.id) {
             <button type="button" class="overview-tile" (click)="selectResource(resource)">
               <div class="overview-tile__content">
                 <p class="overview-tile__meta">
-                  {{ resource.category }} · {{ typeLabel(resource.type) }}
+                  {{ resourceCategory(resource) }} · {{ typeLabelKey(resource.type) | translate }}
                 </p>
-                <h3>{{ resource.title }}</h3>
-                <p class="overview-tile__description">{{ resource.description }}</p>
+                <h3>{{ resourceTitle(resource) }}</h3>
+                <p class="overview-tile__description">{{ resourceDescription(resource) }}</p>
               </div>
             </button>
           } @empty {
-            <p class="resource-list__empty">No matching resources found.</p>
+            <p class="resource-list__empty">{{ 'references.empty' | translate }}</p>
           }
         </section>
       } @else {
@@ -109,71 +112,75 @@
             <div class="reading-pane__header-main">
               <div>
                 <p class="reading-pane__type">
-                  {{ resource.category }} · {{ typeLabel(resource.type) }}
+                  {{ resourceCategory(resource) }} · {{ typeLabelKey(resource.type) | translate }}
                 </p>
-                <h2>{{ resource.title }}</h2>
-                <p>{{ resource.description }}</p>
+                <h2>{{ resourceTitle(resource) }}</h2>
+                <p>{{ resourceDescription(resource) }}</p>
               </div>
 
-              <div class="reading-pane__tags" aria-label="Tags">
+              <div class="reading-pane__tags" [attr.aria-label]="'references.tagsAria' | translate">
                 @for (tag of resource.tags; track tag) {
-                  <span>{{ tag }}</span>
+                  <span>{{ resourceTag(resource, tag) }}</span>
                 }
               </div>
             </div>
 
             <button type="button" class="back-to-overview" (click)="showOverview()">
-              Back to overview
+              {{ 'references.backToOverview' | translate }}
             </button>
           </header>
 
           @if (section) {
             <section class="focus-section">
-              <p class="focus-section__label">Selected section</p>
-              <h3>{{ section.title }}</h3>
-              <p>{{ section.summary }}</p>
+              <p class="focus-section__label">{{ 'references.selectedSection' | translate }}</p>
+              <h3>{{ sectionTitle(resource, section.id, section.title) }}</h3>
+              <p>{{ sectionSummary(resource, section.id, section.summary) }}</p>
             </section>
           }
 
           @if (resource.type === 'tool-guide') {
             <section class="content-block">
-              <h3>Recommended flow</h3>
+              <h3>{{ 'references.recommendedFlow' | translate }}</h3>
               <ol class="setup-steps">
-                <li>Install Tampermonkey or the required userscript manager.</li>
-                <li>Open the approved install link from this page only.</li>
-                <li>Enable the script and reload Grepolis.</li>
-                <li>Check the script version against the stable reference below.</li>
+                <li>{{ 'references.toolGuide.step.install' | translate }}</li>
+                <li>{{ 'references.toolGuide.step.open' | translate }}</li>
+                <li>{{ 'references.toolGuide.step.enable' | translate }}</li>
+                <li>{{ 'references.toolGuide.step.verify' | translate }}</li>
               </ol>
             </section>
 
             <section class="content-block">
               <div class="content-block__heading">
-                <h3>Latest stable script references</h3>
-                <p>Replace or extend these cards with your own approved in-game tools later.</p>
+                <h3>{{ 'references.latestScripts' | translate }}</h3>
+                <p>{{ 'references.latestScriptsHint' | translate }}</p>
               </div>
 
               <div class="script-grid">
                 @for (script of resource.scripts ?? []; track script.id) {
                   <article class="script-card">
                     <div class="script-card__header">
-                      <h4>{{ script.title }}</h4>
-                      <span>{{ script.status }}</span>
+                      <h4>{{ scriptTitle(resource, script.id, script.title) }}</h4>
+                      <span>{{
+                        'references.scriptStatus.' + script.status | translate: script.status
+                      }}</span>
                     </div>
-                    <p>{{ script.description }}</p>
+                    <p>{{ scriptDescription(resource, script.id, script.description) }}</p>
                     <dl>
                       <div>
-                        <dt>Version</dt>
+                        <dt>{{ 'references.version' | translate }}</dt>
                         <dd>{{ script.version }}</dd>
                       </div>
                     </dl>
                     <div class="script-card__actions">
                       @if (script.installUrl) {
                         <a [href]="script.installUrl" target="_blank" rel="noreferrer">
-                          Open install link
+                          {{ 'references.openInstallLink' | translate }}
                         </a>
                       }
                       @if (script.downloadPath) {
-                        <a [href]="script.downloadPath" download>Download copy</a>
+                        <a [href]="script.downloadPath" download>{{
+                          'references.downloadCopy' | translate
+                        }}</a>
                       }
                     </div>
                   </article>
@@ -182,43 +189,42 @@
             </section>
           } @else if (resource.type === 'reference-document') {
             <section class="content-block document-placeholder">
-              <h3>Document reader placeholder</h3>
+              <h3>{{ 'references.documentPlaceholderTitle' | translate }}</h3>
               <p>
-                Add local PDF/Word exports under <code>public/assets/docs</code>, then set
-                <code>filePath</code> in the resource registry. The reading pane can later embed
-                PDFs or show converted Markdown content here.
+                {{ 'references.documentPlaceholderTextBeforePath' | translate }}
+                <code>public/assets/docs</code>,
+                {{ 'references.documentPlaceholderTextAfterPath' | translate }}
+                <code>filePath</code> {{ 'references.documentPlaceholderTextEnd' | translate }}
               </p>
             </section>
           } @else if (resource.type === 'external-link') {
             <section class="content-block external-resource-card">
-              <h3>External resource</h3>
+              <h3>{{ 'references.externalResourceTitle' | translate }}</h3>
               <p>
-                Use this layout for curated links that deserve context but are not important enough
-                for the compact quick-link area.
+                {{ 'references.externalResourceText' | translate }}
               </p>
               @if (resource.externalUrl) {
                 <a [href]="resource.externalUrl" target="_blank" rel="noreferrer">
-                  Open resource
+                  {{ 'references.openResource' | translate }}
                 </a>
               }
             </section>
           } @else {
             <section class="content-block">
-              <h3>Guide content placeholder</h3>
+              <h3>{{ 'references.guidePlaceholderTitle' | translate }}</h3>
               <p>
-                This can become a rendered Markdown guide, an embedded document, or a custom guide
-                page with cards and checklists.
+                {{ 'references.guidePlaceholderText' | translate }}
               </p>
             </section>
           }
 
           <section class="content-block section-overview">
-            <h3>Sections</h3>
+            <h3>{{ 'references.sections' | translate }}</h3>
             <div class="section-grid">
               @for (item of resource.sections; track item.id) {
                 <button type="button" (click)="selectSection(resource, item.id)">
-                  <strong>{{ item.title }}</strong>
-                  <span>{{ item.summary }}</span>
+                  <strong>{{ sectionTitle(resource, item.id, item.title) }}</strong>
+                  <span>{{ sectionSummary(resource, item.id, item.summary) }}</span>
                 </button>
               }
             </div>

@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, computed, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, computed, inject, signal } from '@angular/core';
 
 import { ActiveTimerQueueComponent } from './components/active-timer-queue/active-timer-queue';
 import { BattleSimulatorComponent } from './components/battle-simulator/battle-simulator';
@@ -12,7 +12,6 @@ import {
   CalculatorButton,
   CalculatorOperator,
   CountdownField,
-  CountdownPartControl,
   QueuedAlarm,
   QueuedCountdown,
   QueuedStopwatch,
@@ -20,12 +19,12 @@ import {
   StoredToolboxState,
   TimeInputMode,
   TimeOffsetField,
-  TimeOffsetControl,
   TimePart,
-  TimePartControl,
   ToolDraft,
   ToolId,
 } from './models/toolbox.models';
+import { TranslationService } from '../../services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-toolbox',
@@ -36,12 +35,14 @@ import {
     ReminderWidgetComponent,
     ActiveTimerQueueComponent,
     BattleSimulatorComponent,
+    TranslatePipe,
   ],
   templateUrl: './toolbox.html',
   styleUrl: './toolbox.scss',
 })
 export class Toolbox implements OnDestroy {
   showBattleSimulator = false;
+  private readonly translationService = inject(TranslationService);
   private readonly storageKey = 'grepo-hub-toolbox-dashboard-state';
   private readonly toolIds: ToolId[] = [
     'quick-calculator',
@@ -71,7 +72,6 @@ export class Toolbox implements OnDestroy {
   private stopwatchIntervalId: number | null = null;
   private stopwatchStartedAt = 0;
   private readonly alarmTimeoutIds = new Map<string, number>();
-  private clockIntervalId: number | null = null;
   private readonly timeInputDigitBuffers: Record<TimeInputMode, string> = {
     alarm: '225900',
     timer: '000500',
@@ -88,14 +88,14 @@ export class Toolbox implements OnDestroy {
   };
 
   protected readonly battleSimulator = {
-    title: 'Battle Simulator',
-    eyebrow: 'Combat Planning',
+    titleKey: 'toolbox.battle.title',
+    eyebrowKey: 'toolbox.battle.eyebrow',
   };
 
   protected readonly calculatorButtons: CalculatorButton[] = [
-    { label: 'C', action: 'clear', ariaLabel: 'Clear calculator' },
-    { label: '⌫', action: 'backspace', ariaLabel: 'Backspace calculator' },
-    { label: '±', action: 'sign', ariaLabel: 'Toggle calculator sign' },
+    { label: 'C', action: 'clear', ariaLabelKey: 'toolbox.calculator.clearAria' },
+    { label: '⌫', action: 'backspace', ariaLabelKey: 'toolbox.calculator.backspaceAria' },
+    { label: '±', action: 'sign', ariaLabelKey: 'toolbox.calculator.toggleSignAria' },
     { label: '÷', operator: 'divide', className: 'calculator-pad__operator' },
     { label: '7', value: '7' },
     { label: '8', value: '8' },
@@ -114,44 +114,18 @@ export class Toolbox implements OnDestroy {
     { label: '=', action: 'equals', className: 'calculator-pad__equals' },
   ];
 
-  protected readonly timePartControls: TimePartControl[] = [
-    { part: 'hours', label: 'Hours', max: 23 },
-    { part: 'minutes', label: 'Minutes', max: 59 },
-    { part: 'seconds', label: 'Seconds', max: 59 },
+  protected readonly reminderModes: { id: ReminderMode; labelKey: string }[] = [
+    { id: 'alarm', labelKey: 'toolbox.reminder.mode.alarm' },
+    { id: 'timer', labelKey: 'toolbox.reminder.mode.timer' },
+    { id: 'stopwatch', labelKey: 'toolbox.reminder.mode.stopwatch' },
   ];
 
-  protected readonly timeOffsetControls: TimeOffsetControl[] = [
-    { field: 'offsetHours', label: 'Hours' },
-    { field: 'offsetMinutes', label: 'Minutes' },
-    { field: 'offsetSeconds', label: 'Seconds' },
-  ];
-
-  protected readonly countdownPartControls: CountdownPartControl[] = [
-    { field: 'countdownMinutes', label: 'Minute', maxLength: 3 },
-    { field: 'countdownSeconds', label: 'Second', maxLength: 2 },
-  ];
-
-  protected readonly reminderModes: { id: ReminderMode; label: string }[] = [
-    { id: 'alarm', label: 'Alarm' },
-    { id: 'timer', label: 'Timer' },
-    { id: 'stopwatch', label: 'Stopwatch' },
-  ];
-
-  protected readonly alarmHourOptions = this.createClockOptions(24);
-  protected readonly alarmMinuteOptions = this.createClockOptions(60);
   protected readonly alarmPresets = [
     { time: '07:00:00', label: '07:00' },
     { time: '11:00:00', label: '11:00' },
     { time: '21:59:00', label: '21:59' },
     { time: '23:00:00', label: '23:00' },
   ];
-  protected readonly countdownPresets = [
-    { seconds: 20, label: '20 sec' },
-    { seconds: 10 * 60, label: '10 min' },
-    { seconds: 40 * 60, label: '40 min' },
-    { seconds: 3 * 60 * 60, label: '3 hr' },
-  ];
-
   protected readonly drafts = signal<Record<ToolId, ToolDraft>>(this.loadStoredDrafts());
   protected readonly countdownRemainingMs = signal<number | null>(null);
   protected readonly countdownRunning = signal(false);
@@ -163,7 +137,6 @@ export class Toolbox implements OnDestroy {
   protected readonly stopwatchTick = signal(0);
   protected readonly freshQueueItemIds = signal<string[]>([]);
   protected readonly calculatorKeyboardActive = signal(false);
-  protected readonly currentClockDisplay = signal(this.formatDateTimeValue(new Date()));
   protected readonly activeReminderMode = signal<ReminderMode>('timer');
 
   protected readonly timeBaseDisplay = computed(() => this.draftFor('time-calculator').baseTime);
@@ -177,7 +150,9 @@ export class Toolbox implements OnDestroy {
     return this.formatTimeFromSeconds(resultSeconds);
   });
 
-  protected readonly timeDeltaDisplay = computed(() => this.formatTimeFromSeconds(this.timeOffsetSeconds()));
+  protected readonly timeDeltaDisplay = computed(() =>
+    this.formatTimeFromSeconds(this.timeOffsetSeconds()),
+  );
 
   protected readonly calculatorPreview = computed(() => {
     const draft = this.draftFor('quick-calculator');
@@ -197,17 +172,19 @@ export class Toolbox implements OnDestroy {
     const remainingMs = this.countdownRemainingMs();
 
     if (remainingMs === null) {
-      return 'Ready';
+      return 'toolbox.status.ready';
     }
 
     if (remainingMs <= 0) {
-      return 'Done';
+      return 'toolbox.status.done';
     }
 
-    return this.countdownRunning() ? 'Running' : 'Paused';
+    return this.countdownRunning() ? 'toolbox.status.running' : 'toolbox.status.paused';
   });
 
-  protected readonly canAddCountdownToQueue = computed(() => (this.countdownRemainingMs() ?? this.countdownDurationMs()) > 0);
+  protected readonly canAddCountdownToQueue = computed(
+    () => (this.countdownRemainingMs() ?? this.countdownDurationMs()) > 0,
+  );
 
   protected readonly stopwatchDisplay = computed(() => {
     this.stopwatchTick();
@@ -225,18 +202,22 @@ export class Toolbox implements OnDestroy {
     this.stopwatchTick();
 
     if (this.stopwatchRunning()) {
-      return 'Running';
+      return 'toolbox.status.running';
     }
 
-    return this.currentMainStopwatchElapsedMs() > 0 ? 'Paused' : 'Ready';
+    return this.currentMainStopwatchElapsedMs() > 0
+      ? 'toolbox.status.paused'
+      : 'toolbox.status.ready';
   });
 
   protected readonly alarmStatus = computed(() => {
     if (this.queuedAlarms().some((alarm) => alarm.triggered)) {
-      return 'Reached';
+      return 'toolbox.status.reached';
     }
 
-    return this.queuedAlarms().some((alarm) => alarm.running) ? 'Armed' : 'Ready';
+    return this.queuedAlarms().some((alarm) => alarm.running)
+      ? 'toolbox.status.armed'
+      : 'toolbox.status.ready';
   });
 
   protected readonly activeTimerItems = computed<ActiveTimerItem[]>(() => {
@@ -249,15 +230,10 @@ export class Toolbox implements OnDestroy {
     ];
   });
 
-  constructor() {
-    this.startClockInterval();
-  }
-
   ngOnDestroy(): void {
     this.clearCountdownInterval();
     this.clearStopwatchInterval();
     this.clearAlarmTimeouts();
-    this.clearClockInterval();
   }
 
   @HostListener('document:pointerdown', ['$event'])
@@ -330,7 +306,6 @@ export class Toolbox implements OnDestroy {
     if (toolId === 'countdown' && this.isCountdownField(field) && !this.countdownRunning()) {
       this.countdownRemainingMs.set(null);
     }
-
   }
 
   protected resetDraft(toolId: ToolId): void {
@@ -363,7 +338,8 @@ export class Toolbox implements OnDestroy {
   }
 
   protected toggleTimeDirection(): void {
-    const nextDirection = this.draftFor('time-calculator').timeDirection === 'add' ? 'subtract' : 'add';
+    const nextDirection =
+      this.draftFor('time-calculator').timeDirection === 'add' ? 'subtract' : 'add';
     this.setDraftField('time-calculator', 'timeDirection', nextDirection);
   }
 
@@ -389,7 +365,10 @@ export class Toolbox implements OnDestroy {
   }
 
   protected adjustCountdownPart(field: CountdownField, amount: number): void {
-    this.setCountdownPart(field, String(this.parseInteger(this.draftFor('countdown')[field]) + amount));
+    this.setCountdownPart(
+      field,
+      String(this.parseInteger(this.draftFor('countdown')[field]) + amount),
+    );
   }
 
   protected alarmTimePart(part: AlarmPart): string {
@@ -402,7 +381,9 @@ export class Toolbox implements OnDestroy {
     const [hours, minutes] = this.splitTimeParts(this.draftFor('alarm').alarmTime);
     const value = this.readControlValue(event);
 
-    this.setAlarmTime(`${part === 'hours' ? value : hours}:${part === 'minutes' ? value : minutes}:00`);
+    this.setAlarmTime(
+      `${part === 'hours' ? value : hours}:${part === 'minutes' ? value : minutes}:00`,
+    );
   }
 
   protected setAlarmPreset(time: string): void {
@@ -499,7 +480,10 @@ export class Toolbox implements OnDestroy {
       ...items,
       {
         id,
-        label: this.queueLabel(this.draftFor('countdown').countdownLabel, `Timer ${items.length + 1}`),
+        label: this.queueLabel(
+          this.draftFor('countdown').countdownLabel,
+          this.numberedLabel('toolbox.queue.defaultTimer', items.length + 1, 'Timer'),
+        ),
         remainingMs,
         deadline: running ? Date.now() + remainingMs : 0,
         running,
@@ -654,8 +638,13 @@ export class Toolbox implements OnDestroy {
       return;
     }
 
-    const nextValue = draft.calculatorDisplay.length > 1 ? draft.calculatorDisplay.slice(0, -1) : '0';
-    this.setDraftField('quick-calculator', 'calculatorDisplay', nextValue === '-' ? '0' : nextValue);
+    const nextValue =
+      draft.calculatorDisplay.length > 1 ? draft.calculatorDisplay.slice(0, -1) : '0';
+    this.setDraftField(
+      'quick-calculator',
+      'calculatorDisplay',
+      nextValue === '-' ? '0' : nextValue,
+    );
   }
 
   protected clearCalculator(): void {
@@ -748,7 +737,10 @@ export class Toolbox implements OnDestroy {
       ...items,
       {
         id,
-        label: this.queueLabel(this.draftFor('stopwatch').stopwatchLabel, `Stopwatch ${items.length + 1}`),
+        label: this.queueLabel(
+          this.draftFor('stopwatch').stopwatchLabel,
+          this.numberedLabel('toolbox.queue.defaultStopwatch', items.length + 1, 'Stopwatch'),
+        ),
         elapsedMs,
         startedAt: Date.now(),
         running,
@@ -801,7 +793,9 @@ export class Toolbox implements OnDestroy {
 
   protected removeActiveItem(item: ActiveTimerItem): void {
     if (item.type === 'countdown-queue') {
-      this.queuedCountdowns.update((items) => items.filter((countdown) => countdown.id !== item.id));
+      this.queuedCountdowns.update((items) =>
+        items.filter((countdown) => countdown.id !== item.id),
+      );
       this.syncStopwatchInterval();
       return;
     }
@@ -821,7 +815,10 @@ export class Toolbox implements OnDestroy {
     const delaySeconds = this.alarmDelaySeconds(draft.alarmTime);
     const alarm: QueuedAlarm = {
       id,
-      label: this.queueLabel(draft.alarmLabel, `Alarm ${this.queuedAlarms().length + 1}`),
+      label: this.queueLabel(
+        draft.alarmLabel,
+        this.numberedLabel('toolbox.queue.defaultAlarm', this.queuedAlarms().length + 1, 'Alarm'),
+      ),
       time: this.normalizeAlarmTimeValue(draft.alarmTime),
       deadline: Date.now() + delaySeconds * 1000,
       running: true,
@@ -857,7 +854,12 @@ export class Toolbox implements OnDestroy {
       type: 'countdown-queue',
       label: countdown.label,
       value: this.formatDurationMs(remainingMs),
-      state: remainingMs <= 0 ? 'Finished' : countdown.running ? 'Running' : 'Paused',
+      stateKey:
+        remainingMs <= 0
+          ? 'toolbox.status.finished'
+          : countdown.running
+            ? 'toolbox.status.running'
+            : 'toolbox.status.paused',
       tone: remainingMs <= 0 ? 'done' : countdown.running ? 'running' : 'paused',
       running: countdown.running && remainingMs > 0,
     };
@@ -869,7 +871,7 @@ export class Toolbox implements OnDestroy {
       type: 'stopwatch-queue',
       label: stopwatch.label,
       value: this.formatDurationMs(this.queuedStopwatchElapsedMs(stopwatch), true),
-      state: stopwatch.running ? 'Running' : 'Paused',
+      stateKey: stopwatch.running ? 'toolbox.status.running' : 'toolbox.status.paused',
       tone: stopwatch.running ? 'running' : 'paused',
       running: stopwatch.running,
     };
@@ -881,7 +883,7 @@ export class Toolbox implements OnDestroy {
       type: 'alarm',
       label: alarm.label,
       value: alarm.time,
-      state: alarm.triggered ? 'Reached' : 'Armed',
+      stateKey: alarm.triggered ? 'toolbox.status.reached' : 'toolbox.status.armed',
       tone: alarm.triggered ? 'done' : 'armed',
       running: alarm.running,
     };
@@ -891,6 +893,10 @@ export class Toolbox implements OnDestroy {
     const trimmedValue = value.trim();
 
     return trimmedValue.length > 0 ? trimmedValue : fallback;
+  }
+
+  private numberedLabel(key: string, count: number, fallback: string): string {
+    return `${this.translationService.translate(key, fallback)} ${count}`;
   }
 
   private setCountdownPart(field: CountdownField, value: string): void {
@@ -919,15 +925,18 @@ export class Toolbox implements OnDestroy {
   private scheduleQueuedAlarm(alarm: QueuedAlarm): void {
     this.clearAlarmTimeout(alarm.id);
 
-    const timeoutId = window.setTimeout(() => {
-      this.queuedAlarms.update((items) =>
-        items.map((item) =>
-          item.id === alarm.id ? { ...item, running: false, triggered: true } : item,
-        ),
-      );
-      this.alarmTimeoutIds.delete(alarm.id);
-      this.markQueueItemFresh(alarm.id);
-    }, Math.max(0, alarm.deadline - Date.now()));
+    const timeoutId = window.setTimeout(
+      () => {
+        this.queuedAlarms.update((items) =>
+          items.map((item) =>
+            item.id === alarm.id ? { ...item, running: false, triggered: true } : item,
+          ),
+        );
+        this.alarmTimeoutIds.delete(alarm.id);
+        this.markQueueItemFresh(alarm.id);
+      },
+      Math.max(0, alarm.deadline - Date.now()),
+    );
 
     this.alarmTimeoutIds.set(alarm.id, timeoutId);
   }
@@ -1090,7 +1099,10 @@ export class Toolbox implements OnDestroy {
   private countdownDurationMs(): number {
     const draft = this.draftFor('countdown');
 
-    return (this.parseInteger(draft.countdownMinutes) * 60 + this.parseInteger(draft.countdownSeconds)) * 1000;
+    return (
+      (this.parseInteger(draft.countdownMinutes) * 60 + this.parseInteger(draft.countdownSeconds)) *
+      1000
+    );
   }
 
   private startCountdownInterval(): void {
@@ -1103,23 +1115,6 @@ export class Toolbox implements OnDestroy {
         this.pauseCountdown();
       }
     }, 200);
-  }
-
-  private startClockInterval(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    this.clockIntervalId = window.setInterval(() => {
-      this.currentClockDisplay.set(this.formatDateTimeValue(new Date()));
-    }, 1000);
-  }
-
-  private clearClockInterval(): void {
-    if (this.clockIntervalId !== null) {
-      window.clearInterval(this.clockIntervalId);
-      this.clockIntervalId = null;
-    }
   }
 
   private clearCountdownInterval(): void {
@@ -1201,7 +1196,9 @@ export class Toolbox implements OnDestroy {
   }
 
   private currentMainStopwatchElapsedMs(): number {
-    return this.stopwatchRunning() ? Math.max(0, Date.now() - this.stopwatchStartedAt) : this.stopwatchElapsedMs();
+    return this.stopwatchRunning()
+      ? Math.max(0, Date.now() - this.stopwatchStartedAt)
+      : this.stopwatchElapsedMs();
   }
 
   private queuedCountdownRemainingMs(countdown: QueuedCountdown): number {
@@ -1269,7 +1266,11 @@ export class Toolbox implements OnDestroy {
     }
 
     if (mode === 'time-base') {
-      this.setDraftField('time-calculator', 'baseTime', this.joinTimeParts(hours, minutes, seconds));
+      this.setDraftField(
+        'time-calculator',
+        'baseTime',
+        this.joinTimeParts(hours, minutes, seconds),
+      );
       return;
     }
 
@@ -1316,7 +1317,9 @@ export class Toolbox implements OnDestroy {
     }
 
     if (mode === 'timer') {
-      return this.digitsFromSeconds(Math.floor((this.countdownRemainingMs() ?? this.countdownDurationMs()) / 1000));
+      return this.digitsFromSeconds(
+        Math.floor((this.countdownRemainingMs() ?? this.countdownDurationMs()) / 1000),
+      );
     }
 
     return this.digitsFromSeconds(Math.floor(this.currentMainStopwatchElapsedMs() / 1000));
@@ -1358,18 +1361,14 @@ export class Toolbox implements OnDestroy {
     handler();
   }
 
-  private createClockOptions(length: number): { value: string; label: string }[] {
-    return Array.from({ length }, (_, index) => {
-      const value = this.padClockValue(index);
-
-      return { value, label: value };
-    });
-  }
-
   private splitTimeParts(value: string): [string, string, string] {
     const [hours = '00', minutes = '00', seconds = '00'] = value.split(':');
 
-    return [hours, minutes, seconds].map((part) => part.padStart(2, '0')) as [string, string, string];
+    return [hours, minutes, seconds].map((part) => part.padStart(2, '0')) as [
+      string,
+      string,
+      string,
+    ];
   }
 
   private timePartIndex(part: TimePart): 0 | 1 | 2 {
@@ -1381,14 +1380,18 @@ export class Toolbox implements OnDestroy {
   }
 
   private clampClockPart(value: string, part: TimePart): string {
-    return this.padClockValue(this.clampNumber(this.parseInteger(value), 0, this.timePartMax(part)));
+    return this.padClockValue(
+      this.clampNumber(this.parseInteger(value), 0, this.timePartMax(part)),
+    );
   }
 
   private parseTimeToSeconds(value: string): number {
     const [hours, minutes, seconds] = this.splitTimeParts(value);
 
     return this.normalizeDaySeconds(
-      this.parseInteger(hours) * 3600 + this.parseInteger(minutes) * 60 + this.parseInteger(seconds),
+      this.parseInteger(hours) * 3600 +
+        this.parseInteger(minutes) * 60 +
+        this.parseInteger(seconds),
     );
   }
 
@@ -1469,7 +1472,11 @@ export class Toolbox implements OnDestroy {
     return `${draft.calculatorDisplay}${value}`;
   }
 
-  private runCalculatorOperation(operator: CalculatorOperator, left: number, right: number): number {
+  private runCalculatorOperation(
+    operator: CalculatorOperator,
+    left: number,
+    right: number,
+  ): number {
     if (operator === 'subtract') {
       return left - right;
     }
@@ -1494,7 +1501,9 @@ export class Toolbox implements OnDestroy {
       return '0';
     }
 
-    return Number.isInteger(value) ? String(value) : value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+    return Number.isInteger(value)
+      ? String(value)
+      : value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
   }
 
   private formatDurationMs(totalMs: number, includeMilliseconds = false): string {

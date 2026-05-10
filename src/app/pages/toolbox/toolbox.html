@@ -1,7 +1,7 @@
 <section class="toolbox-page">
   <app-toolbox-hero />
 
-  <section class="quick-console" aria-label="Quick toolbox console">
+  <section class="quick-console" [attr.aria-label]="'toolbox.quickConsoleAria' | translate">
     <app-quick-calculator
       [draft]="draftFor('quick-calculator')"
       [preview]="calculatorPreview()"
@@ -16,8 +16,6 @@
       [baseDisplay]="timeBaseDisplay()"
       [deltaDisplay]="timeDeltaDisplay()"
       [result]="timeCalculationResult()"
-      [timePartControls]="timePartControls"
-      [timeOffsetControls]="timeOffsetControls"
       (currentTimeRequested)="useCurrentTime($event)"
       (timeOffsetReset)="resetTimeOffset()"
       (timeOffsetAdjustedBySeconds)="adjustTimeOffsetBySeconds($event)"

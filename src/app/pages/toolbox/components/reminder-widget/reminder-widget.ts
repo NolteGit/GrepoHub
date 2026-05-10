@@ -10,14 +10,16 @@ import {
   TimeInputMode,
   ToolDraft,
 } from '../../models/toolbox.models';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 type TimerPreset = {
   seconds: number;
-  label: string;
+  labelKey: string;
 };
 
 @Component({
   selector: 'app-reminder-widget',
+  imports: [TranslatePipe],
   templateUrl: './reminder-widget.html',
   styleUrl: './reminder-widget.scss',
 })
@@ -27,13 +29,13 @@ export class ReminderWidgetComponent {
   @Input() alarmDraft!: ToolDraft;
   @Input() countdownDraft!: ToolDraft;
   @Input() stopwatchDraft!: ToolDraft;
-  @Input() alarmStatus = 'Ready';
-  @Input() countdownStatus = 'Ready';
+  @Input() alarmStatus = 'toolbox.status.ready';
+  @Input() countdownStatus = 'toolbox.status.ready';
   @Input() countdownRunning = false;
   @Input() countdownDisplay = '00:00:00';
   @Input() canAddCountdownToQueue = false;
   @Input() stopwatchRunning = false;
-  @Input() stopwatchStatus = 'Ready';
+  @Input() stopwatchStatus = 'toolbox.status.ready';
   @Input() stopwatchDisplay = '00:00:00.000';
   @Input() canAddStopwatchToQueue = false;
   @Input() alarmPresets: AlarmPreset[] = [];
@@ -54,10 +56,10 @@ export class ReminderWidgetComponent {
   @Output() stopwatchReset = new EventEmitter<void>();
 
   protected readonly timerPresets: TimerPreset[] = [
-    { seconds: 60, label: '1 min' },
-    { seconds: 5 * 60, label: '5 min' },
-    { seconds: 10 * 60, label: '10 min' },
-    { seconds: 30 * 60, label: '30 min' },
-    { seconds: 60 * 60, label: '1 hour' },
+    { seconds: 60, labelKey: 'toolbox.reminder.preset.oneMinute' },
+    { seconds: 5 * 60, labelKey: 'toolbox.reminder.preset.fiveMinutes' },
+    { seconds: 10 * 60, labelKey: 'toolbox.reminder.preset.tenMinutes' },
+    { seconds: 30 * 60, labelKey: 'toolbox.reminder.preset.thirtyMinutes' },
+    { seconds: 60 * 60, labelKey: 'toolbox.reminder.preset.oneHour' },
   ];
 }

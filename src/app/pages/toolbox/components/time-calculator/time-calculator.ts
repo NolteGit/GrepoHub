@@ -6,17 +6,17 @@ import {
   TimeInputKeydownEvent,
   TimeInputMode,
   TimeOffsetAdjustmentEvent,
-  TimeOffsetControl,
   TimePart,
   TimePartAdjustmentEvent,
-  TimePartControl,
   TimePartUpdateEvent,
   ToolDraft,
   ToolId,
 } from '../../models/toolbox.models';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-time-calculator',
+  imports: [TranslatePipe],
   templateUrl: './time-calculator.html',
   styleUrl: './time-calculator.scss',
 })
@@ -25,8 +25,6 @@ export class TimeCalculatorComponent {
   @Input() baseDisplay = '';
   @Input() deltaDisplay = '';
   @Input() result = '';
-  @Input() timePartControls: TimePartControl[] = [];
-  @Input() timeOffsetControls: TimeOffsetControl[] = [];
 
   @Output() currentTimeRequested = new EventEmitter<ToolId>();
   @Output() timeOffsetReset = new EventEmitter<void>();

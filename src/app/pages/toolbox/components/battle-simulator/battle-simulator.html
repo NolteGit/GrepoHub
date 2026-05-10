@@ -1,42 +1,58 @@
-<section class="simulator-section" id="battle-simulator" aria-label="Battle simulator placeholder">
+<section
+  class="simulator-section"
+  id="battle-simulator"
+  [attr.aria-label]="'toolbox.battle.aria' | translate"
+>
   <header class="simulator-toolbar">
     <div>
-      <span>{{ summary.eyebrow }}</span>
-      <h2>{{ summary.title }}</h2>
+      <span>{{ summary.eyebrowKey | translate }}</span>
+      <h2>{{ summary.titleKey | translate }}</h2>
     </div>
 
-    <div class="simulator-actions" aria-label="Simulator configuration actions">
-      <button type="button">Load config</button>
-      <button type="button">Save config</button>
+    <div class="simulator-actions" [attr.aria-label]="'toolbox.battle.actionsAria' | translate">
+      <button type="button">{{ 'toolbox.battle.loadConfig' | translate }}</button>
+      <button type="button">{{ 'toolbox.battle.saveConfig' | translate }}</button>
     </div>
   </header>
 
   <div class="simulator-workspace">
     <section class="battle-setup-row">
       <label class="battle-side-card">
-        <span>Attacker</span>
+        <span>{{ 'toolbox.battle.attacker' | translate }}</span>
         <input
           type="text"
           [value]="draft.attackerPreset"
-          (input)="draftUpdated.emit({ toolId: 'battle-simulator', field: 'attackerPreset', event: $event })"
+          (input)="
+            draftUpdated.emit({
+              toolId: 'battle-simulator',
+              field: 'attackerPreset',
+              event: $event,
+            })
+          "
         />
       </label>
 
-      <div class="battle-versus">VS</div>
+      <div class="battle-versus">{{ 'toolbox.battle.versus' | translate }}</div>
 
       <label class="battle-side-card">
-        <span>Defender</span>
+        <span>{{ 'toolbox.battle.defender' | translate }}</span>
         <input
           type="text"
           [value]="draft.defenderPreset"
-          (input)="draftUpdated.emit({ toolId: 'battle-simulator', field: 'defenderPreset', event: $event })"
+          (input)="
+            draftUpdated.emit({
+              toolId: 'battle-simulator',
+              field: 'defenderPreset',
+              event: $event,
+            })
+          "
         />
       </label>
     </section>
 
     <div class="battle-placeholder-copy">
-      <strong>Battle simulator workspace</strong>
-      <p>This lower area is reserved for the full troop table, modifiers, presets, and result comparison.</p>
+      <strong>{{ 'toolbox.battle.workspaceTitle' | translate }}</strong>
+      <p>{{ 'toolbox.battle.workspaceDescription' | translate }}</p>
     </div>
   </div>
 </section>

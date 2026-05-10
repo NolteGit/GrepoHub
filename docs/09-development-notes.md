@@ -2,14 +2,14 @@
 
 ## Current phase
 
-The project is in the requirements specification and planning phase.
+The project is now in MVP stabilization and vertical-slice development.
 
-The goal is to clarify the page structure, MVP scope, data structure, and Angular architecture before building the first implementation.
+The first routed Angular implementation exists. The current focus is to keep the local-first architecture stable, remove avoidable complexity, finish translation coverage, and improve one feature area at a time.
 
 ## Confirmed app name
 
 ```txt
-Grepo-Hub
+Grepo Hub
 ```
 
 ## Confirmed project directory
@@ -18,46 +18,45 @@ Grepo-Hub
 grepo-hub
 ```
 
-## Confirmed pages
+## Confirmed routes
 
 ```txt
-home
-city-planner
-troops-planner
-references
-guides
-time-tools
-battle-simulator
+home -> /
+city-planner -> /city-planner
+troops-planner -> /troops-planner
+references -> /references
+toolbox -> /toolbox
 ```
 
 ## Important design decisions
 
 ### No dedicated import/export page
 
-Import and export should be present where needed, especially inside City Planner and Troops Planner.
-
-TXT import/export is important, but it should not dominate the app UI.
+Import and export stay inside City Planner and Troops Planner. The shared JSON `PlanConfig` bundle is the canonical exchange format.
 
 ### Academy Planner belongs inside City Planner
 
-Academy planning should be part of City Planner, not a major standalone page for the MVP.
+Academy planning should be part of City Planner, not a major standalone route for the MVP.
 
-### Time Tools are unified
+### Guides and references are consolidated for now
 
-All timing features should live on one Time Tools page.
+Long-form guide material can be added later, but the current implementation keeps external resources and practical helper links on the References page.
+
+### Time tools are unified in Toolbox
+
+Timing features currently live inside Toolbox instead of a separate Time Tools route.
 
 This includes:
 
-- Time calculator
-- Alarms
-- Countdowns
-- Stopwatches
-- Runtime configurations
-- Active timers
+- Time calculator.
+- Alarms.
+- Countdowns.
+- Stopwatches.
+- Runtime timer queue.
 
 ### Battle Simulator is delayed
 
-The Battle Simulator route should exist, but the actual feature can stay empty until later.
+The battle simulator remains intentionally gated as a later Toolbox feature. Accurate simulation will require many game mechanics, modifiers, and world settings, so it should not distract from planner stabilization.
 
 ## UI direction
 
@@ -65,70 +64,66 @@ The app should feel like a practical companion dashboard.
 
 Important UI pieces:
 
-- Top bar
-- Navigation burger
-- Current page title
-- Current time
-- Quick timer add button
-- Active timer dropdown
-- Planner configuration sidebar
-- Feature cards on dashboard
-- About popup
+- Responsive app shell.
+- Clear top navigation.
+- Feature cards on the dashboard.
+- Planner configuration sidebars.
+- Compact import/export controls inside planner pages.
+- References filters and cards.
+- Toolbox utility panels.
 
 ## Storage direction
 
-The MVP should use:
+The MVP uses:
 
-- Static JSON files for game data
-- LocalStorage for user-created configurations
-- TXT import/export for city and troop plans
+- Static JSON files for game data.
+- LocalStorage for user-created configurations.
+- JSON import/export for shared planner configurations.
+
+TXT, CSV, BBCode, and PNG exports can be added later as generated outputs.
 
 ## Translation direction
 
-Translation should be simple and local.
+Translation is simple and local.
 
-Use small JSON or TXT files for two or three languages.
-
-Recommended first files:
+Current files:
 
 ```txt
-src/assets/i18n/en.json
-src/assets/i18n/de.json
+public/assets/i18n/en.json
+public/assets/i18n/de.json
 ```
+
+All visible UI labels should have translation keys. Fallback strings are allowed while migrating data-driven labels, but should not become the normal way to add UI text.
 
 ## Game data direction
 
-Use tiny JSON files for core data.
+Use small readable JSON files for core data.
 
-Recommended first files:
+Current files:
 
 ```txt
-src/assets/data/units.json
-src/assets/data/buildings.json
+public/assets/data/units.json
+public/assets/data/buildings.json
 ```
 
+Before adding more planner logic, review whether these schemas are stable enough for calculations, validation, and future import/export support.
 
-## Suggested first coding tasks
+## Recommended next coding tasks
 
-1. Create Angular project.
-2. Add routing.
-3. Add app shell with top bar.
-4. Add dashboard cards.
-5. Add placeholder pages.
-6. Add static JSON data files.
-7. Add basic translation files.
-8. Add City Planner skeleton.
-9. Add Troops Planner skeleton.
-10. Add Time Tools skeleton.
+1. Add more focused tests for `PlanConfigService` import/export validation.
+2. Add tests for translation fallback and language switching.
+3. Review the unit/building JSON schemas before more features depend on them.
+4. Decide whether Toolbox timer state should move into a shared timer service.
+5. Improve planner validation and user-facing error messages.
+6. Add generated export formats only after the JSON plan format remains stable.
 
 ## Open questions
 
-These can be decided later:
+These can still be decided later:
 
-- CSS or SCSS?
-- Exact visual style/theme?
-- Whether to add a Settings page early or keep settings inside services/local storage for now?
-- Exact TXT format syntax?
-- Exact unit/building JSON schema?
-- Whether guide content is stored locally or mostly linked externally?
-- Whether browser notifications should be included after the first timer MVP?
+- Exact visual theme polish.
+- Whether to add a Settings page early or keep settings inside services/local storage.
+- Exact TXT/BBCode export syntax.
+- Exact research/academy JSON schema.
+- Whether guide content is stored locally or mostly linked externally.
+- Whether browser notifications should be included after the first timer MVP.

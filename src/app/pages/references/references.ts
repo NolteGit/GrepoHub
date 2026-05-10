@@ -7,11 +7,12 @@ import {
   referenceQuickLinks,
   referenceResources,
 } from '../../data/reference-resources';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-references',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './references.html',
   styleUrl: './references.scss',
 })
@@ -25,12 +26,12 @@ export class References {
   protected readonly selectedResourceId = signal<string | null>(null);
   protected readonly selectedSectionId = signal<string | null>(null);
 
-  protected readonly typeFilters: { label: string; value: ReferenceResourceType | 'all' }[] = [
-    { label: 'All', value: 'all' },
-    { label: 'Tools', value: 'tool-guide' },
-    { label: 'Guides', value: 'guide' },
-    { label: 'Documents', value: 'reference-document' },
-    { label: 'Links', value: 'external-link' },
+  protected readonly typeFilters: { labelKey: string; value: ReferenceResourceType | 'all' }[] = [
+    { labelKey: 'references.typeFilter.all', value: 'all' },
+    { labelKey: 'references.typeFilter.tools', value: 'tool-guide' },
+    { labelKey: 'references.typeFilter.guides', value: 'guide' },
+    { labelKey: 'references.typeFilter.documents', value: 'reference-document' },
+    { labelKey: 'references.typeFilter.links', value: 'external-link' },
   ];
 
   protected readonly filteredResources = computed(() => {
@@ -40,11 +41,14 @@ export class References {
     return this.resources.filter((resource) => {
       const matchesType = selectedType === 'all' || resource.type === selectedType;
       const searchableText = [
-        resource.title,
-        resource.category,
-        resource.description,
-        ...resource.tags,
-        ...resource.sections.map((section) => `${section.title} ${section.summary}`),
+        this.resourceTitle(resource),
+        this.resourceCategory(resource),
+        this.resourceDescription(resource),
+        ...resource.tags.map((tag) => this.resourceTag(resource, tag)),
+        ...resource.sections.map(
+          (section) =>
+            `${this.sectionTitle(resource, section.id, section.title)} ${this.sectionSummary(resource, section.id, section.summary)}`,
+        ),
       ]
         .join(' ')
         .toLowerCase();
@@ -110,15 +114,70 @@ export class References {
     this.showOverview();
   }
 
-  protected typeLabel(type: ReferenceResourceType): string {
+  protected typeLabelKey(type: ReferenceResourceType): string {
     const labels: Record<ReferenceResourceType, string> = {
-      'tool-guide': 'Tool guide',
-      guide: 'Guide',
-      'reference-document': 'Document',
-      'external-link': 'External link',
+      'tool-guide': 'references.type.toolGuide',
+      guide: 'references.type.guide',
+      'reference-document': 'references.type.document',
+      'external-link': 'references.type.externalLink',
     };
 
     return labels[type];
+  }
+
+  protected resourceTitle(resource: ReferenceResource): string {
+    return this.translateResource(resource.id, 'title', resource.title);
+  }
+
+  protected resourceCategory(resource: ReferenceResource): string {
+    return this.translateResource(resource.id, 'category', resource.category);
+  }
+
+  protected resourceDescription(resource: ReferenceResource): string {
+    return this.translateResource(resource.id, 'description', resource.description);
+  }
+
+  protected resourceTag(resource: ReferenceResource, tag: string): string {
+    return this.translationService.translate(
+      `references.resources.${resource.id}.tags.${this.slugKey(tag)}`,
+      tag,
+    );
+  }
+
+  protected sectionTitle(resource: ReferenceResource, sectionId: string, fallback: string): string {
+    return this.translationService.translate(
+      `references.resources.${resource.id}.sections.${sectionId}.title`,
+      fallback,
+    );
+  }
+
+  protected sectionSummary(
+    resource: ReferenceResource,
+    sectionId: string,
+    fallback: string,
+  ): string {
+    return this.translationService.translate(
+      `references.resources.${resource.id}.sections.${sectionId}.summary`,
+      fallback,
+    );
+  }
+
+  protected scriptTitle(resource: ReferenceResource, scriptId: string, fallback: string): string {
+    return this.translationService.translate(
+      `references.resources.${resource.id}.scripts.${scriptId}.title`,
+      fallback,
+    );
+  }
+
+  protected scriptDescription(
+    resource: ReferenceResource,
+    scriptId: string,
+    fallback: string,
+  ): string {
+    return this.translationService.translate(
+      `references.resources.${resource.id}.scripts.${scriptId}.description`,
+      fallback,
+    );
   }
 
   protected isSelectedResource(resource: ReferenceResource): boolean {
@@ -127,5 +186,19 @@ export class References {
 
   protected isSelectedSection(resource: ReferenceResource, sectionId: string): boolean {
     return this.selectedResourceId() === resource.id && this.selectedSectionId() === sectionId;
+  }
+
+  private translateResource(resourceId: string, field: string, fallback: string): string {
+    return this.translationService.translate(
+      `references.resources.${resourceId}.${field}`,
+      fallback,
+    );
+  }
+
+  private slugKey(value: string): string {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 }

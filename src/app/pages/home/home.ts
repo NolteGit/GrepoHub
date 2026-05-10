@@ -95,4 +95,3 @@ export class Home {
     return Math.atan2(cardCenterX - compassCenterX, compassCenterY - cardCenterY) * (180 / Math.PI);
   }
 }
-

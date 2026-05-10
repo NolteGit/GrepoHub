@@ -2,19 +2,21 @@
   class="quick-card calculator-card"
   [class.calculator-card--keyboard-active]="keyboardActive"
   id="quick-calculator"
-  aria-label="Calculator"
+  [attr.aria-label]="'toolbox.calculator.title' | translate"
   tabindex="0"
   (focusin)="keyboardActivate.emit()"
 >
   <header class="calculator-card__header">
-    <h2>Calculator</h2>
+    <h2>{{ 'toolbox.calculator.title' | translate }}</h2>
   </header>
 
-  <div class="calculator-history" aria-label="Recent calculations">
+  <div class="calculator-history" [attr.aria-label]="'toolbox.calculator.historyAria' | translate">
     @for (historyItem of draft.calculatorHistory.slice(0, 3); track historyItem) {
       <span>{{ historyItem }}</span>
     } @empty {
-      <span class="calculator-history__empty">Recent calculations appear here.</span>
+      <span class="calculator-history__empty">{{
+        'toolbox.calculator.emptyHistory' | translate
+      }}</span>
     }
   </div>
 
@@ -23,12 +25,12 @@
     <strong>{{ draft.calculatorDisplay }}</strong>
   </div>
 
-  <div class="calculator-pad" aria-label="Calculator keypad">
+  <div class="calculator-pad" [attr.aria-label]="'toolbox.calculator.keypadAria' | translate">
     @for (button of buttons; track button.label) {
       <button
         type="button"
         [class]="button.className || ''"
-        [attr.aria-label]="button.ariaLabel || null"
+        [attr.aria-label]="button.ariaLabelKey ? (button.ariaLabelKey | translate) : null"
         (click)="buttonPressed.emit(button)"
       >
         {{ button.label }}
@@ -36,4 +38,3 @@
     }
   </div>
 </article>
-

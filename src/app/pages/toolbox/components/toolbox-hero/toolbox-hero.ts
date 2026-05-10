@@ -1,23 +1,81 @@
-import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { TranslationService } from '../../../../services/translation.service';
 
 type ToolboxTimeZoneOption = {
   readonly id: string;
   readonly label: string;
+  readonly labelKey: string;
   readonly description: string;
+  readonly descriptionKey: string;
   readonly timeZone?: string;
 };
 
 const TIME_ZONE_OPTIONS: readonly ToolboxTimeZoneOption[] = [
-  { id: 'current', label: 'Current timezone', description: 'Your current browser timezone' },
-  { id: 'utc', label: 'UTC', description: 'Coordinated Universal Time', timeZone: 'UTC' },
-  { id: 'uk', label: 'GMT', description: 'United Kingdom', timeZone: 'Europe/London' },
-  { id: 'eastern-europe', label: 'EET', description: 'Eastern Europe', timeZone: 'Europe/Athens' },
-  { id: 'us-east', label: 'ET', description: 'US Eastern Time', timeZone: 'America/New_York' },
-  { id: 'us-west', label: 'PT', description: 'US Pacific Time', timeZone: 'America/Los_Angeles' },
-  { id: 'japan', label: 'JST', description: 'Japan Standard Time', timeZone: 'Asia/Tokyo' },
-  { id: 'australia-east', label: 'AET', description: 'Australia Eastern Time', timeZone: 'Australia/Sydney' },
+  {
+    id: 'current',
+    label: 'Current timezone',
+    labelKey: 'toolbox.clock.zone.current.label',
+    description: 'Your current browser timezone',
+    descriptionKey: 'toolbox.clock.zone.current.description',
+  },
+  {
+    id: 'utc',
+    label: 'UTC',
+    labelKey: 'toolbox.clock.zone.utc.label',
+    description: 'Coordinated Universal Time',
+    descriptionKey: 'toolbox.clock.zone.utc.description',
+    timeZone: 'UTC',
+  },
+  {
+    id: 'uk',
+    label: 'GMT',
+    labelKey: 'toolbox.clock.zone.uk.label',
+    description: 'United Kingdom',
+    descriptionKey: 'toolbox.clock.zone.uk.description',
+    timeZone: 'Europe/London',
+  },
+  {
+    id: 'eastern-europe',
+    label: 'EET',
+    labelKey: 'toolbox.clock.zone.easternEurope.label',
+    description: 'Eastern Europe',
+    descriptionKey: 'toolbox.clock.zone.easternEurope.description',
+    timeZone: 'Europe/Athens',
+  },
+  {
+    id: 'us-east',
+    label: 'ET',
+    labelKey: 'toolbox.clock.zone.usEast.label',
+    description: 'US Eastern Time',
+    descriptionKey: 'toolbox.clock.zone.usEast.description',
+    timeZone: 'America/New_York',
+  },
+  {
+    id: 'us-west',
+    label: 'PT',
+    labelKey: 'toolbox.clock.zone.usWest.label',
+    description: 'US Pacific Time',
+    descriptionKey: 'toolbox.clock.zone.usWest.description',
+    timeZone: 'America/Los_Angeles',
+  },
+  {
+    id: 'japan',
+    label: 'JST',
+    labelKey: 'toolbox.clock.zone.japan.label',
+    description: 'Japan Standard Time',
+    descriptionKey: 'toolbox.clock.zone.japan.description',
+    timeZone: 'Asia/Tokyo',
+  },
+  {
+    id: 'australia-east',
+    label: 'AET',
+    labelKey: 'toolbox.clock.zone.australiaEast.label',
+    description: 'Australia Eastern Time',
+    descriptionKey: 'toolbox.clock.zone.australiaEast.description',
+    timeZone: 'Australia/Sydney',
+  },
 ];
 
 const CENTRAL_EUROPE_TIME_ZONES = new Set([
@@ -59,15 +117,20 @@ const CENTRAL_EUROPE_TIME_ZONES = new Set([
   styleUrl: './toolbox-hero.scss',
 })
 export class ToolboxHeroComponent implements OnInit, OnDestroy {
+  private readonly translationService = inject(TranslationService);
   private clockInterval?: ReturnType<typeof setInterval>;
 
   readonly timeZoneOptions = TIME_ZONE_OPTIONS;
   readonly now = signal(new Date());
   readonly selectedTimeZoneId = signal(TIME_ZONE_OPTIONS[0].id);
   readonly activeTimeZone = computed(() => this.getTimeZoneOption(this.selectedTimeZoneId()));
-  readonly currentTime = computed(() => this.formatTime(this.now(), this.activeTimeZone().timeZone));
+  readonly currentTime = computed(() =>
+    this.formatTime(this.now(), this.activeTimeZone().timeZone),
+  );
   readonly currentIsoTime = computed(() => this.now().toISOString());
-  readonly timeZoneDescription = computed(() => this.formatTimeZoneDescription(this.activeTimeZone()));
+  readonly timeZoneDescription = computed(() =>
+    this.formatTimeZoneDescription(this.activeTimeZone()),
+  );
 
   ngOnInit(): void {
     this.clockInterval = setInterval(() => this.now.set(new Date()), 1000);
@@ -107,17 +170,21 @@ export class ToolboxHeroComponent implements OnInit, OnDestroy {
   private formatTimeZoneDescription(option: ToolboxTimeZoneOption): string {
     const timeZone = option.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
     const label = this.formatTimeZoneLabel(this.now(), option);
+    const description = this.translationService.translate(
+      option.descriptionKey,
+      option.description,
+    );
 
     if (!timeZone) {
-      return option.description;
+      return description;
     }
 
-    return `${label} · ${option.description}: ${timeZone}`;
+    return `${label} · ${description}: ${timeZone}`;
   }
 
   private formatTimeZoneLabel(date: Date, option: ToolboxTimeZoneOption): string {
     if (option.timeZone === 'UTC') {
-      return 'UTC';
+      return this.translationService.translate(option.labelKey, option.label);
     }
 
     const timeZone = option.timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -128,7 +195,7 @@ export class ToolboxHeroComponent implements OnInit, OnDestroy {
     }
 
     if (!timeZone) {
-      return option.label;
+      return this.translationService.translate(option.labelKey, option.label);
     }
 
     const timeZoneName = new Intl.DateTimeFormat('en-US', {
@@ -138,7 +205,9 @@ export class ToolboxHeroComponent implements OnInit, OnDestroy {
       .formatToParts(date)
       .find((part) => part.type === 'timeZoneName')?.value;
 
-    return timeZoneName && !timeZoneName.startsWith('GMT') ? timeZoneName.replace(/\s+/g, '') : this.formatOffsetLabel(date, timeZone);
+    return timeZoneName && !timeZoneName.startsWith('GMT')
+      ? timeZoneName.replace(/\s+/g, '')
+      : this.formatOffsetLabel(date, timeZone);
   }
 
   private getKnownTimeZoneLabel(date: Date, timeZone: string): string | null {
@@ -191,7 +260,9 @@ export class ToolboxHeroComponent implements OnInit, OnDestroy {
     const hours = Math.floor(absoluteOffset / 60);
     const minutes = absoluteOffset % 60;
 
-    return minutes === 0 ? `UTC${sign}${hours}` : `UTC${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
+    return minutes === 0
+      ? `UTC${sign}${hours}`
+      : `UTC${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
   }
 
   private getTimeZoneOffsetMinutes(date: Date, timeZone: string): number | null {

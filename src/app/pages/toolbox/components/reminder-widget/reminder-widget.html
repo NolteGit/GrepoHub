@@ -1,12 +1,16 @@
-<section class="reminder-strip" aria-label="Alarm, timer, and stopwatch widget">
+<section class="reminder-strip" [attr.aria-label]="'toolbox.reminder.aria' | translate">
   <article
     class="quick-card reminder-card timer-widget"
     [attr.data-mode]="activeMode"
-    aria-label="Alarm, timer, and stopwatch widget"
+    [attr.aria-label]="'toolbox.reminder.aria' | translate"
   >
-    <h2 class="timer-widget__title">Reminder Tools</h2>
+    <h2 class="timer-widget__title">{{ 'toolbox.reminder.title' | translate }}</h2>
 
-    <div class="timer-widget__tabs" role="tablist" aria-label="Timer modes">
+    <div
+      class="timer-widget__tabs"
+      role="tablist"
+      [attr.aria-label]="'toolbox.reminder.modesAria' | translate"
+    >
       @for (mode of reminderModes; track mode.id) {
         <button
           type="button"
@@ -16,23 +20,28 @@
           [attr.aria-selected]="activeMode === mode.id"
           (click)="reminderModeSelected.emit(mode.id)"
         >
-          {{ mode.label }}
+          {{ mode.labelKey | translate }}
         </button>
       }
     </div>
 
     @if (activeMode === 'alarm') {
-      <section class="timer-widget__panel" id="alarm" role="tabpanel" aria-label="Alarm">
+      <section
+        class="timer-widget__panel"
+        id="alarm"
+        role="tabpanel"
+        [attr.aria-label]="'toolbox.reminder.mode.alarm' | translate"
+      >
         <div class="timer-widget__display-row">
           <span class="timer-widget__display-spacer" aria-hidden="true"></span>
 
           <div class="timer-widget__time-block">
-            <span class="timer-widget__label">{{ alarmStatus }}</span>
+            <span class="timer-widget__label">{{ alarmStatus | translate }}</span>
             <input
               type="text"
               class="timer-widget__time-input"
               inputmode="numeric"
-              aria-label="Alarm time"
+              [attr.aria-label]="'toolbox.reminder.alarmTime' | translate"
               readonly
               [value]="alarmDraft.alarmTime"
               (focus)="timeInputEditStarted.emit({ mode: 'alarm', event: $event })"
@@ -43,7 +52,7 @@
 
           <div class="timer-widget__side-panel">
             <label class="timer-widget__name-field">
-              <span>Name</span>
+              <span>{{ 'toolbox.common.name' | translate }}</span>
               <input
                 type="text"
                 [value]="alarmDraft.alarmLabel"
@@ -52,21 +61,28 @@
             </label>
 
             <button type="button" class="timer-widget__side-action" (click)="alarmArmed.emit()">
-              Activate
+              {{ 'toolbox.reminder.activate' | translate }}
             </button>
           </div>
         </div>
 
-        <div class="timer-widget__preset-row" aria-label="Quick alarm presets">
+        <div
+          class="timer-widget__preset-row"
+          [attr.aria-label]="'toolbox.reminder.quickAlarmPresets' | translate"
+        >
           @for (preset of alarmPresets; track preset.time) {
-            <button type="button" class="timer-widget__preset" (click)="alarmPresetSelected.emit(preset.time)">
+            <button
+              type="button"
+              class="timer-widget__preset"
+              (click)="alarmPresetSelected.emit(preset.time)"
+            >
               {{ preset.label }}
             </button>
           }
           <button
             type="button"
             class="timer-widget__preset timer-widget__preset--reset"
-            aria-label="Reset alarm"
+            [attr.aria-label]="'toolbox.reminder.resetAlarm' | translate"
             (click)="alarmPresetSelected.emit('22:59:00')"
           >
             ↻
@@ -74,12 +90,20 @@
         </div>
       </section>
     } @else if (activeMode === 'timer') {
-      <section class="timer-widget__panel" id="countdown" role="tabpanel" aria-label="Timer">
+      <section
+        class="timer-widget__panel"
+        id="countdown"
+        role="tabpanel"
+        [attr.aria-label]="'toolbox.reminder.mode.timer' | translate"
+      >
         <div class="timer-widget__display-row">
           <button
             type="button"
             class="timer-widget__icon-button"
-            [attr.aria-label]="countdownRunning ? 'Pause timer' : 'Start timer'"
+            [attr.aria-label]="
+              (countdownRunning ? 'toolbox.reminder.pauseTimer' : 'toolbox.reminder.startTimer')
+                | translate
+            "
             [attr.aria-pressed]="countdownRunning"
             (click)="countdownToggled.emit()"
           >
@@ -87,12 +111,12 @@
           </button>
 
           <div class="timer-widget__time-block">
-            <span class="timer-widget__label">{{ countdownStatus }}</span>
+            <span class="timer-widget__label">{{ countdownStatus | translate }}</span>
             <input
               type="text"
               class="timer-widget__time-input"
               inputmode="numeric"
-              aria-label="Timer duration"
+              [attr.aria-label]="'toolbox.reminder.timerDuration' | translate"
               readonly
               [disabled]="countdownRunning"
               [value]="countdownDisplay"
@@ -104,11 +128,13 @@
 
           <div class="timer-widget__side-panel">
             <label class="timer-widget__name-field">
-              <span>Name</span>
+              <span>{{ 'toolbox.common.name' | translate }}</span>
               <input
                 type="text"
                 [value]="countdownDraft.countdownLabel"
-                (input)="draftUpdated.emit({ toolId: 'countdown', field: 'countdownLabel', event: $event })"
+                (input)="
+                  draftUpdated.emit({ toolId: 'countdown', field: 'countdownLabel', event: $event })
+                "
               />
             </label>
 
@@ -118,12 +144,15 @@
               [disabled]="!canAddCountdownToQueue"
               (click)="countdownAdded.emit()"
             >
-              Add
+              {{ 'toolbox.reminder.add' | translate }}
             </button>
           </div>
         </div>
 
-        <div class="timer-widget__preset-row" aria-label="Quick timer presets">
+        <div
+          class="timer-widget__preset-row"
+          [attr.aria-label]="'toolbox.reminder.quickTimerPresets' | translate"
+        >
           @for (preset of timerPresets; track preset.seconds) {
             <button
               type="button"
@@ -131,26 +160,36 @@
               [disabled]="countdownRunning"
               (click)="countdownPresetSelected.emit(preset.seconds)"
             >
-              {{ preset.label }}
+              {{ preset.labelKey | translate }}
             </button>
           }
           <button
             type="button"
             class="timer-widget__preset timer-widget__preset--reset"
-            aria-label="Reset timer"
+            [attr.aria-label]="'toolbox.reminder.resetTimer' | translate"
             (click)="countdownReset.emit()"
           >
-            Reset
+            {{ 'toolbox.reminder.reset' | translate }}
           </button>
         </div>
       </section>
     } @else {
-      <section class="timer-widget__panel" id="stopwatch" role="tabpanel" aria-label="Stopwatch">
+      <section
+        class="timer-widget__panel"
+        id="stopwatch"
+        role="tabpanel"
+        [attr.aria-label]="'toolbox.reminder.mode.stopwatch' | translate"
+      >
         <div class="timer-widget__display-row">
           <button
             type="button"
             class="timer-widget__icon-button"
-            [attr.aria-label]="stopwatchRunning ? 'Pause stopwatch' : 'Start stopwatch'"
+            [attr.aria-label]="
+              (stopwatchRunning
+                ? 'toolbox.reminder.pauseStopwatch'
+                : 'toolbox.reminder.startStopwatch'
+              ) | translate
+            "
             [attr.aria-pressed]="stopwatchRunning"
             (click)="stopwatchToggled.emit()"
           >
@@ -158,12 +197,12 @@
           </button>
 
           <div class="timer-widget__time-block">
-            <span class="timer-widget__label">{{ stopwatchStatus }}</span>
+            <span class="timer-widget__label">{{ stopwatchStatus | translate }}</span>
             <input
               type="text"
               class="timer-widget__time-input"
               inputmode="numeric"
-              aria-label="Stopwatch time"
+              [attr.aria-label]="'toolbox.reminder.stopwatchTime' | translate"
               readonly
               [disabled]="stopwatchRunning"
               [value]="stopwatchDisplay"
@@ -175,11 +214,13 @@
 
           <div class="timer-widget__side-panel">
             <label class="timer-widget__name-field">
-              <span>Name</span>
+              <span>{{ 'toolbox.common.name' | translate }}</span>
               <input
                 type="text"
                 [value]="stopwatchDraft.stopwatchLabel"
-                (input)="draftUpdated.emit({ toolId: 'stopwatch', field: 'stopwatchLabel', event: $event })"
+                (input)="
+                  draftUpdated.emit({ toolId: 'stopwatch', field: 'stopwatchLabel', event: $event })
+                "
               />
             </label>
 
@@ -189,18 +230,24 @@
               [disabled]="!canAddStopwatchToQueue"
               (click)="stopwatchAdded.emit()"
             >
-              Add
+              {{ 'toolbox.reminder.add' | translate }}
             </button>
           </div>
         </div>
 
-        <div class="timer-widget__preset-row timer-widget__preset-row--compact" aria-label="Stopwatch actions">
-          <button type="button" class="timer-widget__preset timer-widget__preset--reset" (click)="stopwatchReset.emit()">
-            Reset
+        <div
+          class="timer-widget__preset-row timer-widget__preset-row--compact"
+          [attr.aria-label]="'toolbox.reminder.stopwatchActions' | translate"
+        >
+          <button
+            type="button"
+            class="timer-widget__preset timer-widget__preset--reset"
+            (click)="stopwatchReset.emit()"
+          >
+            {{ 'toolbox.reminder.reset' | translate }}
           </button>
         </div>
       </section>
     }
   </article>
 </section>
-

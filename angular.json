@@ -29,23 +29,21 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "650kB",
                   "maximumError": "1MB"
                 },
                 {
-                "type": "anyComponentStyle",
-                "maximumWarning": "16kB",
-                "maximumError": "32kB"
-              }
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "18kB",
+                  "maximumError": "32kB"
+                }
               ],
               "outputHashing": "all"
             },

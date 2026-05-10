@@ -29,3 +29,4 @@ The full MVP list is useful as a direction, but it is too large for the immediat
 
 ```txt
 First milestone: clickable skeleton
+```

@@ -9,10 +9,7 @@
       <label class="troops-planner-page__configuration-select">
         <span>{{ 'troopsPlanner.configuration' | translate }}</span>
 
-        <select
-          [ngModel]="selectedConfigurationId()"
-          (ngModelChange)="selectConfiguration($event)"
-        >
+        <select [ngModel]="selectedConfigurationId()" (ngModelChange)="selectConfiguration($event)">
           @for (configuration of configurations(); track configuration.id) {
             <option [value]="configuration.id">{{ configuration.name }}</option>
           }
@@ -41,7 +38,7 @@
       <button type="button" (click)="deleteActivePlan()">
         {{ 'planConfig.delete' | translate }}
       </button>
-<button type="button" (click)="saveAsNewConfiguration()">
+      <button type="button" (click)="saveAsNewConfiguration()">
         {{ 'troopsPlanner.saveAsNew' | translate }}
       </button>
 
@@ -64,7 +61,10 @@
   <div class="troops-planner-page__content">
     <section class="troops-planner-card troops-planner-card--units">
       <div class="unit-sections">
-        <section class="unit-section" [class.unit-section--collapsed]="isUnitSectionCollapsed('land')">
+        <section
+          class="unit-section"
+          [class.unit-section--collapsed]="isUnitSectionCollapsed('land')"
+        >
           <header class="unit-section__header">
             <div class="unit-section__title">
               {{ 'troopsPlanner.landUnits' | translate }}
@@ -78,12 +78,14 @@
               [attr.aria-label]="
                 (isUnitSectionCollapsed('land')
                   ? 'troopsPlanner.expandSection'
-                  : 'troopsPlanner.collapseSection') | translate
+                  : 'troopsPlanner.collapseSection'
+                ) | translate
               "
               [title]="
                 (isUnitSectionCollapsed('land')
                   ? 'troopsPlanner.expandSection'
-                  : 'troopsPlanner.collapseSection') | translate
+                  : 'troopsPlanner.collapseSection'
+                ) | translate
               "
             >
               <span class="unit-section__collapse-icon" aria-hidden="true">⌄</span>
@@ -92,16 +94,19 @@
 
           @if (!isUnitSectionCollapsed('land')) {
             <div class="unit-list">
-            @for (unit of regularLandUnits(); track unit.id) {
-              <ng-container
-                *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: false }"
-              ></ng-container>
-            }
+              @for (unit of regularLandUnits(); track unit.id) {
+                <ng-container
+                  *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: false }"
+                ></ng-container>
+              }
             </div>
           }
         </section>
 
-        <section class="unit-section" [class.unit-section--collapsed]="isUnitSectionCollapsed('sea')">
+        <section
+          class="unit-section"
+          [class.unit-section--collapsed]="isUnitSectionCollapsed('sea')"
+        >
           <header class="unit-section__header">
             <div class="unit-section__title">
               {{ 'troopsPlanner.seaUnits' | translate }}
@@ -115,12 +120,14 @@
               [attr.aria-label]="
                 (isUnitSectionCollapsed('sea')
                   ? 'troopsPlanner.expandSection'
-                  : 'troopsPlanner.collapseSection') | translate
+                  : 'troopsPlanner.collapseSection'
+                ) | translate
               "
               [title]="
                 (isUnitSectionCollapsed('sea')
                   ? 'troopsPlanner.expandSection'
-                  : 'troopsPlanner.collapseSection') | translate
+                  : 'troopsPlanner.collapseSection'
+                ) | translate
               "
             >
               <span class="unit-section__collapse-icon" aria-hidden="true">⌄</span>
@@ -129,16 +136,19 @@
 
           @if (!isUnitSectionCollapsed('sea')) {
             <div class="unit-list">
-            @for (unit of regularSeaUnits(); track unit.id) {
-              <ng-container
-                *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: true }"
-              ></ng-container>
-            }
+              @for (unit of regularSeaUnits(); track unit.id) {
+                <ng-container
+                  *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: true }"
+                ></ng-container>
+              }
             </div>
           }
         </section>
 
-        <section class="unit-section" [class.unit-section--collapsed]="isUnitSectionCollapsed('mythical')">
+        <section
+          class="unit-section"
+          [class.unit-section--collapsed]="isUnitSectionCollapsed('mythical')"
+        >
           <header class="unit-section__header">
             <div class="unit-section__title">
               {{ 'troopsPlanner.mythicalUnits' | translate }}
@@ -152,12 +162,14 @@
               [attr.aria-label]="
                 (isUnitSectionCollapsed('mythical')
                   ? 'troopsPlanner.expandSection'
-                  : 'troopsPlanner.collapseSection') | translate
+                  : 'troopsPlanner.collapseSection'
+                ) | translate
               "
               [title]="
                 (isUnitSectionCollapsed('mythical')
                   ? 'troopsPlanner.expandSection'
-                  : 'troopsPlanner.collapseSection') | translate
+                  : 'troopsPlanner.collapseSection'
+                ) | translate
               "
             >
               <span class="unit-section__collapse-icon" aria-hidden="true">⌄</span>
@@ -166,11 +178,11 @@
 
           @if (!isUnitSectionCollapsed('mythical')) {
             <div class="unit-list">
-            @for (unit of mythicalUnits(); track unit.id) {
-              <ng-container
-                *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: unit.type === 'sea' }"
-              ></ng-container>
-            }
+              @for (unit of mythicalUnits(); track unit.id) {
+                <ng-container
+                  *ngTemplateOutlet="unitRow; context: { unit: unit, isSea: unit.type === 'sea' }"
+                ></ng-container>
+              }
             </div>
           }
         </section>
@@ -279,7 +291,9 @@
 
           <div class="combat-summary combat-summary--compact">
             <div class="combat-summary__section">
-              <div class="combat-summary__label">OFF</div>
+              <div class="combat-summary__label">
+                {{ 'troopsPlanner.offenseShort' | translate }}
+              </div>
 
               <div class="combat-summary__grid">
                 <div
@@ -319,7 +333,9 @@
             <div class="combat-summary__divider"></div>
 
             <div class="combat-summary__section">
-              <div class="combat-summary__label">DEF</div>
+              <div class="combat-summary__label">
+                {{ 'troopsPlanner.defenseShort' | translate }}
+              </div>
 
               <div class="combat-summary__grid">
                 <div
@@ -430,10 +446,6 @@
     </aside>
   </div>
 
-  
-
-  
-
   @if (deletePlanDialogOpen()) {
     <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelDeleteActivePlan()">
       <section
@@ -496,10 +508,20 @@
 
         <div class="plan-dialog__body">
           <h2 id="plan-delete-result-dialog-title">
-            {{ (dialog.isError ? 'planConfig.deleteDialog.errorTitle' : 'planConfig.deleteDialog.successTitle') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.deleteDialog.errorTitle'
+                : 'planConfig.deleteDialog.successTitle'
+              ) | translate
+            }}
           </h2>
           <p id="plan-delete-result-dialog-description">
-            {{ (dialog.isError ? 'planConfig.deleteDialog.errorMessage' : 'planConfig.deleteDialog.successMessage') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.deleteDialog.errorMessage'
+                : 'planConfig.deleteDialog.successMessage'
+              ) | translate
+            }}
           </p>
 
           @if (dialog.detailLines.length > 0) {
@@ -541,10 +563,20 @@
 
         <div class="plan-dialog__body">
           <h2 id="plan-import-dialog-title">
-            {{ (dialog.isError ? 'planConfig.importDialog.errorTitle' : 'planConfig.importDialog.successTitle') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.importDialog.errorTitle'
+                : 'planConfig.importDialog.successTitle'
+              ) | translate
+            }}
           </h2>
           <p id="plan-import-dialog-description">
-            {{ (dialog.isError ? 'planConfig.importDialog.errorMessage' : 'planConfig.importDialog.successMessage') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.importDialog.errorMessage'
+                : 'planConfig.importDialog.successMessage'
+              ) | translate
+            }}
           </p>
 
           @if (dialog.detailLines.length > 0) {
@@ -634,10 +666,7 @@
 
           @if (isSea) {
             @if (isTransportShip(unit)) {
-              <span
-                class="icon-value"
-                [title]="'unitAttribute.transportCapacity' | translate"
-              >
+              <span class="icon-value" [title]="'unitAttribute.transportCapacity' | translate">
                 <img [src]="getBattleIconPath('capacity')" alt="" />
                 {{ unit.transportCapacity }}
               </span>
@@ -653,10 +682,7 @@
               </span>
             }
           } @else {
-            <span
-              class="icon-value"
-              [title]="getAttackTitleKey(unit, false) | translate"
-            >
+            <span class="icon-value" [title]="getAttackTitleKey(unit, false) | translate">
               <img [src]="getDisplayedAttackIconPath(unit, false)" alt="" />
               {{ getDisplayedAttackValue(unit, false) }}
             </span>
@@ -752,11 +778,7 @@
           }
         </select>
 
-        <button
-          type="button"
-          class="unit-stepper__button"
-          (click)="stepUnitAmount(unit.id, 1)"
-        >
+        <button type="button" class="unit-stepper__button" (click)="stepUnitAmount(unit.id, 1)">
           +
         </button>
       </div>

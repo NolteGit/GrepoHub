@@ -1,41 +1,42 @@
-# Time Tools
+# Toolbox Timing Tools
 
-The Time Tools page should contain all timing-related tools in a single place.
-
-There should not be separate pages for alarms, countdowns, stopwatches, and calculators.
+Timing tools currently live inside the `/toolbox` route. The older idea of a separate `/time-tools` route has been consolidated into Toolbox so utility features stay in one place.
 
 ## Goals
 
-The Time Tools page should help with quick timing tasks during gameplay.
+The timing tools should help with quick gameplay timing tasks.
 
-It should support:
+Current and planned support includes:
 
-- Simple time calculations
-- Alarms
-- Countdowns
-- Stopwatches
-- Multiple active timers running simultaneously
-- Timer access from the top navigation bar
+- Simple time calculations.
+- Alarms.
+- Countdowns.
+- Stopwatches.
+- Multiple active timers visible in the Toolbox queue.
+- Future global timer access from the top navigation bar.
 
-## Page structure
+## Current Toolbox structure
 
-Recommended layout:
+The current Toolbox page contains:
 
-- Left sidebar: saved/default time configurations
-- Main area: time calculator and active timer configuration area
-- Active timers overview
+- Hero section with current time and timezone controls.
+- Quick calculator.
+- Time calculator.
+- Reminder widget for countdowns, alarms, and stopwatches.
+- Active timer queue.
+- Feature-gated battle simulator placeholder.
 
 ## Time calculator section
 
-The time calculator should allow users to add or subtract time from a base time.
+The time calculator allows users to add or subtract time from a base time.
 
 Default behavior:
 
-- Base time is current local time
-- User can edit the base time manually
-- User can add hours, minutes, and seconds
-- User can subtract hours, minutes, and seconds
-- Result time is shown immediately
+- Base time starts from the current local time.
+- User can edit the base time manually.
+- User can add hours, minutes, and seconds.
+- User can subtract hours, minutes, and seconds.
+- Result time is shown immediately.
 
 Example use cases:
 
@@ -43,122 +44,94 @@ Example use cases:
 - What time was 3 hours ago?
 - What time do I need if I subtract 45 minutes from an arrival time?
 
-## Time configuration section
+## Reminder modes
 
-The core time configuration section should allow users to create one of:
+The reminder widget supports three modes.
 
-- Alarm
-- Countdown
-- Stopwatch
+### Alarm
 
-These can run in the application background while the user navigates between pages.
+An alarm triggers at a specific time.
 
-## Alarm
+Useful fields:
 
-An alarm should trigger at a specific time.
+- Name.
+- Target time.
+- Optional note.
 
-Example default config:
+### Countdown
 
-```txt
-23:00:00 alarm
-```
+A countdown runs for a defined duration.
 
-Possible fields:
+Useful fields:
 
-- Name
-- Target time
-- Enabled/disabled
-- Optional note
+- Name.
+- Hours.
+- Minutes.
+- Seconds.
+- Optional note.
 
-## Countdown
+### Stopwatch
 
-A countdown should run for a defined duration.
+A stopwatch counts upward from the time it is started.
 
-Example default config:
+Useful fields:
 
-```txt
-10 minute countdown
-```
+- Name.
+- Start/stop actions.
+- Optional note.
 
-Possible fields:
+## Active timer queue
 
-- Name
-- Hours
-- Minutes
-- Seconds
-- Enabled/disabled
-- Optional note
+The active timer queue displays timers created during the current app session.
 
-## Stopwatch
+It should show:
 
-A stopwatch should count upward from zero or from a manually set starting value.
+- Timer label.
+- Current state.
+- Remaining or elapsed time.
+- Primary actions such as stop/remove.
 
-Possible fields:
+For the first MVP, timer configurations do not need TXT import/export.
 
-- Name
-- Start/pause/resume/stop
-- Optional note
+## Future top-bar integration
 
-## Time configuration list
+Running timers should eventually be accessible globally from the app shell.
 
-The Time Tools page should include a left-side list of time configurations.
+The top bar may later include:
 
-The list may include:
-
-- Default countdowns
-- Default alarms
-- User-created runtime configurations
-- Currently running timers
-- Paused timers
-- Stopped timers
-
-For the MVP, these configurations do not need TXT import/export.
-
-## Top bar integration
-
-Running timers should be accessible globally from the top navigation bar.
-
-The top bar should include:
-
-- Quick add button
-- Active timer indicator
-- Dropdown or panel for active timers
-- Link to the Time Tools page
+- Quick add button.
+- Active timer indicator.
+- Dropdown or panel for active timers.
+- Link to the Toolbox page.
 
 The dropdown should allow common actions later:
 
-- View timer
-- Pause
-- Resume
-- Stop
-- Remove
+- View timer.
+- Pause.
+- Resume.
+- Stop.
+- Remove.
 
-## Background behavior
+## Future shared service extraction
 
-Timers should continue running while navigating between app pages.
+Timers currently belong to the Toolbox feature implementation. If timers need to keep running while navigating between pages, timer state should move into a shared Angular service.
 
-This implies that timer state should live in a shared Angular service, not only inside the Time Tools component.
+A future service should own:
+
+- Timer configuration storage.
+- Countdown/alarm/stopwatch ticking.
+- Pause/resume/stop transitions.
+- Expired timer handling.
+- Optional sounds or browser notifications.
+- State exposed to Toolbox and the app shell.
 
 ## Browser notification support
 
-Browser notifications and sounds are useful but can be delayed.
+Browser notifications and sounds are useful but delayed.
 
-MVP behavior can be simpler:
+MVP behavior can stay simpler:
 
-- In-app visual indication
-- Timer dropdown update
-- Optional sound later
-- Optional browser notification later
-
-## MVP time tools scope
-
-For the first implementation:
-
-- Current-time based calculator
-- Add/subtract hours/minutes/seconds
-- Create countdown
-- Create alarm
-- Create stopwatch
-- Active timers in shared service
-- Top bar active timer dropdown
-- Basic default configs in the left list
+- In-app visual indication.
+- Timer queue updates.
+- Optional sound later.
+- Optional browser notification later.

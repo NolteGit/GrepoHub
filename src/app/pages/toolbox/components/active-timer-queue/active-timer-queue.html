@@ -1,6 +1,6 @@
-<aside class="active-monitor" aria-label="Running timers, alarms, and countdowns">
+<aside class="active-monitor" [attr.aria-label]="'toolbox.queue.aria' | translate">
   <header class="active-monitor__header">
-    <h2>Live Queue</h2>
+    <h2>{{ 'toolbox.queue.title' | translate }}</h2>
   </header>
 
   <div class="active-monitor__list">
@@ -13,7 +13,7 @@
         <div class="active-monitor__item-content">
           <div class="active-monitor__meta">
             <strong>{{ item.label }}</strong>
-            <span>{{ item.state }}</span>
+            <span>{{ item.stateKey | translate }}</span>
           </div>
 
           <p>{{ item.value }}</p>
@@ -24,7 +24,7 @@
             <button
               type="button"
               class="active-monitor__icon-button active-monitor__icon-button--toggle"
-              [attr.aria-label]="queueToggleLabel(item) + ' ' + item.label"
+              [attr.aria-label]="(queueToggleLabelKey(item) | translate) + ' ' + item.label"
               (click)="itemToggled.emit(item)"
             >
               @if (item.running) {
@@ -42,7 +42,7 @@
           <button
             type="button"
             class="active-monitor__icon-button active-monitor__icon-button--delete"
-            [attr.aria-label]="'Remove ' + item.label"
+            [attr.aria-label]="('toolbox.queue.remove' | translate) + ' ' + item.label"
             (click)="itemRemoved.emit(item)"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -54,7 +54,7 @@
         </div>
       </article>
     } @empty {
-      <p class="active-monitor__empty">No active timers yet.</p>
+      <p class="active-monitor__empty">{{ 'toolbox.queue.empty' | translate }}</p>
     }
   </div>
 </aside>

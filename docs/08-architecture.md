@@ -2,223 +2,153 @@
 
 ## General architecture
 
-Grepo Hub should be a client-side Angular app with a modular structure.
+Grepo Hub is a client-side Angular app with a local-first data model.
 
-The MVP should not require a backend. Static game data should be loaded from local JSON files and user-created configurations should be stored in the browser.
+The current MVP does not require a backend, login, sync service, or database. Static game data is loaded from local JSON files and user-created configurations are stored in the browser.
 
-## Suggested source structure
+## Current source structure
 
 ```txt
 src/
   app/
-    core/
-      models/
-      services/
+    data/
+      city-planner-presets.ts
+      plan-config-presets.ts
+      reference-resources.ts
+      troops-planner-presets.ts
     layout/
       app-shell/
-      top-bar/
-      navigation-drawer/
+    models/
     pages/
       home/
       city-planner/
       troops-planner/
       references/
-      guides/
-      time-tools/
-      battle-simulator/
-    shared/
-      components/
-      utils/
+      toolbox/
+        components/
+        models/
+        styles/
+    pipes/
+    services/
+    testing/
+public/
   assets/
     data/
     i18n/
+    images/
 ```
+
+The current structure intentionally stays flatter than the original planning docs. New folders should be added only when there is a clear shared responsibility.
 
 ## Core models
 
-Possible models:
+Important current model areas:
 
-```txt
-CityPlan
-TroopPlan
-AcademyPlan
-Unit
-Building
-Research
-TimerConfig
-ActiveTimer
-ImportResult
-ExportResult
-TranslationKey
-```
+- `PlanConfig` for shared planner import/export.
+- City planner configuration models.
+- Troop planner configuration models.
+- Unit and building models.
+- Toolbox timer/calculator models.
+
+Possible future models:
+
+- Academy plan.
+- Research data.
+- Timer service state.
+- Import/export validation result types.
 
 ## Static data services
 
-Static game data should be loaded by services.
+`GameDataService` loads static game data from `public/assets/data/`.
 
-Possible services:
-
-```txt
-UnitDataService
-BuildingDataService
-ResearchDataService
-```
-
-Initial MVP services:
+Current files:
 
 ```txt
-UnitDataService
-BuildingDataService
+public/assets/data/units.json
+public/assets/data/buildings.json
 ```
 
-## Planner services
+The service should stay focused on loading and normalizing static game data. Planner-specific calculations should remain in planner components or move to dedicated planner services once they become complex.
 
-Planner-related logic should not be buried inside UI components.
+## Planner configuration service
 
-Possible services:
-
-```txt
-PlanStorageService
-TxtImportExportService
-CityPlanService
-TroopPlanService
-```
+`PlanConfigService` owns the shared plan configuration behavior.
 
 Responsibilities:
 
-- Save/load configurations locally
-- Parse TXT imports
-- Generate TXT exports
-- Validate planner data
-- Convert planner state into export formats
+- Provide preset and local plans.
+- Save user-created plan data locally.
+- Export plan bundles as JSON.
+- Import plan bundles from JSON.
+- Normalize and validate the supported plan format.
 
-## Timer architecture
-
-Timers should be managed by a shared service so they can keep running while the user changes pages.
-
-Possible service:
-
-```txt
-TimerService
-```
-
-Responsibilities:
-
-- Store timer configurations
-- Start countdowns
-- Start alarms
-- Start stopwatches
-- Pause/resume/stop timers
-- Expose active timers to top bar
-- Expose timer state to Time Tools page
+City Planner and Troops Planner should continue to share this model so a single user plan can contain both city and troop data.
 
 ## Translation architecture
 
-Translation should use small local files.
-
-Possible service:
-
-```txt
-TranslationService
-```
+`TranslationService` loads small local JSON files from `public/assets/i18n/`.
 
 Responsibilities:
 
-- Load selected language file
-- Provide translated UI labels
-- Fall back to English if a key is missing
-- Keep game data separate from UI text
+- Track the active language.
+- Load selected language dictionaries.
+- Translate UI keys.
+- Provide fallback text for migration/data-driven labels.
+- Keep UI text separate from canonical game data identifiers.
 
-## Top bar architecture
+`TranslatePipe` is used in templates and supports optional fallback text.
 
-The top bar should consume shared app state.
+## References architecture
 
-It may use:
+References are currently defined in `src/app/data/reference-resources.ts` and rendered by the References page.
 
-```txt
-TimerService
-CurrentTimeService
-NavigationService
-TranslationService
-```
+The data file keeps stable IDs and metadata. User-facing titles, descriptions, tags, statuses, and link labels should be provided through translation keys whenever the text appears in the UI.
 
-The top bar should not own timer logic itself. It should only display and trigger timer actions through services.
+## Toolbox architecture
+
+The Toolbox page currently owns several utility components:
+
+- Hero/current-time panel.
+- Quick calculator.
+- Time calculator.
+- Reminder widget.
+- Active timer queue.
+- Battle simulator placeholder.
+
+Timer state is local to the Toolbox feature. If timers must keep running globally or appear in the app shell, extract the timer queue and ticking logic into a shared service.
+
+## App shell architecture
+
+The app shell owns global layout and navigation.
+
+Responsibilities:
+
+- Brand/home link.
+- Main navigation.
+- Routed page container.
+- Responsive shell styling.
+
+The shell should not own planner, reference, or toolbox business logic.
 
 ## Import/export architecture
 
 Import/export should be integrated into feature pages, not implemented as a separate page.
 
-TXT import/export should be implemented as shared logic that can be reused by:
-
-- City Planner
-- Troops Planner
-
-Academy data can be part of City Planner TXT imports/exports.
+The canonical planner sharing format is the shared JSON `PlanConfig` bundle. TXT, CSV, BBCode, or PNG output can later be generated from planner state as convenience export formats.
 
 ## Local storage architecture
 
 For the MVP, LocalStorage is enough.
 
-Possible storage keys:
-
-```txt
-grepoHub.cityPlans
-grepoHub.troopPlans
-grepoHub.timerConfigs
-grepoHub.settings
-```
-
-Later, IndexedDB may be used if data becomes larger or more complex.
-
-## Page responsibilities
-
-### Home
-
-- Show feature cards
-- Link to main pages
-- Show About popup
-
-### City Planner
-
-- Edit city plan
-- Include academy extension/popup
-- Load/save configurations
-- Import/export TXT
-
-### Troops Planner
-
-- Edit unit plan
-- Calculate unit totals
-- Load/save configurations
-- Import/export TXT
-
-### References
-
-- Show structured factual information and external links
-
-### Guides
-
-- Show longer guide material and guide links
-
-### Time Tools
-
-- Time calculator
-- Configure alarms/countdowns/stopwatches
-- Show active/running timers
-
-### Battle Simulator
-
-- Placeholder for now
+Storage should be versioned and validated because browser data may survive across releases. If plan data grows significantly or needs indexing, IndexedDB can replace or complement LocalStorage later.
 
 ## Testing targets
 
-Logic that should be testable:
+Logic that should remain covered by tests:
 
-- TXT parsing
-- TXT exporting
-- Local storage read/write helpers
-- Unit cost calculations
-- Building level validation
-- Time calculator logic
-- Timer state transitions
-- Translation fallback behavior
+- Route/page smoke tests.
+- Translation loading and fallback behavior.
+- Planner calculations.
+- Plan import/export validation.
+- Local storage read/write helpers.
+- Timer state transitions if timer logic is extracted into a service.

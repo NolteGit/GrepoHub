@@ -21,12 +21,12 @@ import {
 } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
-export interface PlanImportResult {
+interface PlanImportResult {
   readonly count: number;
   readonly plans: readonly PlanImportResultPlan[];
 }
 
-export interface PlanImportResultPlan {
+interface PlanImportResultPlan {
   readonly name: string;
   readonly requestedName: string;
   readonly renamed: boolean;
@@ -39,7 +39,7 @@ export class PlanConfigService {
   private readonly storageKey = 'grepo-hub-plan-configs';
   private readonly legacyCityStorageKey = 'grepo-hub-city-configurations';
   private readonly legacyTroopStorageKey = 'grepo-hub-troop-configurations';
-    private readonly minimumBuildingLevels: Record<string, number> = {
+  private readonly minimumBuildingLevels: Record<string, number> = {
     barracks: 1,
     farm: 1,
     marketplace: 1,
@@ -50,7 +50,7 @@ export class PlanConfigService {
     timber_camp: 1,
     warehouse: 1,
   };
-private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
+  private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
   private readonly selectedPlanId = signal(this.planConfigs()[0]?.id ?? '');
 
   readonly plans = this.planConfigs.asReadonly();
@@ -84,13 +84,11 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
     this.selectedPlanId.set(
       normalizedPlans.some((plan) => plan.id === activePlanId)
         ? activePlanId
-        : normalizedPlans[0]?.id ?? '',
+        : (normalizedPlans[0]?.id ?? ''),
     );
     this.savePlans();
   }
   readonly canDeleteActivePlan = computed(() => !this.activePlan().isPreset);
-
-
 
   selectPlan(planId: string): void {
     if (!this.planConfigs().some((plan) => plan.id === planId)) {
@@ -106,9 +104,8 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
   duplicateActivePlan(name: string): PlanConfig {
     const now = new Date().toISOString();
     const currentPlan = this.activePlan();
-    const requestedName = typeof name === 'string' && name.trim().length > 0
-      ? name.trim()
-      : currentPlan.name + ' Copy';
+    const requestedName =
+      typeof name === 'string' && name.trim().length > 0 ? name.trim() : currentPlan.name + ' Copy';
     const uniqueName = this.createUniquePlanName(requestedName, 'Copy');
     const idSuffix = Date.now();
     const duplicatedPlan: PlanConfig = {
@@ -139,7 +136,10 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
     return duplicatedPlan;
   }
 
-  deleteActivePlan(): { readonly deletedPlanName: string; readonly selectedPlanName: string } | null {
+  deleteActivePlan(): {
+    readonly deletedPlanName: string;
+    readonly selectedPlanName: string;
+  } | null {
     const currentPlan = this.activePlan();
 
     if (currentPlan.isPreset) {
@@ -360,7 +360,10 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
     index: number,
     importedPlanNames: readonly string[],
   ): PlanConfig {
-    const requestedPlanName = this.normalizeDisplayPlanName(rawPlan.name, 'Imported ' + (index + 1));
+    const requestedPlanName = this.normalizeDisplayPlanName(
+      rawPlan.name,
+      'Imported ' + (index + 1),
+    );
     const planName = this.createUniquePlanName(requestedPlanName, 'Import', importedPlanNames);
     const rawCityPlan: Partial<CityConfiguration> = rawPlan.cityPlan ?? {};
     const rawTroopPlan: Partial<TroopConfiguration> = rawPlan.troopPlan ?? {};
@@ -435,14 +438,10 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
     duplicateSuffix: 'Copy' | 'Import',
     additionalExistingNames: readonly string[] = [],
   ): string {
-    return this.createUniqueNameFromNames(
-      requestedName,
-      duplicateSuffix,
-      [
-        ...this.planConfigs().map((plan) => plan.name),
-        ...additionalExistingNames,
-      ],
-    );
+    return this.createUniqueNameFromNames(requestedName, duplicateSuffix, [
+      ...this.planConfigs().map((plan) => plan.name),
+      ...additionalExistingNames,
+    ]);
   }
 
   private createUniqueNameFromNames(
@@ -451,9 +450,7 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
     existingNames: readonly string[],
   ): string {
     const baseName = this.normalizeDisplayPlanName(requestedName, 'Configuration');
-    const usedNames = new Set(
-      existingNames.map((name) => this.normalizeNameKey(name)),
-    );
+    const usedNames = new Set(existingNames.map((name) => this.normalizeNameKey(name)));
 
     if (!usedNames.has(this.normalizeNameKey(baseName))) {
       return baseName;
@@ -490,8 +487,6 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
     return name.length > 0 ? name : fallback;
   }
 
-
-
   private normalizeImportName(value: unknown, fallback: string): string {
     return typeof value === 'string' && value.trim().length > 0 ? value.trim() : fallback;
   }
@@ -505,8 +500,6 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
 
     return prefix + '-' + (slug || 'plan') + '-' + suffix;
   }
-
-
 
   toJson(): string {
     return JSON.stringify(this.createExportBundle(), null, 2);
@@ -608,34 +601,37 @@ private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
       .join('\n\n');
   }
   private createMinimumBuildingLevels(): Record<string, number> {
-    return cityBuildingPlanDefinitions.reduce((levels, building) => {
-      levels[building.id] = Math.min(
-        this.minimumBuildingLevels[building.id] ?? 0,
-        building.maxLevel,
-      );
+    return cityBuildingPlanDefinitions.reduce(
+      (levels, building) => {
+        levels[building.id] = Math.min(
+          this.minimumBuildingLevels[building.id] ?? 0,
+          building.maxLevel,
+        );
 
-      return levels;
-    }, {} as Record<string, number>);
+        return levels;
+      },
+      {} as Record<string, number>,
+    );
   }
 
   private createEmptyUnitAmounts(unitAmounts: Record<string, number>): Record<string, number> {
     const unitIds = new Set<string>(
-      troopConfigurationPresets.flatMap((configuration) =>
-        Object.keys(configuration.unitAmounts),
-      ),
+      troopConfigurationPresets.flatMap((configuration) => Object.keys(configuration.unitAmounts)),
     );
 
     for (const unitId of Object.keys(unitAmounts)) {
       unitIds.add(unitId);
     }
 
-    return Array.from(unitIds).reduce((amounts, unitId) => {
-      amounts[unitId] = 0;
+    return Array.from(unitIds).reduce(
+      (amounts, unitId) => {
+        amounts[unitId] = 0;
 
-      return amounts;
-    }, {} as Record<string, number>);
+        return amounts;
+      },
+      {} as Record<string, number>,
+    );
   }
-
 
   private updateActivePlan(updater: (plan: PlanConfig) => PlanConfig): void {
     const currentPlan = this.activePlan();

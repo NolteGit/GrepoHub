@@ -9,11 +9,7 @@
         [attr.aria-label]="'nav.homeAria' | translate"
       >
         <span class="app-shell__brand-mark" aria-hidden="true">
-          <svg
-            class="app-shell__brand-compass"
-            viewBox="0 0 320 320"
-            focusable="false"
-          >
+          <svg class="app-shell__brand-compass" viewBox="0 0 320 320" focusable="false">
             <defs>
               <radialGradient id="navCompassCore" cx="50%" cy="50%" r="58%">
                 <stop offset="0%" stop-color="#003566" stop-opacity="0.88" />
@@ -33,14 +29,35 @@
 
             <circle class="app-shell__brand-aura" cx="160" cy="160" r="143" />
             <circle class="app-shell__brand-base" cx="160" cy="160" r="128" />
-            <circle class="app-shell__brand-ring app-shell__brand-ring--outer" cx="160" cy="160" r="126" />
-            <circle class="app-shell__brand-ring app-shell__brand-ring--broken" cx="160" cy="160" r="104" />
-            <circle class="app-shell__brand-ring app-shell__brand-ring--inner" cx="160" cy="160" r="63" />
+            <circle
+              class="app-shell__brand-ring app-shell__brand-ring--outer"
+              cx="160"
+              cy="160"
+              r="126"
+            />
+            <circle
+              class="app-shell__brand-ring app-shell__brand-ring--broken"
+              cx="160"
+              cy="160"
+              r="104"
+            />
+            <circle
+              class="app-shell__brand-ring app-shell__brand-ring--inner"
+              cx="160"
+              cy="160"
+              r="63"
+            />
 
             <path class="app-shell__brand-axis" d="M160 42V278" />
             <path class="app-shell__brand-axis" d="M42 160H278" />
-            <path class="app-shell__brand-axis app-shell__brand-axis--soft" d="M76.6 76.6L243.4 243.4" />
-            <path class="app-shell__brand-axis app-shell__brand-axis--soft" d="M243.4 76.6L76.6 243.4" />
+            <path
+              class="app-shell__brand-axis app-shell__brand-axis--soft"
+              d="M76.6 76.6L243.4 243.4"
+            />
+            <path
+              class="app-shell__brand-axis app-shell__brand-axis--soft"
+              d="M243.4 76.6L76.6 243.4"
+            />
 
             <path
               class="app-shell__brand-star app-shell__brand-star--long"
@@ -72,11 +89,7 @@
 
       <nav class="app-shell__nav" [attr.aria-label]="'nav.mainAria' | translate">
         @for (item of navItems; track item.path) {
-          <a
-            class="app-shell__nav-link"
-            [routerLink]="item.path"
-            routerLinkActive="active"
-          >
+          <a class="app-shell__nav-link" [routerLink]="item.path" routerLinkActive="active">
             {{ item.labelKey | translate }}
           </a>
         }

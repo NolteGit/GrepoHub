@@ -9,10 +9,7 @@
       <label class="city-planner-page__configuration-select">
         <span>{{ 'cityPlanner.configuration' | translate }}</span>
 
-        <select
-          [ngModel]="selectedConfigurationId()"
-          (ngModelChange)="selectConfiguration($event)"
-        >
+        <select [ngModel]="selectedConfigurationId()" (ngModelChange)="selectConfiguration($event)">
           @for (configuration of configurations(); track configuration.id) {
             <option [value]="configuration.id">
               {{ configuration.name }}
@@ -43,7 +40,7 @@
       <button type="button" (click)="deleteActivePlan()">
         {{ 'planConfig.delete' | translate }}
       </button>
-<button type="button" (click)="saveAsNewConfiguration()">
+      <button type="button" (click)="saveAsNewConfiguration()">
         {{ 'cityPlanner.saveAsNew' | translate }}
       </button>
 
@@ -114,7 +111,9 @@
                         type="button"
                         class="city-stepper__button city-stepper__limit-button"
                         (click)="setBuildingToMinLevel(building.id)"
-                        [disabled]="getBuildingLevel(building.id) <= getBuildingMinLevel(building.id)"
+                        [disabled]="
+                          getBuildingLevel(building.id) <= getBuildingMinLevel(building.id)
+                        "
                         [attr.aria-label]="getBuildingLimitTargetAriaLabel(building.id, 'min')"
                       >
                         MIN
@@ -124,7 +123,9 @@
                         type="button"
                         class="city-stepper__button city-stepper__limit-button"
                         (click)="setBuildingToMaxLevel(building.id)"
-                        [disabled]="getBuildingLevel(building.id) >= getBuildingMaxLevel(building.id)"
+                        [disabled]="
+                          getBuildingLevel(building.id) >= getBuildingMaxLevel(building.id)
+                        "
                         [attr.aria-label]="getBuildingLimitTargetAriaLabel(building.id, 'max')"
                       >
                         MAX
@@ -134,7 +135,9 @@
                         type="button"
                         class="city-stepper__button"
                         (click)="stepBuildingLevel(building.id, -1)"
-                        [disabled]="getBuildingLevel(building.id) <= getBuildingMinLevel(building.id)"
+                        [disabled]="
+                          getBuildingLevel(building.id) <= getBuildingMinLevel(building.id)
+                        "
                       >
                         −
                       </button>
@@ -145,7 +148,10 @@
                         [ngModel]="getBuildingLevel(building.id)"
                         (ngModelChange)="updateBuildingLevel(building.id, $event)"
                       >
-                        @for (level of getBuildingLevelOptions(building.id, building.maxLevel); track level) {
+                        @for (
+                          level of getBuildingLevelOptions(building.id, building.maxLevel);
+                          track level
+                        ) {
                           <option [ngValue]="level">{{ level }}</option>
                         }
                       </select>
@@ -173,7 +179,10 @@
                 <img
                   class="city-building-tile__icon"
                   [src]="getSelectedSpecialBuildingImagePath(slot.id)"
-                  [alt]="getSpecialBuildingOptionLabelKey(getSelectedSpecialBuilding(slot.id)) | translate"
+                  [alt]="
+                    getSpecialBuildingOptionLabelKey(getSelectedSpecialBuilding(slot.id))
+                      | translate
+                  "
                 />
               }
 
@@ -245,10 +254,7 @@
                   getDisplayedModifierPopulation(modifier.id) > 0
                 "
               >
-                {{
-                  getDisplayedModifierPopulation(modifier.id) > 0
-                    ? '+'
-                    : ''
+                {{ getDisplayedModifierPopulation(modifier.id) > 0 ? '+' : ''
                 }}{{ getDisplayedModifierPopulation(modifier.id) }}
               </strong>
             </label>
@@ -267,7 +273,7 @@
                   {{ 'cityPlanner.level' | translate }}
                 </span>
 
-                                <div class="city-stepper city-stepper--side city-stepper--land-expansion">
+                <div class="city-stepper city-stepper--side city-stepper--land-expansion">
                   <button
                     type="button"
                     class="city-stepper__button"
@@ -310,7 +316,9 @@
                     getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id)) > 0
                       ? '+'
                       : ''
-                  }}{{ getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id)) }}
+                  }}{{
+                    getBuildingPopulation(landExpansion.id, getBuildingLevel(landExpansion.id))
+                  }}
                 </strong>
               </div>
             </div>
@@ -346,10 +354,6 @@
       </section>
     </aside>
   </div>
-
-  
-
-  
 
   @if (deletePlanDialogOpen()) {
     <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelDeleteActivePlan()">
@@ -413,10 +417,20 @@
 
         <div class="plan-dialog__body">
           <h2 id="plan-delete-result-dialog-title">
-            {{ (dialog.isError ? 'planConfig.deleteDialog.errorTitle' : 'planConfig.deleteDialog.successTitle') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.deleteDialog.errorTitle'
+                : 'planConfig.deleteDialog.successTitle'
+              ) | translate
+            }}
           </h2>
           <p id="plan-delete-result-dialog-description">
-            {{ (dialog.isError ? 'planConfig.deleteDialog.errorMessage' : 'planConfig.deleteDialog.successMessage') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.deleteDialog.errorMessage'
+                : 'planConfig.deleteDialog.successMessage'
+              ) | translate
+            }}
           </p>
 
           @if (dialog.detailLines.length > 0) {
@@ -458,10 +472,20 @@
 
         <div class="plan-dialog__body">
           <h2 id="plan-import-dialog-title">
-            {{ (dialog.isError ? 'planConfig.importDialog.errorTitle' : 'planConfig.importDialog.successTitle') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.importDialog.errorTitle'
+                : 'planConfig.importDialog.successTitle'
+              ) | translate
+            }}
           </h2>
           <p id="plan-import-dialog-description">
-            {{ (dialog.isError ? 'planConfig.importDialog.errorMessage' : 'planConfig.importDialog.successMessage') | translate }}
+            {{
+              (dialog.isError
+                ? 'planConfig.importDialog.errorMessage'
+                : 'planConfig.importDialog.successMessage'
+              ) | translate
+            }}
           </p>
 
           @if (dialog.detailLines.length > 0) {

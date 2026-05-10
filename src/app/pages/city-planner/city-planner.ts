@@ -186,9 +186,8 @@ export class CityPlanner {
 
   protected getBuildingLimitTargetAriaLabel(buildingId: string, limit: 'min' | 'max'): string {
     const buildingName = buildingId.replace(/_/g, ' ');
-    const targetLevel = limit === 'min'
-      ? this.getBuildingMinLevel(buildingId)
-      : this.getBuildingMaxLevel(buildingId);
+    const targetLevel =
+      limit === 'min' ? this.getBuildingMinLevel(buildingId) : this.getBuildingMaxLevel(buildingId);
 
     return 'Set ' + buildingName + ' to level ' + targetLevel;
   }
@@ -225,9 +224,10 @@ export class CityPlanner {
       return 'Set ' + buildingName + ' to limit level';
     }
 
-    const targetLevel = this.getBuildingLevel(buildingId) >= definition.maxLevel
-      ? this.getBuildingMinLevel(buildingId)
-      : definition.maxLevel;
+    const targetLevel =
+      this.getBuildingLevel(buildingId) >= definition.maxLevel
+        ? this.getBuildingMinLevel(buildingId)
+        : definition.maxLevel;
 
     return 'Set ' + buildingName + ' to level ' + targetLevel;
   }
@@ -314,7 +314,10 @@ export class CityPlanner {
 
   protected deleteActivePlan(): void {
     if (!this.canDeleteActivePlan()) {
-      this.showPlanDeleteResultDialog(['Default presets cannot be deleted. Duplicate or import a plan first.'], true);
+      this.showPlanDeleteResultDialog(
+        ['Default presets cannot be deleted. Duplicate or import a plan first.'],
+        true,
+      );
       return;
     }
 
@@ -331,7 +334,10 @@ export class CityPlanner {
     const result = this.planConfigService.deleteActivePlan();
 
     if (!result) {
-      this.showPlanDeleteResultDialog(['Default presets cannot be deleted. Duplicate or import a plan first.'], true);
+      this.showPlanDeleteResultDialog(
+        ['Default presets cannot be deleted. Duplicate or import a plan first.'],
+        true,
+      );
       return;
     }
 
@@ -357,7 +363,11 @@ export class CityPlanner {
   }
 
   private showPlanImportSuccessDialog(
-    importedPlans: readonly { readonly name: string; readonly requestedName: string; readonly renamed: boolean }[],
+    importedPlans: readonly {
+      readonly name: string;
+      readonly requestedName: string;
+      readonly renamed: boolean;
+    }[],
   ): void {
     const detailLines = importedPlans.map((plan) =>
       plan.renamed ? plan.requestedName + ' → ' + plan.name : plan.name,
@@ -385,7 +395,8 @@ export class CityPlanner {
 
     delete portablePlan['isPreset'];
     portablePlan['id'] = this.createPortableExportId('plan', planName, exportIdSuffix);
-    portablePlan['createdAt'] = typeof portablePlan['createdAt'] === 'string' ? portablePlan['createdAt'] : exportedAt;
+    portablePlan['createdAt'] =
+      typeof portablePlan['createdAt'] === 'string' ? portablePlan['createdAt'] : exportedAt;
     portablePlan['updatedAt'] = exportedAt;
     portablePlan['settings'] = this.removeNullishValues(
       this.isPlainRecord(portablePlan['settings']) ? portablePlan['settings'] : {},
@@ -395,7 +406,10 @@ export class CityPlanner {
 
     if (this.isPlainRecord(cityPlan)) {
       const portableCityPlan = this.removeNullishValues(cityPlan) as Record<string, unknown>;
-      const cityPlanName = typeof portableCityPlan['name'] === 'string' ? portableCityPlan['name'] : planName + ' City';
+      const cityPlanName =
+        typeof portableCityPlan['name'] === 'string'
+          ? portableCityPlan['name']
+          : planName + ' City';
 
       delete portableCityPlan['isPreset'];
       portableCityPlan['id'] = this.createPortableExportId('city', cityPlanName, exportIdSuffix);
@@ -406,10 +420,17 @@ export class CityPlanner {
 
     if (this.isPlainRecord(troopPlan)) {
       const portableTroopPlan = this.removeNullishValues(troopPlan) as Record<string, unknown>;
-      const troopPlanName = typeof portableTroopPlan['name'] === 'string' ? portableTroopPlan['name'] : planName + ' Troops';
+      const troopPlanName =
+        typeof portableTroopPlan['name'] === 'string'
+          ? portableTroopPlan['name']
+          : planName + ' Troops';
 
       delete portableTroopPlan['isPreset'];
-      portableTroopPlan['id'] = this.createPortableExportId('troops', troopPlanName, exportIdSuffix);
+      portableTroopPlan['id'] = this.createPortableExportId(
+        'troops',
+        troopPlanName,
+        exportIdSuffix,
+      );
       portablePlan['troopPlan'] = portableTroopPlan;
     }
 
@@ -441,7 +462,6 @@ export class CityPlanner {
   private isPlainRecord(value: unknown): value is Record<string, unknown> {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
   }
-
 
   private downloadTextFile(fileName: string, content: string, mimeType: string): void {
     const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
@@ -486,7 +506,6 @@ export class CityPlanner {
     this.clearPlanDialogOpen.set(false);
     this.planConfigService.clearActiveCityPlan();
   }
-
 
   protected resetSelectedConfiguration(): void {
     this.planConfigService.resetActiveCityPlan();

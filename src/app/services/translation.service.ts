@@ -19,8 +19,8 @@ export class TranslationService {
     this.loadLanguage(this.language());
   }
 
-  translate(key: string): string {
-    return this.dictionary()[key] ?? key;
+  translate(key: string, fallback?: string): string {
+    return this.dictionary()[key] ?? fallback ?? key;
   }
 
   setLanguage(language: SupportedLanguage): void {

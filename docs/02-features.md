@@ -1,215 +1,159 @@
 # Feature List
 
-This document describes the planned features for Grepo Hub and separates MVP-relevant ideas from delayed or future ideas.
+This document describes the current Grepo Hub feature set and the main ideas that are still planned for later iterations.
 
-## Planned pages
+## Current pages
 
-Grepo Hub should have the following main pages:
+Grepo Hub currently exposes these routed pages:
 
 - Home / Dashboard
 - City Planner
 - Troops Planner
 - References
-- Guides
-- Time Tools
-- Battle Simulator
+- Toolbox
 
-There should not be a dedicated import/export page. Import and export actions should be integrated into the planner pages where they are needed.
+There is no dedicated import/export page. Import and export actions belong directly inside the planner pages where the user is already working with the data.
 
 ## Home / Dashboard
 
-The home page should be the central entry point of the app.
+The home page is the central entry point of the app.
 
-### Layout idea
+It currently provides:
 
-The page should contain:
+- A prominent **Grepo Hub** introduction.
+- Cards for the active feature areas.
+- Short explanations of the current local-first approach.
+- Navigation into the main planning, reference, and toolbox pages.
 
-- A central top title: **Grepo Hub**
-- Two prominent core feature cards:
-  - City Planning
-  - Unit Planning
-- Smaller secondary feature cards:
-  - External Tools & Scripts
-  - Guides
-  - Time Tools
-  - Simulator
-- An About link or button near the bottom-left or bottom-right corner
-
-### About popup
-
-The About popup may contain:
-
-- App name
-- Version
-- Author notes
-- Short disclaimer
-- Project status
-- Link to repository, if available
+Future additions may include a compact About dialog, project version information, and a clearer changelog/status area.
 
 ## City Planner
 
-The City Planner is one of the two core features.
+The City Planner is one of the two core planning features.
 
-It should include:
+It currently focuses on:
 
-- Building level planning
-- City role/template planning
-- Local list of existing city configurations in a sidebar
-- Loading existing configurations into planner fields
-- Add/import button for new configurations
-- Export button inside the planner page
-- TXT-based configuration format
-- Optional PNG export later
-- Optional BB-code / note export later
+- Building level planning.
+- City role/template presets.
+- Shared `PlanConfig` integration.
+- Local plan persistence.
+- JSON import/export through the planner UI.
+
+Planned extensions include academy planning, better validation, optional note/BBCode export, and visual summaries.
 
 ## Academy planning
 
-Academy planning should not be a major standalone page in the first version.
+Academy planning should remain part of the City Planner instead of becoming a separate MVP page.
 
-It should be part of the City Planner, either as:
+Good future UI shapes are:
 
-- An extension section
-- A collapsible panel
-- A modal / popup
-- A tab inside the City Planner
+- Collapsible panel.
+- Modal / popup.
+- Tab inside the City Planner.
 
-Academy data can be included in City Planner import/export as an optional section.
+Academy data can later become an optional section in the shared plan configuration model.
 
 ## Troops Planner
 
-The Troops Planner is the second core feature.
+The Troops Planner is the second core planning feature.
 
-It should include:
+It currently focuses on:
 
-- Unit composition planning
-- Land and naval units
-- Population usage
-- Resource costs
-- Local list of existing unit configurations in a sidebar
-- Loading existing configurations into planner fields
-- Add/import button for new configurations
-- Export button inside the planner page
-- TXT-based configuration format
-- Optional PNG export later
-- Optional CSV export later
-- Optional BB-code / note export later
+- Land and naval unit amounts.
+- OFF/DEF categorization.
+- Population and resource totals.
+- Preset troop configurations.
+- Shared `PlanConfig` integration.
+- Local plan persistence.
+- JSON import/export through the planner UI.
+
+Planned extensions include CSV export, BBCode/note export, stronger modifier support, and better composition summaries.
 
 ## References
 
-The References page should collect structured game-related reference information.
+The References page collects structured game-related links and helper material.
 
-Possible content:
+It currently includes:
 
-- Unit information
-- Building information
-- Academy research information
-- Wiki links
-- Useful external tools
-- Scripts
-- Returning-player notes
-- Common abbreviations
+- Categorized external resources.
+- Tool and script cards.
+- Installation/status labels for scripts.
+- Search and type filters.
+- English/German translations for all user-facing labels.
+- Localized quick-link URLs where supported.
 
-This page should be simple at first and can later become data-driven using the static JSON game database.
+Future reference data may include building tables, research summaries, common abbreviations, and returning-player notes.
 
-## Guides
+## Toolbox
 
-The Guides page should contain or link to useful guides.
+The Toolbox page consolidates utility tools that were previously described as separate Time Tools and Battle Simulator pages.
 
-Possible content:
+It currently includes:
 
-- Strategy guides
-- City setup guides
-- Unit setup guides
-- PDF, Word, or TXT guide references
-- Notes for returning players
-- Links to external resources
+- Quick calculator.
+- Time calculator.
+- Reminder creation for countdowns, alarms, and stopwatches.
+- Active timer queue.
+- Battle simulator placeholder behind a feature flag.
 
-Guides should be separate from References so factual data and longer learning material are not mixed too much.
+Running timers are currently scoped to the Toolbox implementation. A later extraction into a shared timer service would allow global top-bar timer access.
 
-## Time Tools
-
-Time Tools should be a single page containing all timing-related features.
-
-It should include:
-
-- Simple time calculator
-- Alarm configuration
-- Countdown configuration
-- Stopwatch configuration
-- Overview of existing time configurations
-- Default time presets
-- Active timers running simultaneously in the app
-
-Running timers should be visible or accessible from the top navigation bar.
-
-See [`05-time-tools.md`](./05-time-tools.md) for more details.
-
-## Battle Simulator
-
-The Battle Simulator can remain empty or placeholder-only for now.
-
-It should be one of the last major features because accurate simulation may require many game mechanics, modifiers, and world settings.
-
-For the MVP, the page can contain:
-
-- Placeholder text
-- Future feature notes
-- Disabled or mock input area
+See [`05-time-tools.md`](./05-time-tools.md) for details about timing behavior and future service extraction.
 
 ## Translation support
 
-Grepo Hub should support a small translation setup.
+Grepo Hub uses local JSON translation files.
 
-Initial idea:
+Current languages:
 
-- English as base language
-- German support
-- Possibly one additional language later
-- Translation data stored in small TXT or JSON files
-- No external translation API required
+- English (`public/assets/i18n/en.json`)
+- German (`public/assets/i18n/de.json`)
 
 The translation system should cover:
 
-- Navigation labels
-- Page titles
-- Button labels
-- Feature card labels
-- Simple help texts
-- About popup text
+- Navigation labels.
+- Page titles.
+- Button labels.
+- Planner labels and helper text.
+- References resources, scripts, filters, and link labels.
+- Toolbox labels, actions, calculator text, and timer states.
+- Status and error messages.
+
+Fallback strings are supported for migration and data-driven labels, but new user-facing text should still receive explicit translation keys.
 
 ## Static JSON game database
 
-Grepo Hub should include a tiny JSON database for core game resources.
+Grepo Hub includes a small local JSON database for core game resources.
 
-Initial data:
+Current files:
 
-- Units
-- Buildings
+```txt
+public/assets/data/units.json
+public/assets/data/buildings.json
+```
 
-Possible later data:
+Possible later files:
 
-- Academy research
-- Resource costs
-- Population costs
-- Build times
-- Requirements
-- Basic combat values
-- World setting defaults
+```txt
+public/assets/data/research.json
+public/assets/data/world-settings.json
+```
 
-This data should be stored as readable JSON files and loaded by Angular services.
+This data should remain readable and versionable. UI labels around the data should be translated through i18n files, while core game identifiers can stay stable.
 
 ## Delayed features
 
-These are useful but should not distract from the MVP:
+These are useful but should not distract from the current MVP stabilization work:
 
-- Full Battle Simulator
-- Advanced Academy Planner
-- PNG export
-- CSV export
-- BB-code export
-- Browser notifications and sounds
-- Cloud sync
-- Login/accounts
-- Live Grepolis integration
-- Browser extension features
-- Alliance multiplayer planning
+- Full Battle Simulator.
+- Advanced Academy Planner.
+- PNG export.
+- CSV export.
+- BBCode export.
+- Browser notifications and sounds.
+- Global shared timer service.
+- Cloud sync.
+- Login/accounts.
+- Live Grepolis integration.
+- Browser extension features.
+- Alliance multiplayer planning.

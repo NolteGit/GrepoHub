@@ -4,19 +4,14 @@
   "scripts": {
     "start": "ng serve",
     "build": "ng build",
-
     "test": "ng test",
     "test:once": "ng test --watch=false",
-
     "typecheck": "tsc --noEmit",
     "deadcode": "knip",
-
-    "format": "prettier --write \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\"",
-
+    "format": "prettier --write \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\" \"docs/**/*.md\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\" \"docs/**/*.md\"",
     "clean": "rimraf dist .angular/cache coverage",
     "fresh": "rimraf node_modules package-lock.json dist .angular coverage && npm install",
-
     "verify": "npm run typecheck && npm run test:once && npm run build",
     "check": "npm run format:check && npm run typecheck && npm run test:once && npm run build && npm run deadcode"
   },
@@ -37,9 +32,9 @@
     "@angular/build": "^21.2.9",
     "@angular/cli": "^21.2.9",
     "@angular/compiler-cli": "^21.2.0",
-    "bestzip": "^2.2.3",
     "jsdom": "^28.0.0",
     "knip": "^6.12.2",
+    "prettier": "^3.8.3",
     "rimraf": "^6.1.3",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"

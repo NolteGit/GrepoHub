@@ -2,40 +2,42 @@
 
 ## Data approach
 
-Grepo Hub should start as a client-side app without a backend.
+Grepo Hub is a client-side app without a backend.
 
-The app should use:
+The app uses:
 
-- Static JSON files for core game data
-- Local browser storage for saved user plans
-- One shared JSON-based `PlanConfig` per planning project
-- CSV and BBCode as generated export formats, not as the internal source format
+- Static JSON files for core game data.
+- Local browser storage for saved user plans.
+- One shared JSON-based `PlanConfig` per planning project.
+- CSV, BBCode, TXT, or image formats only as future generated export formats, not as the internal source format.
 
 ## Static JSON game data
 
-The app should include a tiny local JSON database for core game resources.
+The app currently loads local JSON data from `public/assets/data/`.
 
-Initial files may include:
+Current files:
 
 ```txt
-src/assets/data/units.json
-src/assets/data/buildings.json
+public/assets/data/units.json
+public/assets/data/buildings.json
 ```
 
 Possible later files:
 
 ```txt
-src/assets/data/research.json
-src/assets/data/world-settings.json
+public/assets/data/research.json
+public/assets/data/world-settings.json
 ```
+
+The data is served as static assets by Angular. Keep these files small, readable, and stable because planner logic depends on their identifiers.
 
 ## Initial data scope
 
-The first data scope should be small and maintainable.
+The first data scope should stay small and maintainable.
 
 ### Units
 
-Possible fields:
+Useful fields include:
 
 ```txt
 id
@@ -55,7 +57,7 @@ carry
 
 ### Buildings
 
-Possible fields:
+Useful fields include:
 
 ```txt
 id
@@ -70,41 +72,45 @@ build_time
 requirements
 ```
 
-Exact values can be added gradually. The first implementation can use partial data while the UI and data services are being built.
+Exact values can be improved gradually. Model changes should be made before additional planner features depend on a field.
 
 ## Translation data
 
-Translations should be stored in JSON files.
+Translations are stored in local JSON files.
 
-Preferred file format:
-
-```txt
-src/assets/i18n/en.json
-src/assets/i18n/de.json
-```
-
-Possible later language:
+Current files:
 
 ```txt
-src/assets/i18n/<language>.json
+public/assets/i18n/en.json
+public/assets/i18n/de.json
 ```
 
-Translation files should cover UI text, not game data.
+Possible later language files:
+
+```txt
+public/assets/i18n/<language>.json
+```
+
+Translation files should cover UI text, not the canonical game data identifiers.
 
 Examples:
 
-- Navigation labels
-- Page titles
-- Buttons
-- Dashboard cards
-- About popup text
-- Basic helper texts
+- Navigation labels.
+- Page titles.
+- Buttons.
+- Dashboard cards.
+- Planner labels and descriptions.
+- Reference resource labels.
+- Toolbox labels and timer states.
+- Status and error messages.
+
+The translation service supports fallback text for migration and data-driven content. Treat fallback as a safety net, not as a replacement for adding explicit keys.
 
 ## Local user data
 
-User-created plans should be saved locally in the browser.
+User-created plans are saved locally in the browser.
 
-Initial storage option:
+Current storage option:
 
 - LocalStorage
 
@@ -114,17 +120,17 @@ Possible later storage option:
 
 User-created data may include:
 
-- Plan configurations containing city and troop planner data
-- Per-world settings such as world speed, unit speed, locale, and timezone
-- Time tool configurations created during runtime
+- Plan configurations containing city and troop planner data.
+- Per-world settings such as world speed, unit speed, locale, and timezone.
+- Time tool configurations created during runtime.
 
 ## Shared planner configuration model
 
-City Planner and Troops Planner should work on the same underlying `PlanConfig`.
+City Planner and Troops Planner work on the same underlying `PlanConfig` shape.
 
 A plan represents one planning project, not one isolated planner tab. This allows the user to create a city plan first and then fill the corresponding troop plan, or start from troop needs and adjust the city plan later.
 
-The canonical shape should be JSON:
+The canonical shape is JSON:
 
 ```json
 {
@@ -162,7 +168,7 @@ The canonical shape should be JSON:
 }
 ```
 
-The JSON bundle should be the source of truth for import/export. It can still be human-readable because it is formatted with indentation, but the app should validate and normalize imported data before using it.
+The JSON bundle is the source of truth for import/export. It remains human-readable because it is formatted with indentation, but the app should validate and normalize imported data before using it.
 
 ## Planner configuration sidebar
 
@@ -170,90 +176,28 @@ City Planner and Troops Planner can keep their own page UI, but the configuratio
 
 The selector should allow users to:
 
-- View existing plans
-- Load a shared plan into the current planner view
-- Duplicate the active plan
-- Save/update the current plan
-- Import/export the shared plan bundle later
-- Possibly rename or delete plans later
+- View existing plans.
+- Load a shared plan into the current planner view.
+- Duplicate the active plan.
+- Save/update the current plan.
+- Import/export a shared plan bundle.
+- Rename or delete plans later.
 
 ## Import/export role
 
 Import and export should be useful but not intrusive.
 
-They should not have their own page for the MVP.
+They should not have their own main page. They should be integrated into planner pages through compact buttons, panels, or dialogs.
 
-The intended flow is:
+## Validation expectations
 
-```txt
-PlanConfig JSON source of truth
-  -> CSV export for spreadsheet review
-  -> BBCode export for Grepolis notes/messages
-  -> optional PNG export later
-```
+Imported data should be checked for:
 
-## Format principles
+- Expected `format`.
+- Supported `version`.
+- Required plan fields.
+- Known city and troop plan sections.
+- Reasonable numeric values.
+- Matching unit/building identifiers.
 
-Plan config files should be:
-
-- Human-readable
-- Easy to import and export in the app
-- Versioned from the beginning
-- Forgiving where possible
-- Normalized after import
-- Structured enough to support migrations later
-
-## CSV export
-
-CSV should be an export/converter format, not the canonical format.
-
-The first CSV export can be a high-level plan overview:
-
-```csv
-planId,planName,cityPlanName,troopPlanName,worldSpeed,unitSpeed,updatedAt
-custom-plan-1,Example Nuke Plan,Example Nuke Plan,Example Nuke Plan,2,1,2026-05-09T12:00:00.000Z
-```
-
-Later, the app can add specialized CSV exports such as:
-
-- One row per planned city
-- One row per unit amount
-- One row per resource/troop requirement
-
-## BBCode export
-
-BBCode should be a generated display format, not stored app state.
-
-Example:
-
-```bbcode
-[b]Example Nuke Plan[/b]
-
-[u]City plan[/u]: Example Nuke Plan
-[u]Troop plan[/u]: Example Nuke Plan
-
-[table]
-[**]Unit[||]Amount[/**]
-[*]light_ship[|]120
-[*]transport_boat[|]20
-[/table]
-```
-
-Later, BBCode templates can be planner-specific.
-
-## Time tool data
-
-Time tools do not need JSON import/export in the MVP.
-
-Time configurations created during runtime should appear in the Time Tools configuration list and active timers should be accessible from the top navigation bar.
-
-## Future data concerns
-
-Later versions may need:
-
-- Format migration for older plan bundles
-- Legacy migration from separate city/troop configuration storage
-- More complete static game data
-- Per-world defaults
-- User-defined custom presets
-- IndexedDB for larger storage
+Invalid imports should fail safely with a translated user-facing message instead of silently corrupting local state.

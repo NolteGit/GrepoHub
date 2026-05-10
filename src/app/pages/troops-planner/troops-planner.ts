@@ -26,7 +26,11 @@ export class TroopsPlanner {
   protected readonly clearPlanDialogOpen = signal(false);
 
   private readonly maxUnitAmount = 2500;
-  private readonly unitAmountOptions: readonly number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500];
+  private readonly unitAmountOptions: readonly number[] = [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600,
+    700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200,
+    2300, 2400, 2500,
+  ];
 
   protected readonly collapsedUnitSections = signal<Record<TroopUnitSectionId, boolean>>({
     land: false,
@@ -271,7 +275,10 @@ export class TroopsPlanner {
 
   protected deleteActivePlan(): void {
     if (!this.canDeleteActivePlan()) {
-      this.showPlanDeleteResultDialog(['Default presets cannot be deleted. Duplicate or import a plan first.'], true);
+      this.showPlanDeleteResultDialog(
+        ['Default presets cannot be deleted. Duplicate or import a plan first.'],
+        true,
+      );
       return;
     }
 
@@ -288,7 +295,10 @@ export class TroopsPlanner {
     const result = this.planConfigService.deleteActivePlan();
 
     if (!result) {
-      this.showPlanDeleteResultDialog(['Default presets cannot be deleted. Duplicate or import a plan first.'], true);
+      this.showPlanDeleteResultDialog(
+        ['Default presets cannot be deleted. Duplicate or import a plan first.'],
+        true,
+      );
       return;
     }
 
@@ -314,7 +324,11 @@ export class TroopsPlanner {
   }
 
   private showPlanImportSuccessDialog(
-    importedPlans: readonly { readonly name: string; readonly requestedName: string; readonly renamed: boolean }[],
+    importedPlans: readonly {
+      readonly name: string;
+      readonly requestedName: string;
+      readonly renamed: boolean;
+    }[],
   ): void {
     const detailLines = importedPlans.map((plan) =>
       plan.renamed ? plan.requestedName + ' → ' + plan.name : plan.name,
@@ -342,7 +356,8 @@ export class TroopsPlanner {
 
     delete portablePlan['isPreset'];
     portablePlan['id'] = this.createPortableExportId('plan', planName, exportIdSuffix);
-    portablePlan['createdAt'] = typeof portablePlan['createdAt'] === 'string' ? portablePlan['createdAt'] : exportedAt;
+    portablePlan['createdAt'] =
+      typeof portablePlan['createdAt'] === 'string' ? portablePlan['createdAt'] : exportedAt;
     portablePlan['updatedAt'] = exportedAt;
     portablePlan['settings'] = this.removeNullishValues(
       this.isPlainRecord(portablePlan['settings']) ? portablePlan['settings'] : {},
@@ -352,7 +367,10 @@ export class TroopsPlanner {
 
     if (this.isPlainRecord(cityPlan)) {
       const portableCityPlan = this.removeNullishValues(cityPlan) as Record<string, unknown>;
-      const cityPlanName = typeof portableCityPlan['name'] === 'string' ? portableCityPlan['name'] : planName + ' City';
+      const cityPlanName =
+        typeof portableCityPlan['name'] === 'string'
+          ? portableCityPlan['name']
+          : planName + ' City';
 
       delete portableCityPlan['isPreset'];
       portableCityPlan['id'] = this.createPortableExportId('city', cityPlanName, exportIdSuffix);
@@ -363,10 +381,17 @@ export class TroopsPlanner {
 
     if (this.isPlainRecord(troopPlan)) {
       const portableTroopPlan = this.removeNullishValues(troopPlan) as Record<string, unknown>;
-      const troopPlanName = typeof portableTroopPlan['name'] === 'string' ? portableTroopPlan['name'] : planName + ' Troops';
+      const troopPlanName =
+        typeof portableTroopPlan['name'] === 'string'
+          ? portableTroopPlan['name']
+          : planName + ' Troops';
 
       delete portableTroopPlan['isPreset'];
-      portableTroopPlan['id'] = this.createPortableExportId('troops', troopPlanName, exportIdSuffix);
+      portableTroopPlan['id'] = this.createPortableExportId(
+        'troops',
+        troopPlanName,
+        exportIdSuffix,
+      );
       portablePlan['troopPlan'] = portableTroopPlan;
     }
 
@@ -398,7 +423,6 @@ export class TroopsPlanner {
   private isPlainRecord(value: unknown): value is Record<string, unknown> {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
   }
-
 
   private downloadTextFile(fileName: string, content: string, mimeType: string): void {
     const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
@@ -443,7 +467,6 @@ export class TroopsPlanner {
     this.clearPlanDialogOpen.set(false);
     this.planConfigService.clearActiveTroopPlan();
   }
-
 
   protected resetSelectedConfiguration(): void {
     this.planConfigService.resetActiveTroopPlan();
@@ -497,10 +520,7 @@ export class TroopsPlanner {
     const currentIndex = options.indexOf(currentAmount);
 
     if (currentIndex >= 0) {
-      const nextIndex = Math.min(
-        Math.max(currentIndex + direction, 0),
-        options.length - 1,
-      );
+      const nextIndex = Math.min(Math.max(currentIndex + direction, 0), options.length - 1);
       this.updateUnitAmount(unitId, options[nextIndex]);
       return;
     }

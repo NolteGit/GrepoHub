@@ -9,13 +9,13 @@ export type ReferenceQuickLink = {
   urlEn?: string;
 };
 
-export type ReferenceSection = {
+type ReferenceSection = {
   id: string;
   title: string;
   summary: string;
 };
 
-export type ReferenceScript = {
+type ReferenceScript = {
   id: string;
   title: string;
   status: 'Stable' | 'Draft' | 'Review';
@@ -55,7 +55,7 @@ export const referenceQuickLinks: ReferenceQuickLink[] = [
   {
     id: 'grepolife',
     title: 'GrepoLife',
-    iconPath: '/assets/images/button_grepoLife.png',
+    iconPath: '/assets/images/button_grepolife.png',
     url: 'https://grepolife.com',
   },
   {
@@ -87,7 +87,8 @@ export const referenceResources: ReferenceResource[] = [
     title: 'Tools / Scripts',
     type: 'tool-guide',
     category: 'Tools',
-    description: 'Approved in-game helper scripts, installation notes, and stable script references.',
+    description:
+      'Approved in-game helper scripts, installation notes, and stable script references.',
     tags: ['Tampermonkey', 'Scripts', 'Allowed tools'],
     sections: [
       {
@@ -98,7 +99,8 @@ export const referenceResources: ReferenceResource[] = [
       {
         id: 'setup',
         title: 'Tampermonkey setup',
-        summary: 'Install the browser extension, add the script, enable it, and verify the active version.',
+        summary:
+          'Install the browser extension, add the script, enable it, and verify the active version.',
       },
       {
         id: 'stable-scripts',
@@ -108,7 +110,8 @@ export const referenceResources: ReferenceResource[] = [
       {
         id: 'troubleshooting',
         title: 'Troubleshooting',
-        summary: 'Collect common problems such as script not loading, stale cache, or wrong world settings.',
+        summary:
+          'Collect common problems such as script not loading, stale cache, or wrong world settings.',
       },
     ],
     scripts: [
@@ -146,7 +149,8 @@ export const referenceResources: ReferenceResource[] = [
       {
         id: 'reading-flow',
         title: 'Reading flow',
-        summary: 'Long documents should keep a visible sidebar so users can skim, switch, and compare quickly.',
+        summary:
+          'Long documents should keep a visible sidebar so users can skim, switch, and compare quickly.',
       },
     ],
   },
@@ -155,18 +159,21 @@ export const referenceResources: ReferenceResource[] = [
     title: 'Reference Documents',
     type: 'reference-document',
     category: 'References',
-    description: 'Local PDFs, Word exports, or converted Markdown notes that users may need to open repeatedly.',
+    description:
+      'Local PDFs, Word exports, or converted Markdown notes that users may need to open repeatedly.',
     tags: ['Documents', 'PDF', 'Word'],
     sections: [
       {
         id: 'local-files',
         title: 'Local files',
-        summary: 'Store stable local documents under public/assets/docs and link them from this registry.',
+        summary:
+          'Store stable local documents under public/assets/docs and link them from this registry.',
       },
       {
         id: 'metadata',
         title: 'Metadata',
-        summary: 'Show document type, topic, last update, and a short description before opening the file.',
+        summary:
+          'Show document type, topic, last update, and a short description before opening the file.',
       },
     ],
   },
@@ -175,13 +182,15 @@ export const referenceResources: ReferenceResource[] = [
     title: 'External Resources',
     type: 'external-link',
     category: 'References',
-    description: 'Less frequent links that are useful, but do not need to be in the top quick-link bar.',
+    description:
+      'Less frequent links that are useful, but do not need to be in the top quick-link bar.',
     tags: ['Links', 'External', 'Lookup'],
     sections: [
       {
         id: 'curated-links',
         title: 'Curated links',
-        summary: 'Use this section for resources that are useful but not important enough for the top bar.',
+        summary:
+          'Use this section for resources that are useful but not important enough for the top bar.',
       },
     ],
     externalUrl: 'https://www.innogames.com/games/grepolis/',

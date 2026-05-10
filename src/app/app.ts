@@ -6,7 +6,7 @@ import { AppShell } from './layout/app-shell/app-shell';
   selector: 'app-root',
   imports: [AppShell],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('grepo-hub');

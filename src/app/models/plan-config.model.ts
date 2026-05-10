@@ -4,7 +4,7 @@ import { TroopConfiguration } from './troop-configuration.model';
 export const PLAN_CONFIG_FORMAT = 'grepo-hub-plan-config';
 export const PLAN_CONFIG_VERSION = 1;
 
-export type PlanConfigFormat = typeof PLAN_CONFIG_FORMAT;
+type PlanConfigFormat = typeof PLAN_CONFIG_FORMAT;
 
 export type PlanConfigSettings = {
   worldSpeed: number | null;
