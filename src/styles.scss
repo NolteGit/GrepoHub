@@ -19,16 +19,25 @@
   --shadow-soft: 0 18px 40px rgba(0, 8, 20, 0.28);
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
   min-height: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+html {
   background: var(--ink-black);
 }
 
 body {
+  margin: 0;
   font-family:
     Inter,
     ui-sans-serif,

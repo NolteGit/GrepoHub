@@ -3,6 +3,8 @@
   "nav.home": "Home",
   "nav.homeAria": "Go to home page",
   "nav.mainAria": "Main navigation",
+  "nav.openMenu": "Open navigation menu",
+  "nav.closeMenu": "Close navigation menu",
   "nav.cityPlanner": "City Planner",
   "nav.troopsPlanner": "Troops Planner",
   "nav.references": "References",

@@ -3,6 +3,8 @@
   "nav.home": "Startseite",
   "nav.homeAria": "Zur Startseite gehen",
   "nav.mainAria": "Hauptnavigation",
+  "nav.openMenu": "Navigationsmenü öffnen",
+  "nav.closeMenu": "Navigationsmenü schließen",
   "nav.cityPlanner": "Stadtplanung",
   "nav.troopsPlanner": "Truppenplanung",
   "nav.references": "Referenzen",

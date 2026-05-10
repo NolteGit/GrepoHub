@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -17,6 +17,7 @@ type NavItem = {
 })
 export class AppShell {
   protected readonly translationService = inject(TranslationService);
+  protected readonly isNavigationMenuOpen = signal(false);
 
   protected readonly navItems: NavItem[] = [
     {
@@ -39,5 +40,20 @@ export class AppShell {
 
   protected toggleLanguage(): void {
     this.translationService.toggleLanguage();
+  }
+
+  protected toggleNavigationMenu(): void {
+    this.isNavigationMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  protected closeNavigationMenu(): void {
+    this.isNavigationMenuOpen.set(false);
+  }
+
+  @HostListener('window:resize')
+  protected closeNavigationMenuOnDesktop(): void {
+    if (window.innerWidth > 1180) {
+      this.closeNavigationMenu();
+    }
   }
 }

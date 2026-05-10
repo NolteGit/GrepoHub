@@ -1,12 +1,31 @@
 <div class="app-shell">
   <header class="app-shell__header">
-    <div class="app-shell__header-inner">
+    <div
+      class="app-shell__header-inner"
+      [class.app-shell__header-inner--menu-open]="isNavigationMenuOpen()"
+    >
+      <button
+        class="app-shell__menu-toggle"
+        type="button"
+        (click)="toggleNavigationMenu()"
+        [attr.aria-label]="
+          isNavigationMenuOpen() ? ('nav.closeMenu' | translate) : ('nav.openMenu' | translate)
+        "
+        [attr.aria-expanded]="isNavigationMenuOpen()"
+        aria-controls="app-shell-nav"
+      >
+        <span class="app-shell__menu-toggle-line" aria-hidden="true"></span>
+        <span class="app-shell__menu-toggle-line" aria-hidden="true"></span>
+        <span class="app-shell__menu-toggle-line" aria-hidden="true"></span>
+      </button>
+
       <a
         class="app-shell__brand"
         routerLink="/"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
         [attr.aria-label]="'nav.homeAria' | translate"
+        (click)="closeNavigationMenu()"
       >
         <span class="app-shell__brand-mark" aria-hidden="true">
           <svg class="app-shell__brand-compass" viewBox="0 0 320 320" focusable="false">
@@ -87,9 +106,14 @@
         </span>
       </a>
 
-      <nav class="app-shell__nav" [attr.aria-label]="'nav.mainAria' | translate">
+      <nav id="app-shell-nav" class="app-shell__nav" [attr.aria-label]="'nav.mainAria' | translate">
         @for (item of navItems; track item.path) {
-          <a class="app-shell__nav-link" [routerLink]="item.path" routerLinkActive="active">
+          <a
+            class="app-shell__nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            (click)="closeNavigationMenu()"
+          >
             {{ item.labelKey | translate }}
           </a>
         }

@@ -1,27 +1,32 @@
 .app-shell {
+  --shell-gutter: clamp(0.5rem, 1.25vw, 1rem);
+  --shell-max-width: 1720px;
+
   min-height: 100vh;
   color: var(--text-primary);
   background: var(--ink-black);
+  overflow-x: clip;
 }
 
 .app-shell__header {
   position: sticky;
   top: 0;
   z-index: 20;
-  padding: 1rem 1.25rem 0;
+  padding: clamp(0.45rem, 1vw, 0.75rem) var(--shell-gutter) 0;
   background: rgba(0, 8, 20, 0.88);
   backdrop-filter: blur(10px);
 }
 
 .app-shell__header-inner {
-  width: min(1720px, calc(100vw - 2.5rem));
+  width: min(var(--shell-max-width), 100%);
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
+  gap: clamp(0.45rem, 0.85vw, 0.8rem);
+  min-width: 0;
+  padding: clamp(0.55rem, 0.85vw, 0.75rem) clamp(0.65rem, 0.95vw, 0.85rem);
   border: 1px solid var(--border-soft);
-  border-radius: 1.25rem;
+  border-radius: 1.05rem;
   background: var(--prussian-blue);
   box-shadow: var(--shadow-soft);
 }
@@ -40,8 +45,8 @@
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 3.9rem;
-  height: 3.9rem;
+  width: clamp(3rem, 3.15vw, 3.55rem);
+  height: clamp(3rem, 3.15vw, 3.55rem);
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -155,12 +160,69 @@
   fill: var(--ink-black);
 }
 
+.app-shell__menu-toggle {
+  position: relative;
+  flex: 0 0 auto;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  padding: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--regal-navy);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.app-shell__menu-toggle:hover {
+  background: rgba(0, 53, 102, 0.8);
+  border-color: rgba(255, 214, 10, 0.36);
+  transform: translateY(-1px);
+}
+
+.app-shell__menu-toggle-line {
+  position: absolute;
+  width: 1rem;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transition:
+    opacity 160ms ease,
+    transform 180ms ease;
+}
+
+.app-shell__menu-toggle-line:nth-child(1) {
+  transform: translateY(-0.32rem);
+}
+
+.app-shell__menu-toggle-line:nth-child(3) {
+  transform: translateY(0.32rem);
+}
+
+.app-shell__header-inner--menu-open .app-shell__menu-toggle-line:nth-child(1) {
+  transform: rotate(45deg);
+}
+
+.app-shell__header-inner--menu-open .app-shell__menu-toggle-line:nth-child(2) {
+  opacity: 0;
+}
+
+.app-shell__header-inner--menu-open .app-shell__menu-toggle-line:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
 .app-shell__nav {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 1 1 auto;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: clamp(0.25rem, 0.55vw, 0.45rem);
   min-width: 0;
 }
 
@@ -168,12 +230,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.3rem;
-  padding: 0.55rem 0.85rem;
+  min-height: 2.05rem;
+  padding: 0.42rem clamp(0.55rem, 0.7vw, 0.78rem);
   border: 1px solid transparent;
   border-radius: 999px;
   color: var(--text-secondary);
-  font-size: 0.94rem;
+  font-size: clamp(0.82rem, 0.82vw, 0.92rem);
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
@@ -209,12 +271,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  min-height: 2.45rem;
+  min-height: 2.2rem;
   border: 1px solid var(--border-soft);
   border-radius: 999px;
   background: var(--regal-navy);
   color: var(--text-primary);
-  font-size: 0.92rem;
+  font-size: 0.86rem;
   font-weight: 700;
   cursor: pointer;
   transition:
@@ -225,7 +287,7 @@
 }
 
 .app-shell__language-action {
-  padding: 0.5rem 0.85rem;
+  padding: 0.42rem 0.72rem;
 }
 
 .app-shell__language-action:hover {
@@ -245,6 +307,7 @@
 }
 
 .app-shell__language-action:focus-visible,
+.app-shell__menu-toggle:focus-visible,
 .app-shell__nav-link:focus-visible,
 .app-shell__brand:focus-visible {
   outline: 2px solid var(--gold);
@@ -256,54 +319,124 @@
 }
 
 .app-shell__main {
-  padding: 1rem 1.25rem 2rem;
+  padding: clamp(0.65rem, 1.2vw, 0.9rem) var(--shell-gutter) 2rem;
 }
 
 .app-shell__content {
-  width: min(1720px, calc(100vw - 2.5rem));
+  width: min(var(--shell-max-width), 100%);
   margin: 0 auto;
+  min-width: 0;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
   .app-shell__header-inner {
-    flex-wrap: wrap;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .app-shell__menu-toggle {
+    display: inline-flex;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .app-shell__brand {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .app-shell__brand-mark {
+    width: 3rem;
+    height: 3rem;
   }
 
   .app-shell__nav {
-    order: 3;
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    left: 0;
+    z-index: 30;
+    display: none;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    width: min(23rem, 100%);
+    min-width: min(17rem, 100%);
+    padding: 0.55rem;
+    border: 1px solid var(--border-soft);
+    border-radius: 1rem;
+    background: rgba(0, 29, 61, 0.96);
+    box-shadow: 0 18px 28px rgba(0, 8, 20, 0.36);
+    backdrop-filter: blur(10px);
+  }
+
+  .app-shell__header-inner--menu-open .app-shell__nav {
+    display: grid;
+  }
+
+  .app-shell__nav-link {
     width: 100%;
+    min-height: 2.35rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(0, 53, 102, 0.38);
+    border-color: rgba(255, 214, 10, 0.12);
+    white-space: normal;
   }
 
   .app-shell__actions {
-    margin-left: auto;
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
   }
 }
 
 @media (max-width: 700px) {
-  .app-shell__header {
-    padding: 0.75rem 0.75rem 0;
+  .app-shell__header-inner {
+    padding: 0.6rem;
+    border-radius: 0.95rem;
   }
 
-  .app-shell__header-inner {
-    width: min(100%, calc(100vw - 1.5rem));
-    padding: 0.85rem;
+  .app-shell__menu-toggle {
+    width: 2.35rem;
+    height: 2.35rem;
   }
 
   .app-shell__brand-mark {
-    width: 3.35rem;
-    height: 3.35rem;
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+
+  .app-shell__language-action {
+    min-height: 2.05rem;
+    padding-inline: 0.64rem;
+    font-size: 0.82rem;
+  }
+
+  .app-shell__nav {
+    width: min(20rem, 100%);
   }
 
   .app-shell__nav-link {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
+    min-height: 2.25rem;
+    padding: 0.46rem 0.65rem;
+    font-size: 0.86rem;
   }
 
   .app-shell__main {
-    padding: 0.75rem 0.75rem 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-shell__nav {
+    width: 100%;
   }
 
-  .app-shell__content {
-    width: 100%;
+  .app-shell__language-action {
+    min-width: 0;
+    padding-inline: 0.58rem;
   }
 }
