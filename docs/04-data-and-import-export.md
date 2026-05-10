@@ -7,8 +7,9 @@ Grepo Hub should start as a client-side app without a backend.
 The app should use:
 
 - Static JSON files for core game data
-- Local browser storage for saved user configurations
-- TXT import/export for city and unit planner configurations
+- Local browser storage for saved user plans
+- One shared JSON-based `PlanConfig` per planning project
+- CSV and BBCode as generated export formats, not as the internal source format
 
 ## Static JSON game data
 
@@ -73,7 +74,7 @@ Exact values can be added gradually. The first implementation can use partial da
 
 ## Translation data
 
-Translations should be stored in a small TXT or JSON structure.
+Translations should be stored in JSON files.
 
 Preferred file format:
 
@@ -101,7 +102,7 @@ Examples:
 
 ## Local user data
 
-User-created configurations should be saved locally in the browser.
+User-created plans should be saved locally in the browser.
 
 Initial storage option:
 
@@ -113,99 +114,136 @@ Possible later storage option:
 
 User-created data may include:
 
-- City planner configurations
-- Unit planner configurations
+- Plan configurations containing city and troop planner data
+- Per-world settings such as world speed, unit speed, locale, and timezone
 - Time tool configurations created during runtime
+
+## Shared planner configuration model
+
+City Planner and Troops Planner should work on the same underlying `PlanConfig`.
+
+A plan represents one planning project, not one isolated planner tab. This allows the user to create a city plan first and then fill the corresponding troop plan, or start from troop needs and adjust the city plan later.
+
+The canonical shape should be JSON:
+
+```json
+{
+  "format": "grepo-hub-plan-config",
+  "version": 1,
+  "exportedAt": "2026-05-09T12:00:00.000Z",
+  "plans": [
+    {
+      "id": "custom-plan-1",
+      "name": "Example Nuke Plan",
+      "isPreset": false,
+      "createdAt": "2026-05-09T12:00:00.000Z",
+      "updatedAt": "2026-05-09T12:00:00.000Z",
+      "settings": {
+        "worldSpeed": 2,
+        "unitSpeed": 1,
+        "timezone": "Europe/Vienna",
+        "locale": "en"
+      },
+      "cityPlan": {
+        "id": "custom-city-1",
+        "name": "Example Nuke Plan",
+        "buildingLevels": {},
+        "modifiers": {},
+        "specialBuildings": {}
+      },
+      "troopPlan": {
+        "id": "custom-troops-1",
+        "name": "Example Nuke Plan",
+        "unitAmounts": {},
+        "modifiers": {}
+      }
+    }
+  ]
+}
+```
+
+The JSON bundle should be the source of truth for import/export. It can still be human-readable because it is formatted with indentation, but the app should validate and normalize imported data before using it.
 
 ## Planner configuration sidebar
 
-City Planner and Troops Planner should each have a left sidebar with configurations.
+City Planner and Troops Planner can keep their own page UI, but the configuration selector should list shared plans.
 
-The sidebar should allow users to:
+The selector should allow users to:
 
-- View existing configurations
-- Load a configuration into the planner
-- Add/import a new TXT configuration
-- Possibly duplicate, rename, or delete configurations later
+- View existing plans
+- Load a shared plan into the current planner view
+- Duplicate the active plan
+- Save/update the current plan
+- Import/export the shared plan bundle later
+- Possibly rename or delete plans later
 
-## TXT import/export role
+## Import/export role
 
-TXT import/export should be useful but not intrusive.
+Import and export should be useful but not intrusive.
 
-It should not have its own page.
+They should not have their own page for the MVP.
 
-TXT should mainly support:
+The intended flow is:
 
-- City Planner configurations
-- Troops Planner configurations
-- Optional academy data inside City Planner configurations
+```txt
+PlanConfig JSON source of truth
+  -> CSV export for spreadsheet review
+  -> BBCode export for Grepolis notes/messages
+  -> optional PNG export later
+```
 
-## TXT format principles
+## Format principles
 
-TXT files should be:
+Plan config files should be:
 
 - Human-readable
-- Easy to copy and paste
-- Easy to edit manually
+- Easy to import and export in the app
 - Versioned from the beginning
 - Forgiving where possible
+- Normalized after import
+- Structured enough to support migrations later
 
-## Example city plan TXT
+## CSV export
 
-```txt
-# Grepo Hub City Plan
-type=city-plan
-version=1
-name=Example Attack City
+CSV should be an export/converter format, not the canonical format.
 
-[Buildings]
-Senate=25
-Farm=40
-Warehouse=35
-Barracks=30
-Harbor=30
-Academy=30
+The first CSV export can be a high-level plan overview:
 
-[Academy]
-Research1=true
-Research2=false
-
-[Notes]
-Optional notes here.
+```csv
+planId,planName,cityPlanName,troopPlanName,worldSpeed,unitSpeed,updatedAt
+custom-plan-1,Example Nuke Plan,Example Nuke Plan,Example Nuke Plan,2,1,2026-05-09T12:00:00.000Z
 ```
 
-## Example unit plan TXT
+Later, the app can add specialized CSV exports such as:
 
-```txt
-# Grepo Hub Unit Plan
-type=unit-plan
-version=1
-name=Example Naval Attack
+- One row per planned city
+- One row per unit amount
+- One row per resource/troop requirement
 
-[Units]
-Light Ship=120
-Bireme=0
-Fire Ship=20
-Transport Boat=15
+## BBCode export
 
-[Notes]
-Optional notes here.
+BBCode should be a generated display format, not stored app state.
+
+Example:
+
+```bbcode
+[b]Example Nuke Plan[/b]
+
+[u]City plan[/u]: Example Nuke Plan
+[u]Troop plan[/u]: Example Nuke Plan
+
+[table]
+[**]Unit[||]Amount[/**]
+[*]light_ship[|]120
+[*]transport_boat[|]20
+[/table]
 ```
 
-## Export buttons
-
-Export buttons should be located inside planner pages.
-
-Possible export actions:
-
-- Export as TXT
-- Export as PNG later
-- Export as CSV later where useful
-- Export as BB-code / Grepolis note format later
+Later, BBCode templates can be planner-specific.
 
 ## Time tool data
 
-Time tools do not need TXT import/export in the MVP.
+Time tools do not need JSON import/export in the MVP.
 
 Time configurations created during runtime should appear in the Time Tools configuration list and active timers should be accessible from the top navigation bar.
 
@@ -213,8 +251,9 @@ Time configurations created during runtime should appear in the Time Tools confi
 
 Later versions may need:
 
-- Format migration for old TXT files
+- Format migration for older plan bundles
+- Legacy migration from separate city/troop configuration storage
 - More complete static game data
-- Per-world settings
-- User-defined custom defaults
+- Per-world defaults
+- User-defined custom presets
 - IndexedDB for larger storage

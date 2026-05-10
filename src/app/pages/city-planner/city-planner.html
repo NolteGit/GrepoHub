@@ -86,22 +86,43 @@
                     <div class="city-stepper">
                       <button
                         type="button"
+                        class="city-stepper__button city-stepper__limit-button"
+                        (click)="setBuildingToMinLevel(building.id)"
+                        [disabled]="getBuildingLevel(building.id) <= getBuildingMinLevel(building.id)"
+                        [attr.aria-label]="getBuildingLimitTargetAriaLabel(building.id, 'min')"
+                      >
+                        MIN
+                      </button>
+
+                      <button
+                        type="button"
+                        class="city-stepper__button city-stepper__limit-button"
+                        (click)="setBuildingToMaxLevel(building.id)"
+                        [disabled]="getBuildingLevel(building.id) >= getBuildingMaxLevel(building.id)"
+                        [attr.aria-label]="getBuildingLimitTargetAriaLabel(building.id, 'max')"
+                      >
+                        MAX
+                      </button>
+
+                      <button
+                        type="button"
                         class="city-stepper__button"
                         (click)="stepBuildingLevel(building.id, -1)"
-                        [disabled]="getBuildingLevel(building.id) <= 0"
+                        [disabled]="getBuildingLevel(building.id) <= getBuildingMinLevel(building.id)"
                       >
                         −
                       </button>
 
-                      <input
+                      <select
                         [id]="'building-' + building.id"
-                        type="number"
-                        min="0"
-                        step="1"
-                        [max]="building.maxLevel"
+                        class="city-stepper__select"
                         [ngModel]="getBuildingLevel(building.id)"
                         (ngModelChange)="updateBuildingLevel(building.id, $event)"
-                      />
+                      >
+                        @for (level of getBuildingLevelOptions(building.id, building.maxLevel); track level) {
+                          <option [ngValue]="level">{{ level }}</option>
+                        }
+                      </select>
 
                       <button
                         type="button"
@@ -222,6 +243,26 @@
 
                 <div class="city-stepper city-stepper--side">
                   <button
+                        type="button"
+                        class="city-stepper__button city-stepper__limit-button"
+                        (click)="setBuildingToMinLevel(landExpansion.id)"
+                        [disabled]="getBuildingLevel(landExpansion.id) <= getBuildingMinLevel(landExpansion.id)"
+                        [attr.aria-label]="getBuildingLimitTargetAriaLabel(landExpansion.id, 'min')"
+                      >
+                        MIN
+                      </button>
+
+                      <button
+                        type="button"
+                        class="city-stepper__button city-stepper__limit-button"
+                        (click)="setBuildingToMaxLevel(landExpansion.id)"
+                        [disabled]="getBuildingLevel(landExpansion.id) >= getBuildingMaxLevel(landExpansion.id)"
+                        [attr.aria-label]="getBuildingLimitTargetAriaLabel(landExpansion.id, 'max')"
+                      >
+                        MAX
+                      </button>
+
+                      <button
                     type="button"
                     class="city-stepper__button"
                     (click)="stepBuildingLevel(landExpansion.id, -1)"
@@ -230,15 +271,16 @@
                     −
                   </button>
 
-                  <input
+                  <select
                     [id]="'building-' + landExpansion.id"
-                    type="number"
-                    min="0"
-                    step="1"
-                    [max]="landExpansion.maxLevel"
+                    class="city-stepper__select"
                     [ngModel]="getBuildingLevel(landExpansion.id)"
                     (ngModelChange)="updateBuildingLevel(landExpansion.id, $event)"
-                  />
+                  >
+                    @for (level of getBuildingLevelOptions(landExpansion.id, landExpansion.maxLevel); track level) {
+                      <option [ngValue]="level">{{ level }}</option>
+                    }
+                  </select>
 
                   <button
                     type="button"

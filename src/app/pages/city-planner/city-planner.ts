@@ -1,9 +1,8 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import {
   cityBuildingPlanDefinitions,
-  cityConfigurationPresets,
   cityModifierDefinitions,
   citySpecialBuildingOptionDefinitions,
   citySpecialBuildingSlotDefinitions,
@@ -16,6 +15,7 @@ import {
   CitySpecialBuildingSlotId,
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { PlanConfigService } from '../../services/plan-config.service';
 
 @Component({
   selector: 'app-city-planner',
@@ -24,8 +24,19 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   styleUrl: './city-planner.scss',
 })
 export class CityPlanner {
-  private readonly storageKey = 'grepo-hub-city-configurations';
-  private readonly fallbackConfiguration = structuredClone(cityConfigurationPresets[0]);
+  private readonly planConfigService = inject(PlanConfigService);
+  private readonly buildingLevelOptionsCache = new Map<string, readonly number[]>();
+  private readonly buildingMinLevels: Record<string, number> = {
+    barracks: 1,
+    farm: 1,
+    marketplace: 1,
+    quarry: 1,
+    senate: 9,
+    silver_mine: 1,
+    temple: 1,
+    timber_camp: 1,
+    warehouse: 1,
+  };
 
   protected readonly buildingDefinitions = cityBuildingPlanDefinitions;
   protected readonly modifierDefinitions = cityModifierDefinitions;
@@ -39,37 +50,61 @@ export class CityPlanner {
     ['harbour', 'academy', 'city_wall', 'cave'],
   ];
 
-  protected readonly configurations = signal<CityConfiguration[]>(this.loadConfigurations());
-  protected readonly selectedConfigurationId = signal(this.configurations()[0]?.id ?? '');
+  protected readonly configurations = computed(() => this.planConfigService.plans());
+  protected readonly selectedConfigurationId = this.planConfigService.activePlanId;
 
   protected readonly selectedConfiguration = computed<CityConfiguration>(() => {
-    return (
-      this.configurations().find(
-        (configuration) => configuration.id === this.selectedConfigurationId(),
-      ) ?? this.configurations()[0] ?? this.fallbackConfiguration
-    );
+    return this.planConfigService.activePlan().cityPlan;
   });
 
   protected readonly populationCapacity = computed(() => {
     const configuration = this.selectedConfiguration();
+    const farmLevel = this.getBuildingLevel('farm');
+    const farmCapacity = Math.max(this.getBuildingPopulation('farm', farmLevel), 0);
+    const aphroditeCapacity = configuration.modifiers['aphroditeActive'] ? farmLevel * 5 : 0;
+    const thermalBaseCapacity = farmCapacity + aphroditeCapacity;
+    const thermalAdjustedCapacity = this.hasSpecialBuilding(configuration, 'thermal_baths')
+      ? Math.round(thermalBaseCapacity * 1.1)
+      : thermalBaseCapacity;
 
-    return this.buildingDefinitions.reduce((sum, building) => {
-      const level = configuration.buildingLevels[building.id] ?? 0;
+    const otherBuildingCapacity = this.buildingDefinitions.reduce((sum, building) => {
+      if (building.id === 'farm') {
+        return sum;
+      }
+
+      const level = this.getBuildingLevel(building.id);
       const population = this.getBuildingPopulation(building.id, level);
 
       return population > 0 ? sum + population : sum;
-    }, this.getModifierPopulationCapacity(configuration) + this.getSpecialBuildingPopulationCapacity(configuration));
+    }, 0);
+
+    const fixedModifierCapacity = this.modifierDefinitions.reduce((sum, modifier) => {
+      if (!configuration.modifiers[modifier.id] || modifier.id === 'aphroditeActive') {
+        return sum;
+      }
+
+      return sum + Math.max(modifier.populationDelta, 0);
+    }, 0);
+
+    return (
+      thermalAdjustedCapacity +
+      otherBuildingCapacity +
+      fixedModifierCapacity +
+      this.getSpecialBuildingPopulationCapacity(configuration)
+    );
   });
 
   protected readonly usedPopulation = computed(() => {
     const configuration = this.selectedConfiguration();
 
-    return this.buildingDefinitions.reduce((sum, building) => {
-      const level = configuration.buildingLevels[building.id] ?? 0;
-      const population = this.getBuildingPopulation(building.id, level);
+    const usedPopulation = this.buildingDefinitions.reduce((sum, building) => {
+      const level = this.getBuildingLevel(building.id);
+      const population = this.getExactBuildingPopulation(building.id, level);
 
       return population < 0 ? sum + Math.abs(population) : sum;
     }, this.getSpecialBuildingUsedPopulation(configuration));
+
+    return Math.round(usedPopulation);
   });
 
   protected readonly freePopulation = computed(() => {
@@ -77,7 +112,7 @@ export class CityPlanner {
   });
 
   protected selectConfiguration(configurationId: string): void {
-    this.selectedConfigurationId.set(configurationId);
+    this.planConfigService.selectPlan(configurationId);
   }
 
   protected updateBuildingLevel(buildingId: string, value: string | number): void {
@@ -89,7 +124,8 @@ export class CityPlanner {
 
     const parsedValue = Number(value);
     const safeLevel = Number.isFinite(parsedValue) ? parsedValue : 0;
-    const level = Math.min(Math.max(Math.round(safeLevel), 0), definition.maxLevel);
+    const minLevel = this.getBuildingMinLevel(buildingId);
+    const level = Math.min(Math.max(Math.round(safeLevel), minLevel), definition.maxLevel);
 
     this.updateSelectedConfiguration({
       buildingLevels: {
@@ -103,6 +139,85 @@ export class CityPlanner {
     this.updateBuildingLevel(buildingId, this.getBuildingLevel(buildingId) + delta);
   }
 
+  protected getBuildingLevelOptions(buildingId: string, maxLevel: number): readonly number[] {
+    const safeMinLevel = this.getBuildingMinLevel(buildingId);
+    const safeMaxLevel = Math.max(Math.floor(maxLevel), safeMinLevel);
+    const cacheKey = `${buildingId}:${safeMinLevel}:${safeMaxLevel}`;
+    const cachedOptions = this.buildingLevelOptionsCache.get(cacheKey);
+
+    if (cachedOptions) {
+      return cachedOptions;
+    }
+
+    const options = Array.from(
+      { length: safeMaxLevel - safeMinLevel + 1 },
+      (_, index) => safeMinLevel + index,
+    );
+    this.buildingLevelOptionsCache.set(cacheKey, options);
+
+    return options;
+  }
+
+  protected setBuildingToMinLevel(buildingId: string): void {
+    this.updateBuildingLevel(buildingId, this.getBuildingMinLevel(buildingId));
+  }
+
+  protected setBuildingToMaxLevel(buildingId: string): void {
+    this.updateBuildingLevel(buildingId, this.getBuildingMaxLevel(buildingId));
+  }
+
+  protected getBuildingMaxLevel(buildingId: string): number {
+    return this.getBuildingDefinition(buildingId)?.maxLevel ?? this.getBuildingLevel(buildingId);
+  }
+
+  protected getBuildingLimitTargetAriaLabel(buildingId: string, limit: 'min' | 'max'): string {
+    const buildingName = buildingId.replace(/_/g, ' ');
+    const targetLevel = limit === 'min'
+      ? this.getBuildingMinLevel(buildingId)
+      : this.getBuildingMaxLevel(buildingId);
+
+    return 'Set ' + buildingName + ' to level ' + targetLevel;
+  }
+
+  protected toggleBuildingLevelLimit(buildingId: string): void {
+    const definition = this.getBuildingDefinition(buildingId);
+
+    if (!definition) {
+      return;
+    }
+
+    const minLevel = this.getBuildingMinLevel(buildingId);
+    const currentLevel = this.getBuildingLevel(buildingId);
+    const targetLevel = currentLevel >= definition.maxLevel ? minLevel : definition.maxLevel;
+
+    this.updateBuildingLevel(buildingId, targetLevel);
+  }
+
+  protected getBuildingLimitButtonLabel(buildingId: string): 'Min' | 'Max' {
+    const definition = this.getBuildingDefinition(buildingId);
+
+    if (!definition) {
+      return 'Max';
+    }
+
+    return this.getBuildingLevel(buildingId) >= definition.maxLevel ? 'Min' : 'Max';
+  }
+
+  protected getBuildingLimitButtonAriaLabel(buildingId: string): string {
+    const definition = this.getBuildingDefinition(buildingId);
+    const buildingName = buildingId.replace(/_/g, ' ');
+
+    if (!definition) {
+      return 'Set ' + buildingName + ' to limit level';
+    }
+
+    const targetLevel = this.getBuildingLevel(buildingId) >= definition.maxLevel
+      ? this.getBuildingMinLevel(buildingId)
+      : definition.maxLevel;
+
+    return 'Set ' + buildingName + ' to level ' + targetLevel;
+  }
+
   protected updateModifier(modifierId: CityModifierId, checked: boolean): void {
     this.updateSelectedConfiguration({
       modifiers: {
@@ -112,10 +227,7 @@ export class CityPlanner {
     });
   }
 
-  protected updateSpecialBuilding(
-    slotId: CitySpecialBuildingSlotId,
-    value: string,
-  ): void {
+  protected updateSpecialBuilding(slotId: CitySpecialBuildingSlotId, value: string): void {
     const optionId = value as CitySpecialBuildingOptionId;
     const slotDefinition = this.specialBuildingSlotDefinitions.find((slot) => slot.id === slotId);
 
@@ -132,46 +244,22 @@ export class CityPlanner {
   }
 
   protected saveConfigurations(): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.configurations()));
+    this.planConfigService.savePlans();
   }
 
   protected saveAsNewConfiguration(): void {
-    const currentConfiguration = this.selectedConfiguration();
-    const name = window.prompt('Configuration name', `${currentConfiguration.name} Copy`);
+    const currentPlan = this.planConfigService.activePlan();
+    const name = window.prompt('Plan name', `${currentPlan.name} Copy`);
 
     if (!name) {
       return;
     }
 
-    const newConfiguration: CityConfiguration = {
-      ...structuredClone(currentConfiguration),
-      id: `custom-${Date.now()}`,
-      name,
-      isPreset: false,
-    };
-
-    this.configurations.update((configurations) => [...configurations, newConfiguration]);
-    this.selectedConfigurationId.set(newConfiguration.id);
-    this.saveConfigurations();
+    this.planConfigService.duplicateActivePlan(name);
   }
 
   protected resetSelectedConfiguration(): void {
-    const currentConfiguration = this.selectedConfiguration();
-    const preset = cityConfigurationPresets.find(
-      (configuration) => configuration.id === currentConfiguration.id,
-    );
-
-    if (!preset) {
-      return;
-    }
-
-    this.configurations.update((configurations) =>
-      configurations.map((configuration) =>
-        configuration.id === preset.id ? structuredClone(preset) : configuration,
-      ),
-    );
-
-    this.saveConfigurations();
+    this.planConfigService.resetActiveCityPlan();
   }
 
   protected getBuildingDefinition(buildingId: string): CityBuildingPlanDefinition | undefined {
@@ -179,10 +267,28 @@ export class CityPlanner {
   }
 
   protected getBuildingLevel(buildingId: string): number {
-    return this.selectedConfiguration().buildingLevels[buildingId] ?? 0;
+    const definition = this.getBuildingDefinition(buildingId);
+    const configuredLevel = this.selectedConfiguration().buildingLevels[buildingId] ?? 0;
+
+    if (!definition) {
+      return configuredLevel;
+    }
+
+    return Math.min(
+      Math.max(configuredLevel, this.getBuildingMinLevel(buildingId)),
+      definition.maxLevel,
+    );
+  }
+
+  protected getBuildingMinLevel(buildingId: string): number {
+    return this.buildingMinLevels[buildingId] ?? 0;
   }
 
   protected getBuildingPopulation(buildingId: string, level: number): number {
+    return this.roundPopulation(this.getExactBuildingPopulation(buildingId, level));
+  }
+
+  private getExactBuildingPopulation(buildingId: string, level: number): number {
     const definition = this.getBuildingDefinition(buildingId);
 
     if (!definition) {
@@ -190,6 +296,10 @@ export class CityPlanner {
     }
 
     return definition.populationByLevel[level] ?? 0;
+  }
+
+  private roundPopulation(value: number): number {
+    return Math.sign(value) * Math.round(Math.abs(value));
   }
 
   protected getBaseModifierPopulation(modifierId: CityModifierId): number {
@@ -206,18 +316,22 @@ export class CityPlanner {
     }
 
     if (modifierId === 'aphroditeActive') {
-      return (configuration.buildingLevels['farm'] ?? 0) * 5;
+      return this.getBuildingLevel('farm') * 5;
     }
 
     return this.getBaseModifierPopulation(modifierId);
   }
 
-  protected getSelectedSpecialBuilding(slotId: CitySpecialBuildingSlotId): CitySpecialBuildingOptionId {
+  protected getSelectedSpecialBuilding(
+    slotId: CitySpecialBuildingSlotId,
+  ): CitySpecialBuildingOptionId {
     return this.selectedConfiguration().specialBuildings[slotId] ?? 'none';
   }
 
   protected getSpecialBuildingPopulation(optionId: CitySpecialBuildingOptionId): number {
-    const option = this.specialBuildingOptionDefinitions.find((definition) => definition.id === optionId);
+    const option = this.specialBuildingOptionDefinitions.find(
+      (definition) => definition.id === optionId,
+    );
 
     return option?.populationDelta ?? 0;
   }
@@ -256,9 +370,7 @@ export class CityPlanner {
     return fileName ? `/assets/images/buildings/${fileName}.webp` : '';
   }
 
-  protected getSelectedSpecialBuildingImagePath(
-    slotId: CitySpecialBuildingSlotId,
-  ): string {
+  protected getSelectedSpecialBuildingImagePath(slotId: CitySpecialBuildingSlotId): string {
     const selectedOption = this.getSelectedSpecialBuilding(slotId);
 
     if (selectedOption === 'none') {
@@ -269,18 +381,7 @@ export class CityPlanner {
   }
 
   private updateSelectedConfiguration(partialConfiguration: Partial<CityConfiguration>): void {
-    const currentConfiguration = this.selectedConfiguration();
-
-    this.configurations.update((configurations) =>
-      configurations.map((configuration) =>
-        configuration.id === currentConfiguration.id
-          ? {
-              ...configuration,
-              ...partialConfiguration,
-            }
-          : configuration,
-      ),
-    );
+    this.planConfigService.updateActiveCityPlan(partialConfiguration);
   }
 
   private getModifierPopulationCapacity(configuration: CityConfiguration): number {
@@ -305,88 +406,18 @@ export class CityPlanner {
     }, 0);
   }
 
+  private hasSpecialBuilding(
+    configuration: CityConfiguration,
+    optionId: CitySpecialBuildingOptionId,
+  ): boolean {
+    return Object.values(configuration.specialBuildings).includes(optionId);
+  }
+
   private getSpecialBuildingUsedPopulation(configuration: CityConfiguration): number {
     return Object.values(configuration.specialBuildings).reduce((sum, optionId) => {
       const delta = this.getSpecialBuildingPopulation(optionId);
 
       return delta < 0 ? sum + Math.abs(delta) : sum;
     }, 0);
-  }
-
-  private createNormalizedConfiguration(rawConfiguration: Partial<CityConfiguration>): CityConfiguration {
-    const rawBuildingLevels = rawConfiguration.buildingLevels ?? {};
-    const rawModifiers = rawConfiguration.modifiers as Partial<Record<string, boolean>> | undefined;
-    const rawSpecialBuildings = rawConfiguration.specialBuildings as
-      | Partial<Record<CitySpecialBuildingSlotId, CitySpecialBuildingOptionId>>
-      | undefined;
-
-    const migratedSlot1 =
-      rawSpecialBuildings?.['slot1'] ??
-      (rawModifiers?.['thermalBathsBuilt'] ? 'thermal_baths' : 'none');
-
-    const migratedSlot2 = rawSpecialBuildings?.['slot2'] ?? 'none';
-
-    return {
-      id: rawConfiguration.id ?? `custom-${Date.now()}`,
-      name: rawConfiguration.name ?? 'Configuration',
-      isPreset: rawConfiguration.isPreset ?? false,
-      buildingLevels: this.buildingDefinitions.reduce(
-        (accumulator, building) => {
-          const rawLevel = Number(rawBuildingLevels[building.id] ?? 0);
-          const normalizedLevel = Number.isFinite(rawLevel) ? rawLevel : 0;
-
-          accumulator[building.id] = Math.min(
-            Math.max(Math.round(normalizedLevel), 0),
-            building.maxLevel,
-          );
-
-          return accumulator;
-        },
-        {} as Record<string, number>,
-      ),
-      modifiers: {
-        plowResearched: Boolean(rawModifiers?.['plowResearched']),
-        aphroditeActive: Boolean(rawModifiers?.['aphroditeActive']),
-      },
-      specialBuildings: {
-        slot1: this.isAllowedSpecialBuildingOption('slot1', migratedSlot1)
-          ? migratedSlot1
-          : 'none',
-        slot2: this.isAllowedSpecialBuildingOption('slot2', migratedSlot2)
-          ? migratedSlot2
-          : 'none',
-      },
-    };
-  }
-
-  private isAllowedSpecialBuildingOption(
-    slotId: CitySpecialBuildingSlotId,
-    optionId: CitySpecialBuildingOptionId,
-  ): boolean {
-    const slotDefinition = this.specialBuildingSlotDefinitions.find((slot) => slot.id === slotId);
-
-    return Boolean(slotDefinition?.optionIds.includes(optionId));
-  }
-
-  private loadConfigurations(): CityConfiguration[] {
-    const storedConfigurations = localStorage.getItem(this.storageKey);
-
-    if (!storedConfigurations) {
-      return structuredClone(cityConfigurationPresets);
-    }
-
-    try {
-      const parsedConfigurations = JSON.parse(storedConfigurations) as Partial<CityConfiguration>[];
-
-      if (!Array.isArray(parsedConfigurations) || parsedConfigurations.length === 0) {
-        return structuredClone(cityConfigurationPresets);
-      }
-
-      return parsedConfigurations.map((configuration) =>
-        this.createNormalizedConfiguration(configuration),
-      );
-    } catch {
-      return structuredClone(cityConfigurationPresets);
-    }
   }
 }

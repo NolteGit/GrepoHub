@@ -1,13 +1,13 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
-import { troopConfigurationPresets } from '../../data/troops-planner-presets';
 import { TroopConfiguration, TroopModifierId } from '../../models/troop-configuration.model';
 import { AttackType, Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
+import { PlanConfigService } from '../../services/plan-config.service';
 
 @Component({
   selector: 'app-troops-planner',
@@ -17,24 +17,17 @@ import { GameDataService } from '../../services/game-data.service';
 })
 export class TroopsPlanner {
   private readonly gameDataService = inject(GameDataService);
-  private readonly storageKey = 'grepo-hub-troop-configurations';
-  private readonly fallbackConfiguration = structuredClone(troopConfigurationPresets[0]);
+  private readonly planConfigService = inject(PlanConfigService);
 
   protected readonly units = toSignal(this.gameDataService.getUnitDefinitions(), {
     initialValue: [] as Unit[],
   });
 
-  protected readonly configurations = signal<TroopConfiguration[]>(this.loadConfigurations());
-  protected readonly selectedConfigurationId = signal(this.configurations()[0]?.id ?? '');
+  protected readonly configurations = computed(() => this.planConfigService.plans());
+  protected readonly selectedConfigurationId = this.planConfigService.activePlanId;
 
   protected readonly selectedConfiguration = computed<TroopConfiguration>(() => {
-    return (
-      this.configurations().find(
-        (configuration) => configuration.id === this.selectedConfigurationId(),
-      ) ??
-      this.configurations()[0] ??
-      this.fallbackConfiguration
-    );
+    return this.planConfigService.activePlan().troopPlan;
   });
 
   protected readonly visibleUnits = computed(() => {
@@ -92,15 +85,13 @@ export class TroopsPlanner {
         seaPopulation:
           sum.seaPopulation +
           (entry.unit.type === 'sea' ? entry.unit.cost.population * entry.amount : 0),
-        transportCapacity:
-          sum.transportCapacity + entry.unit.transportCapacity * entry.amount,
+        transportCapacity: sum.transportCapacity + entry.unit.transportCapacity * entry.amount,
         transportSpace: sum.transportSpace + entry.unit.transportSpace * entry.amount,
         attack: sum.attack + entry.unit.attack * entry.amount,
         attackSea: sum.attackSea + this.getUnitSeaAttackValue(entry.unit) * entry.amount,
         defenseBlunt: sum.defenseBlunt + entry.unit.defenseBlunt * entry.amount,
         defenseSharp: sum.defenseSharp + entry.unit.defenseSharp * entry.amount,
-        defenseDistance:
-          sum.defenseDistance + entry.unit.defenseDistance * entry.amount,
+        defenseDistance: sum.defenseDistance + entry.unit.defenseDistance * entry.amount,
         defenseSea: sum.defenseSea + entry.unit.defenseSea * entry.amount,
       }),
       {
@@ -184,50 +175,26 @@ export class TroopsPlanner {
   });
 
   protected selectConfiguration(configurationId: string): void {
-    this.selectedConfigurationId.set(configurationId);
+    this.planConfigService.selectPlan(configurationId);
   }
 
   protected saveConfigurations(): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.configurations()));
+    this.planConfigService.savePlans();
   }
 
   protected saveAsNewConfiguration(): void {
-    const currentConfiguration = this.selectedConfiguration();
-    const name = window.prompt('Configuration name', `${currentConfiguration.name} Copy`);
+    const currentPlan = this.planConfigService.activePlan();
+    const name = window.prompt('Plan name', `${currentPlan.name} Copy`);
 
     if (!name) {
       return;
     }
 
-    const newConfiguration: TroopConfiguration = {
-      ...structuredClone(currentConfiguration),
-      id: `custom-${Date.now()}`,
-      name,
-      isPreset: false,
-    };
-
-    this.configurations.update((configurations) => [...configurations, newConfiguration]);
-    this.selectedConfigurationId.set(newConfiguration.id);
-    this.saveConfigurations();
+    this.planConfigService.duplicateActivePlan(name);
   }
 
   protected resetSelectedConfiguration(): void {
-    const currentConfiguration = this.selectedConfiguration();
-    const preset = troopConfigurationPresets.find(
-      (configuration) => configuration.id === currentConfiguration.id,
-    );
-
-    if (!preset) {
-      return;
-    }
-
-    this.configurations.update((configurations) =>
-      configurations.map((configuration) =>
-        configuration.id === preset.id ? structuredClone(preset) : configuration,
-      ),
-    );
-
-    this.saveConfigurations();
+    this.planConfigService.resetActiveTroopPlan();
   }
 
   protected updateModifier(modifierId: TroopModifierId, checked: boolean): void {
@@ -399,85 +366,22 @@ export class TroopsPlanner {
   }
 
   private getUnitRecruitmentTimeValue(unit: Unit): number {
-    const recruitmentTimeMinutes = (unit as Unit & {
-      recruitmentTimeMinutes?: number | null;
-    }).recruitmentTimeMinutes;
+    const recruitmentTimeMinutes = (
+      unit as Unit & {
+        recruitmentTimeMinutes?: number | null;
+      }
+    ).recruitmentTimeMinutes;
 
-    return typeof recruitmentTimeMinutes === 'number' &&
-      Number.isFinite(recruitmentTimeMinutes)
+    return typeof recruitmentTimeMinutes === 'number' && Number.isFinite(recruitmentTimeMinutes)
       ? recruitmentTimeMinutes
       : 0;
   }
 
   private updateSelectedConfiguration(partialConfiguration: Partial<TroopConfiguration>): void {
-    const currentConfiguration = this.selectedConfiguration();
-
-    this.configurations.update((configurations) =>
-      configurations.map((configuration) =>
-        configuration.id === currentConfiguration.id
-          ? {
-              ...configuration,
-              ...partialConfiguration,
-            }
-          : configuration,
-      ),
-    );
-  }
-
-  private createNormalizedConfiguration(
-    rawConfiguration: Partial<TroopConfiguration>,
-  ): TroopConfiguration {
-    const rawUnitAmounts = rawConfiguration.unitAmounts ?? {};
-    const rawModifiers = rawConfiguration.modifiers as
-      | Partial<Record<string, boolean>>
-      | undefined;
-
-    return {
-      id: rawConfiguration.id ?? `custom-${Date.now()}`,
-      name: rawConfiguration.name ?? 'Configuration',
-      isPreset: rawConfiguration.isPreset ?? false,
-      unitAmounts: Object.entries(rawUnitAmounts).reduce(
-        (amounts, [unitId, rawAmount]) => {
-          const parsedAmount = Number(rawAmount);
-
-          amounts[unitId] = Number.isFinite(parsedAmount)
-            ? Math.max(Math.round(parsedAmount), 0)
-            : 0;
-
-          return amounts;
-        },
-        {} as Record<string, number>,
-      ),
-      modifiers: {
-        bunks: Boolean(rawModifiers?.['bunks']),
-      },
-    };
-  }
-
-  private loadConfigurations(): TroopConfiguration[] {
-    const storedConfigurations = localStorage.getItem(this.storageKey);
-
-    if (!storedConfigurations) {
-      return structuredClone(troopConfigurationPresets);
-    }
-
-    try {
-      const parsedConfigurations = JSON.parse(storedConfigurations) as Partial<TroopConfiguration>[];
-
-      if (!Array.isArray(parsedConfigurations) || parsedConfigurations.length === 0) {
-        return structuredClone(troopConfigurationPresets);
-      }
-
-      return parsedConfigurations.map((configuration) =>
-        this.createNormalizedConfiguration(configuration),
-      );
-    } catch {
-      return structuredClone(troopConfigurationPresets);
-    }
+    this.planConfigService.updateActiveTroopPlan(partialConfiguration);
   }
 
   protected isTransportShip(unit: Unit): boolean {
     return unit.id === 'transport_boat' || unit.id === 'fast_transport_ship';
   }
-
 }

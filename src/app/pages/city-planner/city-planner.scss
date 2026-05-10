@@ -295,13 +295,13 @@
 
 .city-stepper {
   display: grid;
-  grid-template-columns: 2rem 4.35rem 2rem;
+  grid-template-columns: 2.05rem 2.15rem 2rem 4.15rem 2rem;
   align-items: center;
   gap: 0.35rem;
 }
 
 .city-stepper--side {
-  grid-template-columns: 2rem 4rem 2rem;
+  grid-template-columns: 2.05rem 2.15rem 2rem 3.95rem 2rem;
 }
 
 .city-stepper__button {
@@ -332,7 +332,8 @@
   cursor: not-allowed;
 }
 
-.city-stepper input {
+.city-stepper input,
+.city-stepper__select {
   min-height: 2rem;
   width: 100%;
   border: 1px solid var(--border-soft);
@@ -345,9 +346,33 @@
   text-align: center;
 }
 
-.city-stepper input:focus {
+.city-stepper input:focus,
+.city-stepper__select:focus {
   border-color: var(--gold);
   outline: none;
+}
+
+.city-stepper__select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  padding: 0 1.45rem 0 1.45rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-primary) 50%),
+    linear-gradient(135deg, var(--text-primary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 0.95rem) 50%,
+    calc(100% - 0.75rem) 50%;
+  background-repeat: no-repeat;
+  background-size:
+    0.26rem 0.26rem,
+    0.26rem 0.26rem;
+  text-align-last: center;
+}
+
+.city-stepper__select::-ms-expand {
+  display: none;
 }
 
 .city-stepper input::-webkit-outer-spin-button,
@@ -568,4 +593,11 @@
   .city-planner-side-field strong {
     justify-self: start;
   }
+}
+
+.city-stepper__limit-button {
+  width: 2.05rem;
+  font-size: 0.56rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
 }
