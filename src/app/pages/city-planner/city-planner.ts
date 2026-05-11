@@ -16,7 +16,7 @@ import {
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { PlanConfigService } from '../../services/plan-config.service';
-import { PlanFileTransferService } from '../../services/plan-file-transfer.service';
+import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
@@ -25,20 +25,17 @@ import { AppIconComponent } from '../../shared/app-icon/app-icon';
   imports: [FormsModule, TranslatePipe, AppIconComponent],
   templateUrl: './city-planner.html',
   styleUrl: './city-planner.scss',
+  providers: [PlanImportExportUiService],
 })
 export class CityPlanner {
-  protected readonly planImportDialog = signal<{
-    readonly isError: boolean;
-    readonly detailLines: readonly string[];
-  } | null>(null);
-
   protected readonly clearPlanDialogOpen = signal(false);
-  protected readonly exportMenuOpen = signal(false);
   protected readonly configurationMenuOpen = signal(false);
 
   private readonly planConfigService = inject(PlanConfigService);
   private readonly planReadableExportService = inject(PlanReadableExportService);
-  private readonly planFileTransferService = inject(PlanFileTransferService);
+  private readonly planImportExportUiService = inject(PlanImportExportUiService);
+  protected readonly planImportDialog = this.planImportExportUiService.planImportDialog;
+  protected readonly exportMenuOpen = this.planImportExportUiService.exportMenuOpen;
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
   protected readonly activePlanName = computed(() => this.planConfigService.activePlan().name);
   protected readonly deletePlanDialogOpen = signal(false);
@@ -139,17 +136,11 @@ export class CityPlanner {
   }
 
   protected toggleExportMenu(): void {
-    const shouldOpen = !this.exportMenuOpen();
-
-    this.exportMenuOpen.set(shouldOpen);
-
-    if (shouldOpen) {
-      this.closeConfigurationMenu();
-    }
+    this.planImportExportUiService.toggleExportMenu(() => this.closeConfigurationMenu());
   }
 
   protected closeExportMenu(): void {
-    this.exportMenuOpen.set(false);
+    this.planImportExportUiService.closeExportMenu();
   }
 
   protected toggleConfigurationMenu(): void {
@@ -306,27 +297,11 @@ export class CityPlanner {
   }
 
   protected exportActivePlanAsJson(): void {
-    this.planFileTransferService.exportActivePlanAsJson();
+    this.planImportExportUiService.exportActivePlanAsJson();
   }
-  protected async importPlanFromJsonFile(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
 
-    if (!file) {
-      return;
-    }
-
-    try {
-      const result = await this.planFileTransferService.importJsonFileAsNewPlans(file);
-
-      this.showPlanImportSuccessDialog(result.plans);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not import plan file.';
-
-      this.showPlanImportErrorDialog(message);
-    } finally {
-      input.value = '';
-    }
+  protected importPlanFromJsonFile(event: Event): Promise<void> {
+    return this.planImportExportUiService.importPlanFromJsonFile(event);
   }
 
   protected deleteActivePlan(): void {
@@ -376,31 +351,7 @@ export class CityPlanner {
   }
 
   protected closePlanImportDialog(): void {
-    this.planImportDialog.set(null);
-  }
-
-  private showPlanImportSuccessDialog(
-    importedPlans: readonly {
-      readonly name: string;
-      readonly requestedName: string;
-      readonly renamed: boolean;
-    }[],
-  ): void {
-    const detailLines = importedPlans.map((plan) =>
-      plan.renamed ? plan.requestedName + ' → ' + plan.name : plan.name,
-    );
-
-    this.planImportDialog.set({
-      isError: false,
-      detailLines,
-    });
-  }
-
-  private showPlanImportErrorDialog(message: string): void {
-    this.planImportDialog.set({
-      isError: true,
-      detailLines: [message],
-    });
+    this.planImportExportUiService.closePlanImportDialog();
   }
   protected saveAsNewConfiguration(): void {
     const currentPlan = this.planConfigService.activePlan();
