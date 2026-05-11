@@ -16,17 +16,90 @@
         </select>
       </label>
 
-      <button type="button" (click)="saveConfigurations()">
+      <button
+        type="button"
+        class="troops-planner-page__configuration-button troops-planner-page__configuration-button--save"
+        [attr.aria-describedby]="'troops-planner-save-tooltip'"
+        (click)="saveConfigurations()"
+      >
         {{ 'troopsPlanner.save' | translate }}
+        <span
+          id="troops-planner-save-tooltip"
+          class="troops-planner-page__save-tooltip"
+          role="tooltip"
+        >
+          {{ 'planConfig.localStorageNotice' | translate }}
+        </span>
       </button>
 
-      <button type="button" (click)="exportActivePlanAsJson()">
-        {{ 'planConfig.exportJson' | translate }}
-      </button>
+      <div class="troops-planner-page__more-menu" (keydown.escape)="closeConfigurationMenu()">
+        <button
+          type="button"
+          class="troops-planner-page__configuration-button troops-planner-page__configuration-button--more"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="configurationMenuOpen()"
+          [attr.aria-label]="'planConfig.moreActionsAria' | translate: 'More configuration actions'"
+          (click)="toggleConfigurationMenu()"
+        >
+          {{ 'planConfig.more' | translate: 'More' }}
+          <span aria-hidden="true">▾</span>
+        </button>
 
-      <button type="button" (click)="planImportInput.click()">
-        {{ 'planConfig.importJson' | translate }}
-      </button>
+        @if (configurationMenuOpen()) {
+          <div class="troops-planner-page__more-panel" role="menu">
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeConfigurationMenu(); exportActivePlanAsJson()"
+            >
+              {{ 'planConfig.exportJson' | translate }}
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeConfigurationMenu(); planImportInput.click()"
+            >
+              {{ 'planConfig.importJson' | translate }}
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeConfigurationMenu(); saveAsNewConfiguration()"
+            >
+              {{ 'troopsPlanner.saveAsNew' | translate }}
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeConfigurationMenu(); deleteActivePlan()"
+            >
+              {{ 'planConfig.delete' | translate }}
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeConfigurationMenu(); clearActivePlan()"
+            >
+              {{ 'planConfig.clear' | translate }}
+            </button>
+
+            @if (selectedConfiguration().isPreset) {
+              <button
+                type="button"
+                role="menuitem"
+                (click)="closeConfigurationMenu(); resetSelectedConfiguration()"
+              >
+                {{ 'troopsPlanner.resetPreset' | translate }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
       <input
         #planImportInput
         type="file"
@@ -34,27 +107,6 @@
         hidden
         (change)="importPlanFromJsonFile($event)"
       />
-
-      <button type="button" (click)="deleteActivePlan()">
-        {{ 'planConfig.delete' | translate }}
-      </button>
-      <button type="button" (click)="saveAsNewConfiguration()">
-        {{ 'troopsPlanner.saveAsNew' | translate }}
-      </button>
-
-      <button type="button" (click)="clearActivePlan()">
-        {{ 'planConfig.clear' | translate }}
-      </button>
-
-      @if (selectedConfiguration().isPreset) {
-        <button type="button" (click)="resetSelectedConfiguration()">
-          {{ 'troopsPlanner.resetPreset' | translate }}
-        </button>
-      }
-
-      <p class="troops-planner-page__storage-note">
-        {{ 'planConfig.localStorageNotice' | translate }}
-      </p>
     </div>
   </header>
 

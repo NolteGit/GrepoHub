@@ -11,6 +11,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  min-height: 10rem;
   gap: clamp(1rem, 2vw, 2rem);
   padding: clamp(1rem, 1.5vw, 1.25rem);
 
@@ -86,6 +87,7 @@
 @media (max-width: 1320px) {
   .toolbox-hero {
     grid-template-columns: 1fr;
+    min-height: unset;
     gap: 1rem;
   }
 

@@ -30,6 +30,7 @@ export class CityPlanner {
   } | null>(null);
 
   protected readonly clearPlanDialogOpen = signal(false);
+  protected readonly configurationMenuOpen = signal(false);
 
   private readonly planConfigService = inject(PlanConfigService);
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
@@ -127,6 +128,14 @@ export class CityPlanner {
 
   protected selectConfiguration(configurationId: string): void {
     this.planConfigService.selectPlan(configurationId);
+  }
+
+  protected toggleConfigurationMenu(): void {
+    this.configurationMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  protected closeConfigurationMenu(): void {
+    this.configurationMenuOpen.set(false);
   }
 
   protected updateBuildingLevel(buildingId: string, value: string | number): void {

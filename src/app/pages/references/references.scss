@@ -12,6 +12,9 @@
 }
 
 .references-hero {
+  display: grid;
+  align-items: center;
+  min-height: 10rem;
   padding: clamp(1rem, 1.5vw, 1.25rem);
 }
 
@@ -624,6 +627,10 @@
 }
 
 @media (max-width: 1180px) {
+  .references-hero {
+    min-height: unset;
+  }
+
   .references-hero__content {
     grid-template-columns: 1fr;
     gap: 1rem;

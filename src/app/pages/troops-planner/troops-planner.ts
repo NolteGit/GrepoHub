@@ -24,6 +24,7 @@ export class TroopsPlanner {
   } | null>(null);
 
   protected readonly clearPlanDialogOpen = signal(false);
+  protected readonly configurationMenuOpen = signal(false);
 
   private readonly maxUnitAmount = 2500;
   private readonly unitAmountOptions: readonly number[] = [
@@ -216,6 +217,14 @@ export class TroopsPlanner {
 
   protected selectConfiguration(configurationId: string): void {
     this.planConfigService.selectPlan(configurationId);
+  }
+
+  protected toggleConfigurationMenu(): void {
+    this.configurationMenuOpen.update((isOpen) => !isOpen);
+  }
+
+  protected closeConfigurationMenu(): void {
+    this.configurationMenuOpen.set(false);
   }
 
   protected saveConfigurations(): void {
