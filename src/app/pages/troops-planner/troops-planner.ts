@@ -546,7 +546,9 @@ export class TroopsPlanner {
 
   protected toggleUnitAmountOptions(unitId: string): void {
     this.clearUnitAmountOptionsCloseTimer();
-    this.openUnitAmountOptionsId.update((activeUnitId) => (activeUnitId === unitId ? null : unitId));
+    this.openUnitAmountOptionsId.update((activeUnitId) =>
+      activeUnitId === unitId ? null : unitId,
+    );
   }
 
   protected closeUnitAmountOptions(): void {
@@ -556,7 +558,10 @@ export class TroopsPlanner {
 
   protected closeUnitAmountOptionsSoon(): void {
     this.clearUnitAmountOptionsCloseTimer();
-    this.unitAmountOptionsCloseTimer = setTimeout(() => this.openUnitAmountOptionsId.set(null), 120);
+    this.unitAmountOptionsCloseTimer = setTimeout(
+      () => this.openUnitAmountOptionsId.set(null),
+      120,
+    );
   }
 
   protected selectUnitAmountOption(unitId: string, amount: number): void {

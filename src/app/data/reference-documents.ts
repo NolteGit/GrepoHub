@@ -25,7 +25,7 @@ export type ReferenceLibraryIndexDocument = {
   sourceFormat?: 'markdown';
 };
 
-export type ReferenceDocumentLink = {
+type ReferenceDocumentLink = {
   label: string;
   url: string;
   note?: string;
