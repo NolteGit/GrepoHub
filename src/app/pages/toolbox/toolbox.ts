@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 
 import { ActiveTimerQueueComponent } from './components/active-timer-queue/active-timer-queue';
 import { BattleSimulatorComponent } from './components/battle-simulator/battle-simulator';
@@ -54,6 +54,7 @@ import {
 } from './utils/toolbox-time.util';
 import { TranslationService } from '../../services/translation.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { ToolboxTimerService } from './services/toolbox-timer.service';
 
 @Component({
   selector: 'app-toolbox',
@@ -69,9 +70,10 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   templateUrl: './toolbox.html',
   styleUrl: './toolbox.scss',
 })
-export class Toolbox implements OnDestroy {
+export class Toolbox {
   showBattleSimulator = false;
   private readonly translationService = inject(TranslationService);
+  private readonly timerService = inject(ToolboxTimerService);
   private readonly storageKey = 'grepo-hub-toolbox-dashboard-state';
   private readonly toolIds: ToolId[] = [
     'quick-calculator',
@@ -81,11 +83,6 @@ export class Toolbox implements OnDestroy {
     'countdown',
     'battle-simulator',
   ];
-  private countdownIntervalId: number | null = null;
-  private countdownDeadline = 0;
-  private stopwatchIntervalId: number | null = null;
-  private stopwatchStartedAt = 0;
-  private readonly alarmTimeoutIds = new Map<string, number>();
   private readonly timeInputDigitBuffers: Record<TimeInputMode, string> = {
     alarm: '225900',
     timer: '000500',
@@ -141,15 +138,15 @@ export class Toolbox implements OnDestroy {
     { time: '23:00:00', label: '23:00' },
   ];
   protected readonly drafts = signal<Record<ToolId, ToolDraft>>(this.loadStoredDrafts());
-  protected readonly countdownRemainingMs = signal<number | null>(null);
-  protected readonly countdownRunning = signal(false);
-  protected readonly stopwatchElapsedMs = signal(0);
-  protected readonly stopwatchRunning = signal(false);
-  protected readonly queuedCountdowns = signal<QueuedCountdown[]>([]);
-  protected readonly queuedStopwatches = signal<QueuedStopwatch[]>([]);
-  protected readonly queuedAlarms = signal<QueuedAlarm[]>([]);
-  protected readonly stopwatchTick = signal(0);
-  protected readonly freshQueueItemIds = signal<string[]>([]);
+  protected readonly countdownRemainingMs = this.timerService.countdownRemainingMs;
+  protected readonly countdownRunning = this.timerService.countdownRunning;
+  protected readonly stopwatchElapsedMs = this.timerService.stopwatchElapsedMs;
+  protected readonly stopwatchRunning = this.timerService.stopwatchRunning;
+  protected readonly queuedCountdowns = this.timerService.queuedCountdowns;
+  protected readonly queuedStopwatches = this.timerService.queuedStopwatches;
+  protected readonly queuedAlarms = this.timerService.queuedAlarms;
+  protected readonly stopwatchTick = this.timerService.stopwatchTick;
+  protected readonly freshQueueItemIds = this.timerService.freshQueueItemIds;
   protected readonly calculatorKeyboardActive = signal(false);
   protected readonly activeReminderMode = signal<ReminderMode>('timer');
 
@@ -244,12 +241,6 @@ export class Toolbox implements OnDestroy {
     ];
   });
 
-  ngOnDestroy(): void {
-    this.clearCountdownInterval();
-    this.clearStopwatchInterval();
-    this.clearAlarmTimeouts();
-  }
-
   @HostListener('document:pointerdown', ['$event'])
   protected handleDocumentPointerDown(event: PointerEvent): void {
     this.calculatorKeyboardActive.set(this.isCalculatorTarget(event.target));
@@ -330,14 +321,12 @@ export class Toolbox implements OnDestroy {
 
     if (toolId === 'countdown') {
       this.resetCountdown();
-      this.queuedCountdowns.set([]);
-      this.syncStopwatchInterval();
+      this.timerService.resetQueuedCountdowns();
     }
 
     if (toolId === 'stopwatch') {
       this.resetStopwatch();
-      this.queuedStopwatches.set([]);
-      this.syncStopwatchInterval();
+      this.timerService.resetQueuedStopwatches();
     }
 
     if (toolId === 'alarm') {
@@ -469,50 +458,20 @@ export class Toolbox implements OnDestroy {
   }
 
   protected toggleCountdown(): void {
-    if (this.countdownRunning()) {
-      this.pauseCountdown();
-      return;
-    }
-
-    this.startCountdown();
+    this.timerService.toggleCountdown(this.countdownDurationMs());
   }
 
   protected addCountdownToQueue(): void {
-    const remainingMs = this.countdownRemainingMs() ?? this.countdownDurationMs();
+    const label = this.queueLabel(
+      this.draftFor('countdown').countdownLabel,
+      this.numberedLabel('toolbox.queue.defaultTimer', this.queuedCountdowns().length + 1, 'Timer'),
+    );
 
-    if (remainingMs <= 0) {
-      return;
-    }
-
-    const id = `countdown-${Date.now()}`;
-    const running = this.countdownRunning();
-
-    this.queuedCountdowns.update((items) => [
-      ...items,
-      {
-        id,
-        label: this.queueLabel(
-          this.draftFor('countdown').countdownLabel,
-          this.numberedLabel('toolbox.queue.defaultTimer', items.length + 1, 'Timer'),
-        ),
-        remainingMs,
-        deadline: running ? Date.now() + remainingMs : 0,
-        running,
-      },
-    ]);
-
-    this.resetCountdown();
-    this.markQueueItemFresh(id);
-    this.syncStopwatchInterval();
+    this.timerService.addCountdownToQueue(this.countdownDurationMs(), label);
   }
 
   protected toggleStopwatch(): void {
-    if (this.stopwatchRunning()) {
-      this.pauseStopwatch();
-      return;
-    }
-
-    this.startStopwatch();
+    this.timerService.toggleStopwatch();
   }
 
   protected activateCalculatorKeyboard(): void {
@@ -682,168 +641,78 @@ export class Toolbox implements OnDestroy {
   }
 
   protected startCountdown(): void {
-    if (this.countdownRunning()) {
-      return;
-    }
-
-    const startingMs = this.countdownRemainingMs() || this.countdownDurationMs();
-
-    if (startingMs <= 0) {
-      return;
-    }
-
-    this.countdownDeadline = Date.now() + startingMs;
-    this.countdownRemainingMs.set(startingMs);
-    this.countdownRunning.set(true);
-    this.startCountdownInterval();
+    this.timerService.startCountdown(this.countdownDurationMs());
   }
 
   protected pauseCountdown(): void {
-    this.clearCountdownInterval();
-    this.countdownRunning.set(false);
+    this.timerService.pauseCountdown();
   }
 
   protected resetCountdown(): void {
-    this.clearCountdownInterval();
-    this.countdownRunning.set(false);
-    this.countdownRemainingMs.set(null);
+    this.timerService.resetCountdown();
   }
 
   protected startStopwatch(): void {
-    if (this.stopwatchRunning()) {
-      return;
-    }
-
-    this.stopwatchStartedAt = Date.now() - this.stopwatchElapsedMs();
-    this.stopwatchRunning.set(true);
-    this.syncStopwatchInterval();
+    this.timerService.startStopwatch();
   }
 
   protected pauseStopwatch(): void {
-    if (this.stopwatchRunning()) {
-      this.stopwatchElapsedMs.set(this.currentMainStopwatchElapsedMs());
-    }
-
-    this.stopwatchRunning.set(false);
-    this.syncStopwatchInterval();
+    this.timerService.pauseStopwatch();
   }
 
   protected resetStopwatch(): void {
-    this.stopwatchRunning.set(false);
-    this.stopwatchElapsedMs.set(0);
-    this.syncStopwatchInterval();
+    this.timerService.resetStopwatch();
   }
 
   protected addStopwatchToQueue(): void {
-    const elapsedMs = this.currentMainStopwatchElapsedMs();
+    const label = this.queueLabel(
+      this.draftFor('stopwatch').stopwatchLabel,
+      this.numberedLabel(
+        'toolbox.queue.defaultStopwatch',
+        this.queuedStopwatches().length + 1,
+        'Stopwatch',
+      ),
+    );
 
-    if (elapsedMs <= 0) {
-      return;
-    }
-
-    const id = `stopwatch-${Date.now()}`;
-    const running = this.stopwatchRunning();
-
-    this.queuedStopwatches.update((items) => [
-      ...items,
-      {
-        id,
-        label: this.queueLabel(
-          this.draftFor('stopwatch').stopwatchLabel,
-          this.numberedLabel('toolbox.queue.defaultStopwatch', items.length + 1, 'Stopwatch'),
-        ),
-        elapsedMs,
-        startedAt: Date.now(),
-        running,
-      },
-    ]);
-
-    this.stopwatchRunning.set(false);
-    this.stopwatchElapsedMs.set(0);
-    this.markQueueItemFresh(id);
-    this.syncStopwatchInterval();
+    this.timerService.addStopwatchToQueue(label);
   }
 
   protected toggleQueuedStopwatch(itemId: string): void {
-    this.queuedStopwatches.update((items) =>
-      items.map((item) => {
-        if (item.id !== itemId) {
-          return item;
-        }
-
-        return item.running
-          ? { ...item, elapsedMs: this.queuedStopwatchElapsedMs(item), running: false }
-          : { ...item, startedAt: Date.now(), running: true };
-      }),
-    );
-
-    this.syncStopwatchInterval();
+    this.timerService.toggleQueuedStopwatch(itemId);
   }
 
   protected toggleQueuedCountdown(itemId: string): void {
-    this.queuedCountdowns.update((items) =>
-      items.map((item) => {
-        if (item.id !== itemId) {
-          return item;
-        }
-
-        const remainingMs = this.queuedCountdownRemainingMs(item);
-
-        if (remainingMs <= 0) {
-          return { ...item, remainingMs: 0, running: false };
-        }
-
-        return item.running
-          ? { ...item, remainingMs, deadline: 0, running: false }
-          : { ...item, deadline: Date.now() + remainingMs, running: true };
-      }),
-    );
-
-    this.syncStopwatchInterval();
+    this.timerService.toggleQueuedCountdown(itemId);
   }
 
   protected removeActiveItem(item: ActiveTimerItem): void {
     if (item.type === 'countdown-queue') {
-      this.queuedCountdowns.update((items) =>
-        items.filter((countdown) => countdown.id !== item.id),
-      );
-      this.syncStopwatchInterval();
+      this.timerService.removeQueuedCountdown(item.id);
       return;
     }
 
     if (item.type === 'alarm') {
-      this.removeQueuedAlarm(item.id);
+      this.timerService.removeQueuedAlarm(item.id);
       return;
     }
 
-    this.queuedStopwatches.update((items) => items.filter((stopwatch) => stopwatch.id !== item.id));
-    this.syncStopwatchInterval();
+    this.timerService.removeQueuedStopwatch(item.id);
   }
 
   protected armAlarm(): void {
     const draft = this.draftFor('alarm');
-    const id = `alarm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const delaySeconds = this.alarmDelaySeconds(draft.alarmTime);
-    const alarm: QueuedAlarm = {
-      id,
-      label: this.queueLabel(
-        draft.alarmLabel,
-        this.numberedLabel('toolbox.queue.defaultAlarm', this.queuedAlarms().length + 1, 'Alarm'),
-      ),
-      time: normalizeAlarmTimeValue(draft.alarmTime),
-      deadline: Date.now() + delaySeconds * 1000,
-      running: true,
-      triggered: false,
-    };
+    const label = this.queueLabel(
+      draft.alarmLabel,
+      this.numberedLabel('toolbox.queue.defaultAlarm', this.queuedAlarms().length + 1, 'Alarm'),
+    );
+    const time = normalizeAlarmTimeValue(draft.alarmTime);
+    const deadline = Date.now() + this.alarmDelaySeconds(time) * 1000;
 
-    this.queuedAlarms.update((items) => [...items, alarm]);
-    this.scheduleQueuedAlarm(alarm);
-    this.markQueueItemFresh(id);
+    this.timerService.armAlarm(label, time, deadline);
   }
 
   protected clearAlarm(): void {
-    this.clearAlarmTimeouts();
-    this.queuedAlarms.set([]);
+    this.timerService.clearAlarm();
   }
 
   protected toggleQueueItem(item: ActiveTimerItem): void {
@@ -931,30 +800,6 @@ export class Toolbox implements OnDestroy {
     const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
     return normalizePositiveDelaySeconds(targetSeconds - nowSeconds);
-  }
-
-  private scheduleQueuedAlarm(alarm: QueuedAlarm): void {
-    this.clearAlarmTimeout(alarm.id);
-
-    const timeoutId = window.setTimeout(
-      () => {
-        this.queuedAlarms.update((items) =>
-          items.map((item) =>
-            item.id === alarm.id ? { ...item, running: false, triggered: true } : item,
-          ),
-        );
-        this.alarmTimeoutIds.delete(alarm.id);
-        this.markQueueItemFresh(alarm.id);
-      },
-      Math.max(0, alarm.deadline - Date.now()),
-    );
-
-    this.alarmTimeoutIds.set(alarm.id, timeoutId);
-  }
-
-  private removeQueuedAlarm(itemId: string): void {
-    this.clearAlarmTimeout(itemId);
-    this.queuedAlarms.update((items) => items.filter((alarm) => alarm.id !== itemId));
   }
 
   private setDraftField<T extends keyof ToolDraft>(
@@ -1089,118 +934,16 @@ export class Toolbox implements OnDestroy {
     );
   }
 
-  private startCountdownInterval(): void {
-    this.clearCountdownInterval();
-    this.countdownIntervalId = window.setInterval(() => {
-      const remainingMs = Math.max(0, this.countdownDeadline - Date.now());
-      this.countdownRemainingMs.set(remainingMs);
-
-      if (remainingMs <= 0) {
-        this.pauseCountdown();
-      }
-    }, 200);
-  }
-
-  private clearCountdownInterval(): void {
-    if (this.countdownIntervalId !== null) {
-      window.clearInterval(this.countdownIntervalId);
-      this.countdownIntervalId = null;
-    }
-  }
-
-  private syncStopwatchInterval(): void {
-    this.settleQueuedCountdowns();
-
-    const hasRunningTimer =
-      this.stopwatchRunning() ||
-      this.queuedStopwatches().some((stopwatch) => stopwatch.running) ||
-      this.queuedCountdowns().some((countdown) => countdown.running);
-
-    if (hasRunningTimer && this.stopwatchIntervalId === null) {
-      this.stopwatchIntervalId = window.setInterval(() => {
-        if (this.stopwatchRunning()) {
-          this.stopwatchElapsedMs.set(this.currentMainStopwatchElapsedMs());
-        }
-
-        this.settleQueuedCountdowns();
-        this.stopwatchTick.update((tick) => tick + 1);
-
-        const stillRunning =
-          this.stopwatchRunning() ||
-          this.queuedStopwatches().some((stopwatch) => stopwatch.running) ||
-          this.queuedCountdowns().some((countdown) => countdown.running);
-
-        if (!stillRunning) {
-          this.clearStopwatchInterval();
-        }
-      }, 33);
-    }
-
-    if (!hasRunningTimer) {
-      this.clearStopwatchInterval();
-    }
-  }
-
-  private settleQueuedCountdowns(): void {
-    const now = Date.now();
-    const runningCountdowns = this.queuedCountdowns();
-
-    if (!runningCountdowns.some((countdown) => countdown.running && countdown.deadline <= now)) {
-      return;
-    }
-
-    this.queuedCountdowns.update((items) =>
-      items.map((item) =>
-        item.running && item.deadline <= now ? { ...item, remainingMs: 0, running: false } : item,
-      ),
-    );
-  }
-
-  private clearStopwatchInterval(): void {
-    if (this.stopwatchIntervalId !== null) {
-      window.clearInterval(this.stopwatchIntervalId);
-      this.stopwatchIntervalId = null;
-    }
-  }
-
-  private clearAlarmTimeout(itemId: string): void {
-    const timeoutId = this.alarmTimeoutIds.get(itemId);
-
-    if (timeoutId === undefined) {
-      return;
-    }
-
-    window.clearTimeout(timeoutId);
-    this.alarmTimeoutIds.delete(itemId);
-  }
-
-  private clearAlarmTimeouts(): void {
-    this.alarmTimeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
-    this.alarmTimeoutIds.clear();
-  }
-
   private currentMainStopwatchElapsedMs(): number {
-    return this.stopwatchRunning()
-      ? Math.max(0, Date.now() - this.stopwatchStartedAt)
-      : this.stopwatchElapsedMs();
+    return this.timerService.currentMainStopwatchElapsedMs();
   }
 
   private queuedCountdownRemainingMs(countdown: QueuedCountdown): number {
-    return countdown.running ? Math.max(0, countdown.deadline - Date.now()) : countdown.remainingMs;
+    return this.timerService.queuedCountdownRemainingMs(countdown);
   }
 
   private queuedStopwatchElapsedMs(stopwatch: QueuedStopwatch): number {
-    return stopwatch.running
-      ? stopwatch.elapsedMs + Math.max(0, Date.now() - stopwatch.startedAt)
-      : stopwatch.elapsedMs;
-  }
-
-  private markQueueItemFresh(itemId: string): void {
-    this.freshQueueItemIds.update((ids) => (ids.includes(itemId) ? ids : [...ids, itemId]));
-
-    window.setTimeout(() => {
-      this.freshQueueItemIds.update((ids) => ids.filter((currentId) => currentId !== itemId));
-    }, 1200);
+    return this.timerService.queuedStopwatchElapsedMs(stopwatch);
   }
 
   private isCalculatorTarget(target: EventTarget | null): boolean {
@@ -1280,7 +1023,7 @@ export class Toolbox implements OnDestroy {
       return;
     }
 
-    this.stopwatchElapsedMs.set((hours * 3600 + minutes * 60 + seconds) * 1000);
+    this.timerService.setStopwatchElapsedMs((hours * 3600 + minutes * 60 + seconds) * 1000);
   }
 
   private timeInputDigitsForMode(mode: TimeInputMode): string {
