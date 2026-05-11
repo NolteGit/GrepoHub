@@ -117,7 +117,8 @@
   font-size: 0.92rem;
 }
 
-.troops-planner-page__configuration-button--more app-icon {
+.troops-planner-page__configuration-button--more app-icon:last-child,
+.troops-planner-page__configuration-button--export app-icon:last-child {
   font-size: 0.78rem;
 }
 
@@ -158,10 +159,12 @@
   visibility: visible;
 }
 
+.troops-planner-page__export-menu,
 .troops-planner-page__more-menu {
   position: relative;
 }
 
+.troops-planner-page__export-panel,
 .troops-planner-page__more-panel {
   position: absolute;
   top: calc(100% + 0.55rem);
@@ -177,6 +180,7 @@
   box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.42);
 }
 
+.troops-planner-page__export-panel button,
 .troops-planner-page__more-panel button {
   display: flex;
   align-items: center;
@@ -196,11 +200,14 @@
   text-align: left;
 }
 
+.troops-planner-page__export-panel button app-icon,
 .troops-planner-page__more-panel button app-icon {
   width: 1rem;
   font-size: 0.95rem;
 }
 
+.troops-planner-page__export-panel button:hover,
+.troops-planner-page__export-panel button:focus-visible,
 .troops-planner-page__more-panel button:hover,
 .troops-planner-page__more-panel button:focus-visible {
   background: rgba(255, 214, 10, 0.14);
@@ -899,6 +906,7 @@
   .troops-planner-page__select-wrapper,
   .troops-planner-page__configuration-select select,
   .troops-planner-page__configuration-button,
+  .troops-planner-page__export-menu,
   .troops-planner-page__more-menu {
     width: 100%;
   }
@@ -909,6 +917,7 @@
     width: min(100%, 28rem);
   }
 
+  .troops-planner-page__export-panel,
   .troops-planner-page__more-panel {
     left: 0;
     right: 0;

@@ -37,6 +37,52 @@
         </span>
       </button>
 
+      <div class="city-planner-page__export-menu" (keydown.escape)="closeExportMenu()">
+        <button
+          type="button"
+          class="city-planner-page__configuration-button city-planner-page__configuration-button--export"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="exportMenuOpen()"
+          [attr.aria-label]="'planConfig.exportActionsAria' | translate: 'Export configuration'"
+          (click)="toggleExportMenu()"
+        >
+          <app-icon name="export" />
+          {{ 'planConfig.export' | translate: 'Export' }}
+          <app-icon name="chevron-down" />
+        </button>
+
+        @if (exportMenuOpen()) {
+          <div class="city-planner-page__export-panel" role="menu">
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeExportMenu(); exportActivePlanAsJson()"
+            >
+              <app-icon name="export" />
+              <span>{{ 'planConfig.exportJson' | translate }}</span>
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeExportMenu(); exportActivePlanAsTxt()"
+            >
+              <app-icon name="export" />
+              <span>{{ 'planConfig.exportTxt' | translate: 'Export TXT' }}</span>
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeExportMenu(); exportActivePlanAsCsv()"
+            >
+              <app-icon name="export" />
+              <span>{{ 'planConfig.exportCsv' | translate: 'Export CSV' }}</span>
+            </button>
+          </div>
+        }
+      </div>
+
       <div class="city-planner-page__more-menu" (keydown.escape)="closeConfigurationMenu()">
         <button
           type="button"
@@ -52,15 +98,6 @@
 
         @if (configurationMenuOpen()) {
           <div class="city-planner-page__more-panel" role="menu">
-            <button
-              type="button"
-              role="menuitem"
-              (click)="closeConfigurationMenu(); exportActivePlanAsJson()"
-            >
-              <app-icon name="export" />
-              <span>{{ 'planConfig.exportJson' | translate }}</span>
-            </button>
-
             <button
               type="button"
               role="menuitem"
@@ -103,7 +140,8 @@
                 role="menuitem"
                 (click)="closeConfigurationMenu(); resetSelectedConfiguration()"
               >
-                {{ 'cityPlanner.resetPreset' | translate }}
+                <app-icon name="reset" />
+                <span>{{ 'cityPlanner.resetPreset' | translate }}</span>
               </button>
             }
           </div>

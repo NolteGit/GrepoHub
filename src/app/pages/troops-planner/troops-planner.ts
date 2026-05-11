@@ -8,6 +8,7 @@ import { AttackType, Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { PlanReadableExportService } from '../../services/plan-readable-export.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 type TroopUnitSectionId = 'land' | 'sea' | 'mythical';
@@ -25,6 +26,7 @@ export class TroopsPlanner {
   } | null>(null);
 
   protected readonly clearPlanDialogOpen = signal(false);
+  protected readonly exportMenuOpen = signal(false);
   protected readonly configurationMenuOpen = signal(false);
 
   private readonly maxUnitAmount = 2500;
@@ -42,6 +44,7 @@ export class TroopsPlanner {
 
   private readonly gameDataService = inject(GameDataService);
   private readonly planConfigService = inject(PlanConfigService);
+  private readonly planReadableExportService = inject(PlanReadableExportService);
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
   protected readonly activePlanName = computed(() => this.planConfigService.activePlan().name);
   protected readonly deletePlanDialogOpen = signal(false);
@@ -218,10 +221,32 @@ export class TroopsPlanner {
 
   protected selectConfiguration(configurationId: string): void {
     this.planConfigService.selectPlan(configurationId);
+    this.closeExportMenu();
+    this.closeConfigurationMenu();
+  }
+
+  protected toggleExportMenu(): void {
+    const shouldOpen = !this.exportMenuOpen();
+
+    this.exportMenuOpen.set(shouldOpen);
+
+    if (shouldOpen) {
+      this.closeConfigurationMenu();
+    }
+  }
+
+  protected closeExportMenu(): void {
+    this.exportMenuOpen.set(false);
   }
 
   protected toggleConfigurationMenu(): void {
-    this.configurationMenuOpen.update((isOpen) => !isOpen);
+    const shouldOpen = !this.configurationMenuOpen();
+
+    this.configurationMenuOpen.set(shouldOpen);
+
+    if (shouldOpen) {
+      this.closeExportMenu();
+    }
   }
 
   protected closeConfigurationMenu(): void {
@@ -231,6 +256,14 @@ export class TroopsPlanner {
   protected saveConfigurations(): void {
     this.planConfigService.savePlans();
   }
+  protected exportActivePlanAsTxt(): void {
+    this.planReadableExportService.exportActivePlanAsTxt();
+  }
+
+  protected exportActivePlanAsCsv(): void {
+    this.planReadableExportService.exportActivePlanAsCsv();
+  }
+
   protected exportActivePlanAsJson(): void {
     const exportedAt = new Date().toISOString();
     const exportIdSuffix = exportedAt.replace(/\D/g, '').slice(0, 14);

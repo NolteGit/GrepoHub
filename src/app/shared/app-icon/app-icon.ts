@@ -11,7 +11,8 @@ export type AppIconName =
   | 'import'
   | 'duplicate'
   | 'delete'
-  | 'clear';
+  | 'clear'
+  | 'reset';
 
 @Component({
   selector: 'app-icon',
