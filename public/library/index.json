@@ -13,7 +13,7 @@
     "date": "April 2026",
     "language": "de",
     "locked": true,
-    "password": "palette",
+    "password": "StrategieAufPalette_99SeitenPDF!",
     "estimatedPages": 29,
     "sourceFormat": "markdown"
   },
@@ -30,22 +30,6 @@
     "locked": true,
     "password": "fetisch",
     "estimatedPages": 4,
-    "sourceFormat": "markdown"
-  },
-  {
-    "id": "gunst-kaserne-ww-guide",
-    "title": "Gunst in der Kaserne einlagern",
-    "description": "Ein kompakter WW-Guide zum Einlagern von Katapulten und Gottesgesandten in der Kaserne.",
-    "abstract": "Dieser Guide erklärt, wie Gunststädte vorbereitet werden, welche Katapult- und GG-Stacks sinnvoll sind und wie Buffs, Demokrit und AF-Calls während der WW-Phase koordiniert werden.",
-    "file": "documents/gunst-kaserne-ww-guide.md",
-    "tags": [
-      "advanced"
-    ],
-    "author": "Llyph",
-    "date": "September 2025",
-    "language": "de",
-    "locked": false,
-    "estimatedPages": 3,
     "sourceFormat": "markdown"
   },
   {
