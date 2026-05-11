@@ -427,5 +427,12 @@
   "toolbox.battle.versus": "VS",
   "toolbox.battle.defender": "Defender",
   "toolbox.battle.workspaceTitle": "Battle simulator workspace",
-  "toolbox.battle.workspaceDescription": "This lower area is reserved for the full troop table, modifiers, presets, and result comparison."
+  "toolbox.battle.workspaceDescription": "This lower area is reserved for the full troop table, modifiers, presets, and result comparison.",
+  "references.locked": "Access code",
+  "references.accessCode.title": "Access code required",
+  "references.accessCode.description": "Enter the access code to open",
+  "references.accessCode.staticHint": "This is a light access gate for the static app, not strong protection for private content.",
+  "references.accessCode.label": "Access code",
+  "references.accessCode.wrong": "Wrong access code.",
+  "references.accessCode.unlock": "Open document"
 }

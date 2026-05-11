@@ -20,7 +20,7 @@ export type ReferenceLibraryIndexDocument = {
   date?: string;
   language?: string;
   locked?: boolean;
-  password?: string;
+  accessCode?: string;
   estimatedPages?: number;
   sourceFormat?: 'markdown';
 };
@@ -50,12 +50,14 @@ export type ReferenceDocument = {
   title: string;
   description: string;
   abstract: string;
+  file: string;
   author?: string;
   date?: string;
   language?: string;
   tags: ReferenceDocumentTag[];
   locked?: boolean;
-  password?: string;
+  accessCode?: string;
+  contentLoaded?: boolean;
   sections: ReferenceDocumentSection[];
 };
 

@@ -427,5 +427,12 @@
   "toolbox.battle.versus": "VS",
   "toolbox.battle.defender": "Verteidiger",
   "toolbox.battle.workspaceTitle": "Arbeitsbereich des Kampfsimulators",
-  "toolbox.battle.workspaceDescription": "Der untere Bereich ist für die vollständige Truppentabelle, Modifikatoren, Vorlagen und Ergebnisvergleiche reserviert."
+  "toolbox.battle.workspaceDescription": "Der untere Bereich ist für die vollständige Truppentabelle, Modifikatoren, Vorlagen und Ergebnisvergleiche reserviert.",
+  "references.locked": "Zugangscode",
+  "references.accessCode.title": "Zugangscode erforderlich",
+  "references.accessCode.description": "Gib den Zugangscode ein, um dieses Dokument zu öffnen",
+  "references.accessCode.staticHint": "Dies ist nur eine leichte Zugriffssperre innerhalb der statischen App, kein starker Schutz für private Inhalte.",
+  "references.accessCode.label": "Zugangscode",
+  "references.accessCode.wrong": "Falscher Zugangscode.",
+  "references.accessCode.unlock": "Dokument öffnen"
 }

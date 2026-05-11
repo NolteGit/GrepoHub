@@ -36,9 +36,9 @@ export class References implements OnInit {
   protected readonly selectedSectionId = signal<string | null>(null);
   protected readonly expandedSectionIds = signal<ReadonlySet<string>>(new Set());
   protected readonly unlockedDocumentIds = signal<ReadonlySet<string>>(new Set());
-  protected readonly passwordDialogDocumentId = signal<string | null>(null);
-  protected readonly passwordInput = signal('');
-  protected readonly passwordError = signal('');
+  protected readonly accessCodeDialogDocumentId = signal<string | null>(null);
+  protected readonly accessCodeInput = signal('');
+  protected readonly accessCodeError = signal('');
 
   protected readonly tagFilters: {
     labelKey: string;
@@ -86,8 +86,8 @@ export class References implements OnInit {
 
   protected readonly isLibraryMode = computed(() => this.selectedDocument() === null);
 
-  protected readonly passwordDialogDocument = computed(() => {
-    const documentId = this.passwordDialogDocumentId();
+  protected readonly accessCodeDialogDocument = computed(() => {
+    const documentId = this.accessCodeDialogDocumentId();
 
     if (!documentId) {
       return null;
@@ -111,8 +111,8 @@ export class References implements OnInit {
   }
 
   protected requestDocument(document: ReferenceDocument): void {
-    if (this.requiresPassword(document)) {
-      this.openPasswordDialog(document);
+    if (this.requiresAccessCode(document)) {
+      this.openAccessCodeDialog(document);
       return;
     }
 
@@ -128,46 +128,43 @@ export class References implements OnInit {
     this.scrollDocumentReaderToTop();
   }
 
-  protected updatePasswordInput(event: Event): void {
-    this.passwordInput.set((event.target as HTMLInputElement).value);
+  protected updateAccessCodeInput(event: Event): void {
+    this.accessCodeInput.set((event.target as HTMLInputElement).value);
 
-    if (this.passwordError()) {
-      this.passwordError.set('');
+    if (this.accessCodeError()) {
+      this.accessCodeError.set('');
     }
   }
 
-  protected closePasswordDialog(): void {
-    this.passwordDialogDocumentId.set(null);
-    this.passwordInput.set('');
-    this.passwordError.set('');
+  protected closeAccessCodeDialog(): void {
+    this.accessCodeDialogDocumentId.set(null);
+    this.accessCodeInput.set('');
+    this.accessCodeError.set('');
   }
 
-  protected submitPassword(event: Event): void {
+  protected submitAccessCode(event: Event): void {
     event.preventDefault();
 
-    const document = this.passwordDialogDocument();
+    const document = this.accessCodeDialogDocument();
 
     if (!document) {
-      this.closePasswordDialog();
+      this.closeAccessCodeDialog();
       return;
     }
 
-    if (this.passwordInput() !== document.password) {
-      this.passwordError.set('Wrong password.');
+    if (this.accessCodeInput() !== document.accessCode) {
+      this.accessCodeError.set(
+        this.translationService.translate('references.accessCode.wrong', 'Wrong access code.'),
+      );
       return;
     }
 
-    const unlockedDocumentIds = new Set(this.unlockedDocumentIds());
-
-    unlockedDocumentIds.add(document.id);
-    this.unlockedDocumentIds.set(unlockedDocumentIds);
-    this.closePasswordDialog();
-    this.selectDocument(document);
+    this.unlockDocument(document);
   }
 
   protected selectSection(document: ReferenceDocument, sectionId: string): void {
-    if (this.requiresPassword(document)) {
-      this.openPasswordDialog(document);
+    if (this.requiresAccessCode(document)) {
+      this.openAccessCodeDialog(document);
       return;
     }
 
@@ -222,7 +219,7 @@ export class References implements OnInit {
   }
 
   protected isDocumentUnlocked(document: ReferenceDocument): boolean {
-    return !this.requiresPassword(document);
+    return !this.requiresAccessCode(document);
   }
 
   protected sectionTitle(document: ReferenceDocument, sectionId: string, fallback: string): string {
@@ -365,14 +362,14 @@ export class References implements OnInit {
     );
   }
 
-  private requiresPassword(document: ReferenceDocument): boolean {
+  private requiresAccessCode(document: ReferenceDocument): boolean {
     return Boolean(document.locked && !this.unlockedDocumentIds().has(document.id));
   }
 
-  private openPasswordDialog(document: ReferenceDocument): void {
-    this.passwordDialogDocumentId.set(document.id);
-    this.passwordInput.set('');
-    this.passwordError.set('');
+  private openAccessCodeDialog(document: ReferenceDocument): void {
+    this.accessCodeDialogDocumentId.set(document.id);
+    this.accessCodeInput.set('');
+    this.accessCodeError.set('');
   }
 
   protected scrollToDocumentTop(): void {
@@ -409,10 +406,7 @@ export class References implements OnInit {
 
           return forkJoin(
             entries.map((entry) =>
-              this.http.get(`library/${entry.file}`, { responseType: 'text' }).pipe(
-                map((content) => this.parseMarkdownDocument(entry, content)),
-                catchError(() => of(this.createEmptyDocument(entry))),
-              ),
+              entry.locked ? of(this.createLockedDocument(entry)) : this.loadDocument(entry),
             ),
           );
         }),
@@ -428,6 +422,51 @@ export class References implements OnInit {
           this.libraryStatus.set('ready');
         }
       });
+  }
+
+  private loadDocument(entry: ReferenceLibraryIndexDocument) {
+    return this.http.get(`library/${entry.file}`, { responseType: 'text' }).pipe(
+      map((content) => this.parseMarkdownDocument(entry, content)),
+      catchError(() => of(this.createEmptyDocument(entry))),
+    );
+  }
+
+  private unlockDocument(document: ReferenceDocument): void {
+    const unlockedDocumentIds = new Set(this.unlockedDocumentIds());
+
+    unlockedDocumentIds.add(document.id);
+    this.unlockedDocumentIds.set(unlockedDocumentIds);
+    this.closeAccessCodeDialog();
+
+    if (document.contentLoaded) {
+      this.selectDocument(document);
+      return;
+    }
+
+    this.loadDocument(this.toIndexDocument(document)).subscribe((loadedDocument) => {
+      this.documents.update((documents) =>
+        documents.map((currentDocument) =>
+          currentDocument.id === loadedDocument.id ? loadedDocument : currentDocument,
+        ),
+      );
+      this.selectDocument(loadedDocument);
+    });
+  }
+
+  private toIndexDocument(document: ReferenceDocument): ReferenceLibraryIndexDocument {
+    return {
+      id: document.id,
+      title: document.title,
+      description: document.description,
+      abstract: document.abstract,
+      file: document.file,
+      tags: document.tags,
+      author: document.author,
+      date: document.date,
+      language: document.language,
+      locked: document.locked,
+      accessCode: document.accessCode,
+    };
   }
 
   private parseMarkdownDocument(
@@ -525,12 +564,14 @@ export class References implements OnInit {
       title: entry.title,
       description: entry.description,
       abstract: entry.abstract,
+      file: entry.file,
       author: entry.author,
       date: entry.date,
       language: entry.language,
       tags: entry.tags,
       locked: entry.locked,
-      password: entry.password,
+      accessCode: entry.accessCode,
+      contentLoaded: true,
       sections:
         sections.length > 0
           ? sections.map((section) => this.withSummary(section))
@@ -565,18 +606,38 @@ export class References implements OnInit {
     };
   }
 
+  private createLockedDocument(entry: ReferenceLibraryIndexDocument): ReferenceDocument {
+    return {
+      id: entry.id,
+      title: entry.title,
+      description: entry.description,
+      abstract: entry.abstract,
+      file: entry.file,
+      author: entry.author,
+      date: entry.date,
+      language: entry.language,
+      tags: entry.tags,
+      locked: entry.locked,
+      accessCode: entry.accessCode,
+      contentLoaded: false,
+      sections: [],
+    };
+  }
+
   private createEmptyDocument(entry: ReferenceLibraryIndexDocument): ReferenceDocument {
     return {
       id: entry.id,
       title: entry.title,
       description: entry.description,
       abstract: entry.abstract,
+      file: entry.file,
       author: entry.author,
       date: entry.date,
       language: entry.language,
       tags: entry.tags,
       locked: entry.locked,
-      password: entry.password,
+      accessCode: entry.accessCode,
+      contentLoaded: true,
       sections: [this.createEmptySection()],
     };
   }

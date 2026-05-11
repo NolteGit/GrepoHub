@@ -13,7 +13,7 @@
     "date": "April 2026",
     "language": "de",
     "locked": true,
-    "password": "StrategieAufPalette_99SeitenPDF!",
+    "accessCode": "StrategieAufPalette_99SeitenPDF!",
     "estimatedPages": 29,
     "sourceFormat": "markdown"
   },
@@ -27,8 +27,7 @@
     "author": "Noltenius",
     "date": "May 2026",
     "language": "en",
-    "locked": true,
-    "password": "fetisch",
+    "locked": false,
     "estimatedPages": 4,
     "sourceFormat": "markdown"
   },

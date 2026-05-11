@@ -12,7 +12,7 @@
             class="hero-quick-link"
             [href]="quickLinkUrl(link)"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             [title]="link.title"
             [attr.data-tooltip]="link.title"
             [attr.aria-label]="link.title"
@@ -142,7 +142,7 @@
                       <span>{{ tagLabel(tag) }}</span>
                     }
                     @if (document.locked) {
-                      <span>{{ 'references.locked' | translate: 'Protected' }}</span>
+                      <span>{{ 'references.locked' | translate: 'Access code' }}</span>
                     }
                   </span>
                 }
@@ -205,7 +205,7 @@
                       <span>{{ tagLabel(tag) }}</span>
                     }
                     @if (document.locked) {
-                      <span>{{ 'references.locked' | translate: 'Protected' }}</span>
+                      <span>{{ 'references.locked' | translate: 'Access code' }}</span>
                     }
                   </div>
                 }
@@ -280,7 +280,7 @@
                     } @else if (block.type === 'link-list') {
                       <div class="document-link-list">
                         @for (link of block.links; track link.url; let linkIndex = $index) {
-                          <a [href]="link.url" target="_blank" rel="noreferrer">
+                          <a [href]="link.url" target="_blank" rel="noopener noreferrer">
                             <strong>{{
                               linkLabel(document, section.id, blockIndex, linkIndex, link.label)
                             }}</strong>
@@ -307,45 +307,52 @@
     </article>
   </section>
 
-  @if (passwordDialogDocument(); as document) {
-    <div class="library-password-backdrop" role="presentation" (click)="closePasswordDialog()">
+  @if (accessCodeDialogDocument(); as document) {
+    <div class="library-password-backdrop" role="presentation" (click)="closeAccessCodeDialog()">
       <section
         class="library-password-dialog"
         role="dialog"
         aria-modal="true"
-        [attr.aria-label]="'references.password.title' | translate: 'Protected document'"
+        [attr.aria-label]="'references.accessCode.title' | translate: 'Access code required'"
         (click)="$event.stopPropagation()"
       >
         <div class="library-password-dialog__icon">!</div>
         <div class="library-password-dialog__body">
-          <h2>{{ 'references.password.title' | translate: 'Protected document' }}</h2>
+          <h2>{{ 'references.accessCode.title' | translate: 'Access code required' }}</h2>
           <p>
-            {{ 'references.password.description' | translate: 'Enter the password to open' }}
+            {{ 'references.accessCode.description' | translate: 'Enter the access code to open' }}
             <strong>{{ documentTitle(document) }}</strong
             >.
           </p>
+          <p>
+            {{
+              'references.accessCode.staticHint'
+                | translate
+                  : 'This is a light access gate for the static app, not strong protection for private content.'
+            }}
+          </p>
         </div>
 
-        <form class="library-password-dialog__form" (submit)="submitPassword($event)">
+        <form class="library-password-dialog__form" (submit)="submitAccessCode($event)">
           <label>
-            <span>{{ 'references.password.label' | translate: 'Password' }}</span>
+            <span>{{ 'references.accessCode.label' | translate: 'Access code' }}</span>
             <input
               type="password"
-              autocomplete="current-password"
-              [value]="passwordInput()"
-              (input)="updatePasswordInput($event)"
+              autocomplete="off"
+              [value]="accessCodeInput()"
+              (input)="updateAccessCodeInput($event)"
             />
           </label>
 
-          @if (passwordError()) {
-            <p class="library-password-dialog__error">{{ passwordError() }}</p>
+          @if (accessCodeError()) {
+            <p class="library-password-dialog__error">{{ accessCodeError() }}</p>
           }
 
           <div class="library-password-dialog__actions">
             <button
               type="button"
               class="library-password-dialog__button"
-              (click)="closePasswordDialog()"
+              (click)="closeAccessCodeDialog()"
             >
               {{ 'common.cancel' | translate: 'Cancel' }}
             </button>
@@ -353,7 +360,7 @@
               type="submit"
               class="library-password-dialog__button library-password-dialog__button--primary"
             >
-              {{ 'references.password.unlock' | translate: 'Unlock' }}
+              {{ 'references.accessCode.unlock' | translate: 'Open document' }}
             </button>
           </div>
         </form>

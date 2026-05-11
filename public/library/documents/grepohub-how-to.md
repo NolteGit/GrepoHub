@@ -40,7 +40,7 @@ Use the search field to find documents by title, description, tag, or content. U
 
 When reading a document, use the sidebar as a table of contents. Section headers in the document can be collapsed, which makes longer guides easier to skim.
 
-Some documents can be password protected. A protected document is only meant as a light access control inside the app. Do not treat it as strong security unless the content is encrypted separately.
+Some documents can be access-code gated. This is only a light access gate inside the static app. Do not treat it as strong security for private content unless the content is encrypted separately or served behind real authentication.
 
 ## Toolbox
 
