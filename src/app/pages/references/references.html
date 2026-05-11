@@ -24,10 +24,10 @@
     </div>
   </header>
 
-  <section class="knowledge-browser">
-    <aside class="resource-sidebar" [attr.aria-label]="'references.navigationAria' | translate">
-      <div class="resource-sidebar__controls">
-        <label class="resource-search">
+  <section class="document-library">
+    <aside class="library-sidebar" [attr.aria-label]="'references.navigationAria' | translate">
+      <div class="library-sidebar__controls">
+        <label class="library-search">
           <span>{{ 'references.search.label' | translate }}</span>
           <input
             type="search"
@@ -37,200 +37,327 @@
           />
         </label>
 
-        <div class="type-filters" [attr.aria-label]="'references.typeFiltersAria' | translate">
-          @for (filter of typeFilters; track filter.value) {
+        <div class="tag-filters" [attr.aria-label]="'references.tagFiltersAria' | translate">
+          @for (filter of tagFilters; track filter.value) {
             <button
               type="button"
-              [class.active]="selectedType() === filter.value"
-              (click)="selectType(filter.value)"
+              [class.active]="selectedTag() === filter.value"
+              (click)="selectTag(filter.value)"
             >
-              {{ filter.labelKey | translate }}
+              {{ filter.labelKey | translate: filter.fallback }}
             </button>
           }
         </div>
       </div>
 
-      <nav class="resource-list">
-        @for (resource of filteredResources(); track resource.id) {
-          <article class="resource-nav-card" [class.active]="isSelectedResource(resource)">
-            <button
-              type="button"
-              class="resource-nav-card__trigger"
-              (click)="selectResource(resource)"
-            >
-              <strong>{{ resourceTitle(resource) }}</strong>
-              <span class="resource-nav-card__meta">
-                {{ resourceCategory(resource) }} · {{ typeLabelKey(resource.type) | translate }}
-              </span>
-            </button>
+      @if (!isLibraryMode()) {
+        <button type="button" class="library-back-button" (click)="showLibrary()">
+          {{ 'references.backToLibrary' | translate: 'Back to library' }}
+        </button>
+      }
 
-            @if (isSelectedResource(resource) && resource.sections.length > 0) {
-              <div class="resource-nav-card__sections">
-                @for (section of resource.sections; track section.id) {
-                  <button
-                    type="button"
-                    [class.active]="isSelectedSection(resource, section.id)"
-                    (click)="selectSection(resource, section.id)"
-                  >
-                    {{ sectionTitle(resource, section.id, section.title) }}
-                  </button>
-                }
-              </div>
-            }
-          </article>
-        } @empty {
-          <p class="resource-list__empty">{{ 'references.empty' | translate }}</p>
+      <nav class="library-index">
+        <p class="library-index__title">
+          {{ 'references.documentsLabel' | translate: 'Documents' }}
+        </p>
+
+        @if (libraryStatus() === 'loading') {
+          <p class="library-index__empty">
+            {{ 'references.loading' | translate: 'Loading library...' }}
+          </p>
+        } @else if (libraryStatus() === 'error') {
+          <p class="library-index__empty">
+            {{ 'references.loadError' | translate: 'Library documents could not be loaded.' }}
+          </p>
+        } @else {
+          @for (document of filteredDocuments(); track document.id) {
+            <article class="library-index-card" [class.active]="isSelectedDocument(document)">
+              <button
+                type="button"
+                class="library-index-card__trigger"
+                (click)="requestDocument(document)"
+              >
+                <strong>{{ documentTitle(document) }}</strong>
+              </button>
+
+              @if (isSelectedDocument(document) && document.sections.length > 0) {
+                <div class="library-index-card__sections">
+                  <p>{{ 'references.contents' | translate: 'Contents' }}</p>
+                  @for (section of document.sections; track section.id) {
+                    <button
+                      type="button"
+                      [class.active]="isSelectedSection(document, section.id)"
+                      (click)="selectSection(document, section.id)"
+                    >
+                      {{ sectionTitle(document, section.id, section.title) }}
+                    </button>
+                  }
+                </div>
+              }
+            </article>
+          } @empty {
+            <p class="library-index__empty">{{ 'references.empty' | translate }}</p>
+          }
         }
       </nav>
     </aside>
 
-    <article class="reading-pane">
-      @if (isOverviewMode()) {
-        <section
-          class="overview-tile-grid overview-tile-grid--landing"
-          [attr.aria-label]="'references.coreSectionsAria' | translate"
-        >
-          @for (resource of filteredResources(); track resource.id) {
-            <button type="button" class="overview-tile" (click)="selectResource(resource)">
-              <div class="overview-tile__content">
-                <p class="overview-tile__meta">
-                  {{ resourceCategory(resource) }} · {{ typeLabelKey(resource.type) | translate }}
-                </p>
-                <h3>{{ resourceTitle(resource) }}</h3>
-                <p class="overview-tile__description">{{ resourceDescription(resource) }}</p>
-              </div>
-            </button>
-          } @empty {
-            <p class="resource-list__empty">{{ 'references.empty' | translate }}</p>
-          }
-        </section>
-      } @else {
-        @if (selectedResource(); as resource) {
-          @let section = selectedSection();
-
-          <header class="reading-pane__header">
-            <div class="reading-pane__header-main">
-              <div>
-                <p class="reading-pane__type">
-                  {{ resourceCategory(resource) }} · {{ typeLabelKey(resource.type) | translate }}
-                </p>
-                <h2>{{ resourceTitle(resource) }}</h2>
-                <p>{{ resourceDescription(resource) }}</p>
-              </div>
-
-              <div class="reading-pane__tags" [attr.aria-label]="'references.tagsAria' | translate">
-                @for (tag of resource.tags; track tag) {
-                  <span>{{ resourceTag(resource, tag) }}</span>
+    <article class="library-main">
+      @if (isLibraryMode()) {
+        @if (libraryStatus() === 'loading') {
+          <p class="document-grid__empty">
+            {{ 'references.loading' | translate: 'Loading library...' }}
+          </p>
+        } @else if (libraryStatus() === 'error') {
+          <p class="document-grid__empty">
+            {{ 'references.loadError' | translate: 'Library documents could not be loaded.' }}
+          </p>
+        } @else {
+          <section
+            class="document-grid"
+            [attr.aria-label]="'references.documentsAria' | translate: 'Reference documents'"
+          >
+            @for (document of filteredDocuments(); track document.id) {
+              <button
+                type="button"
+                class="document-tile"
+                [attr.aria-label]="documentTitle(document) + '. ' + documentDescription(document)"
+                (click)="requestDocument(document)"
+              >
+                <span class="document-tile__title">{{ documentTitle(document) }}</span>
+                <span class="document-tile__description" aria-hidden="true">{{
+                  documentDescription(document)
+                }}</span>
+                @if (document.language) {
+                  <span class="document-tile__language">{{
+                    languageLabel(document.language)
+                  }}</span>
                 }
-              </div>
-            </div>
-
-            <button type="button" class="back-to-overview" (click)="showOverview()">
-              {{ 'references.backToOverview' | translate }}
-            </button>
-          </header>
-
-          @if (section) {
-            <section class="focus-section">
-              <p class="focus-section__label">{{ 'references.selectedSection' | translate }}</p>
-              <h3>{{ sectionTitle(resource, section.id, section.title) }}</h3>
-              <p>{{ sectionSummary(resource, section.id, section.summary) }}</p>
-            </section>
-          }
-
-          @if (resource.type === 'tool-guide') {
-            <section class="content-block">
-              <h3>{{ 'references.recommendedFlow' | translate }}</h3>
-              <ol class="setup-steps">
-                <li>{{ 'references.toolGuide.step.install' | translate }}</li>
-                <li>{{ 'references.toolGuide.step.open' | translate }}</li>
-                <li>{{ 'references.toolGuide.step.enable' | translate }}</li>
-                <li>{{ 'references.toolGuide.step.verify' | translate }}</li>
-              </ol>
-            </section>
-
-            <section class="content-block">
-              <div class="content-block__heading">
-                <h3>{{ 'references.latestScripts' | translate }}</h3>
-                <p>{{ 'references.latestScriptsHint' | translate }}</p>
-              </div>
-
-              <div class="script-grid">
-                @for (script of resource.scripts ?? []; track script.id) {
-                  <article class="script-card">
-                    <div class="script-card__header">
-                      <h4>{{ scriptTitle(resource, script.id, script.title) }}</h4>
-                      <span>{{
-                        'references.scriptStatus.' + script.status | translate: script.status
-                      }}</span>
-                    </div>
-                    <p>{{ scriptDescription(resource, script.id, script.description) }}</p>
-                    <dl>
-                      <div>
-                        <dt>{{ 'references.version' | translate }}</dt>
-                        <dd>{{ script.version }}</dd>
-                      </div>
-                    </dl>
-                    <div class="script-card__actions">
-                      @if (script.installUrl) {
-                        <a [href]="script.installUrl" target="_blank" rel="noreferrer">
-                          {{ 'references.openInstallLink' | translate }}
-                        </a>
-                      }
-                      @if (script.downloadPath) {
-                        <a [href]="script.downloadPath" download>{{
-                          'references.downloadCopy' | translate
-                        }}</a>
-                      }
-                    </div>
-                  </article>
+                @if (document.tags.length > 0 || document.locked) {
+                  <span
+                    class="document-tile__badges"
+                    [attr.aria-label]="'references.tagsAria' | translate"
+                  >
+                    @for (tag of document.tags; track tag) {
+                      <span>{{ tagLabel(tag) }}</span>
+                    }
+                    @if (document.locked) {
+                      <span>{{ 'references.locked' | translate: 'Protected' }}</span>
+                    }
+                  </span>
                 }
-              </div>
-            </section>
-          } @else if (resource.type === 'reference-document') {
-            <section class="content-block document-placeholder">
-              <h3>{{ 'references.documentPlaceholderTitle' | translate }}</h3>
-              <p>
-                {{ 'references.documentPlaceholderTextBeforePath' | translate }}
-                <code>public/assets/docs</code>,
-                {{ 'references.documentPlaceholderTextAfterPath' | translate }}
-                <code>filePath</code> {{ 'references.documentPlaceholderTextEnd' | translate }}
-              </p>
-            </section>
-          } @else if (resource.type === 'external-link') {
-            <section class="content-block external-resource-card">
-              <h3>{{ 'references.externalResourceTitle' | translate }}</h3>
-              <p>
-                {{ 'references.externalResourceText' | translate }}
-              </p>
-              @if (resource.externalUrl) {
-                <a [href]="resource.externalUrl" target="_blank" rel="noreferrer">
-                  {{ 'references.openResource' | translate }}
-                </a>
-              }
-            </section>
-          } @else {
-            <section class="content-block">
-              <h3>{{ 'references.guidePlaceholderTitle' | translate }}</h3>
-              <p>
-                {{ 'references.guidePlaceholderText' | translate }}
-              </p>
-            </section>
-          }
-
-          <section class="content-block section-overview">
-            <h3>{{ 'references.sections' | translate }}</h3>
-            <div class="section-grid">
-              @for (item of resource.sections; track item.id) {
-                <button type="button" (click)="selectSection(resource, item.id)">
-                  <strong>{{ sectionTitle(resource, item.id, item.title) }}</strong>
-                  <span>{{ sectionSummary(resource, item.id, item.summary) }}</span>
-                </button>
-              }
-            </div>
+              </button>
+            } @empty {
+              <p class="document-grid__empty">{{ 'references.empty' | translate }}</p>
+            }
           </section>
         }
+      } @else if (selectedDocument(); as document) {
+        <header class="document-reader__header">
+          <button type="button" class="reader-back-button" (click)="showLibrary()">
+            {{ 'references.backToLibrary' | translate: 'Back to library' }}
+          </button>
+
+          <div class="document-reader__headline">
+            <p class="library-main__eyebrow">
+              {{ 'references.documentEyebrow' | translate: 'Document' }}
+            </p>
+            <h2>{{ documentTitle(document) }}</h2>
+            <p>{{ documentAbstract(document) }}</p>
+
+            @if (
+              document.author ||
+              document.date ||
+              document.language ||
+              document.tags.length > 0 ||
+              document.locked
+            ) {
+              <div class="document-reader__details">
+                @if (document.author || document.date || document.language) {
+                  <dl class="document-reader__meta">
+                    @if (document.author) {
+                      <div>
+                        <dt>{{ 'references.author' | translate: 'Author' }}</dt>
+                        <dd>{{ document.author }}</dd>
+                      </div>
+                    }
+                    @if (document.date) {
+                      <div>
+                        <dt>{{ 'references.date' | translate: 'Date' }}</dt>
+                        <dd>{{ document.date }}</dd>
+                      </div>
+                    }
+                    @if (document.language) {
+                      <div>
+                        <dt>{{ 'references.language' | translate: 'Language' }}</dt>
+                        <dd>{{ languageLabel(document.language) }}</dd>
+                      </div>
+                    }
+                  </dl>
+                }
+
+                @if (document.tags.length > 0 || document.locked) {
+                  <div
+                    class="document-reader__tags"
+                    [attr.aria-label]="'references.tagsAria' | translate"
+                  >
+                    @for (tag of document.tags; track tag) {
+                      <span>{{ tagLabel(tag) }}</span>
+                    }
+                    @if (document.locked) {
+                      <span>{{ 'references.locked' | translate: 'Protected' }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </header>
+
+        <section class="document-reader">
+          @for (section of document.sections; track section.id) {
+            <article
+              class="document-section"
+              [class.document-section--collapsed]="!isSectionExpanded(section.id)"
+              [attr.id]="'document-section-' + section.id"
+            >
+              <header class="document-section__header">
+                <button
+                  type="button"
+                  class="document-section__toggle"
+                  [attr.aria-expanded]="isSectionExpanded(section.id)"
+                  [attr.aria-controls]="'document-section-body-' + section.id"
+                  (click)="toggleSection(section.id)"
+                >
+                  <span class="document-section__title-row">
+                    <app-icon [name]="sectionChevronIcon(section.id)" />
+                    <span>{{ sectionTitle(document, section.id, section.title) }}</span>
+                  </span>
+                </button>
+              </header>
+
+              @if (isSectionExpanded(section.id)) {
+                <div
+                  class="document-section__body"
+                  [attr.id]="'document-section-body-' + section.id"
+                >
+                  @for (block of section.blocks; track $index; let blockIndex = $index) {
+                    @if (block.type === 'heading') {
+                      <h4 class="document-section__subheading">
+                        {{ blockText(document, section.id, blockIndex, block.text) }}
+                      </h4>
+                    } @else if (block.type === 'paragraph') {
+                      <p>{{ blockText(document, section.id, blockIndex, block.text) }}</p>
+                    } @else if (block.type === 'list') {
+                      <ul>
+                        @for (item of block.items; track $index; let itemIndex = $index) {
+                          <li>
+                            @if (contentsTargetSection(document, section, item); as targetSection) {
+                              <button
+                                type="button"
+                                class="document-section__toc-link"
+                                (click)="selectSection(document, targetSection.id)"
+                              >
+                                {{
+                                  listItemText(document, section.id, blockIndex, itemIndex, item)
+                                }}
+                              </button>
+                            } @else {
+                              {{ listItemText(document, section.id, blockIndex, itemIndex, item) }}
+                            }
+                          </li>
+                        }
+                      </ul>
+                    } @else if (block.type === 'note') {
+                      <aside class="document-note">
+                        @if (block.title) {
+                          <strong>{{
+                            blockTitle(document, section.id, blockIndex, block.title)
+                          }}</strong>
+                        }
+                        <p>{{ blockText(document, section.id, blockIndex, block.text) }}</p>
+                      </aside>
+                    } @else if (block.type === 'link-list') {
+                      <div class="document-link-list">
+                        @for (link of block.links; track link.url; let linkIndex = $index) {
+                          <a [href]="link.url" target="_blank" rel="noreferrer">
+                            <strong>{{
+                              linkLabel(document, section.id, blockIndex, linkIndex, link.label)
+                            }}</strong>
+                            @if (link.note) {
+                              <span>{{
+                                linkNote(document, section.id, blockIndex, linkIndex, link.note)
+                              }}</span>
+                            }
+                          </a>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </article>
+          }
+        </section>
+
+        <button type="button" class="reader-top-button" (click)="scrollToDocumentTop()">
+          {{ 'references.backToTop' | translate: 'Back to top' }}
+        </button>
       }
     </article>
   </section>
+
+  @if (passwordDialogDocument(); as document) {
+    <div class="library-password-backdrop" role="presentation" (click)="closePasswordDialog()">
+      <section
+        class="library-password-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'references.password.title' | translate: 'Protected document'"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="library-password-dialog__icon">!</div>
+        <div class="library-password-dialog__body">
+          <h2>{{ 'references.password.title' | translate: 'Protected document' }}</h2>
+          <p>
+            {{ 'references.password.description' | translate: 'Enter the password to open' }}
+            <strong>{{ documentTitle(document) }}</strong
+            >.
+          </p>
+        </div>
+
+        <form class="library-password-dialog__form" (submit)="submitPassword($event)">
+          <label>
+            <span>{{ 'references.password.label' | translate: 'Password' }}</span>
+            <input
+              type="password"
+              autocomplete="current-password"
+              [value]="passwordInput()"
+              (input)="updatePasswordInput($event)"
+            />
+          </label>
+
+          @if (passwordError()) {
+            <p class="library-password-dialog__error">{{ passwordError() }}</p>
+          }
+
+          <div class="library-password-dialog__actions">
+            <button
+              type="button"
+              class="library-password-dialog__button"
+              (click)="closePasswordDialog()"
+            >
+              {{ 'common.cancel' | translate: 'Cancel' }}
+            </button>
+            <button
+              type="submit"
+              class="library-password-dialog__button library-password-dialog__button--primary"
+            >
+              {{ 'references.password.unlock' | translate: 'Unlock' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
 </section>

@@ -554,7 +554,7 @@
 }
 
 .unit-stepper__button,
-.unit-stepper select {
+.unit-stepper input {
   min-height: 1.9rem;
   border: 1px solid var(--border-soft);
   border-radius: 0.55rem;
@@ -992,37 +992,98 @@
   gap: 0;
 }
 
-.unit-stepper__select-wrapper {
+.unit-stepper__input-wrapper {
   position: relative;
   display: grid;
   align-items: center;
   min-width: 0;
 }
 
-.unit-stepper__select-wrapper app-icon {
+.unit-stepper__dropdown-toggle {
   position: absolute;
-  right: 0.45rem;
+  top: 50%;
+  right: 0.15rem;
+  z-index: 2;
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
   color: var(--gold);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.unit-stepper__dropdown-toggle app-icon {
   font-size: 0.68rem;
   pointer-events: none;
 }
 
-.unit-stepper select {
+.unit-stepper__dropdown-toggle:hover,
+.unit-stepper__dropdown-toggle:focus-visible {
+  background: rgba(255, 214, 10, 0.12);
+  outline: none;
+}
+
+.unit-stepper input {
   min-width: 0;
-  padding: 0 1.35rem 0 0.55rem;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
+  padding: 0 1.45rem 0 0.55rem;
+  appearance: textfield;
+  -moz-appearance: textfield;
   text-align: center;
-  text-align-last: center;
 }
 
-.unit-stepper select::-ms-expand {
-  display: none;
+.unit-amount-options {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  gap: 0.15rem;
+  width: min(7.25rem, 72vw);
+  max-height: 13rem;
+  padding: 0.35rem;
+  overflow: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.65rem;
+  background: rgba(0, 29, 61, 0.98);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.42);
 }
 
-.unit-stepper select:focus-visible {
+.unit-amount-option {
+  display: flex;
+  align-items: center;
+  min-height: 1.8rem;
+  padding: 0 0.55rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-align: left;
+}
+
+.unit-amount-option:hover,
+.unit-amount-option:focus-visible,
+.unit-amount-option--active {
+  background: rgba(255, 214, 10, 0.14);
+  color: var(--gold);
+  outline: none;
+}
+
+.unit-stepper input::-webkit-outer-spin-button,
+.unit-stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.unit-stepper input:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }

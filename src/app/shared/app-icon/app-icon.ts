@@ -4,6 +4,7 @@ export type AppIconName =
   | 'calculator'
   | 'chevron-down'
   | 'chevron-left'
+  | 'chevron-right'
   | 'language'
   | 'clear-all'
   | 'save'

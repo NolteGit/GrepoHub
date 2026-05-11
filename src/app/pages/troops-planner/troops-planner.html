@@ -877,19 +877,52 @@
           −
         </button>
 
-        <span class="unit-stepper__select-wrapper">
-          <select
+        <span class="unit-stepper__input-wrapper">
+          <input
+            type="number"
+            inputmode="numeric"
+            min="0"
+            max="10000"
+            step="1"
             [ngModel]="getUnitAmount(unit.id)"
             (ngModelChange)="updateUnitAmount(unit.id, $event)"
+            (focus)="openUnitAmountOptions(unit.id)"
+            (click)="openUnitAmountOptions(unit.id)"
+            (blur)="closeUnitAmountOptionsSoon()"
+            (keydown.escape)="closeUnitAmountOptions()"
+            [attr.aria-label]="
+              ('troopsPlanner.amountOf' | translate) + ' ' + (unit.nameKey | translate)
+            "
+          />
+
+          <button
+            type="button"
+            class="unit-stepper__dropdown-toggle"
+            (mousedown)="$event.preventDefault()"
+            (click)="toggleUnitAmountOptions(unit.id)"
+            [attr.aria-expanded]="openUnitAmountOptionsId() === unit.id"
             [attr.aria-label]="
               ('troopsPlanner.amountOf' | translate) + ' ' + (unit.nameKey | translate)
             "
           >
-            @for (amount of getUnitAmountOptions(unit.id); track amount) {
-              <option [ngValue]="amount">{{ amount }}</option>
-            }
-          </select>
-          <app-icon name="chevron-down" />
+            <app-icon name="chevron-down" />
+          </button>
+
+          @if (openUnitAmountOptionsId() === unit.id) {
+            <div class="unit-amount-options" role="listbox">
+              @for (amount of getUnitAmountOptions(unit.id); track amount) {
+                <button
+                  type="button"
+                  class="unit-amount-option"
+                  [class.unit-amount-option--active]="amount === getUnitAmount(unit.id)"
+                  (mousedown)="$event.preventDefault()"
+                  (click)="selectUnitAmountOption(unit.id, amount)"
+                >
+                  {{ amount }}
+                </button>
+              }
+            </div>
+          }
         </span>
 
         <button type="button" class="unit-stepper__button" (click)="stepUnitAmount(unit.id, 1)">

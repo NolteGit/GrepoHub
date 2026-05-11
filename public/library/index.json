@@ -1,0 +1,65 @@
+[
+  {
+    "id": "connection-go-playbook",
+    "title": "Das Connection GO Playbook",
+    "description": "Ein umfangreiches Bela-Playbook für erfolgreiche GOs mit Fokus auf Planung, Kommunikation, Laufzeiten, Kolo-Setups und flexible Stadtkonzepte.",
+    "abstract": "Dieses Playbook richtet sich an Spieler, die das technische Timen bereits beherrschen und ihre GO-Planung auf ein höheres Niveau bringen wollen. Es behandelt effiziente Truppenverteilung, Kommunikation, Reaktionszeiten, Drauflege-Setups und bessere Laufzeit-Kombinationen.",
+    "file": "documents/connection-go-playbook.md",
+    "tags": [
+      "advanced",
+      "bela"
+    ],
+    "author": "Packwood",
+    "date": "April 2026",
+    "language": "de",
+    "locked": true,
+    "password": "palette",
+    "estimatedPages": 29,
+    "sourceFormat": "markdown"
+  },
+  {
+    "id": "grepohub-how-to",
+    "title": "GrepoHub - How To",
+    "description": "A compact guide to the main GrepoHub pages, configurations, exports, and local data handling.",
+    "abstract": "This document explains how to use the main GrepoHub tools without covering the home page. It focuses on configuration handling, City Planner, Troops Planner, Library, Toolbox, and export workflows.",
+    "file": "documents/grepohub-how-to.md",
+    "tags": [],
+    "author": "Noltenius",
+    "date": "May 2026",
+    "language": "en",
+    "locked": true,
+    "password": "fetisch",
+    "estimatedPages": 4,
+    "sourceFormat": "markdown"
+  },
+  {
+    "id": "gunst-kaserne-ww-guide",
+    "title": "Gunst in der Kaserne einlagern",
+    "description": "Ein kompakter WW-Guide zum Einlagern von Katapulten und Gottesgesandten in der Kaserne.",
+    "abstract": "Dieser Guide erklärt, wie Gunststädte vorbereitet werden, welche Katapult- und GG-Stacks sinnvoll sind und wie Buffs, Demokrit und AF-Calls während der WW-Phase koordiniert werden.",
+    "file": "documents/gunst-kaserne-ww-guide.md",
+    "tags": [
+      "advanced"
+    ],
+    "author": "Llyph",
+    "date": "September 2025",
+    "language": "de",
+    "locked": false,
+    "estimatedPages": 3,
+    "sourceFormat": "markdown"
+  },
+  {
+    "id": "grepolis-scripts-tools-how-to",
+    "title": "Grepolis Scripts & Tools - How To",
+    "description": "A compact guide to approved Grepolis scripts, Tampermonkey installation, and safe script handling.",
+    "abstract": "This guide explains what Grepolis scripts and tools are, how to check whether they are allowed, how to install Tampermonkey, and how to install, edit, disable, and troubleshoot userscripts.",
+    "file": "documents/grepolis-scripts-tools-how-to.md",
+    "tags": [],
+    "author": "Noltenius",
+    "date": "May 2026",
+    "language": "en",
+    "locked": false,
+    "estimatedPages": 5,
+    "sourceFormat": "markdown"
+  }
+]

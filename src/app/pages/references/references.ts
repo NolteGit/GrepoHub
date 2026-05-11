@@ -1,84 +1,104 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
 import {
+  ReferenceDocument,
+  ReferenceDocumentBlock,
+  ReferenceDocumentSection,
+  ReferenceDocumentTag,
+  ReferenceLibraryIndexDocument,
   ReferenceQuickLink,
-  ReferenceResource,
-  ReferenceResourceType,
   referenceQuickLinks,
-  referenceResources,
-} from '../../data/reference-resources';
+} from '../../data/reference-documents';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { AppIconComponent } from '../../shared/app-icon/app-icon';
 import { TranslationService } from '../../services/translation.service';
+
+type LibraryStatus = 'loading' | 'ready' | 'error';
 
 @Component({
   selector: 'app-references',
-  imports: [TranslatePipe],
+  imports: [AppIconComponent, TranslatePipe],
   templateUrl: './references.html',
   styleUrl: './references.scss',
 })
-export class References {
+export class References implements OnInit {
+  private readonly http = inject(HttpClient);
   private readonly translationService = inject(TranslationService);
 
   protected readonly quickLinks = referenceQuickLinks;
-  protected readonly resources = referenceResources;
+  protected readonly documents = signal<ReferenceDocument[]>([]);
+  protected readonly libraryStatus = signal<LibraryStatus>('loading');
   protected readonly searchTerm = signal('');
-  protected readonly selectedType = signal<ReferenceResourceType | 'all'>('all');
-  protected readonly selectedResourceId = signal<string | null>(null);
+  protected readonly selectedTag = signal<ReferenceDocumentTag | 'all'>('all');
+  protected readonly selectedDocumentId = signal<string | null>(null);
   protected readonly selectedSectionId = signal<string | null>(null);
+  protected readonly expandedSectionIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly unlockedDocumentIds = signal<ReadonlySet<string>>(new Set());
+  protected readonly passwordDialogDocumentId = signal<string | null>(null);
+  protected readonly passwordInput = signal('');
+  protected readonly passwordError = signal('');
 
-  protected readonly typeFilters: { labelKey: string; value: ReferenceResourceType | 'all' }[] = [
-    { labelKey: 'references.typeFilter.all', value: 'all' },
-    { labelKey: 'references.typeFilter.tools', value: 'tool-guide' },
-    { labelKey: 'references.typeFilter.guides', value: 'guide' },
-    { labelKey: 'references.typeFilter.documents', value: 'reference-document' },
-    { labelKey: 'references.typeFilter.links', value: 'external-link' },
+  protected readonly tagFilters: {
+    labelKey: string;
+    fallback: string;
+    value: ReferenceDocumentTag | 'all';
+  }[] = [
+    { labelKey: 'references.tagFilter.all', fallback: 'All', value: 'all' },
+    { labelKey: 'references.tagFilter.advanced', fallback: 'Advanced', value: 'advanced' },
+    { labelKey: 'references.tagFilter.bela', fallback: 'Bela', value: 'bela' },
+    { labelKey: 'references.tagFilter.revo', fallback: 'Revo', value: 'revo' },
   ];
 
-  protected readonly filteredResources = computed(() => {
+  protected readonly filteredDocuments = computed(() => {
     const searchTerm = this.searchTerm().trim().toLowerCase();
-    const selectedType = this.selectedType();
+    const selectedTag = this.selectedTag();
 
-    return this.resources.filter((resource) => {
-      const matchesType = selectedType === 'all' || resource.type === selectedType;
+    return this.documents().filter((document) => {
+      const matchesTag = selectedTag === 'all' || document.tags.includes(selectedTag);
       const searchableText = [
-        this.resourceTitle(resource),
-        this.resourceCategory(resource),
-        this.resourceDescription(resource),
-        ...resource.tags.map((tag) => this.resourceTag(resource, tag)),
-        ...resource.sections.map(
+        this.documentTitle(document),
+        this.documentDescription(document),
+        this.documentAbstract(document),
+        ...document.tags.map((tag) => this.tagLabel(tag)),
+        ...document.sections.map(
           (section) =>
-            `${this.sectionTitle(resource, section.id, section.title)} ${this.sectionSummary(resource, section.id, section.summary)}`,
+            `${this.sectionTitle(document, section.id, section.title)} ${this.sectionSummary(document, section.id, section.summary)}`,
         ),
       ]
         .join(' ')
         .toLowerCase();
 
-      return matchesType && (!searchTerm || searchableText.includes(searchTerm));
+      return matchesTag && (!searchTerm || searchableText.includes(searchTerm));
     });
   });
 
-  protected readonly selectedResource = computed(() => {
-    const resourceId = this.selectedResourceId();
+  protected readonly selectedDocument = computed(() => {
+    const documentId = this.selectedDocumentId();
 
-    if (!resourceId) {
+    if (!documentId) {
       return null;
     }
 
-    return this.resources.find((resource) => resource.id === resourceId) ?? null;
+    return this.documents().find((document) => document.id === documentId) ?? null;
   });
 
-  protected readonly selectedSection = computed(() => {
-    const sectionId = this.selectedSectionId();
-    const resource = this.selectedResource();
+  protected readonly isLibraryMode = computed(() => this.selectedDocument() === null);
 
-    if (!sectionId || !resource) {
+  protected readonly passwordDialogDocument = computed(() => {
+    const documentId = this.passwordDialogDocumentId();
+
+    if (!documentId) {
       return null;
     }
 
-    return resource.sections.find((section) => section.id === sectionId) ?? null;
+    return this.documents().find((document) => document.id === documentId) ?? null;
   });
 
-  protected readonly isOverviewMode = computed(() => this.selectedResource() === null);
+  ngOnInit(): void {
+    this.loadLibrary();
+  }
 
   protected quickLinkUrl(link: ReferenceQuickLink): string {
     const language = this.translationService.currentLanguage();
@@ -90,107 +110,537 @@ export class References {
     return link.urlEn ?? link.url ?? link.urlDe ?? '#';
   }
 
-  protected selectResource(resource: ReferenceResource): void {
-    this.selectedResourceId.set(resource.id);
-    this.selectedSectionId.set(null);
+  protected requestDocument(document: ReferenceDocument): void {
+    if (this.requiresPassword(document)) {
+      this.openPasswordDialog(document);
+      return;
+    }
+
+    this.selectDocument(document);
   }
 
-  protected selectSection(resource: ReferenceResource, sectionId: string): void {
-    this.selectedResourceId.set(resource.id);
+  private selectDocument(document: ReferenceDocument): void {
+    const firstSectionId = document.sections[0]?.id ?? null;
+
+    this.selectedDocumentId.set(document.id);
+    this.selectedSectionId.set(firstSectionId);
+    this.expandedSectionIds.set(firstSectionId ? new Set([firstSectionId]) : new Set());
+    this.scrollDocumentReaderToTop();
+  }
+
+  protected updatePasswordInput(event: Event): void {
+    this.passwordInput.set((event.target as HTMLInputElement).value);
+
+    if (this.passwordError()) {
+      this.passwordError.set('');
+    }
+  }
+
+  protected closePasswordDialog(): void {
+    this.passwordDialogDocumentId.set(null);
+    this.passwordInput.set('');
+    this.passwordError.set('');
+  }
+
+  protected submitPassword(event: Event): void {
+    event.preventDefault();
+
+    const document = this.passwordDialogDocument();
+
+    if (!document) {
+      this.closePasswordDialog();
+      return;
+    }
+
+    if (this.passwordInput() !== document.password) {
+      this.passwordError.set('Wrong password.');
+      return;
+    }
+
+    const unlockedDocumentIds = new Set(this.unlockedDocumentIds());
+
+    unlockedDocumentIds.add(document.id);
+    this.unlockedDocumentIds.set(unlockedDocumentIds);
+    this.closePasswordDialog();
+    this.selectDocument(document);
+  }
+
+  protected selectSection(document: ReferenceDocument, sectionId: string): void {
+    if (this.requiresPassword(document)) {
+      this.openPasswordDialog(document);
+      return;
+    }
+
+    const expandedSectionIds = new Set(this.expandedSectionIds());
+
+    expandedSectionIds.add(sectionId);
+    this.selectedDocumentId.set(document.id);
     this.selectedSectionId.set(sectionId);
+    this.expandedSectionIds.set(expandedSectionIds);
+    this.scrollToSection(sectionId);
   }
 
-  protected showOverview(): void {
-    this.selectedResourceId.set(null);
+  protected showLibrary(): void {
+    this.selectedDocumentId.set(null);
     this.selectedSectionId.set(null);
+    this.expandedSectionIds.set(new Set());
   }
 
   protected updateSearchTerm(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
-  protected selectType(value: ReferenceResourceType | 'all'): void {
-    this.selectedType.set(value);
-    this.showOverview();
+  protected selectTag(value: ReferenceDocumentTag | 'all'): void {
+    this.selectedTag.set(value);
+    this.showLibrary();
   }
 
-  protected typeLabelKey(type: ReferenceResourceType): string {
-    const labels: Record<ReferenceResourceType, string> = {
-      'tool-guide': 'references.type.toolGuide',
-      guide: 'references.type.guide',
-      'reference-document': 'references.type.document',
-      'external-link': 'references.type.externalLink',
+  protected documentTitle(document: ReferenceDocument): string {
+    return this.translateDocument(document.id, 'title', document.title);
+  }
+
+  protected documentDescription(document: ReferenceDocument): string {
+    return this.translateDocument(document.id, 'description', document.description);
+  }
+
+  protected documentAbstract(document: ReferenceDocument): string {
+    return this.translateDocument(document.id, 'abstract', document.abstract);
+  }
+
+  protected tagLabel(tag: ReferenceDocumentTag): string {
+    const fallbacks: Record<ReferenceDocumentTag, string> = {
+      advanced: 'Advanced',
+      bela: 'Bela',
+      revo: 'Revo',
     };
 
-    return labels[type];
+    return this.translationService.translate(`references.tags.${tag}`, fallbacks[tag]);
   }
 
-  protected resourceTitle(resource: ReferenceResource): string {
-    return this.translateResource(resource.id, 'title', resource.title);
+  protected languageLabel(language: string): string {
+    return language.trim().toUpperCase();
   }
 
-  protected resourceCategory(resource: ReferenceResource): string {
-    return this.translateResource(resource.id, 'category', resource.category);
+  protected isDocumentUnlocked(document: ReferenceDocument): boolean {
+    return !this.requiresPassword(document);
   }
 
-  protected resourceDescription(resource: ReferenceResource): string {
-    return this.translateResource(resource.id, 'description', resource.description);
-  }
-
-  protected resourceTag(resource: ReferenceResource, tag: string): string {
+  protected sectionTitle(document: ReferenceDocument, sectionId: string, fallback: string): string {
     return this.translationService.translate(
-      `references.resources.${resource.id}.tags.${this.slugKey(tag)}`,
-      tag,
-    );
-  }
-
-  protected sectionTitle(resource: ReferenceResource, sectionId: string, fallback: string): string {
-    return this.translationService.translate(
-      `references.resources.${resource.id}.sections.${sectionId}.title`,
+      `references.documents.${document.id}.sections.${sectionId}.title`,
       fallback,
     );
   }
 
   protected sectionSummary(
-    resource: ReferenceResource,
+    document: ReferenceDocument,
     sectionId: string,
     fallback: string,
   ): string {
     return this.translationService.translate(
-      `references.resources.${resource.id}.sections.${sectionId}.summary`,
+      `references.documents.${document.id}.sections.${sectionId}.summary`,
       fallback,
     );
   }
 
-  protected scriptTitle(resource: ReferenceResource, scriptId: string, fallback: string): string {
+  protected blockText(
+    document: ReferenceDocument,
+    sectionId: string,
+    index: number,
+    text: string,
+  ): string {
     return this.translationService.translate(
-      `references.resources.${resource.id}.scripts.${scriptId}.title`,
-      fallback,
+      `references.documents.${document.id}.sections.${sectionId}.blocks.${index}.text`,
+      text,
     );
   }
 
-  protected scriptDescription(
-    resource: ReferenceResource,
-    scriptId: string,
+  protected blockTitle(
+    document: ReferenceDocument,
+    sectionId: string,
+    index: number,
     fallback: string,
   ): string {
     return this.translationService.translate(
-      `references.resources.${resource.id}.scripts.${scriptId}.description`,
+      `references.documents.${document.id}.sections.${sectionId}.blocks.${index}.title`,
       fallback,
     );
   }
 
-  protected isSelectedResource(resource: ReferenceResource): boolean {
-    return this.selectedResourceId() === resource.id;
-  }
-
-  protected isSelectedSection(resource: ReferenceResource, sectionId: string): boolean {
-    return this.selectedResourceId() === resource.id && this.selectedSectionId() === sectionId;
-  }
-
-  private translateResource(resourceId: string, field: string, fallback: string): string {
+  protected listItemText(
+    document: ReferenceDocument,
+    sectionId: string,
+    blockIndex: number,
+    itemIndex: number,
+    text: string,
+  ): string {
     return this.translationService.translate(
-      `references.resources.${resourceId}.${field}`,
+      `references.documents.${document.id}.sections.${sectionId}.blocks.${blockIndex}.items.${itemIndex}`,
+      text,
+    );
+  }
+
+  protected linkLabel(
+    document: ReferenceDocument,
+    sectionId: string,
+    blockIndex: number,
+    linkIndex: number,
+    label: string,
+  ): string {
+    return this.translationService.translate(
+      `references.documents.${document.id}.sections.${sectionId}.blocks.${blockIndex}.links.${linkIndex}.label`,
+      label,
+    );
+  }
+
+  protected linkNote(
+    document: ReferenceDocument,
+    sectionId: string,
+    blockIndex: number,
+    linkIndex: number,
+    note: string,
+  ): string {
+    return this.translationService.translate(
+      `references.documents.${document.id}.sections.${sectionId}.blocks.${blockIndex}.links.${linkIndex}.note`,
+      note,
+    );
+  }
+
+  protected isSelectedDocument(document: ReferenceDocument): boolean {
+    return this.selectedDocumentId() === document.id;
+  }
+
+  protected isSelectedSection(document: ReferenceDocument, sectionId: string): boolean {
+    return this.selectedDocumentId() === document.id && this.selectedSectionId() === sectionId;
+  }
+
+  protected isSectionExpanded(sectionId: string): boolean {
+    return this.expandedSectionIds().has(sectionId);
+  }
+
+  protected toggleSection(sectionId: string): void {
+    const expandedSectionIds = new Set(this.expandedSectionIds());
+
+    if (expandedSectionIds.has(sectionId)) {
+      expandedSectionIds.delete(sectionId);
+    } else {
+      expandedSectionIds.add(sectionId);
+      this.selectedSectionId.set(sectionId);
+    }
+
+    this.expandedSectionIds.set(expandedSectionIds);
+  }
+
+  protected sectionChevronIcon(sectionId: string): 'chevron-down' | 'chevron-right' {
+    return this.isSectionExpanded(sectionId) ? 'chevron-down' : 'chevron-right';
+  }
+
+  protected contentsTargetSection(
+    document: ReferenceDocument,
+    section: ReferenceDocumentSection,
+    item: string,
+  ): ReferenceDocumentSection | null {
+    if (!this.isContentsSection(section)) {
+      return null;
+    }
+
+    const normalizedItem = this.normalizeTocLabel(item);
+
+    return (
+      document.sections.find(
+        (documentSection) =>
+          documentSection.id !== section.id &&
+          this.normalizeTocLabel(documentSection.title) === normalizedItem,
+      ) ?? null
+    );
+  }
+
+  private isContentsSection(section: ReferenceDocumentSection): boolean {
+    const normalizedTitle = this.normalizeTocLabel(section.title);
+
+    return (
+      normalizedTitle === 'inhaltsverzeichnis' ||
+      normalizedTitle === 'contents' ||
+      normalizedTitle === 'table of contents'
+    );
+  }
+
+  private requiresPassword(document: ReferenceDocument): boolean {
+    return Boolean(document.locked && !this.unlockedDocumentIds().has(document.id));
+  }
+
+  private openPasswordDialog(document: ReferenceDocument): void {
+    this.passwordDialogDocumentId.set(document.id);
+    this.passwordInput.set('');
+    this.passwordError.set('');
+  }
+
+  protected scrollToDocumentTop(): void {
+    this.scrollDocumentReaderToTop();
+  }
+
+  private scrollToSection(sectionId: string): void {
+    window.setTimeout(() => {
+      globalThis.document
+        .getElementById(`document-section-${sectionId}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  private scrollDocumentReaderToTop(): void {
+    window.setTimeout(() => {
+      globalThis.document
+        .querySelector<HTMLElement>('.library-main')
+        ?.scrollTo({ top: 0, behavior: 'smooth' });
+      globalThis.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  private loadLibrary(): void {
+    this.libraryStatus.set('loading');
+
+    this.http
+      .get<ReferenceLibraryIndexDocument[]>('library/index.json')
+      .pipe(
+        switchMap((entries) => {
+          if (entries.length === 0) {
+            return of([]);
+          }
+
+          return forkJoin(
+            entries.map((entry) =>
+              this.http.get(`library/${entry.file}`, { responseType: 'text' }).pipe(
+                map((content) => this.parseMarkdownDocument(entry, content)),
+                catchError(() => of(this.createEmptyDocument(entry))),
+              ),
+            ),
+          );
+        }),
+        catchError(() => {
+          this.libraryStatus.set('error');
+          return of([]);
+        }),
+      )
+      .subscribe((documents) => {
+        this.documents.set(documents);
+
+        if (this.libraryStatus() !== 'error') {
+          this.libraryStatus.set('ready');
+        }
+      });
+  }
+
+  private parseMarkdownDocument(
+    entry: ReferenceLibraryIndexDocument,
+    markdown: string,
+  ): ReferenceDocument {
+    const sections: ReferenceDocumentSection[] = [];
+    let currentSection: ReferenceDocumentSection | null = null;
+    let paragraphLines: string[] = [];
+    let listItems: string[] = [];
+
+    const pushBlock = (block: ReferenceDocumentBlock): void => {
+      if (!currentSection) {
+        currentSection = this.createSection('overview', 'Overview');
+        sections.push(currentSection);
+      }
+
+      currentSection.blocks.push(block);
+    };
+
+    const flushList = (): void => {
+      if (listItems.length > 0) {
+        pushBlock({ type: 'list', items: listItems });
+        listItems = [];
+      }
+    };
+
+    const flushParagraph = (): void => {
+      const text = this.cleanMarkdownText(paragraphLines.join(' '));
+      paragraphLines = [];
+
+      if (!text) {
+        return;
+      }
+
+      const note = this.parseNoteText(text);
+
+      if (note) {
+        pushBlock(note);
+        return;
+      }
+
+      pushBlock({ type: 'paragraph', text });
+    };
+
+    for (const rawLine of markdown.replace(/\r\n?/g, '\n').split('\n')) {
+      const line = rawLine.trim();
+
+      if (!line || line === '---') {
+        flushList();
+        flushParagraph();
+        continue;
+      }
+
+      const heading = /^(#{1,6})\s+(.+)$/.exec(line);
+
+      if (heading) {
+        flushList();
+        flushParagraph();
+
+        const level = heading[1].length;
+        const title = this.cleanMarkdownText(heading[2]);
+
+        if (level === 1) {
+          continue;
+        }
+
+        if (level === 2) {
+          currentSection = this.createSection(this.slugKey(title), title);
+          sections.push(currentSection);
+          continue;
+        }
+
+        pushBlock({ type: 'heading', level: level === 3 ? 3 : 4, text: title });
+        continue;
+      }
+
+      const listItem = /^(?:[-*]|\d+\.)\s+(.+)$/.exec(line);
+
+      if (listItem) {
+        flushParagraph();
+        listItems.push(this.cleanMarkdownText(listItem[1]));
+        continue;
+      }
+
+      flushList();
+      paragraphLines.push(line);
+    }
+
+    flushList();
+    flushParagraph();
+
+    return {
+      id: entry.id,
+      title: entry.title,
+      description: entry.description,
+      abstract: entry.abstract,
+      author: entry.author,
+      date: entry.date,
+      language: entry.language,
+      tags: entry.tags,
+      locked: entry.locked,
+      password: entry.password,
+      sections:
+        sections.length > 0
+          ? sections.map((section) => this.withSummary(section))
+          : [this.createEmptySection()],
+    };
+  }
+
+  private createSection(id: string, title: string): ReferenceDocumentSection {
+    return {
+      id,
+      title,
+      summary: '',
+      blocks: [],
+    };
+  }
+
+  private withSummary(section: ReferenceDocumentSection): ReferenceDocumentSection {
+    const firstTextBlock = section.blocks.find(
+      (block) => block.type === 'paragraph' || block.type === 'note' || block.type === 'list',
+    );
+    let summary = '';
+
+    if (firstTextBlock?.type === 'paragraph' || firstTextBlock?.type === 'note') {
+      summary = firstTextBlock.text;
+    } else if (firstTextBlock?.type === 'list') {
+      summary = firstTextBlock.items[0] ?? '';
+    }
+
+    return {
+      ...section,
+      summary: this.shortenText(summary, 180),
+    };
+  }
+
+  private createEmptyDocument(entry: ReferenceLibraryIndexDocument): ReferenceDocument {
+    return {
+      id: entry.id,
+      title: entry.title,
+      description: entry.description,
+      abstract: entry.abstract,
+      author: entry.author,
+      date: entry.date,
+      language: entry.language,
+      tags: entry.tags,
+      locked: entry.locked,
+      password: entry.password,
+      sections: [this.createEmptySection()],
+    };
+  }
+
+  private createEmptySection(): ReferenceDocumentSection {
+    return {
+      id: 'overview',
+      title: 'Overview',
+      summary: 'No readable document content was found yet.',
+      blocks: [
+        {
+          type: 'note',
+          title: 'Missing content',
+          text: 'The library entry exists, but the Markdown file could not be loaded.',
+        },
+      ],
+    };
+  }
+
+  private parseNoteText(text: string): Extract<ReferenceDocumentBlock, { type: 'note' }> | null {
+    const match = /^(Merksatz|Fazit):\s*(.+)$/i.exec(text);
+
+    if (!match) {
+      return null;
+    }
+
+    return {
+      type: 'note',
+      title: match[1],
+      text: match[2],
+    };
+  }
+
+  private normalizeTocLabel(value: string): string {
+    return this.cleanMarkdownText(value)
+      .toLowerCase()
+      .replace(/^\d+(?:\.\d+)*\s*/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private cleanMarkdownText(value: string): string {
+    return value
+      .replace(/^_([^_]+)_$/g, '$1')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/_([^_]+)_/g, '$1')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/\[([^\]]+)]\(([^)]+)\)/g, '$1 ($2)')
+      .replace(/^>\s?/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private shortenText(value: string, maxLength: number): string {
+    if (value.length <= maxLength) {
+      return value;
+    }
+
+    return `${value.slice(0, maxLength).trim()}…`;
+  }
+
+  private translateDocument(documentId: string, field: string, fallback: string): string {
+    return this.translationService.translate(
+      `references.documents.${documentId}.${field}`,
       fallback,
     );
   }
@@ -198,6 +648,10 @@ export class References {
   private slugKey(value: string): string {
     return value
       .toLowerCase()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
   }

@@ -29,11 +29,12 @@ export class TroopsPlanner {
   protected readonly exportMenuOpen = signal(false);
   protected readonly configurationMenuOpen = signal(false);
 
-  private readonly maxUnitAmount = 2500;
+  private readonly maxUnitAmount = 10000;
+  private unitAmountOptionsCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  protected readonly openUnitAmountOptionsId = signal<string | null>(null);
   private readonly unitAmountOptions: readonly number[] = [
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600,
-    700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200,
-    2300, 2400, 2500,
+    700, 800, 900, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
   ];
 
   protected readonly collapsedUnitSections = signal<Record<TroopUnitSectionId, boolean>>({
@@ -538,17 +539,33 @@ export class TroopsPlanner {
     return [...this.unitAmountOptions, amount].sort((left, right) => left - right);
   }
 
-  protected updateUnitAmount(unitId: string, value: string | number): void {
-    const parsedValue = Number(value);
-    const safeAmount = Number.isFinite(parsedValue) ? parsedValue : 0;
-    const amount = Math.min(Math.max(Math.round(safeAmount), 0), this.maxUnitAmount);
+  protected openUnitAmountOptions(unitId: string): void {
+    this.clearUnitAmountOptionsCloseTimer();
+    this.openUnitAmountOptionsId.set(unitId);
+  }
 
-    this.updateSelectedConfiguration({
-      unitAmounts: {
-        ...this.selectedConfiguration().unitAmounts,
-        [unitId]: amount,
-      },
-    });
+  protected toggleUnitAmountOptions(unitId: string): void {
+    this.clearUnitAmountOptionsCloseTimer();
+    this.openUnitAmountOptionsId.update((activeUnitId) => (activeUnitId === unitId ? null : unitId));
+  }
+
+  protected closeUnitAmountOptions(): void {
+    this.clearUnitAmountOptionsCloseTimer();
+    this.openUnitAmountOptionsId.set(null);
+  }
+
+  protected closeUnitAmountOptionsSoon(): void {
+    this.clearUnitAmountOptionsCloseTimer();
+    this.unitAmountOptionsCloseTimer = setTimeout(() => this.openUnitAmountOptionsId.set(null), 120);
+  }
+
+  protected selectUnitAmountOption(unitId: string, amount: number): void {
+    this.setUnitAmount(unitId, amount);
+    this.closeUnitAmountOptions();
+  }
+
+  protected updateUnitAmount(unitId: string, value: string | number): void {
+    this.setUnitAmount(unitId, this.parseUnitAmount(value));
   }
 
   protected stepUnitAmount(unitId: string, delta: number): void {
@@ -558,22 +575,34 @@ export class TroopsPlanner {
       return;
     }
 
-    const currentAmount = this.getUnitAmount(unitId);
-    const options = this.getUnitAmountOptions(unitId);
-    const currentIndex = options.indexOf(currentAmount);
+    this.setUnitAmount(unitId, this.getUnitAmount(unitId) + direction);
+  }
 
-    if (currentIndex >= 0) {
-      const nextIndex = Math.min(Math.max(currentIndex + direction, 0), options.length - 1);
-      this.updateUnitAmount(unitId, options[nextIndex]);
+  private clearUnitAmountOptionsCloseTimer(): void {
+    if (!this.unitAmountOptionsCloseTimer) {
       return;
     }
 
-    const nextAmount =
-      direction > 0
-        ? (options.find((option) => option > currentAmount) ?? options[options.length - 1])
-        : ([...options].reverse().find((option) => option < currentAmount) ?? options[0]);
+    clearTimeout(this.unitAmountOptionsCloseTimer);
+    this.unitAmountOptionsCloseTimer = null;
+  }
 
-    this.updateUnitAmount(unitId, nextAmount);
+  private parseUnitAmount(value: string | number): number {
+    const parsedValue = Number(value);
+    const safeAmount = Number.isFinite(parsedValue) ? parsedValue : 0;
+
+    return Math.trunc(safeAmount);
+  }
+
+  private setUnitAmount(unitId: string, value: number): void {
+    const amount = Math.min(Math.max(value, 0), this.maxUnitAmount);
+
+    this.updateSelectedConfiguration({
+      unitAmounts: {
+        ...this.selectedConfiguration().unitAmounts,
+        [unitId]: amount,
+      },
+    });
   }
 
   protected getUnitAmount(unitId: string): number {

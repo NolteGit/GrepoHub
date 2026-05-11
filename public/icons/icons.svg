@@ -13,6 +13,10 @@
     <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
 
+  <symbol id="chevron-right" viewBox="0 0 24 24">
+    <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+
   <symbol id="language" viewBox="0 0 24 24">
     <path d="M4 5h10M9 3v2M11 5c-.8 3.2-2.9 6.1-6 8M7 9c1.1 1.6 2.4 2.9 4 4M13 21l4-9 4 9M14.5 18h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
   </symbol>
