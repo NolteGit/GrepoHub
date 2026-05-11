@@ -36,6 +36,12 @@ interface PlanImportResultPlan {
   providedIn: 'root',
 })
 export class PlanConfigService {
+  readonly planImportFileSizeLimitBytes = 1024 * 1024;
+
+  private readonly maxImportedPlanCount = 100;
+  private readonly maxTroopUnitAmount = 10000;
+  private readonly allowedTroopUnitIds =
+    '|swordsman|slinger|archer|hoplite|horseman|chariot|catapult|divine_envoy|minotaur|manticore|cyclop|hydra|harpy|medusa|centaur|pegasus|cerberus|erinys|griffin|calydonian_boar|siren|satyr|ladon|spartoi|transport_boat|bireme|light_ship|fire_ship|fast_transport_ship|trireme|colony_ship|';
   private readonly storageKey = 'grepo-hub-plan-configs';
   private readonly legacyCityStorageKey = 'grepo-hub-city-configurations';
   private readonly legacyTroopStorageKey = 'grepo-hub-troop-configurations';
@@ -294,9 +300,11 @@ export class PlanConfigService {
   }
 
   importBundle(rawBundle: Partial<PlanConfigBundle>): void {
-    const rawPlans = rawBundle.plans ?? [];
+    this.assertSupportedPlanConfigBundle(rawBundle);
 
-    if (!Array.isArray(rawPlans) || rawPlans.length === 0) {
+    const rawPlans = this.getValidatedImportedPlans(rawBundle.plans, false);
+
+    if (rawPlans.length === 0) {
       return;
     }
 
@@ -307,21 +315,11 @@ export class PlanConfigService {
     this.savePlans();
   }
   importJsonAsNewPlans(json: string): PlanImportResult {
-    const parsedBundle = JSON.parse(json) as Partial<PlanConfigBundle>;
+    const parsedBundle = this.parsePlanConfigBundleJson(json);
 
-    if (parsedBundle.format !== PLAN_CONFIG_FORMAT) {
-      throw new Error('Unsupported plan config file.');
-    }
+    this.assertSupportedPlanConfigBundle(parsedBundle);
 
-    if (parsedBundle.version !== PLAN_CONFIG_VERSION) {
-      throw new Error('Unsupported plan config version.');
-    }
-
-    const rawPlans = parsedBundle.plans ?? [];
-
-    if (!Array.isArray(rawPlans) || rawPlans.length === 0) {
-      throw new Error('No plans found in the selected file.');
-    }
+    const rawPlans = this.getValidatedImportedPlans(parsedBundle.plans, true);
 
     const importedAt = new Date().toISOString();
     const importedPlanNames: string[] = [];
@@ -365,8 +363,12 @@ export class PlanConfigService {
       'Imported ' + (index + 1),
     );
     const planName = this.createUniquePlanName(requestedPlanName, 'Import', importedPlanNames);
-    const rawCityPlan: Partial<CityConfiguration> = rawPlan.cityPlan ?? {};
-    const rawTroopPlan: Partial<TroopConfiguration> = rawPlan.troopPlan ?? {};
+    const rawCityPlan: Partial<CityConfiguration> = this.isPlainRecord(rawPlan.cityPlan)
+      ? rawPlan.cityPlan
+      : {};
+    const rawTroopPlan: Partial<TroopConfiguration> = this.isPlainRecord(rawPlan.troopPlan)
+      ? rawPlan.troopPlan
+      : {};
     const cityPlanName = this.normalizeImportName(rawCityPlan.name, planName + ' City');
     const troopPlanName = this.normalizeImportName(rawTroopPlan.name, planName + ' Troops');
     const importSuffix = Date.now() + '-' + (index + 1);
@@ -395,6 +397,71 @@ export class PlanConfigService {
       cityPlan,
       troopPlan,
     });
+  }
+
+  private parsePlanConfigBundleJson(json: string): Partial<PlanConfigBundle> {
+    const trimmedJson = json.trim();
+
+    if (trimmedJson.length === 0) {
+      throw new Error('The selected file is empty.');
+    }
+
+    if (trimmedJson.length > this.planImportFileSizeLimitBytes) {
+      throw new Error('The selected file is too large. Import files must be 1 MB or smaller.');
+    }
+
+    let parsedJson: unknown;
+
+    try {
+      parsedJson = JSON.parse(trimmedJson);
+    } catch {
+      throw new Error('The selected file is not valid JSON.');
+    }
+
+    if (!this.isPlainRecord(parsedJson)) {
+      throw new Error('Unsupported plan config file.');
+    }
+
+    return parsedJson as Partial<PlanConfigBundle>;
+  }
+
+  private assertSupportedPlanConfigBundle(rawBundle: Partial<PlanConfigBundle>): void {
+    if (!this.isPlainRecord(rawBundle) || rawBundle.format !== PLAN_CONFIG_FORMAT) {
+      throw new Error('Unsupported plan config file.');
+    }
+
+    if (rawBundle.version !== PLAN_CONFIG_VERSION) {
+      throw new Error('Unsupported plan config version.');
+    }
+  }
+
+  private getValidatedImportedPlans(
+    rawPlans: unknown,
+    requirePlans: boolean,
+  ): Partial<PlanConfig>[] {
+    if (!Array.isArray(rawPlans) || rawPlans.length === 0) {
+      if (requirePlans) {
+        throw new Error('No plans found in the selected file.');
+      }
+
+      return [];
+    }
+
+    if (rawPlans.length > this.maxImportedPlanCount) {
+      throw new Error(
+        'The selected file contains too many plans. Import up to 100 plans at a time.',
+      );
+    }
+
+    if (!rawPlans.every((plan) => this.isPlainRecord(plan))) {
+      throw new Error('The selected file contains invalid plan entries.');
+    }
+
+    return rawPlans as Partial<PlanConfig>[];
+  }
+
+  private isPlainRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
   }
   private includeMissingPresetPlans(plans: readonly PlanConfig[]): PlanConfig[] {
     const existingPlanIds = new Set(plans.map((plan) => plan.id));
@@ -506,9 +573,7 @@ export class PlanConfigService {
   }
 
   fromJson(json: string): void {
-    const parsed = JSON.parse(json) as Partial<PlanConfigBundle>;
-
-    this.importBundle(parsed);
+    this.importBundle(this.parsePlanConfigBundleJson(json));
   }
 
   toCsv(): string {
@@ -660,7 +725,13 @@ export class PlanConfigService {
         const rawPlans = Array.isArray(parsedPlans) ? parsedPlans : parsedPlans.plans;
 
         if (Array.isArray(rawPlans) && rawPlans.length > 0) {
-          return rawPlans.map((plan) => this.normalizePlanConfig(plan));
+          const validPlans = rawPlans.filter((plan): plan is Partial<PlanConfig> =>
+            this.isPlainRecord(plan),
+          );
+
+          if (validPlans.length > 0) {
+            return validPlans.map((plan) => this.normalizePlanConfig(plan));
+          }
         }
       } catch {
         return this.loadLegacyOrPresetPlans();
@@ -706,12 +777,14 @@ export class PlanConfigService {
     }
 
     try {
-      const parsedConfigurations = JSON.parse(storedConfigurations) as Partial<CityConfiguration>[];
+      const parsedConfigurations = JSON.parse(storedConfigurations) as unknown;
 
       return Array.isArray(parsedConfigurations)
-        ? parsedConfigurations.map((configuration) =>
-            this.normalizeCityConfiguration(configuration),
-          )
+        ? parsedConfigurations
+            .filter((configuration): configuration is Partial<CityConfiguration> =>
+              this.isPlainRecord(configuration),
+            )
+            .map((configuration) => this.normalizeCityConfiguration(configuration))
         : [];
     } catch {
       return [];
@@ -726,14 +799,14 @@ export class PlanConfigService {
     }
 
     try {
-      const parsedConfigurations = JSON.parse(
-        storedConfigurations,
-      ) as Partial<TroopConfiguration>[];
+      const parsedConfigurations = JSON.parse(storedConfigurations) as unknown;
 
       return Array.isArray(parsedConfigurations)
-        ? parsedConfigurations.map((configuration) =>
-            this.normalizeTroopConfiguration(configuration),
-          )
+        ? parsedConfigurations
+            .filter((configuration): configuration is Partial<TroopConfiguration> =>
+              this.isPlainRecord(configuration),
+            )
+            .map((configuration) => this.normalizeTroopConfiguration(configuration))
         : [];
     } catch {
       return [];
@@ -741,32 +814,36 @@ export class PlanConfigService {
   }
 
   private normalizePlanConfig(rawPlan: Partial<PlanConfig>): PlanConfig {
+    const rawCityPlan = this.isPlainRecord(rawPlan.cityPlan)
+      ? rawPlan.cityPlan
+      : cityConfigurationPresets[0];
+    const rawTroopPlan = this.isPlainRecord(rawPlan.troopPlan)
+      ? rawPlan.troopPlan
+      : troopConfigurationPresets[0];
+
     return {
-      id: rawPlan.id ?? `custom-plan-${Date.now()}`,
+      id: this.normalizeOptionalString(rawPlan.id) ?? `custom-plan-${Date.now()}`,
       name: this.normalizeDisplayPlanName(rawPlan.name, 'Configuration'),
       isPreset: Boolean(rawPlan.isPreset),
       createdAt: this.normalizeOptionalString(rawPlan.createdAt),
       updatedAt: this.normalizeOptionalString(rawPlan.updatedAt),
       settings: this.normalizeSettings(rawPlan.settings),
-      cityPlan: this.normalizeCityConfiguration(rawPlan.cityPlan ?? cityConfigurationPresets[0]),
-      troopPlan: this.normalizeTroopConfiguration(
-        rawPlan.troopPlan ?? troopConfigurationPresets[0],
-      ),
+      cityPlan: this.normalizeCityConfiguration(rawCityPlan),
+      troopPlan: this.normalizeTroopConfiguration(rawTroopPlan),
     };
   }
 
-  private normalizeSettings(
-    rawSettings: Partial<PlanConfigSettings> | undefined,
-  ): PlanConfigSettings {
-    const parsedWorldSpeed = Number(rawSettings?.worldSpeed);
-    const parsedUnitSpeed = Number(rawSettings?.unitSpeed);
+  private normalizeSettings(rawSettings: unknown): PlanConfigSettings {
+    const settings = this.isPlainRecord(rawSettings) ? rawSettings : {};
+    const parsedWorldSpeed = Number(settings['worldSpeed']);
+    const parsedUnitSpeed = Number(settings['unitSpeed']);
 
     return {
       worldSpeed:
         Number.isFinite(parsedWorldSpeed) && parsedWorldSpeed > 0 ? parsedWorldSpeed : null,
       unitSpeed: Number.isFinite(parsedUnitSpeed) && parsedUnitSpeed > 0 ? parsedUnitSpeed : null,
-      timezone: this.normalizeOptionalString(rawSettings?.timezone),
-      locale: this.normalizeOptionalString(rawSettings?.locale),
+      timezone: this.normalizeOptionalString(settings['timezone']),
+      locale: this.normalizeOptionalString(settings['locale']),
     };
   }
 
@@ -782,19 +859,25 @@ export class PlanConfigService {
   private normalizeCityConfiguration(
     rawConfiguration: Partial<CityConfiguration>,
   ): CityConfiguration {
-    const rawBuildingLevels = rawConfiguration.buildingLevels ?? {};
-    const rawModifiers = rawConfiguration.modifiers as Partial<Record<string, boolean>> | undefined;
-    const rawSpecialBuildings = rawConfiguration.specialBuildings as
-      | Partial<Record<CitySpecialBuildingSlotId, CitySpecialBuildingOptionId>>
-      | undefined;
+    const rawBuildingLevels = this.isPlainRecord(rawConfiguration.buildingLevels)
+      ? rawConfiguration.buildingLevels
+      : {};
+    const rawModifiers: Record<string, unknown> = this.isPlainRecord(rawConfiguration.modifiers)
+      ? rawConfiguration.modifiers
+      : {};
+    const rawSpecialBuildings: Record<string, unknown> = this.isPlainRecord(
+      rawConfiguration.specialBuildings,
+    )
+      ? rawConfiguration.specialBuildings
+      : {};
     const migratedSlot1 =
-      rawSpecialBuildings?.slot1 ??
-      (rawModifiers?.['thermalBathsBuilt'] ? 'thermal_baths' : 'none');
-    const migratedSlot2 = rawSpecialBuildings?.slot2 ?? 'none';
+      rawSpecialBuildings['slot1'] ??
+      (rawModifiers['thermalBathsBuilt'] ? 'thermal_baths' : 'none');
+    const migratedSlot2 = rawSpecialBuildings['slot2'] ?? 'none';
 
     return {
-      id: rawConfiguration.id ?? `custom-city-${Date.now()}`,
-      name: rawConfiguration.name ?? 'City Plan',
+      id: this.normalizeOptionalString(rawConfiguration.id) ?? `custom-city-${Date.now()}`,
+      name: this.normalizeImportName(rawConfiguration.name, 'City Plan'),
       isPreset: Boolean(rawConfiguration.isPreset),
       buildingLevels: cityBuildingPlanDefinitions.reduce(
         (accumulator, building) => {
@@ -815,8 +898,16 @@ export class PlanConfigService {
         aphroditeActive: Boolean(rawModifiers?.['aphroditeActive']),
       },
       specialBuildings: {
-        slot1: this.isAllowedSpecialBuildingOption('slot1', migratedSlot1) ? migratedSlot1 : 'none',
-        slot2: this.isAllowedSpecialBuildingOption('slot2', migratedSlot2) ? migratedSlot2 : 'none',
+        slot1:
+          typeof migratedSlot1 === 'string' &&
+          this.isAllowedSpecialBuildingOption('slot1', migratedSlot1)
+            ? migratedSlot1
+            : 'none',
+        slot2:
+          typeof migratedSlot2 === 'string' &&
+          this.isAllowedSpecialBuildingOption('slot2', migratedSlot2)
+            ? migratedSlot2
+            : 'none',
       },
     };
   }
@@ -824,19 +915,27 @@ export class PlanConfigService {
   private normalizeTroopConfiguration(
     rawConfiguration: Partial<TroopConfiguration>,
   ): TroopConfiguration {
-    const rawUnitAmounts = rawConfiguration.unitAmounts ?? {};
-    const rawModifiers = rawConfiguration.modifiers as Partial<Record<string, boolean>> | undefined;
+    const rawUnitAmounts = this.isPlainRecord(rawConfiguration.unitAmounts)
+      ? rawConfiguration.unitAmounts
+      : {};
+    const rawModifiers: Record<string, unknown> = this.isPlainRecord(rawConfiguration.modifiers)
+      ? rawConfiguration.modifiers
+      : {};
 
     return {
-      id: rawConfiguration.id ?? `custom-troops-${Date.now()}`,
-      name: rawConfiguration.name ?? 'Troop Plan',
+      id: this.normalizeOptionalString(rawConfiguration.id) ?? `custom-troops-${Date.now()}`,
+      name: this.normalizeImportName(rawConfiguration.name, 'Troop Plan'),
       isPreset: Boolean(rawConfiguration.isPreset),
       unitAmounts: Object.entries(rawUnitAmounts).reduce(
         (amounts, [unitId, rawAmount]) => {
+          if (!this.allowedTroopUnitIds.includes('|' + unitId + '|')) {
+            return amounts;
+          }
+
           const parsedAmount = Number(rawAmount);
 
           amounts[unitId] = Number.isFinite(parsedAmount)
-            ? Math.max(Math.round(parsedAmount), 0)
+            ? Math.min(Math.max(Math.round(parsedAmount), 0), this.maxTroopUnitAmount)
             : 0;
 
           return amounts;
@@ -844,18 +943,20 @@ export class PlanConfigService {
         {} as Record<string, number>,
       ),
       modifiers: {
-        bunks: Boolean(rawModifiers?.['bunks']),
+        bunks: Boolean(rawModifiers['bunks']),
       },
     };
   }
 
   private isAllowedSpecialBuildingOption(
     slotId: CitySpecialBuildingSlotId,
-    optionId: CitySpecialBuildingOptionId,
-  ): boolean {
+    optionId: string,
+  ): optionId is CitySpecialBuildingOptionId {
     const slotDefinition = citySpecialBuildingSlotDefinitions.find((slot) => slot.id === slotId);
 
-    return Boolean(slotDefinition?.optionIds.includes(optionId));
+    return Boolean(
+      slotDefinition?.optionIds.some((allowedOptionId) => allowedOptionId === optionId),
+    );
   }
 
   private clonePlan(plan: PlanConfig): PlanConfig {

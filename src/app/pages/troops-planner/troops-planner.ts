@@ -292,6 +292,14 @@ export class TroopsPlanner {
       return;
     }
 
+    if (file.size > this.planConfigService.planImportFileSizeLimitBytes) {
+      this.showPlanImportErrorDialog(
+        'The selected file is too large. Import files must be 1 MB or smaller.',
+      );
+      input.value = '';
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = () => {
