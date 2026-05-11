@@ -23,6 +23,35 @@ import {
   ToolDraft,
   ToolId,
 } from './models/toolbox.models';
+import {
+  CALCULATOR_KEYBOARD_OPERATORS,
+  formatNumber,
+  nextCalculatorDisplay,
+  operatorSymbol,
+  parseNumber,
+  runCalculatorOperation,
+} from './utils/toolbox-calculator.util';
+import {
+  clampClockPart,
+  digitsFromSeconds,
+  digitsFromTimeString,
+  formatDateTimeValue,
+  formatDurationMs,
+  formatTimeFromSeconds,
+  getCurrentTimeValue,
+  joinTimeParts,
+  normalizeAlarmTimeValue,
+  normalizeDaySeconds,
+  normalizePositiveDelaySeconds,
+  padClockValue,
+  parseInteger,
+  parseTimeInputDigits,
+  parseTimeToSeconds,
+  splitTimeParts,
+  timeOffsetFieldsFromSeconds,
+  timePartIndex,
+  timePartMax,
+} from './utils/toolbox-time.util';
 import { TranslationService } from '../../services/translation.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 
@@ -52,21 +81,6 @@ export class Toolbox implements OnDestroy {
     'countdown',
     'battle-simulator',
   ];
-  private readonly calculatorKeyboardOperators: Record<string, CalculatorOperator> = {
-    '+': 'add',
-    '-': 'subtract',
-    '*': 'multiply',
-    x: 'multiply',
-    '/': 'divide',
-    '÷': 'divide',
-  };
-  private readonly operatorSymbols: Record<CalculatorOperator, string> = {
-    add: '+',
-    subtract: '−',
-    multiply: '×',
-    divide: '÷',
-  };
-
   private countdownIntervalId: number | null = null;
   private countdownDeadline = 0;
   private stopwatchIntervalId: number | null = null;
@@ -143,15 +157,15 @@ export class Toolbox implements OnDestroy {
 
   protected readonly timeCalculationResult = computed(() => {
     const draft = this.draftFor('time-calculator');
-    const resultSeconds = this.normalizeDaySeconds(
-      this.parseTimeToSeconds(draft.baseTime) + this.timeOffsetSeconds() * this.timeDirectionSign(),
+    const resultSeconds = normalizeDaySeconds(
+      parseTimeToSeconds(draft.baseTime) + this.timeOffsetSeconds() * this.timeDirectionSign(),
     );
 
-    return this.formatTimeFromSeconds(resultSeconds);
+    return formatTimeFromSeconds(resultSeconds);
   });
 
   protected readonly timeDeltaDisplay = computed(() =>
-    this.formatTimeFromSeconds(this.timeOffsetSeconds()),
+    formatTimeFromSeconds(this.timeOffsetSeconds()),
   );
 
   protected readonly calculatorPreview = computed(() => {
@@ -161,11 +175,11 @@ export class Toolbox implements OnDestroy {
       return '';
     }
 
-    return `${draft.calculatorStoredValue} ${this.operatorSymbol(draft.calculatorPendingOperator)}`;
+    return `${draft.calculatorStoredValue} ${operatorSymbol(draft.calculatorPendingOperator)}`;
   });
 
   protected readonly countdownDisplay = computed(() =>
-    this.formatDurationMs(this.countdownRemainingMs() ?? this.countdownDurationMs()),
+    formatDurationMs(this.countdownRemainingMs() ?? this.countdownDurationMs()),
   );
 
   protected readonly countdownStatus = computed(() => {
@@ -189,7 +203,7 @@ export class Toolbox implements OnDestroy {
   protected readonly stopwatchDisplay = computed(() => {
     this.stopwatchTick();
 
-    return this.formatDurationMs(this.currentMainStopwatchElapsedMs(), true);
+    return formatDurationMs(this.currentMainStopwatchElapsedMs(), true);
   });
 
   protected readonly canAddStopwatchToQueue = computed(() => {
@@ -260,7 +274,7 @@ export class Toolbox implements OnDestroy {
     }
 
     const key = event.key.toLowerCase();
-    const operator = this.calculatorKeyboardOperators[key];
+    const operator = CALCULATOR_KEYBOARD_OPERATORS[key];
 
     if (/^[0-9]$/.test(key)) {
       this.runHandledKeyboardEvent(event, () => this.appendCalculatorValue(key));
@@ -334,7 +348,7 @@ export class Toolbox implements OnDestroy {
   }
 
   protected useCurrentTime(toolId: ToolId): void {
-    this.setDraftField(toolId, 'baseTime', this.getCurrentTimeValue());
+    this.setDraftField(toolId, 'baseTime', getCurrentTimeValue());
   }
 
   protected toggleTimeDirection(): void {
@@ -352,12 +366,12 @@ export class Toolbox implements OnDestroy {
   }
 
   protected adjustTimeOffset(field: TimeOffsetField, amount: number): void {
-    const currentValue = this.parseInteger(this.draftFor('time-calculator')[field]);
+    const currentValue = parseInteger(this.draftFor('time-calculator')[field]);
     this.setDraftField('time-calculator', field, String(Math.max(0, currentValue + amount)));
   }
 
   protected countdownPartDisplay(field: CountdownField): string {
-    return this.padClockValue(this.parseInteger(this.draftFor('countdown')[field]));
+    return padClockValue(parseInteger(this.draftFor('countdown')[field]));
   }
 
   protected updateCountdownPart(field: CountdownField, event: Event): void {
@@ -365,20 +379,17 @@ export class Toolbox implements OnDestroy {
   }
 
   protected adjustCountdownPart(field: CountdownField, amount: number): void {
-    this.setCountdownPart(
-      field,
-      String(this.parseInteger(this.draftFor('countdown')[field]) + amount),
-    );
+    this.setCountdownPart(field, String(parseInteger(this.draftFor('countdown')[field]) + amount));
   }
 
   protected alarmTimePart(part: AlarmPart): string {
-    const [hours, minutes] = this.splitTimeParts(this.draftFor('alarm').alarmTime);
+    const [hours, minutes] = splitTimeParts(this.draftFor('alarm').alarmTime);
 
     return part === 'hours' ? hours : minutes;
   }
 
   protected updateAlarmPart(part: AlarmPart, event: Event): void {
-    const [hours, minutes] = this.splitTimeParts(this.draftFor('alarm').alarmTime);
+    const [hours, minutes] = splitTimeParts(this.draftFor('alarm').alarmTime);
     const value = this.readControlValue(event);
 
     this.setAlarmTime(
@@ -509,22 +520,22 @@ export class Toolbox implements OnDestroy {
   }
 
   protected timePart(value: string, part: TimePart): string {
-    return this.splitTimeParts(value)[this.timePartIndex(part)];
+    return splitTimeParts(value)[timePartIndex(part)];
   }
 
   protected updateTimePart(toolId: ToolId, field: 'baseTime', part: TimePart, event: Event): void {
-    const parts = this.splitTimeParts(this.draftFor(toolId)[field]);
-    parts[this.timePartIndex(part)] = this.clampClockPart(this.readControlValue(event), part);
+    const parts = splitTimeParts(this.draftFor(toolId)[field]);
+    parts[timePartIndex(part)] = clampClockPart(this.readControlValue(event), part);
     this.setDraftField(toolId, field, parts.join(':'));
   }
 
   protected adjustTimePart(part: TimePart, amount: number): void {
-    const parts = this.splitTimeParts(this.draftFor('time-calculator').baseTime);
-    const index = this.timePartIndex(part);
-    const max = this.timePartMax(part);
-    const nextPart = (this.parseInteger(parts[index]) + amount + max + 1) % (max + 1);
+    const parts = splitTimeParts(this.draftFor('time-calculator').baseTime);
+    const index = timePartIndex(part);
+    const max = timePartMax(part);
+    const nextPart = (parseInteger(parts[index]) + amount + max + 1) % (max + 1);
 
-    parts[index] = this.padClockValue(nextPart);
+    parts[index] = padClockValue(nextPart);
     this.setDraftField('time-calculator', 'baseTime', parts.join(':'));
   }
 
@@ -567,7 +578,7 @@ export class Toolbox implements OnDestroy {
     }
 
     this.setDraftFields('quick-calculator', {
-      calculatorDisplay: this.nextCalculatorDisplay(draft, value),
+      calculatorDisplay: nextCalculatorDisplay(draft, value),
       calculatorWaitingForNext: false,
     });
   }
@@ -576,11 +587,11 @@ export class Toolbox implements OnDestroy {
     const draft = this.draftFor('quick-calculator');
 
     if (draft.calculatorPendingOperator && !draft.calculatorWaitingForNext) {
-      const resultText = this.formatNumber(
-        this.runCalculatorOperation(
+      const resultText = formatNumber(
+        runCalculatorOperation(
           draft.calculatorPendingOperator,
-          this.parseNumber(draft.calculatorStoredValue),
-          this.parseNumber(draft.calculatorDisplay),
+          parseNumber(draft.calculatorStoredValue),
+          parseNumber(draft.calculatorDisplay),
         ),
       );
 
@@ -607,14 +618,14 @@ export class Toolbox implements OnDestroy {
       return;
     }
 
-    const resultText = this.formatNumber(
-      this.runCalculatorOperation(
+    const resultText = formatNumber(
+      runCalculatorOperation(
         draft.calculatorPendingOperator,
-        this.parseNumber(draft.calculatorStoredValue),
-        this.parseNumber(draft.calculatorDisplay),
+        parseNumber(draft.calculatorStoredValue),
+        parseNumber(draft.calculatorDisplay),
       ),
     );
-    const expression = `${draft.calculatorStoredValue} ${this.operatorSymbol(
+    const expression = `${draft.calculatorStoredValue} ${operatorSymbol(
       draft.calculatorPendingOperator,
     )} ${draft.calculatorDisplay} = ${resultText}`;
 
@@ -819,7 +830,7 @@ export class Toolbox implements OnDestroy {
         draft.alarmLabel,
         this.numberedLabel('toolbox.queue.defaultAlarm', this.queuedAlarms().length + 1, 'Alarm'),
       ),
-      time: this.normalizeAlarmTimeValue(draft.alarmTime),
+      time: normalizeAlarmTimeValue(draft.alarmTime),
       deadline: Date.now() + delaySeconds * 1000,
       running: true,
       triggered: false,
@@ -853,7 +864,7 @@ export class Toolbox implements OnDestroy {
       id: countdown.id,
       type: 'countdown-queue',
       label: countdown.label,
-      value: this.formatDurationMs(remainingMs),
+      value: formatDurationMs(remainingMs),
       stateKey:
         remainingMs <= 0
           ? 'toolbox.status.finished'
@@ -870,7 +881,7 @@ export class Toolbox implements OnDestroy {
       id: stopwatch.id,
       type: 'stopwatch-queue',
       label: stopwatch.label,
-      value: this.formatDurationMs(this.queuedStopwatchElapsedMs(stopwatch), true),
+      value: formatDurationMs(this.queuedStopwatchElapsedMs(stopwatch), true),
       stateKey: stopwatch.running ? 'toolbox.status.running' : 'toolbox.status.paused',
       tone: stopwatch.running ? 'running' : 'paused',
       running: stopwatch.running,
@@ -901,7 +912,7 @@ export class Toolbox implements OnDestroy {
 
   private setCountdownPart(field: CountdownField, value: string): void {
     const maxValue = field === 'countdownMinutes' ? 999 : 59;
-    const nextValue = Math.min(this.parseInteger(value), maxValue);
+    const nextValue = Math.min(parseInteger(value), maxValue);
 
     this.setDraftField('countdown', field, String(nextValue));
 
@@ -911,15 +922,15 @@ export class Toolbox implements OnDestroy {
   }
 
   private setAlarmTime(value: string): void {
-    this.setDraftField('alarm', 'alarmTime', this.normalizeAlarmTimeValue(value));
+    this.setDraftField('alarm', 'alarmTime', normalizeAlarmTimeValue(value));
   }
 
   private alarmDelaySeconds(time: string): number {
-    const targetSeconds = this.parseTimeToSeconds(time);
+    const targetSeconds = parseTimeToSeconds(time);
     const now = new Date();
     const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-    return this.normalizePositiveDelaySeconds(targetSeconds - nowSeconds);
+    return normalizePositiveDelaySeconds(targetSeconds - nowSeconds);
   }
 
   private scheduleQueuedAlarm(alarm: QueuedAlarm): void {
@@ -994,7 +1005,7 @@ export class Toolbox implements OnDestroy {
 
     hydratedDrafts['time-calculator'] = {
       ...hydratedDrafts['time-calculator'],
-      baseTime: this.getCurrentTimeValue(),
+      baseTime: getCurrentTimeValue(),
     };
 
     return hydratedDrafts;
@@ -1039,7 +1050,7 @@ export class Toolbox implements OnDestroy {
 
   private createDefaultDraft(): ToolDraft {
     return {
-      baseTime: this.getCurrentTimeValue(),
+      baseTime: getCurrentTimeValue(),
       offsetHours: '0',
       offsetMinutes: '0',
       offsetSeconds: '0',
@@ -1060,32 +1071,6 @@ export class Toolbox implements OnDestroy {
     };
   }
 
-  private getCurrentTimeValue(): string {
-    return this.formatDateTimeValue(new Date());
-  }
-
-  private getTimeOffsetValue(offsetMinutes: number): string {
-    return this.formatDateTimeValue(new Date(Date.now() + offsetMinutes * 60 * 1000));
-  }
-
-  private formatDateTimeValue(date: Date): string {
-    return [date.getHours(), date.getMinutes(), date.getSeconds()]
-      .map((part) => this.padClockValue(part))
-      .join(':');
-  }
-
-  private normalizeAlarmTimeValue(value: string): string {
-    const [hours, minutes, seconds] = this.splitTimeParts(value);
-
-    return [
-      this.clampNumber(this.parseInteger(hours), 0, 23),
-      this.clampNumber(this.parseInteger(minutes), 0, 59),
-      this.clampNumber(this.parseInteger(seconds), 0, 59),
-    ]
-      .map((part) => this.padClockValue(part))
-      .join(':');
-  }
-
   private readControlValue(event: Event): string {
     const target = event.target;
 
@@ -1100,8 +1085,7 @@ export class Toolbox implements OnDestroy {
     const draft = this.draftFor('countdown');
 
     return (
-      (this.parseInteger(draft.countdownMinutes) * 60 + this.parseInteger(draft.countdownSeconds)) *
-      1000
+      (parseInteger(draft.countdownMinutes) * 60 + parseInteger(draft.countdownSeconds)) * 1000
     );
   }
 
@@ -1258,19 +1242,15 @@ export class Toolbox implements OnDestroy {
 
   private applyTimeInputDigits(mode: TimeInputMode, digits: string): void {
     const maxHours = mode === 'alarm' || mode === 'time-base' ? 23 : 99;
-    const [hours, minutes, seconds] = this.parseTimeInputDigits(digits, maxHours);
+    const [hours, minutes, seconds] = parseTimeInputDigits(digits, maxHours);
 
     if (mode === 'alarm') {
-      this.setAlarmTime(this.joinTimeParts(hours, minutes, seconds));
+      this.setAlarmTime(joinTimeParts(hours, minutes, seconds));
       return;
     }
 
     if (mode === 'time-base') {
-      this.setDraftField(
-        'time-calculator',
-        'baseTime',
-        this.joinTimeParts(hours, minutes, seconds),
-      );
+      this.setDraftField('time-calculator', 'baseTime', joinTimeParts(hours, minutes, seconds));
       return;
     }
 
@@ -1305,51 +1285,24 @@ export class Toolbox implements OnDestroy {
 
   private timeInputDigitsForMode(mode: TimeInputMode): string {
     if (mode === 'alarm') {
-      return this.digitsFromTimeString(this.draftFor('alarm').alarmTime);
+      return digitsFromTimeString(this.draftFor('alarm').alarmTime);
     }
 
     if (mode === 'time-base') {
-      return this.digitsFromTimeString(this.draftFor('time-calculator').baseTime);
+      return digitsFromTimeString(this.draftFor('time-calculator').baseTime);
     }
 
     if (mode === 'time-offset') {
-      return this.digitsFromSeconds(this.timeOffsetSeconds());
+      return digitsFromSeconds(this.timeOffsetSeconds());
     }
 
     if (mode === 'timer') {
-      return this.digitsFromSeconds(
+      return digitsFromSeconds(
         Math.floor((this.countdownRemainingMs() ?? this.countdownDurationMs()) / 1000),
       );
     }
 
-    return this.digitsFromSeconds(Math.floor(this.currentMainStopwatchElapsedMs() / 1000));
-  }
-
-  private digitsFromTimeString(value: string): string {
-    return this.splitTimeParts(value).join('').replace(/\D/g, '').slice(-6).padStart(6, '0');
-  }
-
-  private digitsFromSeconds(totalSeconds: number): string {
-    const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-    const hours = Math.min(99, Math.floor(safeSeconds / 3600));
-    const minutes = Math.floor((safeSeconds % 3600) / 60);
-    const seconds = safeSeconds % 60;
-
-    return `${this.padClockValue(hours)}${this.padClockValue(minutes)}${this.padClockValue(seconds)}`;
-  }
-
-  private parseTimeInputDigits(digits: string, maxHours: number): [number, number, number] {
-    const normalizedDigits = digits.replace(/\D/g, '').slice(-6).padStart(6, '0');
-
-    return [
-      this.clampNumber(this.parseInteger(normalizedDigits.slice(0, 2)), 0, maxHours),
-      this.clampNumber(this.parseInteger(normalizedDigits.slice(2, 4)), 0, 59),
-      this.clampNumber(this.parseInteger(normalizedDigits.slice(4, 6)), 0, 59),
-    ];
-  }
-
-  private joinTimeParts(hours: number, minutes: number, seconds: number): string {
-    return [hours, minutes, seconds].map((part) => this.padClockValue(part)).join(':');
+    return digitsFromSeconds(Math.floor(this.currentMainStopwatchElapsedMs() / 1000));
   }
 
   private isCountdownField(field: keyof ToolDraft): field is CountdownField {
@@ -1361,163 +1314,21 @@ export class Toolbox implements OnDestroy {
     handler();
   }
 
-  private splitTimeParts(value: string): [string, string, string] {
-    const [hours = '00', minutes = '00', seconds = '00'] = value.split(':');
-
-    return [hours, minutes, seconds].map((part) => part.padStart(2, '0')) as [
-      string,
-      string,
-      string,
-    ];
-  }
-
-  private timePartIndex(part: TimePart): 0 | 1 | 2 {
-    return part === 'hours' ? 0 : part === 'minutes' ? 1 : 2;
-  }
-
-  private timePartMax(part: TimePart): number {
-    return part === 'hours' ? 23 : 59;
-  }
-
-  private clampClockPart(value: string, part: TimePart): string {
-    return this.padClockValue(
-      this.clampNumber(this.parseInteger(value), 0, this.timePartMax(part)),
-    );
-  }
-
-  private parseTimeToSeconds(value: string): number {
-    const [hours, minutes, seconds] = this.splitTimeParts(value);
-
-    return this.normalizeDaySeconds(
-      this.parseInteger(hours) * 3600 +
-        this.parseInteger(minutes) * 60 +
-        this.parseInteger(seconds),
-    );
-  }
-
   private timeOffsetSeconds(): number {
     const draft = this.draftFor('time-calculator');
 
     return (
-      this.parseInteger(draft.offsetHours) * 3600 +
-      this.parseInteger(draft.offsetMinutes) * 60 +
-      this.parseInteger(draft.offsetSeconds)
+      parseInteger(draft.offsetHours) * 3600 +
+      parseInteger(draft.offsetMinutes) * 60 +
+      parseInteger(draft.offsetSeconds)
     );
   }
 
   private setTimeOffsetFromSeconds(totalSeconds: number): void {
-    const safeSeconds = Math.max(0, Math.floor(totalSeconds));
-    const hours = Math.min(99, Math.floor(safeSeconds / 3600));
-    const minutes = Math.floor((safeSeconds % 3600) / 60);
-    const seconds = safeSeconds % 60;
-
-    this.setDraftFields('time-calculator', {
-      offsetHours: String(hours),
-      offsetMinutes: String(minutes),
-      offsetSeconds: String(seconds),
-    });
+    this.setDraftFields('time-calculator', timeOffsetFieldsFromSeconds(totalSeconds));
   }
 
   private timeDirectionSign(): 1 | -1 {
     return this.draftFor('time-calculator').timeDirection === 'subtract' ? -1 : 1;
-  }
-
-  private normalizeDaySeconds(value: number): number {
-    const daySeconds = 24 * 60 * 60;
-
-    return ((Math.round(value) % daySeconds) + daySeconds) % daySeconds;
-  }
-
-  private normalizePositiveDelaySeconds(value: number): number {
-    return value <= 0 ? value + 24 * 60 * 60 : value;
-  }
-
-  private formatTimeFromSeconds(value: number): string {
-    const hours = Math.floor(value / 3600);
-    const minutes = Math.floor((value % 3600) / 60);
-    const seconds = value % 60;
-
-    return [hours, minutes, seconds].map((part) => this.padClockValue(part)).join(':');
-  }
-
-  private padClockValue(value: number): string {
-    return String(value).padStart(2, '0');
-  }
-
-  private clampNumber(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
-  }
-
-  private parseInteger(value: string): number {
-    const parsedValue = Number.parseInt(value, 10);
-
-    return Number.isFinite(parsedValue) ? Math.max(0, parsedValue) : 0;
-  }
-
-  private parseNumber(value: string): number {
-    const parsedValue = Number(value);
-
-    return Number.isFinite(parsedValue) ? parsedValue : 0;
-  }
-
-  private nextCalculatorDisplay(draft: ToolDraft, value: string): string {
-    if (draft.calculatorWaitingForNext) {
-      return value === '.' ? '0.' : value;
-    }
-
-    if (draft.calculatorDisplay === '0' && value !== '.') {
-      return value;
-    }
-
-    return `${draft.calculatorDisplay}${value}`;
-  }
-
-  private runCalculatorOperation(
-    operator: CalculatorOperator,
-    left: number,
-    right: number,
-  ): number {
-    if (operator === 'subtract') {
-      return left - right;
-    }
-
-    if (operator === 'multiply') {
-      return left * right;
-    }
-
-    if (operator === 'divide') {
-      return right === 0 ? 0 : left / right;
-    }
-
-    return left + right;
-  }
-
-  private operatorSymbol(operator: CalculatorOperator): string {
-    return this.operatorSymbols[operator];
-  }
-
-  private formatNumber(value: number): string {
-    if (!Number.isFinite(value)) {
-      return '0';
-    }
-
-    return Number.isInteger(value)
-      ? String(value)
-      : value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
-  }
-
-  private formatDurationMs(totalMs: number, includeMilliseconds = false): string {
-    const safeMs = Math.max(0, Math.floor(totalMs));
-    const totalSeconds = Math.floor(safeMs / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    const base = [hours, minutes, seconds].map((part) => this.padClockValue(part)).join(':');
-
-    if (!includeMilliseconds) {
-      return base;
-    }
-
-    return `${base}.${String(safeMs % 1000).padStart(3, '0')}`;
   }
 }
