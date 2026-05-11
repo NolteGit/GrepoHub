@@ -36,16 +36,16 @@ import {
   normalizeTroopConfiguration,
 } from './plan-config-normalization';
 
-interface PlanImportResult {
+export interface PlanImportResult {
   readonly count: number;
-  readonly plans: readonly PlanImportResultPlan[];
+  readonly plans: readonly {
+    readonly name: string;
+    readonly requestedName: string;
+    readonly renamed: boolean;
+  }[];
 }
 
-interface PlanImportResultPlan {
-  readonly name: string;
-  readonly requestedName: string;
-  readonly renamed: boolean;
-}
+type PlanImportResultPlan = PlanImportResult['plans'][number];
 
 @Injectable({
   providedIn: 'root',

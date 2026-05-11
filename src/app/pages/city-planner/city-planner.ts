@@ -16,6 +16,7 @@ import {
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { PlanFileTransferService } from '../../services/plan-file-transfer.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
@@ -37,6 +38,7 @@ export class CityPlanner {
 
   private readonly planConfigService = inject(PlanConfigService);
   private readonly planReadableExportService = inject(PlanReadableExportService);
+  private readonly planFileTransferService = inject(PlanFileTransferService);
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
   protected readonly activePlanName = computed(() => this.planConfigService.activePlan().name);
   protected readonly deletePlanDialogOpen = signal(false);
@@ -304,25 +306,9 @@ export class CityPlanner {
   }
 
   protected exportActivePlanAsJson(): void {
-    const exportedAt = new Date().toISOString();
-    const exportIdSuffix = exportedAt.replace(/\D/g, '').slice(0, 14);
-    const activePlan = this.preparePlanForExport(
-      structuredClone(this.planConfigService.activePlan()) as Record<string, unknown>,
-      exportedAt,
-      exportIdSuffix,
-    );
-    const exportBundle = {
-      format: 'grepo-hub-plan-config',
-      version: 1,
-      exportedAt,
-      plans: [activePlan],
-    };
-    const planName = typeof activePlan['name'] === 'string' ? activePlan['name'] : 'grepo-plan';
-    const fileName = this.sanitizeFileName(planName) + '.grepo-plan.json';
-
-    this.downloadTextFile(fileName, JSON.stringify(exportBundle, null, 2), 'application/json');
+    this.planFileTransferService.exportActivePlanAsJson();
   }
-  protected importPlanFromJsonFile(event: Event): void {
+  protected async importPlanFromJsonFile(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
@@ -330,37 +316,17 @@ export class CityPlanner {
       return;
     }
 
-    if (file.size > this.planConfigService.planImportFileSizeLimitBytes) {
-      this.showPlanImportErrorDialog(
-        'The selected file is too large. Import files must be 1 MB or smaller.',
-      );
+    try {
+      const result = await this.planFileTransferService.importJsonFileAsNewPlans(file);
+
+      this.showPlanImportSuccessDialog(result.plans);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not import plan file.';
+
+      this.showPlanImportErrorDialog(message);
+    } finally {
       input.value = '';
-      return;
     }
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      try {
-        const content = typeof reader.result === 'string' ? reader.result : '';
-        const result = this.planConfigService.importJsonAsNewPlans(content);
-
-        this.showPlanImportSuccessDialog(result.plans);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Could not import plan file.';
-
-        this.showPlanImportErrorDialog(message);
-      } finally {
-        input.value = '';
-      }
-    };
-
-    reader.onerror = () => {
-      this.showPlanImportErrorDialog('Could not read plan file.');
-      input.value = '';
-    };
-
-    reader.readAsText(file);
   }
 
   protected deleteActivePlan(): void {
@@ -436,105 +402,6 @@ export class CityPlanner {
       detailLines: [message],
     });
   }
-  private preparePlanForExport(
-    plan: Record<string, unknown>,
-    exportedAt: string,
-    exportIdSuffix: string,
-  ): Record<string, unknown> {
-    const portablePlan = this.removeNullishValues(plan) as Record<string, unknown>;
-    const planName = typeof portablePlan['name'] === 'string' ? portablePlan['name'] : 'Grepo Plan';
-
-    delete portablePlan['isPreset'];
-    portablePlan['id'] = this.createPortableExportId('plan', planName, exportIdSuffix);
-    portablePlan['createdAt'] =
-      typeof portablePlan['createdAt'] === 'string' ? portablePlan['createdAt'] : exportedAt;
-    portablePlan['updatedAt'] = exportedAt;
-    portablePlan['settings'] = this.removeNullishValues(
-      this.isPlainRecord(portablePlan['settings']) ? portablePlan['settings'] : {},
-    );
-
-    const cityPlan = portablePlan['cityPlan'];
-
-    if (this.isPlainRecord(cityPlan)) {
-      const portableCityPlan = this.removeNullishValues(cityPlan) as Record<string, unknown>;
-      const cityPlanName =
-        typeof portableCityPlan['name'] === 'string'
-          ? portableCityPlan['name']
-          : planName + ' City';
-
-      delete portableCityPlan['isPreset'];
-      portableCityPlan['id'] = this.createPortableExportId('city', cityPlanName, exportIdSuffix);
-      portablePlan['cityPlan'] = portableCityPlan;
-    }
-
-    const troopPlan = portablePlan['troopPlan'];
-
-    if (this.isPlainRecord(troopPlan)) {
-      const portableTroopPlan = this.removeNullishValues(troopPlan) as Record<string, unknown>;
-      const troopPlanName =
-        typeof portableTroopPlan['name'] === 'string'
-          ? portableTroopPlan['name']
-          : planName + ' Troops';
-
-      delete portableTroopPlan['isPreset'];
-      portableTroopPlan['id'] = this.createPortableExportId(
-        'troops',
-        troopPlanName,
-        exportIdSuffix,
-      );
-      portablePlan['troopPlan'] = portableTroopPlan;
-    }
-
-    return portablePlan;
-  }
-
-  private createPortableExportId(prefix: string, name: string, exportIdSuffix: string): string {
-    return prefix + '-' + this.sanitizeFileName(name) + '-' + exportIdSuffix;
-  }
-
-  private removeNullishValues(value: unknown): unknown {
-    if (Array.isArray(value)) {
-      return value.map((item) => this.removeNullishValues(item));
-    }
-
-    if (!this.isPlainRecord(value)) {
-      return value;
-    }
-
-    return Object.entries(value).reduce<Record<string, unknown>>((cleanedValue, [key, item]) => {
-      if (item !== null && item !== undefined) {
-        cleanedValue[key] = this.removeNullishValues(item);
-      }
-
-      return cleanedValue;
-    }, {});
-  }
-
-  private isPlainRecord(value: unknown): value is Record<string, unknown> {
-    return value !== null && typeof value === 'object' && !Array.isArray(value);
-  }
-
-  private downloadTextFile(fileName: string, content: string, mimeType: string): void {
-    const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  }
-
-  private sanitizeFileName(value: string): string {
-    const sanitizedValue = value
-      .trim()
-      .replace(/[^a-z0-9._-]+/gi, '-')
-      .replace(/^-+|-+$/g, '')
-      .toLowerCase();
-
-    return sanitizedValue || 'grepo-plan';
-  }
-
   protected saveAsNewConfiguration(): void {
     const currentPlan = this.planConfigService.activePlan();
     const name = window.prompt('Plan name', `${currentPlan.name} Copy`);
