@@ -8,16 +8,19 @@
     <time class="toolbox-hero__clock-value" [attr.datetime]="currentIsoTime()">
       {{ currentTime() }}
     </time>
-    <select
-      class="toolbox-hero__timezone"
-      [attr.aria-label]="'toolbox.clock.timezone' | translate"
-      [value]="selectedTimeZoneId()"
-      [attr.title]="timeZoneDescription()"
-      (change)="selectTimeZone($event)"
-    >
-      @for (option of timeZoneOptions; track option.id) {
-        <option [value]="option.id">{{ timeZoneOptionLabel(option) }}</option>
-      }
-    </select>
+    <span class="toolbox-hero__timezone-wrapper">
+      <select
+        class="toolbox-hero__timezone"
+        [attr.aria-label]="'toolbox.clock.timezone' | translate"
+        [value]="selectedTimeZoneId()"
+        [attr.title]="timeZoneDescription()"
+        (change)="selectTimeZone($event)"
+      >
+        @for (option of timeZoneOptions; track option.id) {
+          <option [value]="option.id">{{ timeZoneOptionLabel(option) }}</option>
+        }
+      </select>
+      <app-icon name="chevron-down" />
+    </span>
   </div>
 </header>

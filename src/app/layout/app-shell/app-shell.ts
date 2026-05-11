@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { TranslationService } from '../../services/translation.service';
+import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 type NavItem = {
   labelKey: string;
@@ -11,7 +12,7 @@ type NavItem = {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, TranslatePipe],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, TranslatePipe, AppIconComponent],
   templateUrl: './app-shell.html',
   styleUrl: './app-shell.scss',
 })

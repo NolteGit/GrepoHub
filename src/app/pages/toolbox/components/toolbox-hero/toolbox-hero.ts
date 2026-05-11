@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { TranslationService } from '../../../../services/translation.service';
+import { AppIconComponent } from '../../../../shared/app-icon/app-icon';
 
 type ToolboxTimeZoneOption = {
   readonly id: string;
@@ -112,7 +113,7 @@ const CENTRAL_EUROPE_TIME_ZONES = new Set([
 
 @Component({
   selector: 'app-toolbox-hero',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, AppIconComponent],
   templateUrl: './toolbox-hero.html',
   styleUrl: './toolbox-hero.scss',
 })

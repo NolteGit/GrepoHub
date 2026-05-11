@@ -9,13 +9,19 @@
       <label class="city-planner-page__configuration-select">
         <span>{{ 'cityPlanner.configuration' | translate }}</span>
 
-        <select [ngModel]="selectedConfigurationId()" (ngModelChange)="selectConfiguration($event)">
-          @for (configuration of configurations(); track configuration.id) {
-            <option [value]="configuration.id">
-              {{ configuration.name }}
-            </option>
-          }
-        </select>
+        <span class="city-planner-page__select-wrapper">
+          <select
+            [ngModel]="selectedConfigurationId()"
+            (ngModelChange)="selectConfiguration($event)"
+          >
+            @for (configuration of configurations(); track configuration.id) {
+              <option [value]="configuration.id">
+                {{ configuration.name }}
+              </option>
+            }
+          </select>
+          <app-icon name="chevron-down" />
+        </span>
       </label>
 
       <button
@@ -24,6 +30,7 @@
         [attr.aria-describedby]="'city-planner-save-tooltip'"
         (click)="saveConfigurations()"
       >
+        <app-icon name="save" />
         {{ 'cityPlanner.save' | translate }}
         <span id="city-planner-save-tooltip" class="city-planner-page__save-tooltip" role="tooltip">
           {{ 'planConfig.localStorageNotice' | translate }}
@@ -40,7 +47,7 @@
           (click)="toggleConfigurationMenu()"
         >
           {{ 'planConfig.more' | translate: 'More' }}
-          <span aria-hidden="true">▾</span>
+          <app-icon name="chevron-down" />
         </button>
 
         @if (configurationMenuOpen()) {
@@ -50,7 +57,8 @@
               role="menuitem"
               (click)="closeConfigurationMenu(); exportActivePlanAsJson()"
             >
-              {{ 'planConfig.exportJson' | translate }}
+              <app-icon name="export" />
+              <span>{{ 'planConfig.exportJson' | translate }}</span>
             </button>
 
             <button
@@ -58,7 +66,8 @@
               role="menuitem"
               (click)="closeConfigurationMenu(); planImportInput.click()"
             >
-              {{ 'planConfig.importJson' | translate }}
+              <app-icon name="import" />
+              <span>{{ 'planConfig.importJson' | translate }}</span>
             </button>
 
             <button
@@ -66,7 +75,8 @@
               role="menuitem"
               (click)="closeConfigurationMenu(); saveAsNewConfiguration()"
             >
-              {{ 'cityPlanner.saveAsNew' | translate }}
+              <app-icon name="duplicate" />
+              <span>{{ 'cityPlanner.saveAsNew' | translate }}</span>
             </button>
 
             <button
@@ -74,7 +84,8 @@
               role="menuitem"
               (click)="closeConfigurationMenu(); deleteActivePlan()"
             >
-              {{ 'planConfig.delete' | translate }}
+              <app-icon name="delete" />
+              <span>{{ 'planConfig.delete' | translate }}</span>
             </button>
 
             <button
@@ -82,7 +93,8 @@
               role="menuitem"
               (click)="closeConfigurationMenu(); clearActivePlan()"
             >
-              {{ 'planConfig.clear' | translate }}
+              <app-icon name="clear" />
+              <span>{{ 'planConfig.clear' | translate }}</span>
             </button>
 
             @if (selectedConfiguration().isPreset) {
@@ -190,19 +202,22 @@
                         −
                       </button>
 
-                      <select
-                        [id]="'building-' + building.id"
-                        class="city-stepper__select"
-                        [ngModel]="getBuildingLevel(building.id)"
-                        (ngModelChange)="updateBuildingLevel(building.id, $event)"
-                      >
-                        @for (
-                          level of getBuildingLevelOptions(building.id, building.maxLevel);
-                          track level
-                        ) {
-                          <option [ngValue]="level">{{ level }}</option>
-                        }
-                      </select>
+                      <span class="city-stepper__select-wrapper">
+                        <select
+                          [id]="'building-' + building.id"
+                          class="city-stepper__select"
+                          [ngModel]="getBuildingLevel(building.id)"
+                          (ngModelChange)="updateBuildingLevel(building.id, $event)"
+                        >
+                          @for (
+                            level of getBuildingLevelOptions(building.id, building.maxLevel);
+                            track level
+                          ) {
+                            <option [ngValue]="level">{{ level }}</option>
+                          }
+                        </select>
+                        <app-icon name="chevron-down" />
+                      </span>
 
                       <button
                         type="button"
@@ -260,18 +275,21 @@
               </div>
 
               <div class="city-building-tile__control city-building-tile__control--select">
-                <select
-                  [id]="'special-building-' + slot.id"
-                  [attr.aria-label]="'cityPlanner.specialBuilding.' + slot.id | translate"
-                  [ngModel]="getSelectedSpecialBuilding(slot.id)"
-                  (ngModelChange)="updateSpecialBuilding(slot.id, $event)"
-                >
-                  @for (optionId of slot.optionIds; track optionId) {
-                    <option [value]="optionId">
-                      {{ getSpecialBuildingOptionLabelKey(optionId) | translate }}
-                    </option>
-                  }
-                </select>
+                <span class="city-building-tile__select-wrapper">
+                  <select
+                    [id]="'special-building-' + slot.id"
+                    [attr.aria-label]="'cityPlanner.specialBuilding.' + slot.id | translate"
+                    [ngModel]="getSelectedSpecialBuilding(slot.id)"
+                    (ngModelChange)="updateSpecialBuilding(slot.id, $event)"
+                  >
+                    @for (optionId of slot.optionIds; track optionId) {
+                      <option [value]="optionId">
+                        {{ getSpecialBuildingOptionLabelKey(optionId) | translate }}
+                      </option>
+                    }
+                  </select>
+                  <app-icon name="chevron-down" />
+                </span>
               </div>
             </article>
           }

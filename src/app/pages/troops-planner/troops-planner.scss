@@ -63,9 +63,31 @@
   font-weight: 700;
 }
 
+.troops-planner-page__select-wrapper {
+  position: relative;
+  display: grid;
+  align-items: center;
+}
+
+.troops-planner-page__select-wrapper app-icon {
+  position: absolute;
+  right: 0.85rem;
+  color: var(--gold);
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
 .troops-planner-page__configuration-select select {
   min-width: 14rem;
-  padding: 0 0.85rem;
+  padding: 0 2.25rem 0 0.85rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.troops-planner-page__configuration-select select::-ms-expand {
+  display: none;
 }
 
 .troops-planner-page__configuration-button {
@@ -89,6 +111,14 @@
   border-color: var(--gold);
   outline: none;
   transform: translateY(-1px);
+}
+
+.troops-planner-page__configuration-button app-icon {
+  font-size: 0.92rem;
+}
+
+.troops-planner-page__configuration-button--more app-icon {
+  font-size: 0.78rem;
 }
 
 .troops-planner-page__configuration-button--save {
@@ -151,6 +181,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  gap: 0.6rem;
   width: 100%;
   min-height: 2.2rem;
   padding: 0 0.75rem;
@@ -163,6 +194,11 @@
   font-size: 0.9rem;
   font-weight: 700;
   text-align: left;
+}
+
+.troops-planner-page__more-panel button app-icon {
+  width: 1rem;
+  font-size: 0.95rem;
 }
 
 .troops-planner-page__more-panel button:hover,
@@ -249,7 +285,8 @@
 
 .troops-planner-card__summary-icon {
   color: var(--gold);
-  font-size: 1.1rem;
+  font-size: 1rem;
+  transform-origin: center;
   transition: transform 160ms ease;
 }
 
@@ -859,6 +896,7 @@
 @media (max-width: 560px) {
   .troops-planner-page__configuration-bar,
   .troops-planner-page__configuration-select,
+  .troops-planner-page__select-wrapper,
   .troops-planner-page__configuration-select select,
   .troops-planner-page__configuration-button,
   .troops-planner-page__more-menu {
@@ -937,26 +975,42 @@
 }
 
 .unit-section__collapse-icon {
-  display: inline-block;
-  transform: rotate(0deg);
-  transform-origin: center;
-  transition: transform 160ms ease;
-}
-
-.unit-section--collapsed .unit-section__collapse-icon {
-  transform: rotate(-90deg);
+  color: currentColor;
+  font-size: 1rem;
 }
 
 .unit-section--collapsed {
   gap: 0;
 }
 
+.unit-stepper__select-wrapper {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-width: 0;
+}
+
+.unit-stepper__select-wrapper app-icon {
+  position: absolute;
+  right: 0.45rem;
+  color: var(--gold);
+  font-size: 0.68rem;
+  pointer-events: none;
+}
+
 .unit-stepper select {
   min-width: 0;
-  padding: 0 0.55rem;
+  padding: 0 1.35rem 0 0.55rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   cursor: pointer;
   text-align: center;
   text-align-last: center;
+}
+
+.unit-stepper select::-ms-expand {
+  display: none;
 }
 
 .unit-stepper select:focus-visible {

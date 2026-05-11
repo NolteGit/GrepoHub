@@ -16,10 +16,11 @@ import {
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 @Component({
   selector: 'app-city-planner',
-  imports: [FormsModule, TranslatePipe],
+  imports: [FormsModule, TranslatePipe, AppIconComponent],
   templateUrl: './city-planner.html',
   styleUrl: './city-planner.scss',
 })

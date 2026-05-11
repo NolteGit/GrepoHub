@@ -130,11 +130,10 @@
               : ('language.switchToEnglish' | translate)
           "
         >
+          <app-icon name="language" />
           @if (translationService.currentLanguage() === 'en') {
-            <span class="app-shell__language-flag">🇩🇪</span>
             <span>DE</span>
           } @else {
-            <span class="app-shell__language-flag">🇬🇧</span>
             <span>EN</span>
           }
         </button>

@@ -57,18 +57,34 @@
   white-space: nowrap;
 }
 
+.toolbox-hero__timezone-wrapper {
+  position: relative;
+  display: inline-grid;
+  align-items: center;
+  color: var(--gold);
+}
+
+.toolbox-hero__timezone-wrapper app-icon {
+  position: absolute;
+  right: 0;
+  font-size: 0.62rem;
+  pointer-events: none;
+}
+
 .toolbox-hero__timezone {
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   border: 0;
   background: transparent;
-  color: var(--gold);
+  color: currentColor;
   cursor: pointer;
   font: inherit;
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.08em;
   line-height: 1;
-  padding: 0;
+  padding: 0 0.95rem 0 0;
   text-align: right;
   text-transform: uppercase;
 
@@ -76,6 +92,10 @@
   &:focus-visible {
     color: var(--text-primary);
     outline: none;
+  }
+
+  &::-ms-expand {
+    display: none;
   }
 
   option {

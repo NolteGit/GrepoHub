@@ -8,12 +8,13 @@ import { AttackType, Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 type TroopUnitSectionId = 'land' | 'sea' | 'mythical';
 
 @Component({
   selector: 'app-troops-planner',
-  imports: [FormsModule, NgTemplateOutlet, TranslatePipe],
+  imports: [FormsModule, NgTemplateOutlet, TranslatePipe, AppIconComponent],
   templateUrl: './troops-planner.html',
   styleUrl: './troops-planner.scss',
 })
