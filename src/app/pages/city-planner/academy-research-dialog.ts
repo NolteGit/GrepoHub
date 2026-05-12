@@ -1,10 +1,7 @@
 import { Component, EventEmitter, Input, Output, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import {
-  AcademyResearchId,
-  academyResearchLevelGroups,
-} from '../../data/academy-research-presets';
+import { AcademyResearchId, academyResearchLevelGroups } from '../../data/academy-research-presets';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   AcademyResearchCalculationResult,

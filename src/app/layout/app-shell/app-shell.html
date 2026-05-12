@@ -191,7 +191,9 @@
                             @if (canToggleTimerItem(item)) {
                               <button
                                 type="button"
-                                [attr.aria-label]="(timerToggleLabelKey(item) | translate) + ' ' + item.label"
+                                [attr.aria-label]="
+                                  (timerToggleLabelKey(item) | translate) + ' ' + item.label
+                                "
                                 (click)="toggleTimerItem(item)"
                               >
                                 @if (item.running) {
@@ -208,7 +210,9 @@
                             <button
                               type="button"
                               class="app-shell__timer-item-remove"
-                              [attr.aria-label]="('toolbox.queue.remove' | translate) + ' ' + item.label"
+                              [attr.aria-label]="
+                                ('toolbox.queue.remove' | translate) + ' ' + item.label
+                              "
                               (click)="removeTimerItem(item)"
                             >
                               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -238,7 +242,9 @@
                             <button
                               type="button"
                               class="app-shell__timer-item-remove"
-                              [attr.aria-label]="('toolbox.queue.remove' | translate) + ' ' + item.label"
+                              [attr.aria-label]="
+                                ('toolbox.queue.remove' | translate) + ' ' + item.label
+                              "
                               (click)="removeTimerItem(item)"
                             >
                               <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

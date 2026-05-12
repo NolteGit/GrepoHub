@@ -115,7 +115,6 @@ export class CityPlanner {
     return this.populationCapacity() - this.usedPopulation() - this.usedTroopPopulation();
   });
 
-
   protected selectConfiguration(configurationId: string): void {
     this.planConfigService.selectPlan(configurationId);
     this.closeExportMenu();
@@ -345,7 +344,6 @@ export class CityPlanner {
   protected closeAcademyResearchDialog(): void {
     this.academyResearchDialogOpen.set(false);
   }
-
 
   protected openNewPlanDialog(): void {
     const currentPlan = this.planConfigService.activePlan();

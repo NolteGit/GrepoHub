@@ -42,7 +42,6 @@ describe('PlanFileTransferService', () => {
     expect(exportedPlan.troopPlan?.isPreset).toBeUndefined();
   });
 
-
   it('imports a normal-sized JSON plan file', async () => {
     const bundle = {
       format: PLAN_CONFIG_FORMAT,

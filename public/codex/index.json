@@ -1,0 +1,34 @@
+{
+  "documents": [
+    {
+      "id": "grepohub-how-to",
+      "title": "GrepoHub - How To",
+      "description": "Compact guide to the main GrepoHub pages, local plans, imports, exports, and helper tools.",
+      "category": "Guides",
+      "type": "markdown",
+      "path": "/library/documents/grepohub-how-to.md",
+      "tags": [
+        "guide",
+        "app"
+      ],
+      "author": "Noltenius",
+      "updatedAt": "May 2026",
+      "language": "en"
+    },
+    {
+      "id": "grepolis-scripts-tools-how-to",
+      "title": "Grepolis Scripts & Tools - How To",
+      "description": "Compact guide to approved Grepolis scripts, Tampermonkey installation, and safe script handling.",
+      "category": "Tools",
+      "type": "markdown",
+      "path": "/library/documents/grepolis-scripts-tools-how-to.md",
+      "tags": [
+        "tools",
+        "scripts"
+      ],
+      "author": "Noltenius",
+      "updatedAt": "May 2026",
+      "language": "en"
+    }
+  ]
+}

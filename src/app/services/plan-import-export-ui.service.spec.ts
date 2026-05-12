@@ -39,7 +39,6 @@ describe('PlanImportExportUiService', () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
-
   it('delegates JSON export to the file transfer service', () => {
     service.exportActivePlanAsJson();
 

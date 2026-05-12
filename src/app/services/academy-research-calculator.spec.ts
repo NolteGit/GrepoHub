@@ -1,7 +1,10 @@
 import { calculateAcademyResearchPlan } from './academy-research-calculator';
 
-const calculate = (selectedResearchIds: Parameters<typeof calculateAcademyResearchPlan>[0]['selectedResearchIds'], academyLevel = 0, libraryBuilt = false) =>
-  calculateAcademyResearchPlan({ academyLevel, selectedResearchIds, libraryBuilt });
+const calculate = (
+  selectedResearchIds: Parameters<typeof calculateAcademyResearchPlan>[0]['selectedResearchIds'],
+  academyLevel = 0,
+  libraryBuilt = false,
+) => calculateAcademyResearchPlan({ academyLevel, selectedResearchIds, libraryBuilt });
 
 describe('calculateAcademyResearchPlan', () => {
   it('returns zero cost and zero required level without selected researches', () => {
@@ -53,5 +56,4 @@ describe('calculateAcademyResearchPlan', () => {
     expect(result.missingUnlockLevels).toBe(15);
     expect(result.missingPoints).toBe(0);
   });
-
 });

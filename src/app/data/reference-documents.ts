@@ -1,5 +1,3 @@
-export type ReferenceDocumentTag = 'advanced' | 'bela' | 'revo';
-
 export type ReferenceQuickLink = {
   id: string;
   title: string;
@@ -7,58 +5,6 @@ export type ReferenceQuickLink = {
   url?: string;
   urlDe?: string;
   urlEn?: string;
-};
-
-export type ReferenceLibraryIndexDocument = {
-  id: string;
-  title: string;
-  description: string;
-  abstract: string;
-  file: string;
-  tags: ReferenceDocumentTag[];
-  author?: string;
-  date?: string;
-  language?: string;
-  locked?: boolean;
-  accessCode?: string;
-  estimatedPages?: number;
-  sourceFormat?: 'markdown';
-};
-
-type ReferenceDocumentLink = {
-  label: string;
-  url: string;
-  note?: string;
-};
-
-export type ReferenceDocumentBlock =
-  | { type: 'heading'; level: 3 | 4; text: string }
-  | { type: 'paragraph'; text: string }
-  | { type: 'list'; items: string[] }
-  | { type: 'note'; title?: string; text: string }
-  | { type: 'link-list'; links: ReferenceDocumentLink[] };
-
-export type ReferenceDocumentSection = {
-  id: string;
-  title: string;
-  summary: string;
-  blocks: ReferenceDocumentBlock[];
-};
-
-export type ReferenceDocument = {
-  id: string;
-  title: string;
-  description: string;
-  abstract: string;
-  file: string;
-  author?: string;
-  date?: string;
-  language?: string;
-  tags: ReferenceDocumentTag[];
-  locked?: boolean;
-  accessCode?: string;
-  contentLoaded?: boolean;
-  sections: ReferenceDocumentSection[];
 };
 
 export const referenceQuickLinks: ReferenceQuickLink[] = [

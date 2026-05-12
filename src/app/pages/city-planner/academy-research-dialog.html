@@ -83,7 +83,11 @@
                 "
                 [attr.aria-pressed]="selectedAcademyResearchIdSet().has(research.id)"
                 [attr.aria-label]="research.nameKey | translate: research.fallbackName"
-                title="{{ research.nameKey | translate: research.fallbackName }} · {{ 'academyResearch.levelShort' | translate }} {{ research.requiredAcademyLevel }} · {{ research.cost }} {{ 'academyResearch.pointsShort' | translate }}"
+                title="{{ research.nameKey | translate: research.fallbackName }} · {{
+                  'academyResearch.levelShort' | translate
+                }} {{ research.requiredAcademyLevel }} · {{ research.cost }} {{
+                  'academyResearch.pointsShort' | translate
+                }}"
                 (click)="toggleResearch(research.id)"
               >
                 <span class="academy-research-dialog__research-icon" aria-hidden="true">
@@ -102,15 +106,24 @@
     @if (calculation.missingPoints > 0 || calculation.missingAcademyLevels > 0) {
       <p class="academy-research-dialog__status academy-research-dialog__status--warning">
         @if (calculation.missingPoints > 0) {
-          <span>{{ 'academyResearch.missingPoints' | translate }} {{ calculation.missingPoints }}</span>
+          <span
+            >{{ 'academyResearch.missingPoints' | translate }} {{ calculation.missingPoints }}</span
+          >
         }
 
         @if (calculation.missingAcademyLevels > 0) {
-          <span>{{ 'academyResearch.missingLevels' | translate: 'Missing levels' }} {{ calculation.missingAcademyLevels }}</span>
+          <span
+            >{{ 'academyResearch.missingLevels' | translate: 'Missing levels' }}
+            {{ calculation.missingAcademyLevels }}</span
+          >
         }
 
         @if (calculation.missingUnlockLevels > 0) {
-          <span>{{ 'academyResearch.unlockGate' | translate: 'Unlock' }} +{{ calculation.missingUnlockLevels }}</span>
+          <span
+            >{{ 'academyResearch.unlockGate' | translate: 'Unlock' }} +{{
+              calculation.missingUnlockLevels
+            }}</span
+          >
         }
       </p>
     }

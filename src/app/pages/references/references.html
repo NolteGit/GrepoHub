@@ -1,370 +1,223 @@
-<section class="references-page">
-  <header class="references-hero">
-    <div class="references-hero__content">
-      <div class="references-hero__copy">
-        <h1 class="references-hero__title">{{ 'references.title' | translate }}</h1>
-        <p>{{ 'references.subtitle' | translate }}</p>
-      </div>
-
-      <nav class="hero-quick-links" [attr.aria-label]="'references.quickLinksAria' | translate">
-        @for (link of quickLinks; track link.id) {
-          <a
-            class="hero-quick-link"
-            [href]="quickLinkUrl(link)"
-            target="_blank"
-            rel="noopener noreferrer"
-            [title]="link.title"
-            [attr.data-tooltip]="link.title"
-            [attr.aria-label]="link.title"
-          >
-            <img [src]="link.iconPath" [alt]="link.title" />
-          </a>
-        }
-      </nav>
+<section class="references-page codex-page">
+  <header class="codex-hero">
+    <div>
+      <p class="codex-eyebrow">{{ 'references.codexEyebrow' | translate: 'Document hub' }}</p>
+      <h1>{{ 'references.title' | translate }}</h1>
+      <p>{{ 'references.subtitle' | translate }}</p>
     </div>
+
+    <nav class="hero-quick-links" [attr.aria-label]="'references.quickLinksAria' | translate">
+      @for (link of quickLinks; track link.id) {
+        <a
+          class="hero-quick-link"
+          [href]="quickLinkUrl(link)"
+          target="_blank"
+          rel="noopener noreferrer"
+          [title]="link.title"
+          [attr.data-tooltip]="link.title"
+          [attr.aria-label]="link.title"
+        >
+          <img [src]="link.iconPath" [alt]="link.title" />
+        </a>
+      }
+    </nav>
   </header>
 
-  <section class="document-library">
-    <aside class="library-sidebar" [attr.aria-label]="'references.navigationAria' | translate">
-      <div class="library-sidebar__controls">
-        <label class="library-search">
-          <span>{{ 'references.search.label' | translate }}</span>
-          <input
-            type="search"
-            [placeholder]="'references.search.placeholder' | translate"
-            [value]="searchTerm()"
-            (input)="updateSearchTerm($event)"
-          />
-        </label>
+  <section class="codex-layout">
+    <aside class="codex-sidebar" [attr.aria-label]="'references.navigationAria' | translate">
+      <label class="codex-search">
+        <span>{{ 'references.search.label' | translate }}</span>
+        <input
+          type="search"
+          [placeholder]="'references.search.placeholder' | translate"
+          [value]="searchTerm()"
+          (input)="updateSearchTerm($event)"
+        />
+      </label>
 
-        <div class="tag-filters" [attr.aria-label]="'references.tagFiltersAria' | translate">
-          @for (filter of tagFilters; track filter.value) {
-            <button
-              type="button"
-              [class.active]="selectedTag() === filter.value"
-              (click)="selectTag(filter.value)"
-            >
-              {{ filter.labelKey | translate: filter.fallback }}
-            </button>
-          }
-        </div>
+      <div class="codex-filters" [attr.aria-label]="'references.categoryFiltersAria' | translate">
+        <button
+          type="button"
+          [class.active]="selectedCategory() === 'all'"
+          (click)="selectCategory('all')"
+        >
+          {{ 'references.category.all' | translate: 'All' }}
+        </button>
+        @for (category of categories(); track category) {
+          <button
+            type="button"
+            [class.active]="selectedCategory() === category"
+            (click)="selectCategory(category)"
+          >
+            {{ categoryLabel(category) }}
+          </button>
+        }
       </div>
 
-      @if (!isLibraryMode()) {
-        <button type="button" class="library-back-button" (click)="showLibrary()">
-          {{ 'references.backToLibrary' | translate: 'Back to library' }}
-        </button>
-      }
-
-      <nav class="library-index">
-        <p class="library-index__title">
+      <nav
+        class="codex-document-nav"
+        [attr.aria-label]="'references.documentsLabel' | translate: 'Documents'"
+      >
+        <p class="codex-document-nav__title">
           {{ 'references.documentsLabel' | translate: 'Documents' }}
         </p>
 
-        @if (libraryStatus() === 'loading') {
-          <p class="library-index__empty">
-            {{ 'references.loading' | translate: 'Loading library...' }}
+        @if (codexStatus() === 'loading') {
+          <p class="codex-document-nav__empty">
+            {{ 'references.loading' | translate: 'Loading codex...' }}
           </p>
-        } @else if (libraryStatus() === 'error') {
-          <p class="library-index__empty">
-            {{ 'references.loadError' | translate: 'Library documents could not be loaded.' }}
+        } @else if (codexStatus() === 'error') {
+          <p class="codex-document-nav__empty">
+            {{ 'references.loadError' | translate: 'Codex documents could not be loaded.' }}
           </p>
         } @else {
           @for (document of filteredDocuments(); track document.id) {
-            <article class="library-index-card" [class.active]="isSelectedDocument(document)">
-              <button
-                type="button"
-                class="library-index-card__trigger"
-                (click)="requestDocument(document)"
-              >
-                <strong>{{ documentTitle(document) }}</strong>
-              </button>
-
-              @if (isSelectedDocument(document) && document.sections.length > 0) {
-                <div class="library-index-card__sections">
-                  <p>{{ 'references.contents' | translate: 'Contents' }}</p>
-                  @for (section of document.sections; track section.id) {
-                    <button
-                      type="button"
-                      [class.active]="isSelectedSection(document, section.id)"
-                      (click)="selectSection(document, section.id)"
-                    >
-                      {{ sectionTitle(document, section.id, section.title) }}
-                    </button>
-                  }
-                </div>
-              }
-            </article>
+            <button
+              type="button"
+              class="codex-document-nav__item"
+              [class.active]="selectedDocument()?.id === document.id"
+              (click)="openDocument(document)"
+            >
+              <span class="codex-document-nav__name">{{ document.title }}</span>
+              <span class="codex-document-nav__meta">
+                {{ document.category }} · {{ documentTypeLabel(document.type) }}
+              </span>
+            </button>
           } @empty {
-            <p class="library-index__empty">{{ 'references.empty' | translate }}</p>
+            <p class="codex-document-nav__empty">{{ 'references.empty' | translate }}</p>
           }
         }
       </nav>
     </aside>
 
-    <article class="library-main">
-      @if (isLibraryMode()) {
-        @if (libraryStatus() === 'loading') {
-          <p class="document-grid__empty">
-            {{ 'references.loading' | translate: 'Loading library...' }}
-          </p>
-        } @else if (libraryStatus() === 'error') {
-          <p class="document-grid__empty">
-            {{ 'references.loadError' | translate: 'Library documents could not be loaded.' }}
-          </p>
-        } @else {
+    <main class="codex-main">
+      @if (codexStatus() === 'loading') {
+        <p class="codex-empty">{{ 'references.loading' | translate: 'Loading codex...' }}</p>
+      } @else if (codexStatus() === 'error') {
+        <p class="codex-empty">
+          {{ 'references.loadError' | translate: 'Codex documents could not be loaded.' }}
+        </p>
+      } @else {
+        @if (!isReaderOpen()) {
           <section
-            class="document-grid"
-            [attr.aria-label]="'references.documentsAria' | translate: 'Reference documents'"
+            class="codex-grid"
+            [attr.aria-label]="'references.documentsAria' | translate: 'Codex documents'"
           >
             @for (document of filteredDocuments(); track document.id) {
-              <button
-                type="button"
-                class="document-tile"
-                [attr.aria-label]="documentTitle(document) + '. ' + documentDescription(document)"
-                (click)="requestDocument(document)"
-              >
-                <span class="document-tile__title">{{ documentTitle(document) }}</span>
-                <span class="document-tile__description" aria-hidden="true">{{
-                  documentDescription(document)
-                }}</span>
-                @if (document.language) {
-                  <span class="document-tile__language">{{
-                    languageLabel(document.language)
-                  }}</span>
-                }
-                @if (document.tags.length > 0 || document.locked) {
-                  <span
-                    class="document-tile__badges"
-                    [attr.aria-label]="'references.tagsAria' | translate"
-                  >
-                    @for (tag of document.tags; track tag) {
-                      <span>{{ tagLabel(tag) }}</span>
-                    }
-                    @if (document.locked) {
-                      <span>{{ 'references.locked' | translate: 'Access code' }}</span>
-                    }
-                  </span>
-                }
+              <button type="button" class="codex-card" (click)="openDocument(document)">
+                <span class="codex-card__topline">
+                  <span>{{ document.category }}</span>
+                  <span>{{ documentTypeLabel(document.type) }}</span>
+                </span>
+                <strong>{{ document.title }}</strong>
+                <span>{{ document.description }}</span>
+                <span class="codex-card__meta">
+                  @if (document.language) {
+                    <span>{{ document.language.toUpperCase() }}</span>
+                  }
+                  @if (document.updatedAt) {
+                    <span>{{ document.updatedAt }}</span>
+                  }
+                  @if (document.author) {
+                    <span>{{ document.author }}</span>
+                  }
+                </span>
               </button>
             } @empty {
-              <p class="document-grid__empty">{{ 'references.empty' | translate }}</p>
+              <p class="codex-empty">{{ 'references.empty' | translate }}</p>
             }
           </section>
-        }
-      } @else if (selectedDocument(); as document) {
-        <header class="document-reader__header">
-          <button type="button" class="reader-back-button" (click)="showLibrary()">
-            {{ 'references.backToLibrary' | translate: 'Back to library' }}
-          </button>
+        } @else if (selectedDocument(); as document) {
+          <article class="codex-reader">
+            <header class="codex-reader__header">
+              <button type="button" class="codex-back-button" (click)="closeReader()">
+                {{ 'references.backToOverview' | translate }}
+              </button>
 
-          <div class="document-reader__headline">
-            <p class="library-main__eyebrow">
-              {{ 'references.documentEyebrow' | translate: 'Document' }}
-            </p>
-            <h2>{{ documentTitle(document) }}</h2>
-            <p>{{ documentAbstract(document) }}</p>
-
-            @if (
-              document.author ||
-              document.date ||
-              document.language ||
-              document.tags.length > 0 ||
-              document.locked
-            ) {
-              <div class="document-reader__details">
-                @if (document.author || document.date || document.language) {
-                  <dl class="document-reader__meta">
-                    @if (document.author) {
-                      <div>
-                        <dt>{{ 'references.author' | translate: 'Author' }}</dt>
-                        <dd>{{ document.author }}</dd>
-                      </div>
-                    }
-                    @if (document.date) {
-                      <div>
-                        <dt>{{ 'references.date' | translate: 'Date' }}</dt>
-                        <dd>{{ document.date }}</dd>
-                      </div>
-                    }
-                    @if (document.language) {
-                      <div>
-                        <dt>{{ 'references.language' | translate: 'Language' }}</dt>
-                        <dd>{{ languageLabel(document.language) }}</dd>
-                      </div>
-                    }
-                  </dl>
-                }
-
-                @if (document.tags.length > 0 || document.locked) {
-                  <div
-                    class="document-reader__tags"
-                    [attr.aria-label]="'references.tagsAria' | translate"
-                  >
-                    @for (tag of document.tags; track tag) {
-                      <span>{{ tagLabel(tag) }}</span>
-                    }
-                    @if (document.locked) {
-                      <span>{{ 'references.locked' | translate: 'Access code' }}</span>
-                    }
-                  </div>
-                }
+              <div>
+                <p class="codex-eyebrow">
+                  {{ document.category }} · {{ documentTypeLabel(document.type) }}
+                </p>
+                <h2>{{ document.title }}</h2>
+                <p>{{ document.description }}</p>
               </div>
+
+              <a
+                class="codex-open-link"
+                [href]="document.path"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ 'references.openDocument' | translate: 'Open file' }}
+              </a>
+            </header>
+
+            @if (document.note) {
+              <p class="codex-reader__note">{{ document.note }}</p>
             }
-          </div>
-        </header>
 
-        <section class="document-reader">
-          @for (section of document.sections; track section.id) {
-            <article
-              class="document-section"
-              [class.document-section--collapsed]="!isSectionExpanded(section.id)"
-              [attr.id]="'document-section-' + section.id"
-            >
-              <header class="document-section__header">
-                <button
-                  type="button"
-                  class="document-section__toggle"
-                  [attr.aria-expanded]="isSectionExpanded(section.id)"
-                  [attr.aria-controls]="'document-section-body-' + section.id"
-                  (click)="toggleSection(section.id)"
-                >
-                  <span class="document-section__title-row">
-                    <app-icon [name]="sectionChevronIcon(section.id)" />
-                    <span>{{ sectionTitle(document, section.id, section.title) }}</span>
-                  </span>
-                </button>
-              </header>
-
-              @if (isSectionExpanded(section.id)) {
-                <div
-                  class="document-section__body"
-                  [attr.id]="'document-section-body-' + section.id"
-                >
-                  @for (block of section.blocks; track $index; let blockIndex = $index) {
+            @if (!isInlinePreview(document)) {
+              <section class="codex-file-card">
+                <strong>{{
+                  'references.externalDocumentTitle' | translate: 'Open outside the app'
+                }}</strong>
+                <p>
+                  {{
+                    'references.externalDocumentText'
+                      | translate
+                        : 'This document type is collected here, but should be opened or downloaded with its original application.'
+                  }}
+                </p>
+                <a [href]="document.path" target="_blank" rel="noopener noreferrer">
+                  {{ 'references.openDocument' | translate: 'Open file' }}
+                </a>
+              </section>
+            } @else if (document.type === 'pdf') {
+              <iframe
+                class="codex-pdf-preview"
+                [src]="safePreviewUrl(document)"
+                [title]="document.title"
+              ></iframe>
+            } @else if (document.type === 'image') {
+              <img class="codex-image-preview" [src]="document.path" [alt]="document.title" />
+            } @else if (document.type === 'markdown') {
+              @if (readerStatus() === 'loading') {
+                <p class="codex-empty">
+                  {{ 'references.loadingDocument' | translate: 'Loading document...' }}
+                </p>
+              } @else if (readerStatus() === 'error') {
+                <p class="codex-empty">
+                  {{ 'references.documentLoadError' | translate: 'Document could not be loaded.' }}
+                </p>
+              } @else {
+                <section class="codex-markdown">
+                  @for (block of markdownBlocks(); track $index) {
                     @if (block.type === 'heading') {
-                      <h4 class="document-section__subheading">
-                        {{ blockText(document, section.id, blockIndex, block.text) }}
-                      </h4>
+                      @if (block.level === 2) {
+                        <h2>{{ block.text }}</h2>
+                      } @else if (block.level === 3) {
+                        <h3>{{ block.text }}</h3>
+                      } @else {
+                        <h4>{{ block.text }}</h4>
+                      }
                     } @else if (block.type === 'paragraph') {
-                      <p>{{ blockText(document, section.id, blockIndex, block.text) }}</p>
+                      <p>{{ block.text }}</p>
                     } @else if (block.type === 'list') {
                       <ul>
-                        @for (item of block.items; track $index; let itemIndex = $index) {
-                          <li>
-                            @if (contentsTargetSection(document, section, item); as targetSection) {
-                              <button
-                                type="button"
-                                class="document-section__toc-link"
-                                (click)="selectSection(document, targetSection.id)"
-                              >
-                                {{
-                                  listItemText(document, section.id, blockIndex, itemIndex, item)
-                                }}
-                              </button>
-                            } @else {
-                              {{ listItemText(document, section.id, blockIndex, itemIndex, item) }}
-                            }
-                          </li>
+                        @for (item of block.items; track $index) {
+                          <li>{{ item }}</li>
                         }
                       </ul>
-                    } @else if (block.type === 'note') {
-                      <aside class="document-note">
-                        @if (block.title) {
-                          <strong>{{
-                            blockTitle(document, section.id, blockIndex, block.title)
-                          }}</strong>
-                        }
-                        <p>{{ blockText(document, section.id, blockIndex, block.text) }}</p>
-                      </aside>
-                    } @else if (block.type === 'link-list') {
-                      <div class="document-link-list">
-                        @for (link of block.links; track link.url; let linkIndex = $index) {
-                          <a [href]="link.url" target="_blank" rel="noopener noreferrer">
-                            <strong>{{
-                              linkLabel(document, section.id, blockIndex, linkIndex, link.label)
-                            }}</strong>
-                            @if (link.note) {
-                              <span>{{
-                                linkNote(document, section.id, blockIndex, linkIndex, link.note)
-                              }}</span>
-                            }
-                          </a>
-                        }
-                      </div>
+                    } @else if (block.type === 'code') {
+                      <pre><code>{{ block.text }}</code></pre>
                     }
                   }
-                </div>
+                </section>
               }
-            </article>
-          }
-        </section>
-
-        <button type="button" class="reader-top-button" (click)="scrollToDocumentTop()">
-          {{ 'references.backToTop' | translate: 'Back to top' }}
-        </button>
+            }
+          </article>
+        }
       }
-    </article>
+    </main>
   </section>
-
-  @if (accessCodeDialogDocument(); as document) {
-    <div class="library-password-backdrop" role="presentation" (click)="closeAccessCodeDialog()">
-      <section
-        class="library-password-dialog"
-        role="dialog"
-        aria-modal="true"
-        [attr.aria-label]="'references.accessCode.title' | translate: 'Access code required'"
-        (click)="$event.stopPropagation()"
-      >
-        <div class="library-password-dialog__icon">!</div>
-        <div class="library-password-dialog__body">
-          <h2>{{ 'references.accessCode.title' | translate: 'Access code required' }}</h2>
-          <p>
-            {{ 'references.accessCode.description' | translate: 'Enter the access code to open' }}
-            <strong>{{ documentTitle(document) }}</strong
-            >.
-          </p>
-          <p>
-            {{
-              'references.accessCode.staticHint'
-                | translate
-                  : 'This is a light access gate for the static app, not strong protection for private content.'
-            }}
-          </p>
-        </div>
-
-        <form class="library-password-dialog__form" (submit)="submitAccessCode($event)">
-          <label>
-            <span>{{ 'references.accessCode.label' | translate: 'Access code' }}</span>
-            <input
-              type="password"
-              autocomplete="off"
-              [value]="accessCodeInput()"
-              (input)="updateAccessCodeInput($event)"
-            />
-          </label>
-
-          @if (accessCodeError()) {
-            <p class="library-password-dialog__error">{{ accessCodeError() }}</p>
-          }
-
-          <div class="library-password-dialog__actions">
-            <button
-              type="button"
-              class="library-password-dialog__button"
-              (click)="closeAccessCodeDialog()"
-            >
-              {{ 'common.cancel' | translate: 'Cancel' }}
-            </button>
-            <button
-              type="submit"
-              class="library-password-dialog__button library-password-dialog__button--primary"
-            >
-              {{ 'references.accessCode.unlock' | translate: 'Open document' }}
-            </button>
-          </div>
-        </form>
-      </section>
-    </div>
-  }
 </section>
