@@ -52,30 +52,42 @@
 
 .calculator-screen {
   display: grid;
+  grid-template-rows: minmax(0, 0.82rem) minmax(0, 1fr);
   align-content: end;
-  min-height: 3.05rem;
-  padding: 0.36rem 0.48rem;
+  row-gap: 0.08rem;
+  min-height: 3.46rem;
+  overflow: hidden;
+  padding: 0.34rem 0.48rem 0.42rem;
   border: 1px solid var(--border-soft);
   border-radius: 0.85rem;
   background: rgba(0, 8, 20, 0.28);
   text-align: right;
 
   span {
+    display: block;
+    overflow: hidden;
     min-height: 0.72rem;
     color: var(--text-muted);
-    font-size: 0.66rem;
+    font-size: 0.62rem;
     font-weight: 800;
+    line-height: 0.95;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span:empty {
+    min-height: 0;
   }
 
   strong {
+    align-self: end;
     overflow: hidden;
-    min-height: 1.18em;
-    padding-block: 0.04em;
+    min-height: 0;
     color: var(--text-primary);
-    font-size: clamp(1.55rem, 2.35vw, 2.95rem);
+    font-size: clamp(1.42rem, 1.85vw, 2.1rem);
     font-weight: 600;
-    letter-spacing: -0.045em;
-    line-height: 1.12;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
