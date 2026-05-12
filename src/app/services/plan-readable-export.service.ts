@@ -12,6 +12,7 @@ import {
 } from '../models/city-configuration.model';
 import { PlanConfig } from '../models/plan-config.model';
 import { Unit } from '../models/unit.model';
+import { calculateCityPlannerPopulation } from './city-planner-population';
 import { GameDataService } from './game-data.service';
 import { PlanConfigService } from './plan-config.service';
 import { TranslationService } from './translation.service';
@@ -273,21 +274,20 @@ export class PlanReadableExportService {
     readonly name: string;
     readonly value: number;
   }[] {
-    const populationCapacity = this.getPopulationCapacity(cityPlan);
-    const usedPopulation = this.getUsedPopulation(cityPlan);
+    const population = calculateCityPlannerPopulation(cityPlan);
 
     return [
       {
         name: this.translate('cityPlanner.populationCapacity', 'Population capacity'),
-        value: populationCapacity,
+        value: population.populationCapacity,
       },
       {
         name: this.translate('cityPlanner.usedPopulation', 'Used population'),
-        value: usedPopulation,
+        value: population.usedPopulation,
       },
       {
         name: this.translate('cityPlanner.freePopulation', 'Free population'),
-        value: populationCapacity - usedPopulation,
+        value: population.freePopulation,
       },
     ];
   }
@@ -451,67 +451,6 @@ export class PlanReadableExportService {
     });
   }
 
-  private getPopulationCapacity(cityPlan: CityConfiguration): number {
-    const farmLevel = this.getBuildingLevel(cityPlan, 'farm');
-    const farmCapacity = Math.max(this.getBuildingPopulation('farm', farmLevel), 0);
-    const aphroditeCapacity = cityPlan.modifiers.aphroditeActive ? farmLevel * 5 : 0;
-    const thermalBaseCapacity = farmCapacity + aphroditeCapacity;
-    const thermalAdjustedCapacity = this.hasSpecialBuilding(cityPlan, 'thermal_baths')
-      ? Math.round(thermalBaseCapacity * 1.1)
-      : thermalBaseCapacity;
-    const otherBuildingCapacity = cityBuildingPlanDefinitions.reduce((sum, building) => {
-      if (building.id === 'farm') {
-        return sum;
-      }
-
-      const level = this.getBuildingLevel(cityPlan, building.id);
-      const population = this.getBuildingPopulation(building.id, level);
-
-      return population > 0 ? sum + population : sum;
-    }, 0);
-    const fixedModifierCapacity = cityModifierDefinitions.reduce((sum, modifier) => {
-      if (!cityPlan.modifiers[modifier.id] || modifier.id === 'aphroditeActive') {
-        return sum;
-      }
-
-      return sum + Math.max(modifier.populationDelta, 0);
-    }, 0);
-    const specialBuildingCapacity = Object.values(cityPlan.specialBuildings).reduce(
-      (sum, optionId) => {
-        const population = this.getSpecialBuildingPopulation(optionId);
-
-        return population > 0 ? sum + population : sum;
-      },
-      0,
-    );
-
-    return (
-      thermalAdjustedCapacity +
-      otherBuildingCapacity +
-      fixedModifierCapacity +
-      specialBuildingCapacity
-    );
-  }
-
-  private getUsedPopulation(cityPlan: CityConfiguration): number {
-    const buildingPopulation = cityBuildingPlanDefinitions.reduce((sum, building) => {
-      const level = this.getBuildingLevel(cityPlan, building.id);
-      const population = this.getBuildingPopulation(building.id, level);
-
-      return population < 0 ? sum + Math.abs(population) : sum;
-    }, 0);
-    const specialBuildingPopulation = Object.values(cityPlan.specialBuildings).reduce(
-      (sum, optionId) => {
-        const population = this.getSpecialBuildingPopulation(optionId);
-
-        return population < 0 ? sum + Math.abs(population) : sum;
-      },
-      0,
-    );
-
-    return Math.round(buildingPopulation + specialBuildingPopulation);
-  }
-
   private getTroopTotals(plan: PlanConfig): {
     readonly totalUnits: number;
     readonly wood: number;
@@ -619,14 +558,6 @@ export class PlanReadableExportService {
 
     return option?.populationDelta ?? 0;
   }
-
-  private hasSpecialBuilding(
-    cityPlan: CityConfiguration,
-    optionId: CitySpecialBuildingOptionId,
-  ): boolean {
-    return Object.values(cityPlan.specialBuildings).includes(optionId);
-  }
-
   private getUnitSectionLabel(unit: Unit): string {
     if (unit.isMythical) {
       return this.translate('troopsPlanner.mythicalUnits', 'Mythical units');

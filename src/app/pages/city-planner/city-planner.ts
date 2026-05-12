@@ -16,6 +16,7 @@ import {
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
@@ -75,58 +76,20 @@ export class CityPlanner {
     return this.planConfigService.activePlan().cityPlan;
   });
 
+  protected readonly populationResult = computed(() => {
+    return calculateCityPlannerPopulation(this.selectedConfiguration());
+  });
+
   protected readonly populationCapacity = computed(() => {
-    const configuration = this.selectedConfiguration();
-    const farmLevel = this.getBuildingLevel('farm');
-    const farmCapacity = Math.max(this.getBuildingPopulation('farm', farmLevel), 0);
-    const aphroditeCapacity = configuration.modifiers['aphroditeActive'] ? farmLevel * 5 : 0;
-    const thermalBaseCapacity = farmCapacity + aphroditeCapacity;
-    const thermalAdjustedCapacity = this.hasSpecialBuilding(configuration, 'thermal_baths')
-      ? Math.round(thermalBaseCapacity * 1.1)
-      : thermalBaseCapacity;
-
-    const otherBuildingCapacity = this.buildingDefinitions.reduce((sum, building) => {
-      if (building.id === 'farm') {
-        return sum;
-      }
-
-      const level = this.getBuildingLevel(building.id);
-      const population = this.getBuildingPopulation(building.id, level);
-
-      return population > 0 ? sum + population : sum;
-    }, 0);
-
-    const fixedModifierCapacity = this.modifierDefinitions.reduce((sum, modifier) => {
-      if (!configuration.modifiers[modifier.id] || modifier.id === 'aphroditeActive') {
-        return sum;
-      }
-
-      return sum + Math.max(modifier.populationDelta, 0);
-    }, 0);
-
-    return (
-      thermalAdjustedCapacity +
-      otherBuildingCapacity +
-      fixedModifierCapacity +
-      this.getSpecialBuildingPopulationCapacity(configuration)
-    );
+    return this.populationResult().populationCapacity;
   });
 
   protected readonly usedPopulation = computed(() => {
-    const configuration = this.selectedConfiguration();
-
-    const usedPopulation = this.buildingDefinitions.reduce((sum, building) => {
-      const level = this.getBuildingLevel(building.id);
-      const population = this.getExactBuildingPopulation(building.id, level);
-
-      return population < 0 ? sum + Math.abs(population) : sum;
-    }, this.getSpecialBuildingUsedPopulation(configuration));
-
-    return Math.round(usedPopulation);
+    return this.populationResult().usedPopulation;
   });
 
   protected readonly freePopulation = computed(() => {
-    return this.populationCapacity() - this.usedPopulation();
+    return this.populationResult().freePopulation;
   });
 
   protected selectConfiguration(configurationId: string): void {
@@ -502,40 +465,4 @@ export class CityPlanner {
     this.planConfigService.updateActiveCityPlan(partialConfiguration);
   }
 
-  private getModifierPopulationCapacity(configuration: CityConfiguration): number {
-    return this.modifierDefinitions.reduce((sum, modifier) => {
-      if (!configuration.modifiers[modifier.id]) {
-        return sum;
-      }
-
-      if (modifier.id === 'aphroditeActive') {
-        return sum + (configuration.buildingLevels['farm'] ?? 0) * 5;
-      }
-
-      return sum + Math.max(modifier.populationDelta, 0);
-    }, 0);
-  }
-
-  private getSpecialBuildingPopulationCapacity(configuration: CityConfiguration): number {
-    return Object.values(configuration.specialBuildings).reduce((sum, optionId) => {
-      const delta = this.getSpecialBuildingPopulation(optionId);
-
-      return delta > 0 ? sum + delta : sum;
-    }, 0);
-  }
-
-  private hasSpecialBuilding(
-    configuration: CityConfiguration,
-    optionId: CitySpecialBuildingOptionId,
-  ): boolean {
-    return Object.values(configuration.specialBuildings).includes(optionId);
-  }
-
-  private getSpecialBuildingUsedPopulation(configuration: CityConfiguration): number {
-    return Object.values(configuration.specialBuildings).reduce((sum, optionId) => {
-      const delta = this.getSpecialBuildingPopulation(optionId);
-
-      return delta < 0 ? sum + Math.abs(delta) : sum;
-    }, 0);
-  }
 }
