@@ -1,6 +1,7 @@
 import { CityConfiguration } from '../models/city-configuration.model';
 import { PlanConfig } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
+
 import {
   clonePlan,
   createEmptyUnitAmounts,
@@ -159,8 +160,28 @@ describe('plan config normalization', () => {
     const plan = normalizePlanConfig({
       id: 'plan-1',
       name: 'Clone Source',
-      cityPlan: { id: 'city-1', name: 'City', buildingLevels: { farm: 10 } },
-      troopPlan: { id: 'troops-1', name: 'Troops', unitAmounts: { swordsman: 20 } },
+      cityPlan: {
+        id: 'city-1',
+        name: 'City',
+        buildingLevels: { farm: 10 },
+        modifiers: {
+          plowResearched: false,
+          aphroditeActive: false,
+        },
+        specialBuildings: {
+          slot1: 'none',
+          slot2: 'none',
+        },
+      },
+      troopPlan: {
+        id: 'troops-1',
+        name: 'Troops',
+        unitAmounts: { swordsman: 20 },
+        isPreset: false,
+        modifiers: {
+          bunks: false,
+        },
+      },
     });
     const clonedPlan = clonePlan(plan);
 
