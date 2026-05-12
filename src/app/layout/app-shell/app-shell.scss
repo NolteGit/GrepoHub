@@ -290,6 +290,249 @@
   padding: 0.42rem 0.72rem;
 }
 
+.app-shell__timer-widget {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.app-shell__timer-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  min-height: 2.2rem;
+  padding: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--regal-navy);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.app-shell__timer-action:hover,
+.app-shell__timer-action[aria-expanded='true'] {
+  color: var(--ink-black);
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.app-shell__timer-action--done {
+  border-color: var(--gold);
+  box-shadow:
+    0 0 0 2px rgba(255, 214, 10, 0.22),
+    0 0 18px rgba(255, 214, 10, 0.18);
+}
+
+.app-shell__timer-action svg {
+  width: 1.08rem;
+  height: 1.08rem;
+}
+
+.app-shell__timer-badge {
+  position: absolute;
+  top: -0.42rem;
+  right: -0.38rem;
+  display: grid;
+  place-items: center;
+  min-width: 1.14rem;
+  height: 1.14rem;
+  padding: 0 0.28rem;
+  border: 1px solid rgba(0, 8, 20, 0.68);
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink-black);
+  font-size: 0.66rem;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-shell__timer-badge--done {
+  border-color: rgba(0, 8, 20, 0.72);
+  background: #ff4d4d;
+  color: var(--text-primary);
+  box-shadow: 0 0 0 2px rgba(255, 77, 77, 0.18);
+}
+
+.app-shell__timer-menu {
+  position: absolute;
+  top: calc(100% + 0.52rem);
+  right: 0;
+  z-index: 40;
+  display: grid;
+  gap: 0.7rem;
+  width: min(23rem, calc(100vw - 1.25rem));
+  max-height: min(33rem, calc(100vh - 6.5rem));
+  padding: 0.75rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 1rem;
+  background: rgba(0, 29, 61, 0.98);
+  box-shadow: 0 18px 34px rgba(0, 8, 20, 0.44);
+  overflow-y: auto;
+  backdrop-filter: blur(12px);
+  scrollbar-color: rgba(255, 214, 10, 0.55) rgba(0, 8, 20, 0.22);
+  scrollbar-width: thin;
+}
+
+.app-shell__timer-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.app-shell__timer-menu-header strong {
+  color: var(--text-primary);
+  font-size: 0.96rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.app-shell__timer-menu-header a {
+  flex: 0 0 auto;
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.app-shell__timer-menu-header a:hover {
+  text-decoration: underline;
+}
+
+.app-shell__timer-menu-section {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.app-shell__timer-menu-section h2 {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.app-shell__timer-list {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.app-shell__timer-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.48rem;
+  min-width: 0;
+  padding: 0.48rem 0.5rem 0.48rem 0.6rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 0.78rem;
+  background: rgba(0, 8, 20, 0.24);
+}
+
+.app-shell__timer-item[data-tone='running'] {
+  border-color: rgba(255, 214, 10, 0.3);
+}
+
+.app-shell__timer-item[data-tone='done'] {
+  border-color: var(--gold);
+  background: rgba(255, 214, 10, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 214, 10, 0.28);
+}
+
+.app-shell__timer-item-content {
+  display: grid;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+.app-shell__timer-item strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell__timer-item span {
+  color: var(--gold);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.app-shell__timer-item p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.app-shell__timer-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.24rem;
+}
+
+.app-shell__timer-item-actions button {
+  display: grid;
+  place-items: center;
+  width: 1.62rem;
+  height: 1.62rem;
+  padding: 0;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: rgba(0, 8, 20, 0.24);
+  color: var(--gold);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.app-shell__timer-item-actions button:hover {
+  background: rgba(255, 214, 10, 0.14);
+  border-color: rgba(255, 214, 10, 0.5);
+  transform: translateY(-1px);
+}
+
+.app-shell__timer-item-actions svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.app-shell__timer-item-actions .app-shell__timer-item-remove {
+  border-color: rgba(255, 86, 86, 0.34);
+  background: rgba(255, 86, 86, 0.08);
+  color: #ff6464;
+}
+
+.app-shell__timer-item-actions .app-shell__timer-item-remove:hover {
+  border-color: rgba(255, 86, 86, 0.58);
+  background: rgba(255, 86, 86, 0.14);
+  color: #ff8585;
+}
+
 .app-shell__language-action:hover {
   color: var(--ink-black);
   background: var(--gold);
@@ -307,6 +550,8 @@
 }
 
 .app-shell__language-action:focus-visible,
+.app-shell__timer-action:focus-visible,
+.app-shell__timer-item-actions button:focus-visible,
 .app-shell__menu-toggle:focus-visible,
 .app-shell__nav-link:focus-visible,
 .app-shell__brand:focus-visible {
@@ -415,6 +660,11 @@
     font-size: 0.82rem;
   }
 
+  .app-shell__timer-action {
+    width: 2.18rem;
+    min-height: 2.05rem;
+  }
+
   .app-shell__nav {
     width: min(20rem, 100%);
   }
@@ -438,5 +688,13 @@
   .app-shell__language-action {
     min-width: 0;
     padding-inline: 0.58rem;
+  }
+
+  .app-shell__actions {
+    gap: 0.48rem;
+  }
+
+  .app-shell__timer-menu {
+    right: -0.35rem;
   }
 }

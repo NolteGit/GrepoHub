@@ -1,6 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
-import { QueuedAlarm, QueuedCountdown, QueuedStopwatch } from '../models/toolbox.models';
+import type {
+  ActiveTimerItem,
+  QueuedAlarm,
+  QueuedCountdown,
+  QueuedStopwatch,
+} from '../models/toolbox.models';
 import { formatDurationMs } from '../utils/toolbox-time.util';
 
 @Injectable({ providedIn: 'root' })
@@ -13,12 +18,23 @@ export class ToolboxTimerService {
   readonly queuedStopwatches = signal<QueuedStopwatch[]>([]);
   readonly queuedAlarms = signal<QueuedAlarm[]>([]);
   readonly stopwatchTick = signal(0);
+  readonly queueDisplayTick = signal(0);
   readonly freshQueueItemIds = signal<string[]>([]);
+  readonly overviewItems = computed<ActiveTimerItem[]>(() => {
+    this.queueDisplayTick();
+
+    return [
+      ...this.queuedCountdowns().map((countdown) => this.queuedCountdownItem(countdown)),
+      ...this.queuedAlarms().map((alarm) => this.queuedAlarmItem(alarm)),
+      ...this.queuedStopwatches().map((stopwatch) => this.queuedStopwatchItem(stopwatch)),
+    ];
+  });
 
   private countdownIntervalId: number | null = null;
   private countdownDeadline = 0;
   private stopwatchIntervalId: number | null = null;
   private stopwatchStartedAt = 0;
+  private lastQueueDisplaySecond = 0;
   private readonly alarmTimeoutIds = new Map<string, number>();
 
   toggleCountdown(durationMs: number): void {
@@ -237,6 +253,37 @@ export class ToolboxTimerService {
     this.queuedAlarms.update((items) => items.filter((alarm) => alarm.id !== itemId));
   }
 
+  removeOverviewItem(item: ActiveTimerItem): void {
+    if (item.type === 'countdown-queue') {
+      this.removeQueuedCountdown(item.id);
+      return;
+    }
+
+    if (item.type === 'alarm') {
+      this.removeQueuedAlarm(item.id);
+      return;
+    }
+
+    if (item.type === 'stopwatch-queue') {
+      this.removeQueuedStopwatch(item.id);
+    }
+  }
+
+  toggleOverviewItem(item: ActiveTimerItem): void {
+    if (item.tone === 'done') {
+      return;
+    }
+
+    if (item.type === 'countdown-queue') {
+      this.toggleQueuedCountdown(item.id);
+      return;
+    }
+
+    if (item.type === 'stopwatch-queue') {
+      this.toggleQueuedStopwatch(item.id);
+    }
+  }
+
   resetQueuedCountdowns(): void {
     this.queuedCountdowns.set([]);
     this.syncStopwatchInterval();
@@ -269,6 +316,49 @@ export class ToolboxTimerService {
 
   formatQueuedStopwatchValue(stopwatch: QueuedStopwatch): string {
     return formatDurationMs(this.queuedStopwatchElapsedMs(stopwatch), true);
+  }
+
+  private queuedCountdownItem(countdown: QueuedCountdown): ActiveTimerItem {
+    const remainingMs = this.queuedCountdownRemainingMs(countdown);
+
+    return {
+      id: countdown.id,
+      type: 'countdown-queue',
+      label: countdown.label,
+      value: formatDurationMs(remainingMs),
+      stateKey:
+        remainingMs <= 0
+          ? 'toolbox.status.finished'
+          : countdown.running
+            ? 'toolbox.status.running'
+            : 'toolbox.status.paused',
+      tone: remainingMs <= 0 ? 'done' : countdown.running ? 'running' : 'paused',
+      running: countdown.running && remainingMs > 0,
+    };
+  }
+
+  private queuedStopwatchItem(stopwatch: QueuedStopwatch): ActiveTimerItem {
+    return {
+      id: stopwatch.id,
+      type: 'stopwatch-queue',
+      label: stopwatch.label,
+      value: formatDurationMs(this.queuedStopwatchElapsedMs(stopwatch)),
+      stateKey: stopwatch.running ? 'toolbox.status.running' : 'toolbox.status.paused',
+      tone: stopwatch.running ? 'running' : 'paused',
+      running: stopwatch.running,
+    };
+  }
+
+  private queuedAlarmItem(alarm: QueuedAlarm): ActiveTimerItem {
+    return {
+      id: alarm.id,
+      type: 'alarm',
+      label: alarm.label,
+      value: alarm.time,
+      stateKey: alarm.triggered ? 'toolbox.status.reached' : 'toolbox.status.armed',
+      tone: alarm.triggered ? 'done' : 'armed',
+      running: alarm.running,
+    };
   }
 
   private scheduleQueuedAlarm(alarm: QueuedAlarm): void {
@@ -311,6 +401,7 @@ export class ToolboxTimerService {
 
   private syncStopwatchInterval(): void {
     this.settleQueuedCountdowns();
+    this.updateQueueDisplayTick();
 
     const hasRunningTimer =
       this.stopwatchRunning() ||
@@ -325,6 +416,7 @@ export class ToolboxTimerService {
 
         this.settleQueuedCountdowns();
         this.stopwatchTick.update((tick) => tick + 1);
+        this.updateQueueDisplayTick();
 
         const stillRunning =
           this.stopwatchRunning() ||
@@ -355,6 +447,17 @@ export class ToolboxTimerService {
         item.running && item.deadline <= now ? { ...item, remainingMs: 0, running: false } : item,
       ),
     );
+  }
+
+  private updateQueueDisplayTick(): void {
+    const currentSecond = Math.floor(Date.now() / 1000);
+
+    if (currentSecond === this.lastQueueDisplaySecond) {
+      return;
+    }
+
+    this.lastQueueDisplaySecond = currentSecond;
+    this.queueDisplayTick.update((tick) => tick + 1);
   }
 
   private clearStopwatchInterval(): void {

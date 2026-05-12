@@ -120,6 +120,143 @@
       </nav>
 
       <div class="app-shell__actions">
+        @if (hasTimerItems()) {
+          <div class="app-shell__timer-widget">
+            <button
+              class="app-shell__timer-action"
+              [class.app-shell__timer-action--done]="hasFinishedTimerItems()"
+              type="button"
+              (click)="toggleTimerMenu()"
+              [attr.aria-label]="'nav.timerQueueAria' | translate"
+              [attr.aria-expanded]="isTimerMenuOpen()"
+              aria-controls="app-shell-timer-menu"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path
+                  d="M9 2h6v2H9z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-width="1.8"
+                />
+                <path
+                  d="M12 6a7 7 0 1 0 0 14a7 7 0 0 0 0-14Z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                />
+                <path
+                  d="M12 9v4l2.6 1.6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.8"
+                />
+              </svg>
+              <span
+                class="app-shell__timer-badge"
+                [class.app-shell__timer-badge--done]="hasFinishedTimerItems()"
+                aria-hidden="true"
+              >
+                {{ timerBadgeCount() }}
+              </span>
+            </button>
+
+            @if (isTimerMenuOpen()) {
+              <aside
+                id="app-shell-timer-menu"
+                class="app-shell__timer-menu"
+                [attr.aria-label]="'nav.timerQueueTitle' | translate"
+              >
+                <header class="app-shell__timer-menu-header">
+                  <strong>{{ 'nav.timerQueueTitle' | translate }}</strong>
+                  <a routerLink="/toolbox" (click)="closeTimerMenu()">
+                    {{ 'nav.timerQueueOpenToolbox' | translate }}
+                  </a>
+                </header>
+
+                @if (activeTimerItems().length > 0) {
+                  <section class="app-shell__timer-menu-section">
+                    <h2>{{ 'nav.timerQueueActive' | translate }}</h2>
+                    <div class="app-shell__timer-list">
+                      @for (item of activeTimerItems(); track item.id) {
+                        <article class="app-shell__timer-item" [attr.data-tone]="item.tone">
+                          <div class="app-shell__timer-item-content">
+                            <strong>{{ item.label }}</strong>
+                            <span>{{ item.stateKey | translate }}</span>
+                          </div>
+                          <p>{{ item.value }}</p>
+                          <div class="app-shell__timer-item-actions">
+                            @if (canToggleTimerItem(item)) {
+                              <button
+                                type="button"
+                                [attr.aria-label]="(timerToggleLabelKey(item) | translate) + ' ' + item.label"
+                                (click)="toggleTimerItem(item)"
+                              >
+                                @if (item.running) {
+                                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M8 5h3v14H8zM13 5h3v14h-3z" />
+                                  </svg>
+                                } @else {
+                                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                }
+                              </button>
+                            }
+                            <button
+                              type="button"
+                              class="app-shell__timer-item-remove"
+                              [attr.aria-label]="('toolbox.queue.remove' | translate) + ' ' + item.label"
+                              (click)="removeTimerItem(item)"
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M9 3h6l1 2h4v2H4V5h4z" />
+                                <path d="M6 9h12l-1 12H7z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  </section>
+                }
+
+                @if (finishedTimerItems().length > 0) {
+                  <section class="app-shell__timer-menu-section">
+                    <h2>{{ 'nav.timerQueueFinished' | translate }}</h2>
+                    <div class="app-shell__timer-list">
+                      @for (item of finishedTimerItems(); track item.id) {
+                        <article class="app-shell__timer-item" [attr.data-tone]="item.tone">
+                          <div class="app-shell__timer-item-content">
+                            <strong>{{ item.label }}</strong>
+                            <span>{{ item.stateKey | translate }}</span>
+                          </div>
+                          <p>{{ item.value }}</p>
+                          <div class="app-shell__timer-item-actions">
+                            <button
+                              type="button"
+                              class="app-shell__timer-item-remove"
+                              [attr.aria-label]="('toolbox.queue.remove' | translate) + ' ' + item.label"
+                              (click)="removeTimerItem(item)"
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M9 3h6l1 2h4v2H4V5h4z" />
+                                <path d="M6 9h12l-1 12H7z" />
+                              </svg>
+                            </button>
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  </section>
+                }
+              </aside>
+            }
+          </div>
+        }
+
         <button
           class="app-shell__language-action"
           type="button"
