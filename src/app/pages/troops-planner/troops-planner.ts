@@ -7,6 +7,7 @@ import { TroopConfiguration, TroopModifierId } from '../../models/troop-configur
 import { AttackType, Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
+import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { PlanConfigService } from '../../services/plan-config.service';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
@@ -36,7 +37,7 @@ export class TroopsPlanner {
   protected readonly collapsedUnitSections = signal<Record<TroopUnitSectionId, boolean>>({
     land: false,
     sea: false,
-    mythical: false,
+    mythical: true,
   });
 
   private readonly gameDataService = inject(GameDataService);
@@ -62,6 +63,18 @@ export class TroopsPlanner {
 
   protected readonly selectedConfiguration = computed<TroopConfiguration>(() => {
     return this.planConfigService.activePlan().troopPlan;
+  });
+
+  protected readonly cityPopulationResult = computed(() => {
+    return calculateCityPlannerPopulation(this.planConfigService.activePlan().cityPlan);
+  });
+
+  protected readonly cityPopulationCapacity = computed(() => {
+    return this.cityPopulationResult().populationCapacity;
+  });
+
+  protected readonly cityUsedBuildingPopulation = computed(() => {
+    return this.cityPopulationResult().usedPopulation;
   });
 
   protected readonly visibleUnits = computed(() => {
@@ -151,6 +164,12 @@ export class TroopsPlanner {
       ...baseTotals,
       transportCapacity: baseTotals.transportCapacity + this.bunksCapacityBonus(),
     };
+  });
+
+  protected readonly cityFreePopulation = computed(() => {
+    return (
+      this.cityPopulationCapacity() - this.cityUsedBuildingPopulation() - this.totals().population
+    );
   });
 
   protected readonly attackTotals = computed(() => {

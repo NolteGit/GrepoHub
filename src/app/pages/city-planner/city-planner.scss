@@ -664,6 +664,17 @@
   font-weight: 800;
 }
 
+.city-planner-summary__total dd {
+  color: var(--gold);
+}
+
+.city-planner-summary__divider {
+  height: 1px;
+  min-height: 0;
+  padding: 0 !important;
+  background: rgba(255, 214, 10, 0.18) !important;
+}
+
 .city-planner-summary__result {
   border: 1px solid var(--border-strong);
   background: rgba(0, 53, 102, 0.48) !important;

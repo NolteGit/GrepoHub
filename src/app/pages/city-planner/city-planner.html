@@ -437,21 +437,28 @@
         </header>
 
         <dl class="city-planner-summary">
-          <div>
-            <dt>{{ 'cityPlanner.populationCapacity' | translate }}</dt>
+          <div class="city-planner-summary__total">
+            <dt>{{ 'cityPlanner.maxBhp' | translate }}</dt>
             <dd>{{ populationCapacity() }}</dd>
           </div>
 
           <div>
-            <dt>{{ 'cityPlanner.usedPopulation' | translate }}</dt>
+            <dt>{{ 'cityPlanner.usedByBuildings' | translate }}</dt>
             <dd>{{ usedPopulation() }}</dd>
           </div>
+
+          <div>
+            <dt>{{ 'cityPlanner.usedByTroops' | translate }}</dt>
+            <dd>{{ usedTroopPopulation() }}</dd>
+          </div>
+
+          <div class="city-planner-summary__divider" aria-hidden="true"></div>
 
           <div
             class="city-planner-summary__result"
             [class.city-planner-summary__result--negative]="freePopulation() < 0"
           >
-            <dt>{{ 'cityPlanner.freePopulation' | translate }}</dt>
+            <dt>{{ 'cityPlanner.freeBhp' | translate }}</dt>
             <dd>{{ freePopulation() }}</dd>
           </div>
         </dl>

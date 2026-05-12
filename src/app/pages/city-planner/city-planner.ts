@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
 import {
@@ -15,6 +16,7 @@ import {
   CitySpecialBuildingSlotId,
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
@@ -32,6 +34,7 @@ export class CityPlanner {
   protected readonly clearPlanDialogOpen = signal(false);
   protected readonly configurationMenuOpen = signal(false);
 
+  private readonly gameDataService = inject(GameDataService);
   private readonly planConfigService = inject(PlanConfigService);
   private readonly planReadableExportService = inject(PlanReadableExportService);
   private readonly planImportExportUiService = inject(PlanImportExportUiService);
@@ -56,6 +59,10 @@ export class CityPlanner {
     timber_camp: 1,
     warehouse: 1,
   };
+
+  protected readonly units = toSignal(this.gameDataService.getUnitDefinitions(), {
+    initialValue: [],
+  });
 
   protected readonly buildingDefinitions = cityBuildingPlanDefinitions;
   protected readonly modifierDefinitions = cityModifierDefinitions;
@@ -88,8 +95,20 @@ export class CityPlanner {
     return this.populationResult().usedPopulation;
   });
 
+  protected readonly usedTroopPopulation = computed(() => {
+    const unitDefinitions = new Map(this.units().map((unit) => [unit.id, unit]));
+    const troopPlan = this.planConfigService.activePlan().troopPlan;
+
+    return Object.entries(troopPlan.unitAmounts).reduce((sum, [unitId, amount]) => {
+      const unit = unitDefinitions.get(unitId);
+      const safeAmount = Number.isFinite(amount) ? amount : 0;
+
+      return sum + (unit?.cost.population ?? 0) * safeAmount;
+    }, 0);
+  });
+
   protected readonly freePopulation = computed(() => {
-    return this.populationResult().freePopulation;
+    return this.populationCapacity() - this.usedPopulation() - this.usedTroopPopulation();
   });
 
   protected selectConfiguration(configurationId: string): void {
