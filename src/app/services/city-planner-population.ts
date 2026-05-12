@@ -21,7 +21,7 @@ const cityBuildingMinLevels: Record<string, number> = {
   warehouse: 1,
 };
 
-export interface CityPlannerPopulationBreakdown {
+interface CityPlannerPopulationBreakdown {
   readonly farmLevel: number;
   readonly farmCapacity: number;
   readonly aphroditeCapacity: number;
@@ -70,7 +70,10 @@ export function calculateCityPlannerPopulation(
   }, 0);
   const specialBuildingCapacity = getCityPlannerSpecialBuildingPopulationCapacity(configuration);
   const populationCapacity =
-    thermalAdjustedCapacity + otherBuildingCapacity + fixedModifierCapacity + specialBuildingCapacity;
+    thermalAdjustedCapacity +
+    otherBuildingCapacity +
+    fixedModifierCapacity +
+    specialBuildingCapacity;
   const buildingUsedPopulation = cityBuildingPlanDefinitions.reduce((sum, building) => {
     const level = getCityPlannerBuildingLevel(configuration, building.id);
     const population = getExactCityPlannerBuildingPopulation(building.id, level);
@@ -133,9 +136,7 @@ function getCityPlannerBuildingDefinition(
   return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
 }
 
-function getCityPlannerSpecialBuildingPopulation(
-  optionId: CitySpecialBuildingOptionId,
-): number {
+function getCityPlannerSpecialBuildingPopulation(optionId: CitySpecialBuildingOptionId): number {
   const option = citySpecialBuildingOptionDefinitions.find((definition) => {
     return definition.id === optionId;
   });
@@ -143,9 +144,7 @@ function getCityPlannerSpecialBuildingPopulation(
   return option?.populationDelta ?? 0;
 }
 
-function getCityPlannerSpecialBuildingPopulationCapacity(
-  configuration: CityConfiguration,
-): number {
+function getCityPlannerSpecialBuildingPopulationCapacity(configuration: CityConfiguration): number {
   return Object.values(configuration.specialBuildings).reduce((sum, optionId) => {
     const delta = getCityPlannerSpecialBuildingPopulation(optionId);
 

@@ -510,11 +510,7 @@
             {{ 'planConfig.newPlanDialog.cancel' | translate }}
           </button>
 
-          <button
-            type="submit"
-            class="plan-dialog__button"
-            [disabled]="!newPlanName().trim()"
-          >
+          <button type="submit" class="plan-dialog__button" [disabled]="!newPlanName().trim()">
             {{ 'planConfig.newPlanDialog.confirm' | translate }}
           </button>
         </div>

@@ -153,7 +153,8 @@
 }
 
 .troops-planner-page__configuration-button--export:hover .troops-planner-page__export-tooltip,
-.troops-planner-page__configuration-button--export:focus-visible .troops-planner-page__export-tooltip {
+.troops-planner-page__configuration-button--export:focus-visible
+  .troops-planner-page__export-tooltip {
   opacity: 1;
   transform: translateY(0);
   visibility: visible;
@@ -594,7 +595,6 @@
   padding: 0.95rem 1rem;
 }
 
-
 .summary-overview__divider {
   height: 1px;
   margin: 0 1rem;
@@ -864,7 +864,6 @@
   color: var(--text-secondary);
   font-weight: 650;
 }
-
 
 .troop-bhp-summary dd {
   margin: 0;

@@ -502,5 +502,4 @@ export class CityPlanner {
   private updateSelectedConfiguration(partialConfiguration: Partial<CityConfiguration>): void {
     this.planConfigService.updateActiveCityPlan(partialConfiguration);
   }
-
 }
