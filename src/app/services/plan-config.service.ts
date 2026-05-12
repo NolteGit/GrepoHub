@@ -55,6 +55,9 @@ export class PlanConfigService {
   private readonly storageKey = 'grepo-hub-plan-configs';
   private readonly legacyCityStorageKey = 'grepo-hub-city-configurations';
   private readonly legacyTroopStorageKey = 'grepo-hub-troop-configurations';
+  private readonly autosaveDelayMs = 300;
+  private autosaveTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private customPlanIdCounter = 0;
   private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
   private readonly selectedPlanId = signal(this.planConfigs()[0]?.id ?? '');
 
@@ -104,6 +107,11 @@ export class PlanConfigService {
   }
 
   savePlans(): void {
+    if (this.autosaveTimeoutId !== null) {
+      clearTimeout(this.autosaveTimeoutId);
+      this.autosaveTimeoutId = null;
+    }
+
     localStorage.setItem(this.storageKey, JSON.stringify(this.createExportBundle()));
   }
   duplicateActivePlan(name: string): PlanConfig {
@@ -112,7 +120,7 @@ export class PlanConfigService {
     const requestedName =
       typeof name === 'string' && name.trim().length > 0 ? name.trim() : currentPlan.name + ' Copy';
     const uniqueName = this.createUniquePlanName(requestedName, 'Copy');
-    const idSuffix = Date.now();
+    const idSuffix = this.createCustomPlanIdSuffix();
     const duplicatedPlan: PlanConfig = {
       ...clonePlan(currentPlan),
       id: `custom-plan-${idSuffix}`,
@@ -395,6 +403,12 @@ export class PlanConfigService {
     });
   }
 
+  private createCustomPlanIdSuffix(): string {
+    this.customPlanIdCounter += 1;
+
+    return `${Date.now()}-${this.customPlanIdCounter}`;
+  }
+
   private includeMissingPresetPlans(plans: readonly PlanConfig[]): PlanConfig[] {
     const existingPlanIds = new Set(plans.map((plan) => plan.id));
     const missingPresets = planConfigPresets
@@ -554,6 +568,18 @@ export class PlanConfigService {
           : plan,
       ),
     );
+    this.scheduleSavePlans();
+  }
+
+  private scheduleSavePlans(): void {
+    if (this.autosaveTimeoutId !== null) {
+      clearTimeout(this.autosaveTimeoutId);
+    }
+
+    this.autosaveTimeoutId = setTimeout(() => {
+      this.autosaveTimeoutId = null;
+      this.savePlans();
+    }, this.autosaveDelayMs);
   }
 
   private loadPlans(): PlanConfig[] {

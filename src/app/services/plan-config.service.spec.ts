@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 
 import { PLAN_CONFIG_FORMAT, PLAN_CONFIG_VERSION } from '../models/plan-config.model';
 import { PlanConfigService } from './plan-config.service';
@@ -15,6 +16,9 @@ describe('PlanConfigService import validation', () => {
   });
 
   afterEach(() => {
+    service.savePlans();
+    vi.clearAllTimers();
+    vi.useRealTimers();
     localStorage.clear();
   });
 
@@ -133,6 +137,37 @@ describe('PlanConfigService import validation', () => {
     );
     expect(clearedPlan.troopPlan.unitAmounts['transport_boat']).toBe(0);
     expect(clearedPlan.troopPlan.modifiers.bunks).toBe(false);
+  });
+
+  it('autosaves active plan updates after a short delay', () => {
+    vi.useFakeTimers();
+    service.selectPlan('preset-hybrid-plan');
+    const customPlan = service.duplicateActivePlan('Autosave Test');
+
+    service.updateActiveCityPlan({
+      buildingLevels: {
+        ...customPlan.cityPlan.buildingLevels,
+        farm: 20,
+      },
+    });
+
+    const storedBeforeAutosave = JSON.parse(localStorage.getItem('grepo-hub-plan-configs') ?? '{}');
+    const planBeforeAutosave = storedBeforeAutosave.plans.find(
+      (plan: { readonly id: string }) => plan.id === customPlan.id,
+    );
+
+    expect(planBeforeAutosave.cityPlan.buildingLevels.farm).toBe(
+      customPlan.cityPlan.buildingLevels['farm'],
+    );
+
+    vi.advanceTimersByTime(300);
+
+    const storedAfterAutosave = JSON.parse(localStorage.getItem('grepo-hub-plan-configs') ?? '{}');
+    const planAfterAutosave = storedAfterAutosave.plans.find(
+      (plan: { readonly id: string }) => plan.id === customPlan.id,
+    );
+
+    expect(planAfterAutosave.cityPlan.buildingLevels.farm).toBe(20);
   });
 
   it('deletes only custom plans and selects the next available plan', () => {

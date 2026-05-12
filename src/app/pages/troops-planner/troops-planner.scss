@@ -122,11 +122,11 @@
   font-size: 0.78rem;
 }
 
-.troops-planner-page__configuration-button--save {
+.troops-planner-page__configuration-button--export {
   position: relative;
 }
 
-.troops-planner-page__save-tooltip {
+.troops-planner-page__export-tooltip {
   position: absolute;
   top: calc(100% + 0.65rem);
   right: 0;
@@ -152,8 +152,8 @@
   visibility: hidden;
 }
 
-.troops-planner-page__configuration-button--save:hover .troops-planner-page__save-tooltip,
-.troops-planner-page__configuration-button--save:focus-visible .troops-planner-page__save-tooltip {
+.troops-planner-page__configuration-button--export:hover .troops-planner-page__export-tooltip,
+.troops-planner-page__configuration-button--export:focus-visible .troops-planner-page__export-tooltip {
   opacity: 1;
   transform: translateY(0);
   visibility: visible;
@@ -1005,7 +1005,7 @@
     width: 100%;
   }
 
-  .troops-planner-page__save-tooltip {
+  .troops-planner-page__export-tooltip {
     left: 0;
     right: auto;
     width: min(100%, 28rem);
@@ -1335,6 +1335,35 @@
   line-height: 1.45;
 }
 
+.plan-dialog__field {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  color: #dcefff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.plan-dialog__input {
+  width: 100%;
+  min-height: 2.55rem;
+  box-sizing: border-box;
+  border: 1px solid rgba(220, 239, 255, 0.22);
+  border-radius: 0.75rem;
+  background: rgba(0, 18, 36, 0.6);
+  color: #ffffff;
+  padding: 0 0.75rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.plan-dialog__input:focus {
+  border-color: #ffd400;
+  outline: none;
+  box-shadow: 0 0 0 0.18rem rgba(255, 212, 0, 0.15);
+}
+
 .plan-dialog__details {
   display: grid;
   gap: 0.4rem;
@@ -1371,7 +1400,18 @@
   cursor: pointer;
 }
 
-.plan-dialog__button:hover {
+.plan-dialog__button--secondary {
+  color: #dcefff;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(220, 239, 255, 0.22);
+}
+
+.plan-dialog__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.plan-dialog__button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 

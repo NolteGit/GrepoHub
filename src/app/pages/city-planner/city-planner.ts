@@ -33,6 +33,8 @@ import { AppIconComponent } from '../../shared/app-icon/app-icon';
 export class CityPlanner {
   protected readonly clearPlanDialogOpen = signal(false);
   protected readonly configurationMenuOpen = signal(false);
+  protected readonly newPlanDialogOpen = signal(false);
+  protected readonly newPlanName = signal('');
 
   private readonly gameDataService = inject(GameDataService);
   private readonly planConfigService = inject(PlanConfigService);
@@ -267,9 +269,6 @@ export class CityPlanner {
     });
   }
 
-  protected saveConfigurations(): void {
-    this.planConfigService.savePlans();
-  }
   protected exportActivePlanAsTxt(): void {
     this.planReadableExportService.exportActivePlanAsTxt();
   }
@@ -335,15 +334,35 @@ export class CityPlanner {
   protected closePlanImportDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
   }
-  protected saveAsNewConfiguration(): void {
-    const currentPlan = this.planConfigService.activePlan();
-    const name = window.prompt('Plan name', `${currentPlan.name} Copy`);
 
-    if (!name) {
+  protected openNewPlanDialog(): void {
+    const currentPlan = this.planConfigService.activePlan();
+
+    this.newPlanName.set(`${currentPlan.name} Copy`);
+    this.closeExportMenu();
+    this.closeConfigurationMenu();
+    this.newPlanDialogOpen.set(true);
+  }
+
+  protected updateNewPlanName(value: string): void {
+    this.newPlanName.set(value);
+  }
+
+  protected cancelNewPlan(): void {
+    this.newPlanDialogOpen.set(false);
+    this.newPlanName.set('');
+  }
+
+  protected confirmNewPlan(): void {
+    const planName = this.newPlanName().trim();
+
+    if (!planName) {
       return;
     }
 
-    this.planConfigService.duplicateActivePlan(name);
+    this.planConfigService.duplicateActivePlan(planName);
+    this.newPlanDialogOpen.set(false);
+    this.newPlanName.set('');
   }
   protected clearActivePlan(): void {
     this.clearPlanDialogOpen.set(true);

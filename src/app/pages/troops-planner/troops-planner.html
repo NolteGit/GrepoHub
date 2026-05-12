@@ -24,19 +24,12 @@
 
       <button
         type="button"
-        class="troops-planner-page__configuration-button troops-planner-page__configuration-button--save"
-        [attr.aria-describedby]="'troops-planner-save-tooltip'"
-        (click)="saveConfigurations()"
+        class="troops-planner-page__configuration-button troops-planner-page__configuration-button--new"
+        [attr.aria-label]="'planConfig.newPlanAria' | translate: 'Create new plan'"
+        (click)="openNewPlanDialog()"
       >
-        <app-icon name="save" />
-        {{ 'troopsPlanner.save' | translate }}
-        <span
-          id="troops-planner-save-tooltip"
-          class="troops-planner-page__save-tooltip"
-          role="tooltip"
-        >
-          {{ 'planConfig.localStorageNotice' | translate }}
-        </span>
+        <app-icon name="duplicate" />
+        {{ 'planConfig.newPlan' | translate: 'New plan' }}
       </button>
 
       <div class="troops-planner-page__export-menu" (keydown.escape)="closeExportMenu()">
@@ -45,11 +38,21 @@
           class="troops-planner-page__configuration-button troops-planner-page__configuration-button--export"
           aria-haspopup="menu"
           [attr.aria-expanded]="exportMenuOpen()"
+          [attr.aria-describedby]="exportMenuOpen() ? null : 'troops-planner-export-tooltip'"
           [attr.aria-label]="'planConfig.exportActionsAria' | translate: 'Export configuration'"
           (click)="toggleExportMenu()"
         >
           <app-icon name="export" />
           {{ 'planConfig.export' | translate: 'Export' }}
+          @if (!exportMenuOpen()) {
+            <span
+              id="troops-planner-export-tooltip"
+              class="troops-planner-page__export-tooltip"
+              role="tooltip"
+            >
+              {{ 'planConfig.localStorageExportNotice' | translate }}
+            </span>
+          }
           <app-icon name="chevron-down" />
         </button>
 
@@ -107,15 +110,6 @@
             >
               <app-icon name="import" />
               <span>{{ 'planConfig.importJson' | translate }}</span>
-            </button>
-
-            <button
-              type="button"
-              role="menuitem"
-              (click)="closeConfigurationMenu(); saveAsNewConfiguration()"
-            >
-              <app-icon name="duplicate" />
-              <span>{{ 'troopsPlanner.saveAsNew' | translate }}</span>
             </button>
 
             <button
@@ -558,6 +552,64 @@
       </details>
     </aside>
   </div>
+
+  @if (newPlanDialogOpen()) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="cancelNewPlan()">
+      <form
+        class="plan-dialog plan-dialog--form"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'troops-new-plan-dialog-title'"
+        [attr.aria-describedby]="'troops-new-plan-dialog-description'"
+        (click)="$event.stopPropagation()"
+        (ngSubmit)="confirmNewPlan()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          <app-icon name="duplicate" />
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="troops-new-plan-dialog-title">
+            {{ 'planConfig.newPlanDialog.title' | translate }}
+          </h2>
+          <p id="troops-new-plan-dialog-description">
+            {{ 'planConfig.newPlanDialog.message' | translate }}
+          </p>
+
+          <label class="plan-dialog__field">
+            <span>{{ 'planConfig.newPlanDialog.nameLabel' | translate }}</span>
+            <input
+              class="plan-dialog__input"
+              type="text"
+              name="newPlanName"
+              maxlength="60"
+              autocomplete="off"
+              [ngModel]="newPlanName()"
+              (ngModelChange)="updateNewPlanName($event)"
+            />
+          </label>
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--secondary"
+            (click)="cancelNewPlan()"
+          >
+            {{ 'planConfig.newPlanDialog.cancel' | translate }}
+          </button>
+
+          <button
+            type="submit"
+            class="plan-dialog__button"
+            [disabled]="!newPlanName().trim()"
+          >
+            {{ 'planConfig.newPlanDialog.confirm' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
 
   @if (deletePlanDialogOpen()) {
     <div class="confirm-dialog-backdrop" role="presentation" (click)="cancelDeleteActivePlan()">
