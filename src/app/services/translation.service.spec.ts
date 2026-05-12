@@ -1,0 +1,83 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+
+import { TranslationService } from './translation.service';
+
+describe('TranslationService', () => {
+  let service: TranslationService;
+  let http: HttpTestingController;
+
+  afterEach(() => {
+    http.verify();
+    localStorage.clear();
+  });
+
+  it('loads English by default and falls back to the key when a translation is missing', () => {
+    createService();
+
+    expect(service.currentLanguage()).toBe('en');
+
+    http.expectOne('/assets/i18n/en.json').flush({
+      'nav.home': 'Home',
+    });
+
+    expect(service.translate('nav.home')).toBe('Home');
+    expect(service.translate('missing.key')).toBe('missing.key');
+    expect(service.translate('missing.key', 'Fallback')).toBe('Fallback');
+  });
+
+  it('restores the stored language when it is supported', () => {
+    localStorage.setItem('grepo-hub-language', 'de');
+    createService();
+
+    expect(service.currentLanguage()).toBe('de');
+
+    http.expectOne('/assets/i18n/de.json').flush({
+      'nav.home': 'Startseite',
+    });
+
+    expect(service.translate('nav.home')).toBe('Startseite');
+  });
+
+  it('persists explicit language changes and reloads the dictionary', () => {
+    createService();
+    http.expectOne('/assets/i18n/en.json').flush({});
+
+    service.setLanguage('de');
+
+    expect(service.currentLanguage()).toBe('de');
+    expect(localStorage.getItem('grepo-hub-language')).toBe('de');
+
+    http.expectOne('/assets/i18n/de.json').flush({
+      'nav.toolbox': 'Werkzeuge',
+    });
+
+    expect(service.translate('nav.toolbox')).toBe('Werkzeuge');
+  });
+
+  it('toggles between English and German', () => {
+    createService();
+    http.expectOne('/assets/i18n/en.json').flush({});
+
+    service.toggleLanguage();
+
+    expect(service.currentLanguage()).toBe('de');
+    http.expectOne('/assets/i18n/de.json').flush({});
+
+    service.toggleLanguage();
+
+    expect(service.currentLanguage()).toBe('en');
+    http.expectOne('/assets/i18n/en.json').flush({});
+  });
+
+  function createService(): void {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+
+    service = TestBed.inject(TranslationService);
+    http = TestBed.inject(HttpTestingController);
+  }
+});

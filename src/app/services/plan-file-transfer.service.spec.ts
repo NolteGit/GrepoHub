@@ -42,6 +42,37 @@ describe('PlanFileTransferService', () => {
     expect(exportedPlan.troopPlan?.isPreset).toBeUndefined();
   });
 
+
+  it('imports a normal-sized JSON plan file', async () => {
+    const bundle = {
+      format: PLAN_CONFIG_FORMAT,
+      version: PLAN_CONFIG_VERSION,
+      exportedAt: new Date().toISOString(),
+      plans: [
+        {
+          name: 'File Import Reference',
+          troopPlan: {
+            unitAmounts: {
+              swordsman: 5,
+            },
+          },
+        },
+      ],
+    };
+    const file = new File([JSON.stringify(bundle)], 'plan.grepo-plan.json', {
+      type: 'application/json',
+    });
+
+    const result = await service.importJsonFileAsNewPlans(file);
+
+    expect(result.count).toBe(1);
+    expect(result.plans[0]).toEqual({
+      name: 'File Import Reference',
+      requestedName: 'File Import Reference',
+      renamed: false,
+    });
+  });
+
   it('rejects oversized import files before reading them', async () => {
     const oversizedFile = new File([new Uint8Array(1024 * 1024 + 1)], 'large-plan.json', {
       type: 'application/json',

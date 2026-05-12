@@ -39,6 +39,13 @@ describe('PlanImportExportUiService', () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
+
+  it('delegates JSON export to the file transfer service', () => {
+    service.exportActivePlanAsJson();
+
+    expect(fileTransferService.exportActivePlanAsJson).toHaveBeenCalledTimes(1);
+  });
+
   it('shows imported plan names after a successful import', async () => {
     const file = new File(['{}'], 'plans.json', { type: 'application/json' });
     const input = document.createElement('input');

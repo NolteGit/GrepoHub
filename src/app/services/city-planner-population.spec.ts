@@ -79,4 +79,76 @@ describe('calculateCityPlannerPopulation', () => {
     expect(result.breakdown.farmCapacity).toBe(3560);
     expect(result.usedPopulation).toBe(159);
   });
+
+  it('matches the Rattan real-game population reference', () => {
+    const result = calculateCityPlannerPopulation({
+      id: 'reference-rattan',
+      name: '55D08 Rattan',
+      isPreset: false,
+      buildingLevels: {
+        senate: 18,
+        timber_camp: 15,
+        farm: 10,
+        quarry: 20,
+        warehouse: 13,
+        silver_mine: 17,
+        barracks: 5,
+        temple: 5,
+        marketplace: 6,
+        harbour: 0,
+        academy: 23,
+        city_wall: 0,
+        cave: 2,
+        land_expansion: 0,
+      },
+      modifiers: {
+        plowResearched: true,
+        aphroditeActive: false,
+      },
+      specialBuildings: {
+        slot1: 'none',
+        slot2: 'none',
+      },
+    });
+
+    expect(result.populationCapacity).toBe(599);
+    expect(result.usedPopulation).toBe(309);
+    expect(result.freePopulation).toBe(290);
+  });
+
+  it('matches the Bisasam real-game population reference with land expansion', () => {
+    const result = calculateCityPlannerPopulation({
+      id: 'reference-bisasam',
+      name: '55D01 Bisasam',
+      isPreset: false,
+      buildingLevels: {
+        senate: 24,
+        timber_camp: 23,
+        farm: 45,
+        quarry: 36,
+        warehouse: 31,
+        silver_mine: 35,
+        barracks: 15,
+        temple: 5,
+        marketplace: 16,
+        harbour: 10,
+        academy: 30,
+        city_wall: 4,
+        cave: 10,
+        land_expansion: 3,
+      },
+      modifiers: {
+        plowResearched: true,
+        aphroditeActive: true,
+      },
+      specialBuildings: {
+        slot1: 'thermal_baths',
+        slot2: 'merchants_shop',
+      },
+    });
+
+    expect(result.populationCapacity).toBe(4514);
+    expect(result.usedPopulation).toBe(717);
+    expect(result.freePopulation).toBe(3797);
+  });
 });
