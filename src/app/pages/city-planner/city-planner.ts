@@ -17,15 +17,16 @@ import {
 } from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
-import { PlanConfigService } from '../../services/plan-config.service';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
+import { PlanConfigService } from '../../services/plan-config.service';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
+import { AcademyResearchDialogComponent } from './academy-research-dialog';
 
 @Component({
   selector: 'app-city-planner',
-  imports: [FormsModule, TranslatePipe, AppIconComponent],
+  imports: [FormsModule, TranslatePipe, AppIconComponent, AcademyResearchDialogComponent],
   templateUrl: './city-planner.html',
   styleUrl: './city-planner.scss',
   providers: [PlanImportExportUiService],
@@ -35,6 +36,7 @@ export class CityPlanner {
   protected readonly configurationMenuOpen = signal(false);
   protected readonly newPlanDialogOpen = signal(false);
   protected readonly newPlanName = signal('');
+  protected readonly academyResearchDialogOpen = signal(false);
 
   private readonly gameDataService = inject(GameDataService);
   private readonly planConfigService = inject(PlanConfigService);
@@ -112,6 +114,7 @@ export class CityPlanner {
   protected readonly freePopulation = computed(() => {
     return this.populationCapacity() - this.usedPopulation() - this.usedTroopPopulation();
   });
+
 
   protected selectConfiguration(configurationId: string): void {
     this.planConfigService.selectPlan(configurationId);
@@ -334,6 +337,15 @@ export class CityPlanner {
   protected closePlanImportDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
   }
+
+  protected openAcademyResearchDialog(): void {
+    this.academyResearchDialogOpen.set(true);
+  }
+
+  protected closeAcademyResearchDialog(): void {
+    this.academyResearchDialogOpen.set(false);
+  }
+
 
   protected openNewPlanDialog(): void {
     const currentPlan = this.planConfigService.activePlan();

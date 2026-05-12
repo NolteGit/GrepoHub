@@ -173,7 +173,21 @@
                   }
 
                   <div class="city-building-tile__header">
-                    <h3>{{ 'building.' + building.id | translate }}</h3>
+                    <div class="city-building-tile__title">
+                      <h3>{{ 'building.' + building.id | translate }}</h3>
+
+                      @if (building.id === 'academy') {
+                        <button
+                          type="button"
+                          class="city-building-tile__research-button"
+                          [attr.aria-label]="'academyResearch.openAria' | translate"
+                          (click)="openAcademyResearchDialog()"
+                        >
+                          <span aria-hidden="true">✦</span>
+                          {{ 'academyResearch.openButton' | translate }}
+                        </button>
+                      }
+                    </div>
 
                     <span
                       class="city-building-tile__population"
@@ -463,6 +477,13 @@
       </section>
     </aside>
   </div>
+
+  @if (academyResearchDialogOpen()) {
+    <app-academy-research-dialog
+      [academyLevel]="getBuildingLevel('academy')"
+      (closeDialog)="closeAcademyResearchDialog()"
+    />
+  }
 
   @if (newPlanDialogOpen()) {
     <div class="plan-dialog-backdrop" role="presentation" (click)="cancelNewPlan()">
