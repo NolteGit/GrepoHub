@@ -8,6 +8,7 @@
     "test:once": "ng test --watch=false",
     "typecheck": "tsc --noEmit",
     "deadcode": "knip",
+    "assets:audit": "node scripts/audit-assets.mjs",
     "format": "prettier --write \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\" \"docs/**/*.md\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\" \"docs/**/*.md\"",
     "clean": "rimraf dist .angular/cache coverage",
