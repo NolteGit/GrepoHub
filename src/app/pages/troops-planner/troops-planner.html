@@ -316,7 +316,13 @@
                     class="battle-stats__cell"
                     [attr.title]="'unitAttribute.attackBlunt' | translate"
                   >
-                    <img [src]="getBattleIconPath('attackBlunt')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('attackBlunt')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ attackTotals().blunt }}</strong>
                   </div>
 
@@ -324,7 +330,13 @@
                     class="battle-stats__cell"
                     [attr.title]="'unitAttribute.attackSharp' | translate"
                   >
-                    <img [src]="getBattleIconPath('attackSharp')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('attackSharp')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ attackTotals().sharp }}</strong>
                   </div>
 
@@ -332,7 +344,13 @@
                     class="battle-stats__cell battle-stats__cell--land-end"
                     [attr.title]="'unitAttribute.attackDistance' | translate"
                   >
-                    <img [src]="getBattleIconPath('attackDistance')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('attackDistance')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ attackTotals().distance }}</strong>
                   </div>
 
@@ -340,7 +358,13 @@
                     class="battle-stats__cell"
                     [attr.title]="'unitAttribute.attackSea' | translate"
                   >
-                    <img [src]="getBattleIconPath('attackSea')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('attackSea')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ attackTotals().sea }}</strong>
                   </div>
                 </div>
@@ -354,7 +378,13 @@
                     class="battle-stats__cell"
                     [attr.title]="'unitAttribute.defenseBlunt' | translate"
                   >
-                    <img [src]="getBattleIconPath('defenseBlunt')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('defenseBlunt')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ totals().defenseBlunt }}</strong>
                   </div>
 
@@ -362,7 +392,13 @@
                     class="battle-stats__cell"
                     [attr.title]="'unitAttribute.defenseSharp' | translate"
                   >
-                    <img [src]="getBattleIconPath('defenseSharp')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('defenseSharp')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ totals().defenseSharp }}</strong>
                   </div>
 
@@ -370,7 +406,13 @@
                     class="battle-stats__cell battle-stats__cell--land-end"
                     [attr.title]="'unitAttribute.defenseDistance' | translate"
                   >
-                    <img [src]="getBattleIconPath('defenseDistance')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('defenseDistance')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ totals().defenseDistance }}</strong>
                   </div>
 
@@ -378,7 +420,13 @@
                     class="battle-stats__cell"
                     [attr.title]="'unitAttribute.defenseSea' | translate"
                   >
-                    <img [src]="getBattleIconPath('defenseSea')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('defenseSea')"
+                      alt=""
+                      width="20"
+                      height="20"
+                      decoding="async"
+                    />
                     <strong>{{ totals().defenseSea }}</strong>
                   </div>
                 </div>
@@ -393,7 +441,13 @@
                 >
                   <div class="transport-equation__cap-grid">
                     <span class="transport-equation__label transport-equation__cap-label">
-                      <img [src]="getBattleIconPath('capacity')" alt="" />
+                      <img
+                        [src]="getBattleIconPath('capacity')"
+                        alt=""
+                        width="18"
+                        height="18"
+                        decoding="async"
+                      />
                       {{ 'troopsPlanner.transportCapacityShort' | translate }}
                     </span>
 
@@ -429,7 +483,13 @@
                   [attr.title]="'unitAttribute.transportSpace' | translate"
                 >
                   <span class="transport-equation__label">
-                    <img [src]="getBattleIconPath('capacity')" alt="" />
+                    <img
+                      [src]="getBattleIconPath('capacity')"
+                      alt=""
+                      width="18"
+                      height="18"
+                      decoding="async"
+                    />
                     {{ 'troopsPlanner.transportUsedShort' | translate }}
                   </span>
                   <strong>{{ totals().transportSpace }}</strong>
@@ -499,7 +559,13 @@
 
           <div class="summary-row summary-row--icon">
             <span>
-              <img [src]="getResourceIconPath('wood')" alt="" />
+              <img
+                [src]="getResourceIconPath('wood')"
+                alt=""
+                width="18"
+                height="18"
+                decoding="async"
+              />
               {{ 'resource.wood' | translate }}
             </span>
             <strong>{{ totals().wood }}</strong>
@@ -507,7 +573,13 @@
 
           <div class="summary-row summary-row--icon">
             <span>
-              <img [src]="getResourceIconPath('stone')" alt="" />
+              <img
+                [src]="getResourceIconPath('stone')"
+                alt=""
+                width="18"
+                height="18"
+                decoding="async"
+              />
               {{ 'resource.stone' | translate }}
             </span>
             <strong>{{ totals().stone }}</strong>
@@ -515,7 +587,13 @@
 
           <div class="summary-row summary-row--icon">
             <span>
-              <img [src]="getResourceIconPath('silver')" alt="" />
+              <img
+                [src]="getResourceIconPath('silver')"
+                alt=""
+                width="18"
+                height="18"
+                decoding="async"
+              />
               {{ 'resource.silver' | translate }}
             </span>
             <strong>{{ totals().silver }}</strong>
@@ -523,7 +601,13 @@
 
           <div class="summary-row summary-row--icon">
             <span>
-              <img [src]="getResourceIconPath('favor')" alt="" />
+              <img
+                [src]="getResourceIconPath('favor')"
+                alt=""
+                width="18"
+                height="18"
+                decoding="async"
+              />
               {{ 'resource.favor' | translate }}
             </span>
             <strong>{{ totals().favor }}</strong>
@@ -532,7 +616,13 @@
           @if (slowestSpeed() !== null) {
             <div class="summary-row summary-row--icon">
               <span>
-                <img [src]="getBattleIconPath('speed')" alt="" />
+                <img
+                  [src]="getBattleIconPath('speed')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ 'troopsPlanner.slowestSpeed' | translate }}
               </span>
               <strong>{{ slowestSpeed() }}</strong>
@@ -542,7 +632,13 @@
           @if (hasRecruitmentTimeData()) {
             <div class="summary-row summary-row--icon">
               <span>
-                <img [src]="getResourceIconPath('buildtime')" alt="" />
+                <img
+                  [src]="getResourceIconPath('buildtime')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ 'troopsPlanner.totalRecruitmentTime' | translate }}
               </span>
               <strong>{{ formatDuration(totalRecruitmentTimeMinutes()) }}</strong>
@@ -813,6 +909,10 @@
           class="unit-row-item__image"
           [src]="getUnitIconPath(unit.id)"
           [alt]="unit.nameKey | translate"
+          width="40"
+          height="40"
+          loading="lazy"
+          decoding="async"
         />
       }
 
@@ -821,36 +921,72 @@
 
         <div class="unit-row-item__stats">
           <span class="icon-value" [title]="'resource.population' | translate">
-            <img [src]="getResourceIconPath('population')" alt="" />
+            <img
+              [src]="getResourceIconPath('population')"
+              alt=""
+              width="18"
+              height="18"
+              decoding="async"
+            />
             {{ unit.cost.population }}
           </span>
 
           @if (isSea) {
             @if (isTransportShip(unit)) {
               <span class="icon-value" [title]="'unitAttribute.transportCapacity' | translate">
-                <img [src]="getBattleIconPath('capacity')" alt="" />
+                <img
+                  [src]="getBattleIconPath('capacity')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.transportCapacity }}
               </span>
             } @else {
               <span class="icon-value" [title]="'unitAttribute.attackSea' | translate">
-                <img [src]="getBattleIconPath('attackSea')" alt="" />
+                <img
+                  [src]="getBattleIconPath('attackSea')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ getDisplayedAttackValue(unit, true) }}
               </span>
 
               <span class="icon-value" [title]="'unitAttribute.defenseSea' | translate">
-                <img [src]="getBattleIconPath('defenseSea')" alt="" />
+                <img
+                  [src]="getBattleIconPath('defenseSea')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.defenseSea }}
               </span>
             }
           } @else {
             <span class="icon-value" [title]="getAttackTitleKey(unit, false) | translate">
-              <img [src]="getDisplayedAttackIconPath(unit, false)" alt="" />
+              <img
+                [src]="getDisplayedAttackIconPath(unit, false)"
+                alt=""
+                width="18"
+                height="18"
+                decoding="async"
+              />
               {{ getDisplayedAttackValue(unit, false) }}
             </span>
 
             @if (unit.transportSpace > 0) {
               <span class="icon-value" [title]="'unitAttribute.transportSpace' | translate">
-                <img [src]="getBattleIconPath('capacity')" alt="" />
+                <img
+                  [src]="getBattleIconPath('capacity')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.transportSpace }}
               </span>
             }
@@ -861,21 +997,45 @@
               role="button"
               [attr.aria-label]="'troopsPlanner.defenseDetails' | translate"
             >
-              <img [src]="getBattleIconPath('defenseBlunt')" alt="" />
+              <img
+                [src]="getBattleIconPath('defenseBlunt')"
+                alt=""
+                width="18"
+                height="18"
+                decoding="async"
+              />
 
               <span class="unit-defense-popover">
                 <span class="popover-row">
-                  <img [src]="getBattleIconPath('defenseBlunt')" alt="" />
+                  <img
+                    [src]="getBattleIconPath('defenseBlunt')"
+                    alt=""
+                    width="18"
+                    height="18"
+                    decoding="async"
+                  />
                   {{ unit.defenseBlunt }}
                 </span>
 
                 <span class="popover-row">
-                  <img [src]="getBattleIconPath('defenseSharp')" alt="" />
+                  <img
+                    [src]="getBattleIconPath('defenseSharp')"
+                    alt=""
+                    width="18"
+                    height="18"
+                    decoding="async"
+                  />
                   {{ unit.defenseSharp }}
                 </span>
 
                 <span class="popover-row">
-                  <img [src]="getBattleIconPath('defenseDistance')" alt="" />
+                  <img
+                    [src]="getBattleIconPath('defenseDistance')"
+                    alt=""
+                    width="18"
+                    height="18"
+                    decoding="async"
+                  />
                   {{ unit.defenseDistance }}
                 </span>
               </span>
@@ -892,22 +1052,46 @@
 
             <span class="unit-cost-popover">
               <span class="popover-row">
-                <img [src]="getResourceIconPath('wood')" alt="" />
+                <img
+                  [src]="getResourceIconPath('wood')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.cost.wood }}
               </span>
 
               <span class="popover-row">
-                <img [src]="getResourceIconPath('stone')" alt="" />
+                <img
+                  [src]="getResourceIconPath('stone')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.cost.stone }}
               </span>
 
               <span class="popover-row">
-                <img [src]="getResourceIconPath('silver')" alt="" />
+                <img
+                  [src]="getResourceIconPath('silver')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.cost.silver }}
               </span>
 
               <span class="popover-row">
-                <img [src]="getResourceIconPath('favor')" alt="" />
+                <img
+                  [src]="getResourceIconPath('favor')"
+                  alt=""
+                  width="18"
+                  height="18"
+                  decoding="async"
+                />
                 {{ unit.cost.favor }}
               </span>
             </span>

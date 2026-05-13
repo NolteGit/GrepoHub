@@ -17,7 +17,14 @@
           [attr.data-tooltip]="link.title"
           [attr.aria-label]="link.title"
         >
-          <img [src]="link.iconPath" [alt]="link.title" />
+          <img
+            [src]="link.iconPath"
+            [alt]="link.title"
+            width="64"
+            height="64"
+            loading="lazy"
+            decoding="async"
+          />
         </a>
       }
     </nav>
@@ -179,7 +186,13 @@
                 [title]="document.title"
               ></iframe>
             } @else if (document.type === 'image') {
-              <img class="codex-image-preview" [src]="document.path" [alt]="document.title" />
+              <img
+                class="codex-image-preview"
+                [src]="document.path"
+                [alt]="document.title"
+                loading="lazy"
+                decoding="async"
+              />
             } @else if (document.type === 'markdown') {
               @if (readerStatus() === 'loading') {
                 <p class="codex-empty">

@@ -169,6 +169,10 @@
                       class="city-building-tile__icon"
                       [src]="getBuildingImagePath(building.id)"
                       [alt]="'building.' + building.id | translate"
+                      width="44"
+                      height="44"
+                      loading="lazy"
+                      decoding="async"
                     />
                   }
 
@@ -296,6 +300,10 @@
                     getSpecialBuildingOptionLabelKey(getSelectedSpecialBuilding(slot.id))
                       | translate
                   "
+                  width="44"
+                  height="44"
+                  loading="lazy"
+                  decoding="async"
                 />
               }
 
