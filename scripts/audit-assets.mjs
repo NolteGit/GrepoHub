@@ -13,6 +13,7 @@ const warningSizeBytes = 100 * 1024;
 const quickLinkMaxBytes = 120 * 1024;
 const errors = [];
 const warnings = [];
+const intentionallyImagelessBuildingIds = new Set(['agora']);
 
 const supportedImageExtensions = new Set(['.png', '.webp', '.jpg', '.jpeg', '.svg', '.ico']);
 const scannedCodeExtensions = new Set(['.ts', '.html', '.scss', '.css']);
@@ -260,7 +261,7 @@ function checkDataIdsHaveMappings() {
   const unitIds = readJsonArray(unitsDataFile).map((unit) => unit.id).filter(Boolean);
 
   for (const buildingId of buildingIds) {
-    if (!buildingMappingKeys.has(buildingId)) {
+    if (!buildingMappingKeys.has(buildingId) && !intentionallyImagelessBuildingIds.has(buildingId)) {
       warnings.push(`Building has no image mapping: ${buildingId}`);
     }
   }

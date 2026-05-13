@@ -41,6 +41,7 @@ const unitImageFileNames: Record<string, string> = {
   horseman: 'horseman.webp',
   chariot: 'chariot.webp',
   catapult: 'catapult.webp',
+  militia: 'militia.webp',
   divine_envoy: 'divineEnvoy.webp',
   divineEnvoy: 'divineEnvoy.webp',
   minotaur: 'minotaur.webp',
