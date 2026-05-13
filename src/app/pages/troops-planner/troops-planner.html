@@ -162,13 +162,9 @@
           [class.unit-section--collapsed]="isUnitSectionCollapsed('land')"
         >
           <header class="unit-section__header">
-            <div class="unit-section__title">
-              {{ 'troopsPlanner.landUnits' | translate }}
-            </div>
-
             <button
               type="button"
-              class="unit-section__collapse-button"
+              class="unit-section__toggle"
               (click)="toggleUnitSection('land')"
               [attr.aria-expanded]="!isUnitSectionCollapsed('land')"
               [attr.aria-label]="
@@ -184,6 +180,10 @@
                 ) | translate
               "
             >
+              <span class="unit-section__title">
+                {{ 'troopsPlanner.landUnits' | translate }}
+              </span>
+
               <app-icon
                 class="unit-section__collapse-icon"
                 [name]="isUnitSectionCollapsed('land') ? 'chevron-left' : 'chevron-down'"
@@ -207,13 +207,9 @@
           [class.unit-section--collapsed]="isUnitSectionCollapsed('sea')"
         >
           <header class="unit-section__header">
-            <div class="unit-section__title">
-              {{ 'troopsPlanner.seaUnits' | translate }}
-            </div>
-
             <button
               type="button"
-              class="unit-section__collapse-button"
+              class="unit-section__toggle"
               (click)="toggleUnitSection('sea')"
               [attr.aria-expanded]="!isUnitSectionCollapsed('sea')"
               [attr.aria-label]="
@@ -229,6 +225,10 @@
                 ) | translate
               "
             >
+              <span class="unit-section__title">
+                {{ 'troopsPlanner.seaUnits' | translate }}
+              </span>
+
               <app-icon
                 class="unit-section__collapse-icon"
                 [name]="isUnitSectionCollapsed('sea') ? 'chevron-left' : 'chevron-down'"
@@ -252,13 +252,9 @@
           [class.unit-section--collapsed]="isUnitSectionCollapsed('mythical')"
         >
           <header class="unit-section__header">
-            <div class="unit-section__title">
-              {{ 'troopsPlanner.mythicalUnits' | translate }}
-            </div>
-
             <button
               type="button"
-              class="unit-section__collapse-button"
+              class="unit-section__toggle"
               (click)="toggleUnitSection('mythical')"
               [attr.aria-expanded]="!isUnitSectionCollapsed('mythical')"
               [attr.aria-label]="
@@ -274,6 +270,10 @@
                 ) | translate
               "
             >
+              <span class="unit-section__title">
+                {{ 'troopsPlanner.mythicalUnits' | translate }}
+              </span>
+
               <app-icon
                 class="unit-section__collapse-icon"
                 [name]="isUnitSectionCollapsed('mythical') ? 'chevron-left' : 'chevron-down'"
