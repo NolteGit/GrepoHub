@@ -273,6 +273,40 @@ function checkDataIdsHaveMappings() {
   }
 }
 
+
+function getImageAssetFiles() {
+  return walkFiles(imagesRoot).filter((filePath) => {
+    const extension = path.extname(filePath).toLowerCase();
+
+    return supportedImageExtensions.has(extension);
+  });
+}
+
+function getImageAssetReport() {
+  const assets = getImageAssetFiles()
+    .map((filePath) => ({
+      projectPath: toProjectPath(filePath),
+      size: fs.statSync(filePath).size,
+    }))
+    .sort((left, right) => right.size - left.size);
+  const totalSize = assets.reduce((sum, asset) => sum + asset.size, 0);
+
+  return { assets, totalSize };
+}
+
+function printAssetSummary() {
+  const { assets, totalSize } = getImageAssetReport();
+
+  console.log('\nAsset summary');
+  console.log(`- Image files: ${assets.length}`);
+  console.log(`- Total image size: ${formatBytes(totalSize)}`);
+  console.log('- Largest files:');
+
+  for (const [index, asset] of assets.slice(0, 8).entries()) {
+    console.log(`  ${index + 1}. ${asset.projectPath} (${formatBytes(asset.size)})`);
+  }
+}
+
 function formatBytes(bytes) {
   if (bytes < 1024) {
     return `${bytes} B`;
@@ -304,6 +338,7 @@ checkMappedFilesExist();
 checkDataIdsHaveMappings();
 checkDirectAssetReferences();
 
+printAssetSummary();
 printSection('Asset audit warnings', warnings);
 printSection('Asset audit errors', errors);
 
