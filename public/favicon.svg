@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
+  <defs>
+    <radialGradient id="compassCore" cx="50%" cy="50%" r="58%">
+      <stop offset="0%" stop-color="#003566" stop-opacity="0.88" />
+      <stop offset="58%" stop-color="#001d3d" stop-opacity="0.82" />
+      <stop offset="100%" stop-color="#000814" stop-opacity="0.1" />
+    </radialGradient>
+    <linearGradient id="needleGold" x1="0%" x2="100%" y1="0%" y2="0%">
+      <stop offset="0%" stop-color="#ffc300" />
+      <stop offset="48%" stop-color="#fff8dc" />
+      <stop offset="100%" stop-color="#ffd60a" />
+    </linearGradient>
+    <linearGradient id="needleTail" x1="0%" x2="100%" y1="0%" y2="0%">
+      <stop offset="0%" stop-color="#fff8dc" stop-opacity="0.86" />
+      <stop offset="100%" stop-color="#ffc300" stop-opacity="0.78" />
+    </linearGradient>
+  </defs>
+
+  <circle cx="160" cy="160" r="143" fill="rgba(255, 195, 0, 0.1)" />
+  <circle cx="160" cy="160" r="128" fill="url(#compassCore)" stroke="rgba(255, 214, 10, 0.28)" stroke-width="1.8" />
+  <circle cx="160" cy="160" r="126" fill="none" stroke="rgba(255, 214, 10, 0.82)" stroke-width="6" />
+  <circle cx="160" cy="160" r="104" fill="none" stroke="rgba(255, 248, 220, 0.56)" stroke-dasharray="42 16" stroke-linecap="round" stroke-width="4.5" />
+  <circle cx="160" cy="160" r="63" fill="none" stroke="rgba(255, 195, 0, 0.74)" stroke-width="3.8" />
+
+  <path d="M160 42V278" fill="none" stroke="rgba(255, 248, 220, 0.2)" stroke-linecap="round" stroke-width="2.6" />
+  <path d="M42 160H278" fill="none" stroke="rgba(255, 248, 220, 0.2)" stroke-linecap="round" stroke-width="2.6" />
+  <path d="M76.6 76.6L243.4 243.4" fill="none" stroke="rgba(255, 214, 10, 0.14)" stroke-linecap="round" stroke-width="2.6" />
+  <path d="M243.4 76.6L76.6 243.4" fill="none" stroke="rgba(255, 214, 10, 0.14)" stroke-linecap="round" stroke-width="2.6" />
+
+  <path d="M160 28L176 130L292 160L176 190L160 292L144 190L28 160L144 130Z" fill="rgba(255, 248, 220, 0.09)" stroke="rgba(255, 214, 10, 0.44)" stroke-width="2.3" />
+  <path d="M160 78L174 146L242 160L174 174L160 242L146 174L78 160L146 146Z" fill="rgba(255, 214, 10, 0.14)" stroke="rgba(255, 248, 220, 0.44)" stroke-width="1.8" />
+
+  <g fill="#ffc300" stroke="#000814" stroke-width="4">
+    <circle cx="160" cy="34" r="9" />
+    <circle cx="286" cy="160" r="9" />
+    <circle cx="160" cy="286" r="9" />
+    <circle cx="34" cy="160" r="9" />
+  </g>
+
+  <path d="M160 42L180 160L160 144L140 160Z" fill="url(#needleGold)" stroke="rgba(255, 248, 220, 0.76)" stroke-linejoin="round" stroke-width="2.6" />
+  <path d="M160 278L140 160L160 176L180 160Z" fill="url(#needleTail)" stroke="rgba(255, 214, 10, 0.46)" stroke-linejoin="round" stroke-width="2.2" />
+
+  <circle cx="160" cy="160" r="25" fill="rgba(0, 8, 20, 0.72)" />
+  <circle cx="160" cy="160" r="17" fill="#ffc300" stroke="rgba(255, 248, 220, 0.88)" stroke-width="3" />
+  <circle cx="160" cy="160" r="5" fill="#000814" />
+</svg>

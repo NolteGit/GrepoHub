@@ -77,6 +77,47 @@ const unitImageFileNames: Record<string, string> = {
 
 export type ResourceIconId = 'wood' | 'stone' | 'silver' | 'favor' | 'population' | 'buildtime';
 
+
+const academyResearchIconFileNames: Record<string, string> = {
+  slinger: 'slinger.webp',
+  archer: 'archer.webp',
+  city_guard: 'city-guard.webp',
+  hoplite: 'hoplite.webp',
+  meteorology: 'meteorology.webp',
+  espionage: 'espionage.webp',
+  villager_loyalty: 'villagers-loyalty.webp',
+  ceramics: 'ceramics.webp',
+  horseman: 'horseman.webp',
+  architecture: 'architecture.webp',
+  instructor: 'trainer.webp',
+  bireme: 'bireme.webp',
+  crane: 'crane.webp',
+  shipwright: 'shipwright.webp',
+  colony_ship: 'colony-ship.webp',
+  chariot: 'chariot.webp',
+  fire_ship: 'fire-ship.webp',
+  conscription: 'conscription.webp',
+  demolition_ship: 'light-ship.webp',
+  catapult: 'catapult.webp',
+  cryptography: 'cryptography.webp',
+  fast_transport_ship: 'light-transport-ship.webp',
+  plow: 'plow.webp',
+  bunks: 'bunks.webp',
+  trireme: 'trireme.webp',
+  phalanx: 'phalanx.webp',
+  breakthrough: 'breakthrough.webp',
+  mathematics: 'mathematics.webp',
+  revolt: 'democracy.webp',
+  ram: 'ram.webp',
+  cartography: 'cartography.webp',
+  stone_hail: 'stone-hail.webp',
+  temple_looting: 'temple-looting.webp',
+  divine_selection: 'divine-selection.webp',
+  combat_experience: 'battle-experience.webp',
+  strong_wine: 'strong-wine.webp',
+  set_sail: 'set-sail.webp',
+};
+
 const battleIconFileNames: Record<string, string> = {
   attackSea: 'attackSea.webp',
   attackBlunt: 'blunt.webp',
@@ -105,6 +146,12 @@ export function getUnitIconPath(unitId: string): string {
 
 export function getResourceIconPath(resource: ResourceIconId): string {
   return `${imageBasePath}/resources/${resource}.webp`;
+}
+
+export function getAcademyResearchIconPath(researchId: string): string {
+  const fileName = academyResearchIconFileNames[researchId];
+
+  return fileName ? `${imageBasePath}/technologies/${fileName}` : '';
 }
 
 export function getBattleIconPath(icon: string): string {

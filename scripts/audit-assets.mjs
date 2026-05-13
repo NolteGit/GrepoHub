@@ -8,6 +8,7 @@ const srcRoot = path.join(projectRoot, 'src');
 const assetPathsFile = path.join(projectRoot, 'src', 'app', 'data', 'asset-paths.ts');
 const buildingsDataFile = path.join(projectRoot, 'public', 'assets', 'data', 'buildings.json');
 const unitsDataFile = path.join(projectRoot, 'public', 'assets', 'data', 'units.json');
+const academyResearchPresetsFile = path.join(projectRoot, 'src', 'app', 'data', 'academy-research-presets.ts');
 
 const warningSizeBytes = 100 * 1024;
 const quickLinkMaxBytes = 120 * 1024;
@@ -225,6 +226,7 @@ function checkMappedFilesExist() {
     ...extractObjectValues(source, 'quickLinkIconPaths').map((assetPath) => assetPath.replace('${imageBasePath}/', '')),
     ...extractObjectValues(source, 'buildingImageFileNames').map((fileName) => `buildings/${fileName}`),
     ...extractObjectValues(source, 'unitImageFileNames').map((fileName) => `units/${fileName}`),
+    ...extractObjectValues(source, 'academyResearchIconFileNames').map((fileName) => `technologies/${fileName}`),
     ...extractObjectValues(source, 'battleIconFileNames').map((fileName) => `battle/${fileName}`),
     ...extractResourceIds(source).map((resourceId) => `resources/${resourceId}.webp`),
   ];
@@ -249,6 +251,10 @@ function readJsonArray(filePath) {
   return Array.isArray(parsed) ? parsed : [];
 }
 
+function extractAcademyResearchIds(source) {
+  return [...source.matchAll(/createResearch\(\s*'([^']+)'/g)].map((researchMatch) => researchMatch[1]);
+}
+
 function checkDataIdsHaveMappings() {
   if (!fileExists(assetPathsFile)) {
     return;
@@ -257,8 +263,12 @@ function checkDataIdsHaveMappings() {
   const source = readText(assetPathsFile);
   const buildingMappingKeys = extractObjectKeys(source, 'buildingImageFileNames');
   const unitMappingKeys = extractObjectKeys(source, 'unitImageFileNames');
+  const academyResearchMappingKeys = extractObjectKeys(source, 'academyResearchIconFileNames');
   const buildingIds = readJsonArray(buildingsDataFile).map((building) => building.id).filter(Boolean);
   const unitIds = readJsonArray(unitsDataFile).map((unit) => unit.id).filter(Boolean);
+  const academyResearchIds = fileExists(academyResearchPresetsFile)
+    ? extractAcademyResearchIds(readText(academyResearchPresetsFile))
+    : [];
 
   for (const buildingId of buildingIds) {
     if (!buildingMappingKeys.has(buildingId) && !intentionallyImagelessBuildingIds.has(buildingId)) {
@@ -269,6 +279,12 @@ function checkDataIdsHaveMappings() {
   for (const unitId of unitIds) {
     if (!unitMappingKeys.has(unitId)) {
       warnings.push(`Unit has no image mapping: ${unitId}`);
+    }
+  }
+
+  for (const academyResearchId of academyResearchIds) {
+    if (!academyResearchMappingKeys.has(academyResearchId)) {
+      warnings.push(`Academy research has no image mapping: ${academyResearchId}`);
     }
   }
 }
