@@ -8,6 +8,7 @@ import {
   citySpecialBuildingOptionDefinitions,
   citySpecialBuildingSlotDefinitions,
 } from '../../data/city-planner-presets';
+import { getBuildingImagePath as getAssetBuildingImagePath } from '../../data/asset-paths';
 import {
   CityBuildingPlanDefinition,
   CityConfiguration,
@@ -470,33 +471,7 @@ export class CityPlanner {
   }
 
   protected getBuildingImagePath(buildingId: string): string {
-    const fileNameMap: Record<string, string> = {
-      academy: 'academy',
-      barracks: 'barracks',
-      cave: 'cave',
-      divine_statue: 'divine_statue',
-      farm: 'farm',
-      harbour: 'harbour',
-      library: 'library',
-      lighthouse: 'light_house',
-      marketplace: 'market_place',
-      merchants_shop: 'merchant_shop',
-      oracle: 'oracle',
-      quarry: 'quarry',
-      senate: 'senate',
-      silver_mine: 'silver_mine',
-      temple: 'temple',
-      theatre: 'theatre',
-      thermal_baths: 'thermal_baths',
-      timber_camp: 'timber_camp',
-      tower: 'tower',
-      city_wall: 'wall',
-      warehouse: 'warehouse',
-    };
-
-    const fileName = fileNameMap[buildingId];
-
-    return fileName ? `/assets/images/buildings/${fileName}.webp` : '';
+    return getAssetBuildingImagePath(buildingId);
   }
 
   protected getSelectedSpecialBuildingImagePath(slotId: CitySpecialBuildingSlotId): string {

@@ -1,3 +1,5 @@
+import { quickLinkIconPaths } from './asset-paths';
+
 export type ReferenceQuickLink = {
   id: string;
   title: string;
@@ -11,40 +13,40 @@ export const referenceQuickLinks: ReferenceQuickLink[] = [
   {
     id: 'grepolis',
     title: 'Grepolis',
-    iconPath: '/assets/images/quick-links/button_grepoGame.webp',
+    iconPath: quickLinkIconPaths.grepolis,
     urlDe: 'https://de0.grepolis.com/start/index',
     urlEn: 'https://en-play.grepolis.com',
   },
   {
     id: 'grepodata',
     title: 'GrepoData',
-    iconPath: '/assets/images/quick-links/button_grepoData.webp',
+    iconPath: quickLinkIconPaths.grepodata,
     url: 'https://grepodata.com',
   },
   {
     id: 'grepolife',
     title: 'GrepoLife',
-    iconPath: '/assets/images/quick-links/button_grepolife.webp',
+    iconPath: quickLinkIconPaths.grepolife,
     url: 'https://grepolife.com',
   },
   {
     id: 'wiki',
     title: 'GrepoWiki',
-    iconPath: '/assets/images/quick-links/button_grepoWiki.webp',
+    iconPath: quickLinkIconPaths.wiki,
     urlDe: 'https://wiki.de.grepolis.com/wiki/Hauptseite',
     urlEn: 'https://wiki.en.grepolis.com/wiki/Main_Page',
   },
   {
     id: 'forum',
     title: 'GrepoForum',
-    iconPath: '/assets/images/quick-links/button_grepoForum.webp',
+    iconPath: quickLinkIconPaths.forum,
     urlDe: 'https://de.forum.grepolis.com/index.php',
     urlEn: 'https://en.forum.grepolis.com/index.php',
   },
   {
     id: 'support',
     title: 'GrepoSupport',
-    iconPath: '/assets/images/quick-links/button_grepoSupp.webp',
+    iconPath: quickLinkIconPaths.support,
     urlDe: 'https://support.innogames.com/kb/Grepolis/de_DE',
     urlEn: 'https://support.innogames.com/kb/Grepolis/en_dk',
   },

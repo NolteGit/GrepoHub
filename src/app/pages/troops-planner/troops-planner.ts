@@ -3,6 +3,11 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 
+import {
+  getBattleIconPath as getAssetBattleIconPath,
+  getResourceIconPath as getAssetResourceIconPath,
+  getUnitIconPath as getAssetUnitIconPath,
+} from '../../data/asset-paths';
 import { TroopConfiguration, TroopModifierId } from '../../models/troop-configuration.model';
 import { AttackType, Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -479,74 +484,15 @@ export class TroopsPlanner {
   }
 
   protected getUnitIconPath(unitId: string): string {
-    const fileNameMap: Record<string, string> = {
-      swordsman: 'swordsman.webp',
-      slinger: 'slinger.webp',
-      archer: 'archer.webp',
-      hoplite: 'hoplite.webp',
-      horseman: 'horseman.webp',
-      chariot: 'chariot.webp',
-      catapult: 'catapult.webp',
-      divine_envoy: 'divineEnvoy.webp',
-      divineEnvoy: 'divineEnvoy.webp',
-      minotaur: 'minotaur.webp',
-      manticore: 'manticore.webp',
-      cyclop: 'cyclop.webp',
-      hydra: 'hydra.webp',
-      harpy: 'harpy.webp',
-      medusa: 'medusa.webp',
-      centaur: 'centaur.webp',
-      pegasus: 'pegasus.webp',
-      cerberus: 'cerberus.webp',
-      erinys: 'erinys.webp',
-      griffin: 'griffin.webp',
-      calydonian_boar: 'calydonianBoar.webp',
-      calydonianBoar: 'calydonianBoar.webp',
-      siren: 'siren.webp',
-      satyr: 'satyr.webp',
-      ladon: 'ladon.webp',
-      spartoi: 'spartoi.webp',
-      transport_boat: 'transportBoat.webp',
-      transportBoat: 'transportBoat.webp',
-      bireme: 'bireme.webp',
-      light_ship: 'lightShip.webp',
-      lightShip: 'lightShip.webp',
-      fire_ship: 'fireShip.webp',
-      fireShip: 'fireShip.webp',
-      fast_transport_ship: 'fastTransportShip.webp',
-      fastTransportShip: 'fastTransportShip.webp',
-      trireme: 'trireme.webp',
-      colony_ship: 'colonyShip.webp',
-      colonyShip: 'colonyShip.webp',
-    };
-
-    const fileName = fileNameMap[unitId];
-
-    return fileName ? `/assets/images/units/${fileName}` : '';
+    return getAssetUnitIconPath(unitId);
   }
 
   protected getResourceIconPath(resource: keyof Unit['cost'] | 'buildtime'): string {
-    return `/assets/images/resources/${resource}.png`;
+    return getAssetResourceIconPath(resource);
   }
 
   protected getBattleIconPath(icon: string): string {
-    const fileNameMap: Record<string, string> = {
-      attackSea: 'attackSea.webp',
-      attackBlunt: 'blunt.webp',
-      attackSharp: 'sharp.png',
-      attackDistance: 'distance.png',
-      booty: 'booty.webp',
-      capacity: 'capacity.webp',
-      defenseBlunt: 'defenseBlunt.webp',
-      defenseDistance: 'defenseDistance.webp',
-      defenseSea: 'defenseSea.webp',
-      defenseSharp: 'defenseSharp.webp',
-      speed: 'speed.webp',
-    };
-
-    const fileName = fileNameMap[icon];
-
-    return fileName ? `/assets/images/battle/${fileName}` : '';
+    return getAssetBattleIconPath(icon);
   }
 
   protected getAttackIconPath(attackType: AttackType): string {
