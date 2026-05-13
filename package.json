@@ -13,8 +13,8 @@
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\" \"*.{json,md}\" \"docs/**/*.md\"",
     "clean": "rimraf dist .angular/cache coverage",
     "fresh": "rimraf node_modules package-lock.json dist .angular coverage && npm install",
-    "verify": "npm run typecheck && npm run test:once && npm run build",
-    "check": "npm run format:check && npm run typecheck && npm run test:once && npm run build && npm run deadcode"
+    "verify": "npm run assets:audit && npm run typecheck && npm run test:once && npm run build",
+    "check": "npm run format:check && npm run assets:audit && npm run typecheck && npm run test:once && npm run build && npm run deadcode"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
