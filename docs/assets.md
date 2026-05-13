@@ -4,15 +4,15 @@ This project keeps static image assets in `public/assets/images`. Angular serves
 
 ## Folder rules
 
-| Asset type | Folder | Preferred format | Max source size |
-| --- | --- | --- | --- |
-| Quick-link buttons | `public/assets/images/quick-links/` | WebP | 256x256 |
-| Unit icons | `public/assets/images/units/` | WebP | 128x128 or source-native |
-| Building icons | `public/assets/images/buildings/` | WebP | 128x128 or source-native |
-| Battle/stat icons | `public/assets/images/battle/` | WebP or SVG | small |
-| Resource icons | `public/assets/images/resources/` | WebP, SVG, or tiny PNG | small |
-| Branding/logo assets | `public/assets/images/branding/` | WebP or SVG | usage-based |
-| UI-only icons | icon component or SVG sprite | SVG | n/a |
+| Asset type           | Folder                              | Preferred format       | Max source size          |
+| -------------------- | ----------------------------------- | ---------------------- | ------------------------ |
+| Quick-link buttons   | `public/assets/images/quick-links/` | WebP                   | 256x256                  |
+| Unit icons           | `public/assets/images/units/`       | WebP                   | 128x128 or source-native |
+| Building icons       | `public/assets/images/buildings/`   | WebP                   | 128x128 or source-native |
+| Battle/stat icons    | `public/assets/images/battle/`      | WebP or SVG            | small                    |
+| Resource icons       | `public/assets/images/resources/`   | WebP, SVG, or tiny PNG | small                    |
+| Branding/logo assets | `public/assets/images/branding/`    | WebP or SVG            | usage-based              |
+| UI-only icons        | icon component or SVG sprite        | SVG                    | n/a                      |
 
 ## Format rules
 

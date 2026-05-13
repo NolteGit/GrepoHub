@@ -17,7 +17,8 @@ export const routes: Routes = [
   },
   {
     path: 'references',
-    loadComponent: () => import('./pages/references/references').then((module) => module.References),
+    loadComponent: () =>
+      import('./pages/references/references').then((module) => module.References),
   },
   {
     path: 'toolbox',

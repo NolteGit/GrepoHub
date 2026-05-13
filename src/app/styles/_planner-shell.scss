@@ -106,7 +106,10 @@
 }
 
 :is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button):hover,
-:is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button):focus-visible {
+:is(
+  .city-planner-page__configuration-button,
+  .troops-planner-page__configuration-button
+):focus-visible {
   color: var(--ink-black);
   background: var(--gold);
   border-color: var(--gold);
@@ -128,7 +131,10 @@
   font-size: 0.78rem;
 }
 
-:is(.city-planner-page__configuration-button--export, .troops-planner-page__configuration-button--export) {
+:is(
+  .city-planner-page__configuration-button--export,
+  .troops-planner-page__configuration-button--export
+) {
   position: relative;
 }
 
@@ -161,27 +167,28 @@
 .city-planner-page__configuration-button--export:hover .city-planner-page__export-tooltip,
 .city-planner-page__configuration-button--export:focus-visible .city-planner-page__export-tooltip,
 .troops-planner-page__configuration-button--export:hover .troops-planner-page__export-tooltip,
-.troops-planner-page__configuration-button--export:focus-visible .troops-planner-page__export-tooltip {
+.troops-planner-page__configuration-button--export:focus-visible
+  .troops-planner-page__export-tooltip {
   opacity: 1;
   transform: translateY(0);
   visibility: visible;
 }
 
 :is(
-    .city-planner-page__export-menu,
-    .city-planner-page__more-menu,
-    .troops-planner-page__export-menu,
-    .troops-planner-page__more-menu
-  ) {
+  .city-planner-page__export-menu,
+  .city-planner-page__more-menu,
+  .troops-planner-page__export-menu,
+  .troops-planner-page__more-menu
+) {
   position: relative;
 }
 
 :is(
-    .city-planner-page__export-panel,
-    .city-planner-page__more-panel,
-    .troops-planner-page__export-panel,
-    .troops-planner-page__more-panel
-  ) {
+  .city-planner-page__export-panel,
+  .city-planner-page__more-panel,
+  .troops-planner-page__export-panel,
+  .troops-planner-page__more-panel
+) {
   position: absolute;
   top: calc(100% + 0.55rem);
   right: 0;

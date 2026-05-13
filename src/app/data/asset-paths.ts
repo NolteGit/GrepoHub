@@ -112,4 +112,3 @@ export function getBattleIconPath(icon: string): string {
 
   return fileName ? `${imageBasePath}/battle/${fileName}` : '';
 }
-
