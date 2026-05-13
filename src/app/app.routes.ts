@@ -1,31 +1,27 @@
 import { Routes } from '@angular/router';
 
-import { Home } from './pages/home/home';
-import { CityPlanner } from './pages/city-planner/city-planner';
-import { TroopsPlanner } from './pages/troops-planner/troops-planner';
-import { References } from './pages/references/references';
-import { Toolbox } from './pages/toolbox/toolbox';
-
 export const routes: Routes = [
   {
     path: '',
-    component: Home,
+    loadComponent: () => import('./pages/home/home').then((module) => module.Home),
   },
   {
     path: 'city-planner',
-    component: CityPlanner,
+    loadComponent: () =>
+      import('./pages/city-planner/city-planner').then((module) => module.CityPlanner),
   },
   {
     path: 'troops-planner',
-    component: TroopsPlanner,
+    loadComponent: () =>
+      import('./pages/troops-planner/troops-planner').then((module) => module.TroopsPlanner),
   },
   {
     path: 'references',
-    component: References,
+    loadComponent: () => import('./pages/references/references').then((module) => module.References),
   },
   {
     path: 'toolbox',
-    component: Toolbox,
+    loadComponent: () => import('./pages/toolbox/toolbox').then((module) => module.Toolbox),
   },
   {
     path: '**',
