@@ -229,16 +229,5 @@
     "population": null,
     "constructionTimeMinutes": null,
     "isSpecial": true
-  },
-  {
-    "id": "agora",
-    "name": "Agora",
-    "maxLevel": null,
-    "wood": null,
-    "stone": null,
-    "silver": null,
-    "population": null,
-    "constructionTimeMinutes": null,
-    "isSpecial": false
   }
 ]
