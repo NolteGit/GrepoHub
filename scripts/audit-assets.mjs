@@ -226,7 +226,7 @@ function checkMappedFilesExist() {
     ...extractObjectValues(source, 'buildingImageFileNames').map((fileName) => `buildings/${fileName}`),
     ...extractObjectValues(source, 'unitImageFileNames').map((fileName) => `units/${fileName}`),
     ...extractObjectValues(source, 'battleIconFileNames').map((fileName) => `battle/${fileName}`),
-    ...extractResourceIds(source).map((resourceId) => `resources/${resourceId}.png`),
+    ...extractResourceIds(source).map((resourceId) => `resources/${resourceId}.webp`),
   ];
 
   for (const mappedFile of new Set(mappedFiles)) {
@@ -313,3 +313,4 @@ if (errors.length > 0) {
 }
 
 console.log(`\nAsset audit passed with ${warnings.length} warning(s).`);
+

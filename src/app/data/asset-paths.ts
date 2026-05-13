@@ -80,8 +80,8 @@ export type ResourceIconId = 'wood' | 'stone' | 'silver' | 'favor' | 'population
 const battleIconFileNames: Record<string, string> = {
   attackSea: 'attackSea.webp',
   attackBlunt: 'blunt.webp',
-  attackSharp: 'sharp.png',
-  attackDistance: 'distance.png',
+  attackSharp: 'sharp.webp',
+  attackDistance: 'distance.webp',
   booty: 'booty.webp',
   capacity: 'capacity.webp',
   defenseBlunt: 'defenseBlunt.webp',
@@ -104,7 +104,7 @@ export function getUnitIconPath(unitId: string): string {
 }
 
 export function getResourceIconPath(resource: ResourceIconId): string {
-  return `${imageBasePath}/resources/${resource}.png`;
+  return `${imageBasePath}/resources/${resource}.webp`;
 }
 
 export function getBattleIconPath(icon: string): string {
@@ -112,3 +112,4 @@ export function getBattleIconPath(icon: string): string {
 
   return fileName ? `${imageBasePath}/battle/${fileName}` : '';
 }
+
