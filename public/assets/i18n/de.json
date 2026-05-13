@@ -521,5 +521,8 @@
   "academyResearch.divine_selection": "Göttliche Auslese",
   "academyResearch.combat_experience": "Kampferfahrung",
   "academyResearch.strong_wine": "Starker Wein",
-  "academyResearch.set_sail": "Segel setzen"
+  "academyResearch.set_sail": "Segel setzen",
+  "about.createdBy": "Erstellt von",
+  "about.contactTitle": "Kontakt zu Noltenius",
+  "about.footerAria": "App-Informationen"
 }

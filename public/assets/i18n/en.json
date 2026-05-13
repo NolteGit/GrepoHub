@@ -521,5 +521,8 @@
   "academyResearch.divine_selection": "Divine Selection",
   "academyResearch.combat_experience": "Combat Experience",
   "academyResearch.strong_wine": "Strong Wine",
-  "academyResearch.set_sail": "Set Sail"
+  "academyResearch.set_sail": "Set Sail",
+  "about.createdBy": "Created by",
+  "about.contactTitle": "Contact Noltenius",
+  "about.footerAria": "App information"
 }

@@ -289,4 +289,35 @@
       <router-outlet />
     </div>
   </main>
+
+  <footer class="app-shell__footer" [attr.aria-label]="'about.footerAria' | translate">
+    <div class="app-shell__footer-inner">
+      <span class="app-shell__contact">
+        {{ 'about.createdBy' | translate }}
+        <button
+          class="app-shell__contact-trigger"
+          type="button"
+          (click)="toggleContactPopover()"
+          [attr.aria-expanded]="isContactPopoverOpen()"
+          aria-controls="app-shell-contact-popover"
+        >
+          Noltenius
+        </button>
+
+        @if (isContactPopoverOpen()) {
+          <span
+            id="app-shell-contact-popover"
+            class="app-shell__contact-popover"
+            role="dialog"
+            [attr.aria-label]="'about.contactTitle' | translate"
+          >
+            <strong>{{ 'about.contactTitle' | translate }}</strong>
+            <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>
+          </span>
+        }
+      </span>
+      <span class="app-shell__footer-separator" aria-hidden="true">·</span>
+      <a [href]="githubUrl" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </footer>
 </div>

@@ -24,6 +24,9 @@ export class AppShell {
   protected readonly timerService = inject(ToolboxTimerService);
   protected readonly isNavigationMenuOpen = signal(false);
   protected readonly isTimerMenuOpen = signal(false);
+  protected readonly isContactPopoverOpen = signal(false);
+  protected readonly githubUrl = 'https://github.com/NolteGit/GrepoHub';
+  protected readonly contactEmail = 'replace-me@example.com';
   protected readonly timerItems = this.timerService.overviewItems;
   protected readonly activeTimerItems = computed(() =>
     this.timerItems().filter((item) => item.tone !== 'done'),
@@ -81,6 +84,16 @@ export class AppShell {
     this.isTimerMenuOpen.set(false);
   }
 
+  protected toggleContactPopover(): void {
+    this.isContactPopoverOpen.update((isOpen) => !isOpen);
+    this.closeNavigationMenu();
+    this.closeTimerMenu();
+  }
+
+  protected closeContactPopover(): void {
+    this.isContactPopoverOpen.set(false);
+  }
+
   protected removeTimerItem(item: ActiveTimerItem): void {
     this.timerService.removeOverviewItem(item);
   }
@@ -102,8 +115,8 @@ export class AppShell {
   }
 
   @HostListener('document:pointerdown', ['$event'])
-  protected closeTimerMenuOnOutsideClick(event: PointerEvent): void {
-    if (!this.isTimerMenuOpen()) {
+  protected closePopoversOnOutsideClick(event: PointerEvent): void {
+    if (!this.isTimerMenuOpen() && !this.isContactPopoverOpen()) {
       return;
     }
 
@@ -114,18 +127,21 @@ export class AppShell {
     }
 
     const timerWidget = this.elementRef.nativeElement.querySelector('.app-shell__timer-widget');
+    const contactWidget = this.elementRef.nativeElement.querySelector('.app-shell__contact');
 
-    if (timerWidget?.contains(target)) {
+    if (timerWidget?.contains(target) || contactWidget?.contains(target)) {
       return;
     }
 
     this.closeTimerMenu();
+    this.closeContactPopover();
   }
 
   @HostListener('document:keydown.escape')
   protected closeOpenMenus(): void {
     this.closeNavigationMenu();
     this.closeTimerMenu();
+    this.closeContactPopover();
   }
 
   @HostListener('window:resize')
@@ -135,5 +151,6 @@ export class AppShell {
     }
 
     this.closeTimerMenu();
+    this.closeContactPopover();
   }
 }
