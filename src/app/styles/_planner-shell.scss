@@ -1,0 +1,305 @@
+:is(.city-planner-page, .troops-planner-page) {
+  display: grid;
+  gap: 1.25rem;
+}
+
+:is(.city-planner-page__header, .troops-planner-page__header) {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 10rem;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 1.25rem;
+  background: var(--prussian-blue);
+  box-shadow: var(--shadow-soft);
+}
+
+:is(.city-planner-page__header, .troops-planner-page__header) h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+
+:is(.city-planner-page__header, .troops-planner-page__header) p {
+  margin: 0.5rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+:is(.city-planner-page__configuration-bar, .troops-planner-page__configuration-bar) {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+:is(.city-planner-page__configuration-select, .troops-planner-page__configuration-select) {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+:is(.city-planner-page__configuration-select, .troops-planner-page__configuration-select) select,
+:is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button) {
+  min-height: 2.45rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--regal-navy);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+:is(.city-planner-page__select-wrapper, .troops-planner-page__select-wrapper) {
+  position: relative;
+  display: grid;
+  align-items: center;
+}
+
+:is(.city-planner-page__select-wrapper, .troops-planner-page__select-wrapper) app-icon {
+  position: absolute;
+  right: 0.85rem;
+  color: var(--gold);
+  font-size: 0.82rem;
+  pointer-events: none;
+}
+
+:is(.city-planner-page__configuration-select, .troops-planner-page__configuration-select) select {
+  min-width: 14rem;
+  padding: 0 2.25rem 0 0.85rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+:is(.city-planner-page__configuration-select, .troops-planner-page__configuration-select)
+  select::-ms-expand {
+  display: none;
+}
+
+:is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 0.95rem;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+:is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button):hover,
+:is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button):focus-visible {
+  color: var(--ink-black);
+  background: var(--gold);
+  border-color: var(--gold);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+:is(.city-planner-page__configuration-button, .troops-planner-page__configuration-button) app-icon {
+  font-size: 0.92rem;
+}
+
+:is(
+    .city-planner-page__configuration-button--more,
+    .city-planner-page__configuration-button--export,
+    .troops-planner-page__configuration-button--more,
+    .troops-planner-page__configuration-button--export
+  )
+  app-icon:last-child {
+  font-size: 0.78rem;
+}
+
+:is(.city-planner-page__configuration-button--export, .troops-planner-page__configuration-button--export) {
+  position: relative;
+}
+
+:is(.city-planner-page__export-tooltip, .troops-planner-page__export-tooltip) {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  z-index: 1000;
+  width: min(28rem, 80vw);
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.85rem;
+  background: rgba(0, 8, 20, 0.98);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.42);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  text-align: left;
+  transform: translateY(-0.25rem);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 160ms ease;
+  visibility: hidden;
+}
+
+.city-planner-page__configuration-button--export:hover .city-planner-page__export-tooltip,
+.city-planner-page__configuration-button--export:focus-visible .city-planner-page__export-tooltip,
+.troops-planner-page__configuration-button--export:hover .troops-planner-page__export-tooltip,
+.troops-planner-page__configuration-button--export:focus-visible .troops-planner-page__export-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+:is(
+    .city-planner-page__export-menu,
+    .city-planner-page__more-menu,
+    .troops-planner-page__export-menu,
+    .troops-planner-page__more-menu
+  ) {
+  position: relative;
+}
+
+:is(
+    .city-planner-page__export-panel,
+    .city-planner-page__more-panel,
+    .troops-planner-page__export-panel,
+    .troops-planner-page__more-panel
+  ) {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  z-index: 900;
+  display: grid;
+  gap: 0.2rem;
+  min-width: 12.5rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.95rem;
+  background: rgba(0, 29, 61, 0.98);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.42);
+}
+
+:is(
+    .city-planner-page__export-panel,
+    .city-planner-page__more-panel,
+    .troops-planner-page__export-panel,
+    .troops-planner-page__more-panel
+  )
+  button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 2.2rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+:is(
+    .city-planner-page__export-panel,
+    .city-planner-page__more-panel,
+    .troops-planner-page__export-panel,
+    .troops-planner-page__more-panel
+  )
+  button
+  app-icon {
+  width: 1rem;
+  font-size: 0.95rem;
+}
+
+:is(
+    .city-planner-page__export-panel,
+    .city-planner-page__more-panel,
+    .troops-planner-page__export-panel,
+    .troops-planner-page__more-panel
+  )
+  button:hover,
+:is(
+    .city-planner-page__export-panel,
+    .city-planner-page__more-panel,
+    .troops-planner-page__export-panel,
+    .troops-planner-page__more-panel
+  )
+  button:focus-visible {
+  background: rgba(255, 214, 10, 0.14);
+  color: var(--gold);
+  outline: none;
+}
+
+:is(.city-planner-page__content, .troops-planner-page__content) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+  gap: 1rem;
+}
+
+:is(.city-planner-page__side, .troops-planner-page__side) {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+.troops-planner-page__side {
+  align-items: start;
+}
+
+:is(.city-planner-card, .troops-planner-card) {
+  position: relative;
+  border: 1px solid var(--border-soft);
+  border-radius: 1.25rem;
+  background: var(--prussian-blue);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+:is(.city-planner-card, .troops-planner-card)::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--gold);
+}
+
+:is(.city-planner-card__header, .troops-planner-card__header) {
+  padding: 1.15rem 1.25rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 214, 10, 0.08);
+}
+
+:is(.city-planner-card__header, .troops-planner-card__header) h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+:is(.city-planner-card__header, .troops-planner-card__header) p {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
