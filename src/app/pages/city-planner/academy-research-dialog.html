@@ -16,6 +16,28 @@
         </h2>
       </div>
 
+      <div class="academy-research-dialog__toolbar">
+        <label class="academy-research-dialog__library-option">
+          <input
+            type="checkbox"
+            [ngModel]="libraryBuilt()"
+            (ngModelChange)="setLibraryBuilt($event)"
+          />
+          <span>Library</span>
+        </label>
+
+        <button
+          type="button"
+          class="academy-research-dialog__clear"
+          [attr.aria-label]="'academyResearch.clearSelection' | translate"
+          [title]="'academyResearch.clearSelection' | translate"
+          [disabled]="!selectedAcademyResearchIds().length && !libraryBuilt()"
+          (click)="clearSelection()"
+        >
+          Clear
+        </button>
+      </div>
+
       <div
         class="academy-research-dialog__points"
         [class.academy-research-dialog__points--missing]="calculation.missingPoints > 0"
@@ -37,31 +59,6 @@
       </button>
     </header>
 
-    <div class="academy-research-dialog__toolbar">
-      <span>
-        {{ 'academyResearch.academyLevel' | translate }} {{ academyLevel }} ·
-        {{ 'academyResearch.availablePoints' | translate }} {{ calculation.availablePoints }}
-      </span>
-
-      <label class="academy-research-dialog__library-option">
-        <input
-          type="checkbox"
-          [ngModel]="libraryBuilt()"
-          (ngModelChange)="setLibraryBuilt($event)"
-        />
-        <span>{{ 'academyResearch.libraryBuilt' | translate }}</span>
-        <strong>+12</strong>
-      </label>
-
-      <button
-        type="button"
-        class="academy-research-dialog__clear"
-        [disabled]="!selectedAcademyResearchIds().length && !libraryBuilt()"
-        (click)="clearSelection()"
-      >
-        {{ 'academyResearch.clearSelection' | translate }}
-      </button>
-    </div>
 
     <div class="academy-research-dialog__board" aria-label="Academy research levels">
       @for (group of academyResearchLevelGroups; track group.requiredAcademyLevel) {
@@ -90,9 +87,12 @@
                 }}"
                 (click)="toggleResearch(research.id)"
               >
-                <span class="academy-research-dialog__research-icon" aria-hidden="true">
-                  {{ research.icon }}
-                </span>
+                <img
+                  class="academy-research-dialog__research-icon"
+                  [src]="getAcademyResearchIconPath(research.id)"
+                  [alt]="research.nameKey | translate: research.fallbackName"
+                  loading="lazy"
+                />
                 <span class="academy-research-dialog__research-cost" aria-hidden="true">
                   {{ research.cost }}
                 </span>

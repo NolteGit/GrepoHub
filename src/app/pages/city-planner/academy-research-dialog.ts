@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, computed, signal } from '@angul
 import { FormsModule } from '@angular/forms';
 
 import { AcademyResearchId, academyResearchLevelGroups } from '../../data/academy-research-presets';
+import { getAcademyResearchIconPath } from '../../data/asset-paths';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   AcademyResearchCalculationResult,
@@ -19,6 +20,7 @@ export class AcademyResearchDialogComponent {
   @Output() readonly closeDialog = new EventEmitter<void>();
 
   protected readonly academyResearchLevelGroups = academyResearchLevelGroups;
+  protected readonly getAcademyResearchIconPath = getAcademyResearchIconPath;
   protected readonly selectedAcademyResearchIds = signal<readonly AcademyResearchId[]>([]);
   protected readonly libraryBuilt = signal(false);
   protected readonly selectedAcademyResearchIdSet = computed(() => {
