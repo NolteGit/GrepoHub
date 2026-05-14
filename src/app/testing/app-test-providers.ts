@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 
 import { routes } from '../app.routes';
 import { GameDataService } from '../services/game-data.service';
+import { getNextSupportedLanguage } from '../services/supported-languages';
 import { TranslationService, type SupportedLanguage } from '../services/translation.service';
 
 const testTranslations: Record<string, string> = {
@@ -12,8 +13,10 @@ const testTranslations: Record<string, string> = {
   'language.menuAria': 'Language selection',
   'language.english': 'English',
   'language.german': 'German',
+  'language.french': 'French',
   'language.englishCode': 'EN',
   'language.germanCode': 'DE',
+  'language.frenchCode': 'FR',
 };
 
 class MockTranslationService {
@@ -29,7 +32,7 @@ class MockTranslationService {
   }
 
   toggleLanguage(): void {
-    this.setLanguage(this.language() === 'en' ? 'de' : 'en');
+    this.setLanguage(getNextSupportedLanguage(this.language()));
   }
 }
 

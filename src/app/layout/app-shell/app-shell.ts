@@ -4,18 +4,13 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import type { ActiveTimerItem } from '../../pages/toolbox/models/toolbox.models';
 import { ToolboxTimerService } from '../../pages/toolbox/services/toolbox-timer.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { languageOptions } from '../../services/supported-languages';
 import { TranslationService, type SupportedLanguage } from '../../services/translation.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 type NavItem = {
   labelKey: string;
   path: string;
-};
-
-type LanguageOption = {
-  code: SupportedLanguage;
-  labelKey: string;
-  shortLabelKey: string;
 };
 
 @Component({
@@ -48,18 +43,7 @@ export class AppShell {
       : this.activeTimerItems().length,
   );
   protected readonly hasFinishedTimerItems = computed(() => this.finishedTimerItems().length > 0);
-  protected readonly languageOptions: readonly LanguageOption[] = [
-    {
-      code: 'en',
-      labelKey: 'language.english',
-      shortLabelKey: 'language.englishCode',
-    },
-    {
-      code: 'de',
-      labelKey: 'language.german',
-      shortLabelKey: 'language.germanCode',
-    },
-  ];
+  protected readonly languageOptions = languageOptions;
   protected readonly currentLanguageOption = computed(
     () =>
       this.languageOptions.find(

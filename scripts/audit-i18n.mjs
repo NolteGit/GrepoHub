@@ -1,15 +1,33 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const root = process.cwd();
-const languages = ['en', 'de'];
+const i18nDirectory = join(root, 'public', 'assets', 'i18n');
+const languages = readdirSync(i18nDirectory)
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => file.replace(/\.json$/, ''))
+  .sort((a, b) => {
+    if (a === 'en') {
+      return -1;
+    }
+
+    if (b === 'en') {
+      return 1;
+    }
+
+    return a.localeCompare(b);
+  });
 const dictionaries = Object.fromEntries(
   languages.map((language) => [
     language,
-    JSON.parse(readFileSync(join(root, 'public', 'assets', 'i18n', `${language}.json`), 'utf8')),
+    JSON.parse(readFileSync(join(i18nDirectory, `${language}.json`), 'utf8')),
   ]),
 );
 const errors = [];
+
+if (!existsSync(join(i18nDirectory, 'en.json'))) {
+  addError('Missing base language file: en.json');
+}
 
 function walk(directory, predicate, files = []) {
   for (const entry of readdirSync(directory)) {

@@ -1,7 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 
-export type SupportedLanguage = 'en' | 'de';
+import {
+  getNextSupportedLanguage,
+  isSupportedLanguage,
+  type SupportedLanguage,
+} from './supported-languages';
+
+export type { SupportedLanguage } from './supported-languages';
 export type TranslationParams = Record<string, string | number>;
 
 @Injectable({
@@ -10,6 +16,7 @@ export type TranslationParams = Record<string, string | number>;
 export class TranslationService {
   private readonly http = inject(HttpClient);
   private readonly storageKey = 'grepo-hub-language';
+  private readonly fallbackLanguage: SupportedLanguage = 'en';
 
   private readonly language = signal<SupportedLanguage>(this.getInitialLanguage());
   private readonly dictionary = signal<Record<string, string>>({});
@@ -33,15 +40,30 @@ export class TranslationService {
   }
 
   toggleLanguage(): void {
-    this.setLanguage(this.language() === 'en' ? 'de' : 'en');
+    this.setLanguage(getNextSupportedLanguage(this.language()));
   }
 
   private loadLanguage(language: SupportedLanguage): void {
-    this.http
-      .get<Record<string, string>>(`/assets/i18n/${language}.json`)
-      .subscribe((dictionary) => {
+    this.requestDictionary(language).subscribe({
+      next: (dictionary) => {
         this.dictionary.set(dictionary);
-      });
+      },
+      error: () => {
+        if (language !== this.fallbackLanguage) {
+          this.loadFallbackDictionary();
+        }
+      },
+    });
+  }
+
+  private loadFallbackDictionary(): void {
+    this.requestDictionary(this.fallbackLanguage).subscribe((dictionary) => {
+      this.dictionary.set(dictionary);
+    });
+  }
+
+  private requestDictionary(language: SupportedLanguage) {
+    return this.http.get<Record<string, string>>(`/assets/i18n/${language}.json`);
   }
 
   private interpolate(value: string, params?: TranslationParams): string {
@@ -57,6 +79,6 @@ export class TranslationService {
   private getInitialLanguage(): SupportedLanguage {
     const storedLanguage = localStorage.getItem(this.storageKey);
 
-    return storedLanguage === 'de' || storedLanguage === 'en' ? storedLanguage : 'en';
+    return isSupportedLanguage(storedLanguage) ? storedLanguage : this.fallbackLanguage;
   }
 }

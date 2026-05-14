@@ -39,16 +39,16 @@ describe('TranslationService', () => {
   });
 
   it('restores the stored language when it is supported', () => {
-    localStorage.setItem('grepo-hub-language', 'de');
+    localStorage.setItem('grepo-hub-language', 'fr');
     createService();
 
-    expect(service.currentLanguage()).toBe('de');
+    expect(service.currentLanguage()).toBe('fr');
 
-    http.expectOne('/assets/i18n/de.json').flush({
-      'nav.home': 'Startseite',
+    http.expectOne('/assets/i18n/fr.json').flush({
+      'nav.home': 'Accueil',
     });
 
-    expect(service.translate('nav.home')).toBe('Startseite');
+    expect(service.translate('nav.home')).toBe('Accueil');
   });
 
   it('persists explicit language changes and reloads the dictionary', () => {
@@ -67,7 +67,7 @@ describe('TranslationService', () => {
     expect(service.translate('nav.toolbox')).toBe('Werkzeuge');
   });
 
-  it('toggles between English and German', () => {
+  it('cycles through supported languages', () => {
     createService();
     http.expectOne('/assets/i18n/en.json').flush({});
 
@@ -78,8 +78,33 @@ describe('TranslationService', () => {
 
     service.toggleLanguage();
 
+    expect(service.currentLanguage()).toBe('fr');
+    http.expectOne('/assets/i18n/fr.json').flush({});
+
+    service.toggleLanguage();
+
     expect(service.currentLanguage()).toBe('en');
     http.expectOne('/assets/i18n/en.json').flush({});
+  });
+
+  it('falls back to English dictionaries when a pending language file is missing', () => {
+    createService();
+    http.expectOne('/assets/i18n/en.json').flush({});
+
+    service.setLanguage('fr');
+
+    expect(service.currentLanguage()).toBe('fr');
+    expect(localStorage.getItem('grepo-hub-language')).toBe('fr');
+
+    http.expectOne('/assets/i18n/fr.json').flush('Missing', {
+      status: 404,
+      statusText: 'Not Found',
+    });
+    http.expectOne('/assets/i18n/en.json').flush({
+      'nav.home': 'Home',
+    });
+
+    expect(service.translate('nav.home')).toBe('Home');
   });
 
   function createService(): void {
