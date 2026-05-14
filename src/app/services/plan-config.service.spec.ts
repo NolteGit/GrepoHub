@@ -170,22 +170,59 @@ describe('PlanConfigService import validation', () => {
     expect(planAfterAutosave.cityPlan.buildingLevels.farm).toBe(20);
   });
 
-  it('deletes only custom plans and selects the next available plan', () => {
-    expect(service.deleteActivePlan()).toBeNull();
+  it('deletes preset and custom plans and selects the next available plan', () => {
+    expect(service.activePlan().id).toBe('preset-empty');
+
+    const deletedPreset = service.deleteActivePlan();
+
+    expect(deletedPreset).toEqual({
+      deletedPlanName: 'Empty',
+      selectedPlanName: 'Hybrid',
+    });
+    expect(service.activePlan().id).toBe('preset-hybrid-plan');
+    expect(service.plans().some((plan) => plan.id === 'preset-empty')).toBe(false);
 
     const firstCustomPlan = service.duplicateActivePlan('Temporary One');
     const secondCustomPlan = service.duplicateActivePlan('Temporary Two');
 
     expect(service.activePlan().id).toBe(secondCustomPlan.id);
 
-    const result = service.deleteActivePlan();
+    const deletedCustom = service.deleteActivePlan();
 
-    expect(result).toEqual({
+    expect(deletedCustom).toEqual({
       deletedPlanName: 'Temporary Two',
       selectedPlanName: firstCustomPlan.name,
     });
     expect(service.activePlan().id).toBe(firstCustomPlan.id);
     expect(service.plans().some((plan) => plan.id === secondCustomPlan.id)).toBe(false);
+  });
+
+  it('keeps deleted preset plans removed after the service reloads', () => {
+    expect(service.activePlan().id).toBe('preset-empty');
+
+    service.deleteActivePlan();
+
+    expect(service.plans().some((plan) => plan.id === 'preset-empty')).toBe(false);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(PlanConfigService);
+
+    expect(service.plans().some((plan) => plan.id === 'preset-empty')).toBe(false);
+    expect(service.activePlan().id).toBe('preset-hybrid-plan');
+  });
+
+  it('keeps the final remaining plan so the planner always has an active configuration', () => {
+    while (service.plans().length > 1) {
+      expect(service.canDeleteActivePlan()).toBe(true);
+      expect(service.deleteActivePlan()).not.toBeNull();
+    }
+
+    const finalPlan = service.activePlan();
+
+    expect(service.canDeleteActivePlan()).toBe(false);
+    expect(service.deleteActivePlan()).toBeNull();
+    expect(service.plans()).toEqual([finalPlan]);
   });
 
   it('exports CSV and BBCode from the normalized active plan state', () => {

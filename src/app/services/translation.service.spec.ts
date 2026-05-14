@@ -93,6 +93,11 @@ describe('TranslationService', () => {
 
     service.toggleLanguage();
 
+    expect(service.currentLanguage()).toBe('es');
+    http.expectOne('/assets/i18n/es.json').flush({});
+
+    service.toggleLanguage();
+
     expect(service.currentLanguage()).toBe('en');
     http.expectOne('/assets/i18n/en.json').flush({});
   });

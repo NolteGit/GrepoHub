@@ -16,11 +16,13 @@ const testTranslations: Record<string, string> = {
   'language.french': 'French',
   'language.dutch': 'Dutch',
   'language.italian': 'Italian',
+  'language.spanish': 'Spanish',
   'language.englishCode': 'EN',
   'language.germanCode': 'DE',
   'language.frenchCode': 'FR',
   'language.dutchCode': 'NL',
   'language.italianCode': 'IT',
+  'language.spanishCode': 'ES',
 };
 
 class MockTranslationService {

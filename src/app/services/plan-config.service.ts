@@ -71,8 +71,7 @@ export class PlanConfigService {
     );
   });
   constructor() {
-    const plansWithMissingPresets = this.includeMissingPresetPlans(this.planConfigs());
-    const normalizedPlans = this.normalizeExistingPlanNames(plansWithMissingPresets);
+    const normalizedPlans = this.normalizeExistingPlanNames(this.planConfigs());
     const currentPlans = this.planConfigs();
     const changedPlans =
       normalizedPlans.length !== currentPlans.length ||
@@ -96,7 +95,7 @@ export class PlanConfigService {
     );
     this.savePlans();
   }
-  readonly canDeleteActivePlan = computed(() => !this.activePlan().isPreset);
+  readonly canDeleteActivePlan = computed(() => this.planConfigs().length > 1);
 
   selectPlan(planId: string): void {
     if (!this.planConfigs().some((plan) => plan.id === planId)) {
@@ -154,10 +153,6 @@ export class PlanConfigService {
     readonly selectedPlanName: string;
   } | null {
     const currentPlan = this.activePlan();
-
-    if (currentPlan.isPreset) {
-      return null;
-    }
 
     const currentPlans = this.planConfigs();
     const currentIndex = currentPlans.findIndex((plan) => plan.id === currentPlan.id);
@@ -409,14 +404,6 @@ export class PlanConfigService {
     return `${Date.now()}-${this.customPlanIdCounter}`;
   }
 
-  private includeMissingPresetPlans(plans: readonly PlanConfig[]): PlanConfig[] {
-    const existingPlanIds = new Set(plans.map((plan) => plan.id));
-    const missingPresets = planConfigPresets
-      .filter((plan) => !existingPlanIds.has(plan.id))
-      .map((plan) => clonePlan(plan));
-
-    return missingPresets.length > 0 ? [...missingPresets, ...plans] : [...plans];
-  }
 
   private normalizeExistingPlanNames(plans: readonly PlanConfig[]): PlanConfig[] {
     const usedNames: string[] = [];

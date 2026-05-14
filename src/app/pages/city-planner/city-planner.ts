@@ -313,7 +313,7 @@ export class CityPlanner {
 
   protected deleteActivePlan(): void {
     if (!this.canDeleteActivePlan()) {
-      this.showPlanDeleteResultDialog([this.getDefaultPresetDeleteDetail()], true);
+      this.showPlanDeleteResultDialog([this.getLastPlanDeleteDetail()], true);
       return;
     }
 
@@ -330,7 +330,7 @@ export class CityPlanner {
     const result = this.planConfigService.deleteActivePlan();
 
     if (!result) {
-      this.showPlanDeleteResultDialog([this.getDefaultPresetDeleteDetail()], true);
+      this.showPlanDeleteResultDialog([this.getLastPlanDeleteDetail()], true);
       return;
     }
 
@@ -532,10 +532,10 @@ export class CityPlanner {
     );
   }
 
-  private getDefaultPresetDeleteDetail(): string {
+  private getLastPlanDeleteDetail(): string {
     return this.translationService.translate(
-      'planConfig.deleteDialog.defaultPresetDetail',
-      'Default presets cannot be deleted. Duplicate or import a plan first.',
+      'planConfig.deleteDialog.lastPlanDetail',
+      'At least one plan is required. Create or import another plan before deleting this one.',
     );
   }
 
