@@ -14,9 +14,13 @@ const testTranslations: Record<string, string> = {
   'language.english': 'English',
   'language.german': 'German',
   'language.french': 'French',
+  'language.dutch': 'Dutch',
+  'language.italian': 'Italian',
   'language.englishCode': 'EN',
   'language.germanCode': 'DE',
   'language.frenchCode': 'FR',
+  'language.dutchCode': 'NL',
+  'language.italianCode': 'IT',
 };
 
 class MockTranslationService {

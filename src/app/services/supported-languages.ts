@@ -1,4 +1,4 @@
-export const supportedLanguageCodes = ['en', 'de', 'fr'] as const;
+export const supportedLanguageCodes = ['en', 'de', 'fr', 'nl', 'it'] as const;
 
 export type SupportedLanguage = (typeof supportedLanguageCodes)[number];
 
@@ -23,6 +23,16 @@ export const languageOptions: readonly LanguageOption[] = [
     code: 'fr',
     labelKey: 'language.french',
     shortLabelKey: 'language.frenchCode',
+  },
+  {
+    code: 'nl',
+    labelKey: 'language.dutch',
+    shortLabelKey: 'language.dutchCode',
+  },
+  {
+    code: 'it',
+    labelKey: 'language.italian',
+    shortLabelKey: 'language.italianCode',
   },
 ];
 

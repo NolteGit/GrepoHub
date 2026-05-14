@@ -104,16 +104,20 @@ describe('AppShell timer queue indicator', () => {
     expect(menu?.textContent).toContain('English');
     expect(menu?.textContent).toContain('German');
     expect(menu?.textContent).toContain('French');
-    expect(options).toHaveLength(3);
+    expect(menu?.textContent).toContain('Dutch');
+    expect(menu?.textContent).toContain('Italian');
+    expect(options).toHaveLength(5);
     expect(options[0]?.getAttribute('aria-checked')).toBe('true');
     expect(options[1]?.getAttribute('aria-checked')).toBe('false');
     expect(options[2]?.getAttribute('aria-checked')).toBe('false');
+    expect(options[3]?.getAttribute('aria-checked')).toBe('false');
+    expect(options[4]?.getAttribute('aria-checked')).toBe('false');
 
-    options[2]?.click();
+    options[4]?.click();
     fixture.detectChanges();
 
     expect(languageMenu()).toBeNull();
-    expect(languageButton()?.textContent?.trim()).toContain('FR');
+    expect(languageButton()?.textContent?.trim()).toContain('IT');
   });
 
   function timerButton(): HTMLButtonElement | null {

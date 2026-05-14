@@ -83,6 +83,16 @@ describe('TranslationService', () => {
 
     service.toggleLanguage();
 
+    expect(service.currentLanguage()).toBe('nl');
+    http.expectOne('/assets/i18n/nl.json').flush({});
+
+    service.toggleLanguage();
+
+    expect(service.currentLanguage()).toBe('it');
+    http.expectOne('/assets/i18n/it.json').flush({});
+
+    service.toggleLanguage();
+
     expect(service.currentLanguage()).toBe('en');
     http.expectOne('/assets/i18n/en.json').flush({});
   });
