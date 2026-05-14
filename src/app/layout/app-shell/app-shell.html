@@ -263,23 +263,55 @@
           </div>
         }
 
-        <button
-          class="app-shell__language-action"
-          type="button"
-          (click)="toggleLanguage()"
-          [attr.aria-label]="
-            translationService.currentLanguage() === 'en'
-              ? ('language.switchToGerman' | translate)
-              : ('language.switchToEnglish' | translate)
-          "
-        >
-          <app-icon name="language" />
-          @if (translationService.currentLanguage() === 'en') {
-            <span>DE</span>
-          } @else {
-            <span>EN</span>
+        <div class="app-shell__language-picker">
+          <button
+            class="app-shell__language-action"
+            type="button"
+            (click)="toggleLanguageMenu()"
+            [attr.aria-label]="'language.openMenu' | translate"
+            [attr.aria-expanded]="isLanguageMenuOpen()"
+            aria-controls="app-shell-language-menu"
+            aria-haspopup="menu"
+          >
+            <app-icon name="language" />
+            <span>{{ currentLanguageOption().shortLabelKey | translate }}</span>
+            <svg
+              class="app-shell__language-chevron"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M5.5 7.5 10 12l4.5-4.5" />
+            </svg>
+          </button>
+
+          @if (isLanguageMenuOpen()) {
+            <div
+              id="app-shell-language-menu"
+              class="app-shell__language-menu"
+              role="menu"
+              [attr.aria-label]="'language.menuAria' | translate"
+            >
+              @for (language of languageOptions; track language.code) {
+                <button
+                  class="app-shell__language-option"
+                  [class.app-shell__language-option--active]="
+                    translationService.currentLanguage() === language.code
+                  "
+                  type="button"
+                  role="menuitemradio"
+                  [attr.aria-checked]="translationService.currentLanguage() === language.code"
+                  (click)="selectLanguage(language.code)"
+                >
+                  <span>{{ language.labelKey | translate }}</span>
+                  <span class="app-shell__language-option-code">{{
+                    language.shortLabelKey | translate
+                  }}</span>
+                </button>
+              }
+            </div>
           }
-        </button>
+        </div>
       </div>
     </div>
   </header>

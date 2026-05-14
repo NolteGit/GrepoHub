@@ -23,7 +23,7 @@
             [ngModel]="libraryBuilt()"
             (ngModelChange)="setLibraryBuilt($event)"
           />
-          <span>Library</span>
+          <span>{{ 'academyResearch.libraryBuilt' | translate }}</span>
         </label>
 
         <button
@@ -34,7 +34,7 @@
           [disabled]="!selectedAcademyResearchIds().length && !libraryBuilt()"
           (click)="clearSelection()"
         >
-          Clear
+          {{ 'academyResearch.clearSelection' | translate }}
         </button>
       </div>
 
@@ -59,8 +59,10 @@
       </button>
     </header>
 
-
-    <div class="academy-research-dialog__board" aria-label="Academy research levels">
+    <div
+      class="academy-research-dialog__board"
+      [attr.aria-label]="'academyResearch.boardAria' | translate"
+    >
       @for (group of academyResearchLevelGroups; track group.requiredAcademyLevel) {
         <section class="academy-research-dialog__level-column">
           <div class="academy-research-dialog__level-label">

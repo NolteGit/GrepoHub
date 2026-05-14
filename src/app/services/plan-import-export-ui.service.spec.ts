@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { PlanFileTransferService } from './plan-file-transfer.service';
 import { PlanImportExportUiService } from './plan-import-export-ui.service';
+import { TranslationService } from './translation.service';
 
 class PlanFileTransferServiceStub {
   readonly importJsonFileAsNewPlans = vi.fn();
@@ -19,6 +20,12 @@ describe('PlanImportExportUiService', () => {
       providers: [
         PlanImportExportUiService,
         { provide: PlanFileTransferService, useValue: fileTransferService },
+        {
+          provide: TranslationService,
+          useValue: {
+            translate: (_key: string, fallback: string) => fallback,
+          },
+        },
       ],
     });
 

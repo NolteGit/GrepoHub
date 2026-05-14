@@ -265,6 +265,11 @@
   gap: 0.65rem;
 }
 
+.app-shell__language-picker {
+  position: relative;
+  flex: 0 0 auto;
+}
+
 .app-shell__language-action {
   flex: 0 0 auto;
   display: inline-flex;
@@ -287,7 +292,95 @@
 }
 
 .app-shell__language-action {
-  padding: 0.42rem 0.72rem;
+  padding: 0.42rem 0.62rem 0.42rem 0.72rem;
+}
+
+.app-shell__language-action[aria-expanded='true'] {
+  color: var(--ink-black);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.app-shell__language-chevron {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  transition: transform 160ms ease;
+}
+
+.app-shell__language-action[aria-expanded='true'] .app-shell__language-chevron {
+  transform: rotate(180deg);
+}
+
+.app-shell__language-menu {
+  position: absolute;
+  top: calc(100% + 0.52rem);
+  right: 0;
+  z-index: 45;
+  display: grid;
+  gap: 0.28rem;
+  min-width: 10.5rem;
+  padding: 0.42rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 0.9rem;
+  background: rgba(0, 29, 61, 0.98);
+  box-shadow: 0 18px 34px rgba(0, 8, 20, 0.44);
+  backdrop-filter: blur(12px);
+}
+
+.app-shell__language-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  width: 100%;
+  min-height: 2.2rem;
+  padding: 0.45rem 0.55rem 0.45rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 0.68rem;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.app-shell__language-option:hover,
+.app-shell__language-option--active {
+  border-color: rgba(255, 214, 10, 0.42);
+  background: rgba(255, 214, 10, 0.14);
+  color: var(--gold);
+}
+
+.app-shell__language-option:hover {
+  transform: translateY(-1px);
+}
+
+.app-shell__language-option-code {
+  flex: 0 0 auto;
+  padding: 0.16rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(0, 8, 20, 0.28);
+  color: var(--text-primary);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.app-shell__language-option--active .app-shell__language-option-code {
+  background: var(--gold);
+  color: var(--ink-black);
 }
 
 .app-shell__timer-widget {
@@ -533,7 +626,8 @@
   color: #ff8585;
 }
 
-.app-shell__language-action:hover {
+.app-shell__language-action:hover,
+.app-shell__language-action[aria-expanded='true'] {
   color: var(--ink-black);
   background: var(--gold);
   border-color: var(--gold);
@@ -550,6 +644,7 @@
 }
 
 .app-shell__language-action:focus-visible,
+.app-shell__language-option:focus-visible,
 .app-shell__timer-action:focus-visible,
 .app-shell__timer-item-actions button:focus-visible,
 .app-shell__menu-toggle:focus-visible,
@@ -656,7 +751,7 @@
 
   .app-shell__language-action {
     min-height: 2.05rem;
-    padding-inline: 0.64rem;
+    padding-inline: 0.64rem 0.54rem;
     font-size: 0.82rem;
   }
 
@@ -687,7 +782,11 @@
 
   .app-shell__language-action {
     min-width: 0;
-    padding-inline: 0.58rem;
+    padding-inline: 0.58rem 0.5rem;
+  }
+
+  .app-shell__language-menu {
+    right: -0.35rem;
   }
 
   .app-shell__actions {

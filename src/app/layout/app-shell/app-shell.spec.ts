@@ -87,11 +87,50 @@ describe('AppShell timer queue indicator', () => {
     expect(timerButton()).toBeNull();
   });
 
+  it('opens language choices from the navbar language dropdown', () => {
+    const button = languageButton();
+
+    expect(button).not.toBeNull();
+    expect(button?.textContent?.trim()).toContain('EN');
+    expect(languageMenu()).toBeNull();
+
+    button?.click();
+    fixture.detectChanges();
+
+    const menu = languageMenu();
+    const options = languageOptions();
+
+    expect(menu).not.toBeNull();
+    expect(menu?.textContent).toContain('English');
+    expect(menu?.textContent).toContain('German');
+    expect(options).toHaveLength(2);
+    expect(options[0]?.getAttribute('aria-checked')).toBe('true');
+    expect(options[1]?.getAttribute('aria-checked')).toBe('false');
+
+    options[1]?.click();
+    fixture.detectChanges();
+
+    expect(languageMenu()).toBeNull();
+    expect(languageButton()?.textContent?.trim()).toContain('DE');
+  });
+
   function timerButton(): HTMLButtonElement | null {
     return fixture.nativeElement.querySelector('.app-shell__timer-action');
   }
 
   function timerMenu(): HTMLElement | null {
     return fixture.nativeElement.querySelector('.app-shell__timer-menu');
+  }
+
+  function languageButton(): HTMLButtonElement | null {
+    return fixture.nativeElement.querySelector('.app-shell__language-action');
+  }
+
+  function languageMenu(): HTMLElement | null {
+    return fixture.nativeElement.querySelector('.app-shell__language-menu');
+  }
+
+  function languageOptions(): HTMLButtonElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll('.app-shell__language-option'));
   }
 });

@@ -2,6 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 
 import { PlanImportResult } from './plan-config.service';
 import { PlanFileTransferService } from './plan-file-transfer.service';
+import { TranslatableError } from './translatable-error';
+import { TranslationService } from './translation.service';
 
 export interface PlanDialogState {
   readonly isError: boolean;
@@ -14,6 +16,7 @@ export class PlanImportExportUiService {
   readonly exportMenuOpen = signal(false);
 
   private readonly planFileTransferService = inject(PlanFileTransferService);
+  private readonly translationService = inject(TranslationService);
 
   toggleExportMenu(onOpen?: () => void): void {
     const shouldOpen = !this.exportMenuOpen();
@@ -46,7 +49,7 @@ export class PlanImportExportUiService {
 
       this.showPlanImportSuccessDialog(result.plans);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Could not import plan file.';
+      const message = this.translateImportError(error);
 
       this.showPlanImportErrorDialog(message);
     } finally {
@@ -56,6 +59,21 @@ export class PlanImportExportUiService {
 
   closePlanImportDialog(): void {
     this.planImportDialog.set(null);
+  }
+
+  private translateImportError(error: unknown): string {
+    if (error instanceof TranslatableError) {
+      return this.translationService.translate(error.translationKey, error.message, error.params);
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return this.translationService.translate(
+      'planConfig.importError.unknown',
+      'Could not import plan file.',
+    );
   }
 
   private showPlanImportSuccessDialog(importedPlans: PlanImportResult['plans']): void {

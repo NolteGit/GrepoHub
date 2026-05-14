@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 
 export type SupportedLanguage = 'en' | 'de';
+export type TranslationParams = Record<string, string | number>;
 
 @Injectable({
   providedIn: 'root',
@@ -19,8 +20,10 @@ export class TranslationService {
     this.loadLanguage(this.language());
   }
 
-  translate(key: string, fallback?: string): string {
-    return this.dictionary()[key] ?? fallback ?? key;
+  translate(key: string, fallback?: string, params?: TranslationParams): string {
+    const value = this.dictionary()[key] ?? fallback ?? key;
+
+    return this.interpolate(value, params);
   }
 
   setLanguage(language: SupportedLanguage): void {
@@ -39,6 +42,16 @@ export class TranslationService {
       .subscribe((dictionary) => {
         this.dictionary.set(dictionary);
       });
+  }
+
+  private interpolate(value: string, params?: TranslationParams): string {
+    if (!params) {
+      return value;
+    }
+
+    return Object.entries(params).reduce((text, [name, replacement]) => {
+      return text.replaceAll(`{${name}}`, String(replacement));
+    }, value);
   }
 
   private getInitialLanguage(): SupportedLanguage {

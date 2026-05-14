@@ -905,14 +905,26 @@ export class Toolbox {
       calculatorPendingOperator: null,
       calculatorWaitingForNext: false,
       calculatorHistory: [],
-      attackerPreset: 'Attacker army',
-      defenderPreset: 'Defender army',
+      attackerPreset: this.translationService.translate(
+        'toolbox.battle.defaultAttackerPreset',
+        'Attacker army',
+      ),
+      defenderPreset: this.translationService.translate(
+        'toolbox.battle.defaultDefenderPreset',
+        'Defender army',
+      ),
       countdownMinutes: '5',
       countdownSeconds: '0',
-      countdownLabel: 'Timer',
-      stopwatchLabel: 'Stopwatch',
+      countdownLabel: this.translationService.translate('toolbox.queue.defaultTimer', 'Timer'),
+      stopwatchLabel: this.translationService.translate(
+        'toolbox.queue.defaultStopwatch',
+        'Stopwatch',
+      ),
       alarmTime: '22:59:00',
-      alarmLabel: 'Incoming reminder',
+      alarmLabel: this.translationService.translate(
+        'toolbox.reminder.defaultAlarmLabel',
+        'Incoming reminder',
+      ),
     };
   }
 

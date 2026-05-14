@@ -4,12 +4,18 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import type { ActiveTimerItem } from '../../pages/toolbox/models/toolbox.models';
 import { ToolboxTimerService } from '../../pages/toolbox/services/toolbox-timer.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { TranslationService } from '../../services/translation.service';
+import { TranslationService, type SupportedLanguage } from '../../services/translation.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 type NavItem = {
   labelKey: string;
   path: string;
+};
+
+type LanguageOption = {
+  code: SupportedLanguage;
+  labelKey: string;
+  shortLabelKey: string;
 };
 
 @Component({
@@ -24,6 +30,7 @@ export class AppShell {
   protected readonly timerService = inject(ToolboxTimerService);
   protected readonly isNavigationMenuOpen = signal(false);
   protected readonly isTimerMenuOpen = signal(false);
+  protected readonly isLanguageMenuOpen = signal(false);
   protected readonly isContactPopoverOpen = signal(false);
   protected readonly githubUrl = 'https://github.com/NolteGit/GrepoHub';
   protected readonly contactEmail = 'replace-me@example.com';
@@ -41,6 +48,24 @@ export class AppShell {
       : this.activeTimerItems().length,
   );
   protected readonly hasFinishedTimerItems = computed(() => this.finishedTimerItems().length > 0);
+  protected readonly languageOptions: readonly LanguageOption[] = [
+    {
+      code: 'en',
+      labelKey: 'language.english',
+      shortLabelKey: 'language.englishCode',
+    },
+    {
+      code: 'de',
+      labelKey: 'language.german',
+      shortLabelKey: 'language.germanCode',
+    },
+  ];
+  protected readonly currentLanguageOption = computed(
+    () =>
+      this.languageOptions.find(
+        (language) => language.code === this.translationService.currentLanguage(),
+      ) ?? this.languageOptions[0],
+  );
 
   protected readonly navItems: NavItem[] = [
     {
@@ -61,13 +86,22 @@ export class AppShell {
     },
   ];
 
-  protected toggleLanguage(): void {
-    this.translationService.toggleLanguage();
+  protected toggleLanguageMenu(): void {
+    this.isLanguageMenuOpen.update((isOpen) => !isOpen);
+    this.closeNavigationMenu();
+    this.closeTimerMenu();
+    this.closeContactPopover();
+  }
+
+  protected selectLanguage(language: SupportedLanguage): void {
+    this.translationService.setLanguage(language);
+    this.closeLanguageMenu();
   }
 
   protected toggleNavigationMenu(): void {
     this.isNavigationMenuOpen.update((isOpen) => !isOpen);
     this.closeTimerMenu();
+    this.closeLanguageMenu();
   }
 
   protected toggleTimerMenu(): void {
@@ -78,16 +112,22 @@ export class AppShell {
 
     this.isTimerMenuOpen.update((isOpen) => !isOpen);
     this.closeNavigationMenu();
+    this.closeLanguageMenu();
   }
 
   protected closeTimerMenu(): void {
     this.isTimerMenuOpen.set(false);
   }
 
+  protected closeLanguageMenu(): void {
+    this.isLanguageMenuOpen.set(false);
+  }
+
   protected toggleContactPopover(): void {
     this.isContactPopoverOpen.update((isOpen) => !isOpen);
     this.closeNavigationMenu();
     this.closeTimerMenu();
+    this.closeLanguageMenu();
   }
 
   protected closeContactPopover(): void {
@@ -116,7 +156,7 @@ export class AppShell {
 
   @HostListener('document:pointerdown', ['$event'])
   protected closePopoversOnOutsideClick(event: PointerEvent): void {
-    if (!this.isTimerMenuOpen() && !this.isContactPopoverOpen()) {
+    if (!this.isTimerMenuOpen() && !this.isLanguageMenuOpen() && !this.isContactPopoverOpen()) {
       return;
     }
 
@@ -127,13 +167,21 @@ export class AppShell {
     }
 
     const timerWidget = this.elementRef.nativeElement.querySelector('.app-shell__timer-widget');
+    const languageWidget = this.elementRef.nativeElement.querySelector(
+      '.app-shell__language-picker',
+    );
     const contactWidget = this.elementRef.nativeElement.querySelector('.app-shell__contact');
 
-    if (timerWidget?.contains(target) || contactWidget?.contains(target)) {
+    if (
+      timerWidget?.contains(target) ||
+      languageWidget?.contains(target) ||
+      contactWidget?.contains(target)
+    ) {
       return;
     }
 
     this.closeTimerMenu();
+    this.closeLanguageMenu();
     this.closeContactPopover();
   }
 
@@ -141,6 +189,7 @@ export class AppShell {
   protected closeOpenMenus(): void {
     this.closeNavigationMenu();
     this.closeTimerMenu();
+    this.closeLanguageMenu();
     this.closeContactPopover();
   }
 
@@ -151,6 +200,7 @@ export class AppShell {
     }
 
     this.closeTimerMenu();
+    this.closeLanguageMenu();
     this.closeContactPopover();
   }
 }

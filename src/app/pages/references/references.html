@@ -85,9 +85,9 @@
               [class.active]="selectedDocument()?.id === document.id"
               (click)="openDocument(document)"
             >
-              <span class="codex-document-nav__name">{{ document.title }}</span>
+              <span class="codex-document-nav__name">{{ documentTitle(document) }}</span>
               <span class="codex-document-nav__meta">
-                {{ document.category }} · {{ documentTypeLabel(document.type) }}
+                {{ documentCategory(document) }} · {{ documentTypeLabel(document.type) }}
               </span>
             </button>
           } @empty {
@@ -113,11 +113,11 @@
             @for (document of filteredDocuments(); track document.id) {
               <button type="button" class="codex-card" (click)="openDocument(document)">
                 <span class="codex-card__topline">
-                  <span>{{ document.category }}</span>
+                  <span>{{ documentCategory(document) }}</span>
                   <span>{{ documentTypeLabel(document.type) }}</span>
                 </span>
-                <strong>{{ document.title }}</strong>
-                <span>{{ document.description }}</span>
+                <strong>{{ documentTitle(document) }}</strong>
+                <span>{{ documentDescription(document) }}</span>
                 <span class="codex-card__meta">
                   @if (document.language) {
                     <span>{{ document.language.toUpperCase() }}</span>
@@ -143,10 +143,10 @@
 
               <div>
                 <p class="codex-eyebrow">
-                  {{ document.category }} · {{ documentTypeLabel(document.type) }}
+                  {{ documentCategory(document) }} · {{ documentTypeLabel(document.type) }}
                 </p>
-                <h2>{{ document.title }}</h2>
-                <p>{{ document.description }}</p>
+                <h2>{{ documentTitle(document) }}</h2>
+                <p>{{ documentDescription(document) }}</p>
               </div>
 
               <a
@@ -160,7 +160,7 @@
             </header>
 
             @if (document.note) {
-              <p class="codex-reader__note">{{ document.note }}</p>
+              <p class="codex-reader__note">{{ documentNote(document) }}</p>
             }
 
             @if (!isInlinePreview(document)) {
@@ -183,13 +183,13 @@
               <iframe
                 class="codex-pdf-preview"
                 [src]="safePreviewUrl(document)"
-                [title]="document.title"
+                [title]="documentTitle(document)"
               ></iframe>
             } @else if (document.type === 'image') {
               <img
                 class="codex-image-preview"
                 [src]="document.path"
-                [alt]="document.title"
+                [alt]="documentTitle(document)"
                 loading="lazy"
                 decoding="async"
               />

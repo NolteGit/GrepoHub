@@ -77,7 +77,6 @@ const unitImageFileNames: Record<string, string> = {
 
 export type ResourceIconId = 'wood' | 'stone' | 'silver' | 'favor' | 'population' | 'buildtime';
 
-
 const academyResearchIconFileNames: Record<string, string> = {
   slinger: 'slinger.webp',
   archer: 'archer.webp',

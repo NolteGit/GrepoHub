@@ -15,7 +15,7 @@
             (ngModelChange)="selectConfiguration($event)"
           >
             @for (configuration of configurations(); track configuration.id) {
-              <option [value]="configuration.id">{{ configuration.name }}</option>
+              <option [value]="configuration.id">{{ displayPlanName(configuration) }}</option>
             }
           </select>
           <app-icon name="chevron-down" />
@@ -298,7 +298,7 @@
       <section class="troops-planner-card troops-planner-card--summary">
         <header class="troops-planner-card__header">
           <h2>{{ 'troopsPlanner.summary' | translate }}</h2>
-          <p>{{ selectedConfiguration().name }}</p>
+          <p>{{ activePlanName() }}</p>
         </header>
 
         <div class="summary-overview">

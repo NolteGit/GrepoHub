@@ -8,6 +8,7 @@ import {
   getResourceIconPath as getAssetResourceIconPath,
   getUnitIconPath as getAssetUnitIconPath,
 } from '../../data/asset-paths';
+import { PlanConfig } from '../../models/plan-config.model';
 import { TroopConfiguration, TroopModifierId } from '../../models/troop-configuration.model';
 import { AttackType, Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -16,6 +17,7 @@ import { calculateCityPlannerPopulation } from '../../services/city-planner-popu
 import { PlanConfigService } from '../../services/plan-config.service';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
+import { TranslationService } from '../../services/translation.service';
 import { AppIconComponent } from '../../shared/app-icon/app-icon';
 
 type TroopUnitSectionId = 'land' | 'sea' | 'mythical';
@@ -51,10 +53,13 @@ export class TroopsPlanner {
   private readonly planConfigService = inject(PlanConfigService);
   private readonly planReadableExportService = inject(PlanReadableExportService);
   private readonly planImportExportUiService = inject(PlanImportExportUiService);
+  private readonly translationService = inject(TranslationService);
   protected readonly planImportDialog = this.planImportExportUiService.planImportDialog;
   protected readonly exportMenuOpen = this.planImportExportUiService.exportMenuOpen;
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
-  protected readonly activePlanName = computed(() => this.planConfigService.activePlan().name);
+  protected readonly activePlanName = computed(() =>
+    this.displayPlanName(this.planConfigService.activePlan()),
+  );
   protected readonly deletePlanDialogOpen = signal(false);
   protected readonly planDeleteResultDialog = signal<{
     readonly isError: boolean;
@@ -291,10 +296,7 @@ export class TroopsPlanner {
 
   protected deleteActivePlan(): void {
     if (!this.canDeleteActivePlan()) {
-      this.showPlanDeleteResultDialog(
-        ['Default presets cannot be deleted. Duplicate or import a plan first.'],
-        true,
-      );
+      this.showPlanDeleteResultDialog([this.getDefaultPresetDeleteDetail()], true);
       return;
     }
 
@@ -311,16 +313,25 @@ export class TroopsPlanner {
     const result = this.planConfigService.deleteActivePlan();
 
     if (!result) {
-      this.showPlanDeleteResultDialog(
-        ['Default presets cannot be deleted. Duplicate or import a plan first.'],
-        true,
-      );
+      this.showPlanDeleteResultDialog([this.getDefaultPresetDeleteDetail()], true);
       return;
     }
 
     this.showPlanDeleteResultDialog([
-      result.deletedPlanName + ' deleted.',
-      'Now selected: ' + result.selectedPlanName + '.',
+      this.translationService.translate(
+        'planConfig.deleteDialog.deletedDetail',
+        '{name} deleted.',
+        {
+          name: result.deletedPlanName,
+        },
+      ),
+      this.translationService.translate(
+        'planConfig.deleteDialog.selectedDetail',
+        'Now selected: {name}.',
+        {
+          name: this.activePlanName(),
+        },
+      ),
     ]);
   }
 
@@ -342,7 +353,11 @@ export class TroopsPlanner {
   protected openNewPlanDialog(): void {
     const currentPlan = this.planConfigService.activePlan();
 
-    this.newPlanName.set(`${currentPlan.name} Copy`);
+    this.newPlanName.set(
+      this.translationService.translate('planConfig.newPlanDialog.copyName', '{name} Copy', {
+        name: this.displayPlanName(currentPlan),
+      }),
+    );
     this.closeExportMenu();
     this.closeConfigurationMenu();
     this.newPlanDialogOpen.set(true);
@@ -572,6 +587,21 @@ export class TroopsPlanner {
     return typeof recruitmentTimeMinutes === 'number' && Number.isFinite(recruitmentTimeMinutes)
       ? recruitmentTimeMinutes
       : 0;
+  }
+
+  protected displayPlanName(plan: Pick<PlanConfig, 'id' | 'name' | 'isPreset'>): string {
+    this.translationService.currentLanguage();
+
+    return plan.isPreset
+      ? this.translationService.translate('planConfig.preset.' + plan.id, plan.name)
+      : plan.name;
+  }
+
+  private getDefaultPresetDeleteDetail(): string {
+    return this.translationService.translate(
+      'planConfig.deleteDialog.defaultPresetDetail',
+      'Default presets cannot be deleted. Duplicate or import a plan first.',
+    );
   }
 
   private updateSelectedConfiguration(partialConfiguration: Partial<TroopConfiguration>): void {

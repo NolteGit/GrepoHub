@@ -15,8 +15,11 @@ type CodexReaderStatus = 'idle' | 'loading' | 'ready' | 'error';
 type CodexDocument = {
   id: string;
   title: string;
+  titleKey?: string;
   description: string;
+  descriptionKey?: string;
   category: string;
+  categoryKey?: string;
   type: CodexDocumentType;
   path: string;
   tags?: string[];
@@ -24,6 +27,7 @@ type CodexDocument = {
   updatedAt?: string;
   language?: string;
   note?: string;
+  noteKey?: string;
 };
 
 type CodexManifest = {
@@ -57,8 +61,10 @@ export class References implements OnInit {
   protected readonly selectedDocumentId = signal<string | null>(null);
 
   protected readonly categories = computed(() => {
+    this.translationService.currentLanguage();
+
     return Array.from(new Set(this.documents().map((document) => document.category))).sort((a, b) =>
-      a.localeCompare(b),
+      this.categoryLabel(a).localeCompare(this.categoryLabel(b)),
     );
   });
 
@@ -66,12 +72,14 @@ export class References implements OnInit {
     const searchTerm = this.searchTerm().trim().toLowerCase();
     const selectedCategory = this.selectedCategory();
 
+    this.translationService.currentLanguage();
+
     return this.documents().filter((document) => {
       const matchesCategory = selectedCategory === 'all' || document.category === selectedCategory;
       const searchableText = [
-        document.title,
-        document.description,
-        document.category,
+        this.documentTitle(document),
+        this.documentDescription(document),
+        this.documentCategory(document),
         document.type,
         document.author,
         document.language,
@@ -164,7 +172,7 @@ export class References implements OnInit {
       external: 'LINK',
     };
 
-    return labels[type];
+    return this.translationService.translate('references.documentType.' + type, labels[type]);
   }
 
   protected safePreviewUrl(document: CodexDocument): SafeResourceUrl {
@@ -176,7 +184,34 @@ export class References implements OnInit {
   }
 
   protected categoryLabel(category: string): string {
-    return category;
+    return this.translationService.translate(
+      'references.codex.category.' + this.toTranslationId(category),
+      category,
+    );
+  }
+
+  protected documentTitle(document: CodexDocument): string {
+    return document.titleKey
+      ? this.translationService.translate(document.titleKey, document.title)
+      : document.title;
+  }
+
+  protected documentDescription(document: CodexDocument): string {
+    return document.descriptionKey
+      ? this.translationService.translate(document.descriptionKey, document.description)
+      : document.description;
+  }
+
+  protected documentCategory(document: CodexDocument): string {
+    return document.categoryKey
+      ? this.translationService.translate(document.categoryKey, document.category)
+      : this.categoryLabel(document.category);
+  }
+
+  protected documentNote(document: CodexDocument): string {
+    return document.noteKey
+      ? this.translationService.translate(document.noteKey, document.note ?? '')
+      : (document.note ?? '');
   }
 
   protected trackByDocumentId(_: number, document: CodexDocument): string {
@@ -201,6 +236,14 @@ export class References implements OnInit {
           this.codexStatus.set('ready');
         }
       });
+  }
+
+  private toTranslationId(value: string): string {
+    return value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
   private parseMarkdown(content: string): MarkdownBlock[] {

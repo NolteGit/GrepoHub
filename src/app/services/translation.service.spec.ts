@@ -27,6 +27,17 @@ describe('TranslationService', () => {
     expect(service.translate('missing.key', 'Fallback')).toBe('Fallback');
   });
 
+  it('interpolates translation parameters in dictionary and fallback values', () => {
+    createService();
+
+    http.expectOne('/assets/i18n/en.json').flush({
+      greeting: 'Hello {name}',
+    });
+
+    expect(service.translate('greeting', undefined, { name: 'Alex' })).toBe('Hello Alex');
+    expect(service.translate('missing.key', 'Fallback {count}', { count: 3 })).toBe('Fallback 3');
+  });
+
   it('restores the stored language when it is supported', () => {
     localStorage.setItem('grepo-hub-language', 'de');
     createService();

@@ -7,13 +7,13 @@
       "category": "Guides",
       "type": "markdown",
       "path": "/library/documents/grepohub-how-to.md",
-      "tags": [
-        "guide",
-        "app"
-      ],
+      "tags": ["guide", "app"],
       "author": "Noltenius",
       "updatedAt": "May 2026",
-      "language": "en"
+      "language": "en",
+      "titleKey": "references.codex.grepohub-how-to.title",
+      "descriptionKey": "references.codex.grepohub-how-to.description",
+      "categoryKey": "references.codex.category.guides"
     },
     {
       "id": "grepolis-scripts-tools-how-to",
@@ -22,13 +22,13 @@
       "category": "Tools",
       "type": "markdown",
       "path": "/library/documents/grepolis-scripts-tools-how-to.md",
-      "tags": [
-        "tools",
-        "scripts"
-      ],
+      "tags": ["tools", "scripts"],
       "author": "Noltenius",
       "updatedAt": "May 2026",
-      "language": "en"
+      "language": "en",
+      "titleKey": "references.codex.grepolis-scripts-tools-how-to.title",
+      "descriptionKey": "references.codex.grepolis-scripts-tools-how-to.description",
+      "categoryKey": "references.codex.category.tools"
     }
   ]
 }

@@ -16,7 +16,7 @@
           >
             @for (configuration of configurations(); track configuration.id) {
               <option [value]="configuration.id">
-                {{ configuration.name }}
+                {{ displayPlanName(configuration) }}
               </option>
             }
           </select>
@@ -230,7 +230,7 @@
                         "
                         [attr.aria-label]="getBuildingLimitTargetAriaLabel(building.id, 'min')"
                       >
-                        MIN
+                        {{ 'cityPlanner.minShort' | translate }}
                       </button>
 
                       <button
@@ -242,7 +242,7 @@
                         "
                         [attr.aria-label]="getBuildingLimitTargetAriaLabel(building.id, 'max')"
                       >
-                        MAX
+                        {{ 'cityPlanner.maxShort' | translate }}
                       </button>
 
                       <button
@@ -453,7 +453,7 @@
       <section class="city-planner-card">
         <header class="city-planner-card__header">
           <h2>{{ 'cityPlanner.summary' | translate }}</h2>
-          <p>{{ selectedConfiguration().name }}</p>
+          <p>{{ activePlanName() }}</p>
         </header>
 
         <dl class="city-planner-summary">

@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { PLAN_CONFIG_FORMAT, PLAN_CONFIG_VERSION } from '../models/plan-config.model';
 import { PlanConfigService, PlanImportResult } from './plan-config.service';
 import { isPlainRecord } from './plan-config-normalization';
+import { TranslatableError } from './translatable-error';
 
 interface PlanFileExport {
   readonly fileName: string;
@@ -48,7 +49,10 @@ export class PlanFileTransferService {
   importJsonFileAsNewPlans(file: File): Promise<PlanImportResult> {
     if (file.size > this.planConfigService.planImportFileSizeLimitBytes) {
       return Promise.reject(
-        new Error('The selected file is too large. Import files must be 1 MB or smaller.'),
+        new TranslatableError(
+          'planConfig.importError.fileTooLarge',
+          'The selected file is too large. Import files must be 1 MB or smaller.',
+        ),
       );
     }
 
@@ -66,7 +70,9 @@ export class PlanFileTransferService {
       };
 
       reader.onerror = () => {
-        reject(new Error('Could not read plan file.'));
+        reject(
+          new TranslatableError('planConfig.importError.readFailed', 'Could not read plan file.'),
+        );
       };
 
       reader.readAsText(file);

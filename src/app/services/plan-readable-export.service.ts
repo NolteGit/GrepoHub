@@ -18,6 +18,7 @@ import { PlanConfigService } from './plan-config.service';
 import { TranslationService } from './translation.service';
 
 type CsvRow = Record<string, string | number>;
+type CsvColumn = { readonly id: string; readonly label: string };
 
 @Injectable({
   providedIn: 'root',
@@ -62,20 +63,29 @@ export class PlanReadableExportService {
     this.runWithUnitDefinitions(() => {
       const activePlan = this.planConfigService.activePlan();
       const fileName = this.getReadableExportFileName(activePlan.name, exportedAt, 'csv');
-      const columns = [
-        'Section',
-        'Building',
-        'Building Level',
-        'Modifier',
-        'Unit',
-        'Unit Amount',
-        'Space',
-        'Population',
-        'Wood',
-        'Stone',
-        'Silver',
-        'Favor',
-        'Value',
+      const columns: CsvColumn[] = [
+        { id: 'Section', label: this.translate('planConfig.export.column.section', 'Section') },
+        { id: 'Building', label: this.translate('planConfig.export.column.building', 'Building') },
+        {
+          id: 'Building Level',
+          label: this.translate('planConfig.export.column.buildingLevel', 'Building Level'),
+        },
+        { id: 'Modifier', label: this.translate('planConfig.export.column.modifier', 'Modifier') },
+        { id: 'Unit', label: this.translate('planConfig.export.column.unit', 'Unit') },
+        {
+          id: 'Unit Amount',
+          label: this.translate('planConfig.export.column.unitAmount', 'Unit Amount'),
+        },
+        { id: 'Space', label: this.translate('planConfig.export.column.space', 'Space') },
+        {
+          id: 'Population',
+          label: this.translate('planConfig.export.column.population', 'Population'),
+        },
+        { id: 'Wood', label: this.translate('planConfig.export.column.wood', 'Wood') },
+        { id: 'Stone', label: this.translate('planConfig.export.column.stone', 'Stone') },
+        { id: 'Silver', label: this.translate('planConfig.export.column.silver', 'Silver') },
+        { id: 'Favor', label: this.translate('planConfig.export.column.favor', 'Favor') },
+        { id: 'Value', label: this.translate('planConfig.export.column.value', 'Value') },
       ];
 
       this.downloadTextFile(
@@ -108,75 +118,93 @@ export class PlanReadableExportService {
     const troopSummaryRows = this.getTroopSummaryRows(plan);
 
     return [
-      'Grepo Hub Export',
-      'Config: ' + plan.name,
-      'Date: ' + this.formatDisplayDate(exportedAt),
+      this.translate('planConfig.export.title', 'Grepo Hub Export'),
+      this.translate('planConfig.export.config', 'Config') + ': ' + plan.name,
+      this.translate('planConfig.export.date', 'Date') + ': ' + this.formatDisplayDate(exportedAt),
       '',
-      'City Planner',
+      this.translate('cityPlanner.title', 'City Planner'),
       '============',
       '',
-      'Buildings',
+      this.translate('planConfig.export.buildings', 'Buildings'),
       ...buildingRows.map(
         (row) =>
           '- ' +
           row.name +
-          ': Level ' +
+          ': ' +
+          this.translate('planConfig.export.level', 'Level') +
+          ' ' +
           row.level +
-          ', Population ' +
+          ', ' +
+          this.translate('planConfig.export.population', 'Population') +
+          ' ' +
           this.formatSigned(row.population),
       ),
       '',
-      'Modifiers',
+      this.translate('planConfig.export.modifiers', 'Modifiers'),
       ...modifierRows.map(
         (row) =>
-          '- ' + row.name + ': ' + row.value + ', Population ' + this.formatSigned(row.population),
+          '- ' +
+          row.name +
+          ': ' +
+          row.value +
+          ', ' +
+          this.translate('planConfig.export.population', 'Population') +
+          ' ' +
+          this.formatSigned(row.population),
       ),
       '',
-      'Special Buildings',
+      this.translate('planConfig.export.specialBuildings', 'Special Buildings'),
       ...specialBuildingRows.map(
         (row) =>
-          '- ' + row.slot + ': ' + row.name + ', Population ' + this.formatSigned(row.population),
+          '- ' +
+          row.slot +
+          ': ' +
+          row.name +
+          ', ' +
+          this.translate('planConfig.export.population', 'Population') +
+          ' ' +
+          this.formatSigned(row.population),
       ),
       '',
-      'City Summary',
+      this.translate('planConfig.export.citySummary', 'City Summary'),
       ...citySummaryRows.map((row) => '- ' + row.name + ': ' + this.formatNumber(row.value)),
       '',
-      'Troops Planner',
+      this.translate('troopsPlanner.title', 'Troops Planner'),
       '==============',
       '',
-      'Units',
+      this.translate('planConfig.export.units', 'Units'),
       ...this.getTextUnitLines(unitRows),
       '',
-      'Troop Modifiers',
+      this.translate('planConfig.export.troopModifiers', 'Troop Modifiers'),
       ...troopModifierRows.map((row) => '- ' + row.name + ': ' + row.value),
       '',
-      'Troops Summary',
+      this.translate('planConfig.export.troopsSummary', 'Troops Summary'),
       ...troopSummaryRows.map((row) => '- ' + row.name + ': ' + this.formatNumber(row.value)),
     ].join('\n');
   }
 
   private buildCsvRows(plan: PlanConfig): CsvRow[] {
     const buildingRows = this.getBuildingRows(plan.cityPlan).map((row) => ({
-      Section: 'Building',
+      Section: this.translate('planConfig.export.section.building', 'Building'),
       Building: row.name,
       'Building Level': row.level,
       Population: row.population,
     }));
     const modifierRows = this.getCityModifierRows(plan.cityPlan).map((row) => ({
-      Section: 'City Modifier',
+      Section: this.translate('planConfig.export.section.cityModifier', 'City Modifier'),
       Modifier: row.name,
       Population: row.population,
       Value: row.value,
     }));
     const specialBuildingRows = this.getSpecialBuildingRows(plan.cityPlan).map((row) => ({
-      Section: 'Special Building',
+      Section: this.translate('planConfig.export.section.specialBuilding', 'Special Building'),
       Building: row.name,
       Modifier: row.slot,
       Population: row.population,
       Value: row.optionId,
     }));
     const citySummaryRows = this.getCitySummaryRows(plan.cityPlan).map((row) => ({
-      Section: 'City Summary',
+      Section: this.translate('planConfig.export.citySummary', 'City Summary'),
       Modifier: row.name,
       Value: row.value,
     }));
@@ -192,12 +220,12 @@ export class PlanReadableExportService {
       Favor: row.favor,
     }));
     const troopModifierRows = this.getTroopModifierRows(plan).map((row) => ({
-      Section: 'Troop Modifier',
+      Section: this.translate('planConfig.export.section.troopModifier', 'Troop Modifier'),
       Modifier: row.name,
       Value: row.value,
     }));
     const troopSummaryRows = this.getTroopSummaryRows(plan).map((row) => ({
-      Section: 'Troops Summary',
+      Section: this.translate('planConfig.export.troopsSummary', 'Troops Summary'),
       Modifier: row.name,
       Value: row.value,
     }));
@@ -247,7 +275,7 @@ export class PlanReadableExportService {
       ...modifierRows,
       {
         name: this.translate('building.land_expansion', 'Land Expansion'),
-        value: 'Level ' + landExpansionLevel,
+        value: this.translate('planConfig.export.level', 'Level') + ' ' + landExpansionLevel,
         population: this.getBuildingPopulation('land_expansion', landExpansionLevel),
       },
     ];
@@ -337,7 +365,9 @@ export class PlanReadableExportService {
           ? this.formatBoolean(true) +
             ' (+' +
             this.formatNumber(transportBonus) +
-            ' transport capacity)'
+            ' ' +
+            this.translate('planConfig.export.transportCapacity', 'transport capacity') +
+            ')'
           : this.formatBoolean(false),
       },
     ];
@@ -379,19 +409,19 @@ export class PlanReadableExportService {
         value: totals.transportCapacity - totals.transportSpace,
       },
       {
-        name: 'Wood',
+        name: this.translate('resource.wood', 'Wood'),
         value: totals.wood,
       },
       {
-        name: 'Stone',
+        name: this.translate('resource.stone', 'Stone'),
         value: totals.stone,
       },
       {
-        name: 'Silver',
+        name: this.translate('resource.silver', 'Silver'),
         value: totals.silver,
       },
       {
-        name: 'Favor',
+        name: this.translate('resource.favor', 'Favor'),
         value: totals.favor,
       },
     ];
@@ -411,7 +441,7 @@ export class PlanReadableExportService {
     }[],
   ): string[] {
     if (unitRows.length === 0) {
-      return ['- No units selected'];
+      return ['- ' + this.translate('planConfig.export.noUnitsSelected', 'No units selected')];
     }
 
     const sectionOrder = [
@@ -435,17 +465,32 @@ export class PlanReadableExportService {
             row.name +
             ': ' +
             this.formatNumber(row.amount) +
-            ', Space ' +
+            ', ' +
+            this.translate('planConfig.export.space', 'Space') +
+            ' ' +
             this.formatNumber(row.space) +
-            ', Population ' +
+            ', ' +
+            this.translate('planConfig.export.population', 'Population') +
+            ' ' +
             this.formatNumber(row.population) +
-            ', Wood ' +
+            ', ' +
+            this.translate('resource.wood', 'Wood') +
+            ' ' +
             this.formatNumber(row.wood) +
-            ', Stone ' +
+            ', ' +
+            this.translate('resource.stone', 'Stone') +
+            ' ' +
             this.formatNumber(row.stone) +
-            ', Silver ' +
+            ', ' +
+            this.translate('resource.silver', 'Silver') +
+            ' ' +
             this.formatNumber(row.silver) +
-            (row.favor > 0 ? ', Favor ' + this.formatNumber(row.favor) : ''),
+            (row.favor > 0
+              ? ', ' +
+                this.translate('resource.favor', 'Favor') +
+                ' ' +
+                this.formatNumber(row.favor)
+              : ''),
         ),
       ];
     });
@@ -568,8 +613,11 @@ export class PlanReadableExportService {
       : this.translate('troopsPlanner.landUnits', 'Land units');
   }
 
-  private toCsv(rows: readonly CsvRow[], columns: readonly string[]): string {
-    return [columns, ...rows.map((row) => columns.map((column) => row[column] ?? ''))]
+  private toCsv(rows: readonly CsvRow[], columns: readonly CsvColumn[]): string {
+    return [
+      columns.map((column) => column.label),
+      ...rows.map((row) => columns.map((column) => row[column.id] ?? '')),
+    ]
       .map((row) => row.map((value) => this.escapeCsvValue(value)).join(';'))
       .join('\r\n');
   }
@@ -660,7 +708,7 @@ export class PlanReadableExportService {
   }
 
   private formatBoolean(value: boolean): string {
-    return value ? 'Yes' : 'No';
+    return value ? this.translate('common.yes', 'Yes') : this.translate('common.no', 'No');
   }
 
   private translate(key: string, fallback: string): string {

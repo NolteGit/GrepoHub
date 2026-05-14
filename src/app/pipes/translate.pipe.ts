@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 
-import { TranslationService } from '../services/translation.service';
+import { TranslationParams, TranslationService } from '../services/translation.service';
 
 @Pipe({
   name: 'translate',
@@ -10,7 +10,7 @@ import { TranslationService } from '../services/translation.service';
 export class TranslatePipe implements PipeTransform {
   private readonly translationService = inject(TranslationService);
 
-  transform(key: string, fallback?: string): string {
-    return this.translationService.translate(key, fallback);
+  transform(key: string, fallback?: string, params?: TranslationParams): string {
+    return this.translationService.translate(key, fallback, params);
   }
 }
