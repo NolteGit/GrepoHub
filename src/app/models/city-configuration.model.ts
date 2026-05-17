@@ -16,6 +16,7 @@ export type CitySpecialBuildingOptionId =
 export type CityConfiguration = {
   id: string;
   name: string;
+  note?: string;
   buildingLevels: Record<string, number>;
   modifiers: Record<CityModifierId, boolean>;
   specialBuildings: Record<CitySpecialBuildingSlotId, CitySpecialBuildingOptionId>;

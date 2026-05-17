@@ -619,5 +619,19 @@
   "planConfig.exportTxt": "Exporter TXT",
   "planConfig.exportCsv": "Exporter CSV",
   "planConfig.moreActionsAria": "Plus d’actions de configuration",
-  "planConfig.more": "Plus"
+  "planConfig.more": "Plus",
+  "planConfig.rename": "Renommer",
+  "planConfig.note": "Note",
+  "planConfig.renameDialog.title": "Renommer le plan",
+  "planConfig.renameDialog.message": "Renomme le plan sélectionné dans ce navigateur. Les plans par défaut peuvent aussi être renommés.",
+  "planConfig.renameDialog.nameLabel": "Nom du plan",
+  "planConfig.renameDialog.cancel": "Annuler",
+  "planConfig.renameDialog.confirm": "Enregistrer le nom",
+  "planConfig.noteDialog.title": "Note du plan de ville",
+  "planConfig.noteDialog.message": "Ajoutez une courte note facultative pour ce plan de ville. Laissez le champ vide pour supprimer la note.",
+  "planConfig.noteDialog.noteLabel": "Note",
+  "planConfig.noteDialog.placeholder": "Exemple : ville portuaire pour navires de soutien rapides.",
+  "planConfig.noteDialog.counter": "{count}/{max} caractères",
+  "planConfig.noteDialog.cancel": "Annuler",
+  "planConfig.noteDialog.confirm": "Enregistrer la note"
 }

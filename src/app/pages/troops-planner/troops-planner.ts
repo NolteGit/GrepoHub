@@ -15,6 +15,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 import { GameDataService } from '../../services/game-data.service';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { maxCityPlanNoteLength } from '../../services/plan-config-normalization';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { PlanReadableExportService } from '../../services/plan-readable-export.service';
 import { TranslationService } from '../../services/translation.service';
@@ -34,6 +35,11 @@ export class TroopsPlanner {
   protected readonly configurationMenuOpen = signal(false);
   protected readonly newPlanDialogOpen = signal(false);
   protected readonly newPlanName = signal('');
+  protected readonly renamePlanDialogOpen = signal(false);
+  protected readonly renamePlanName = signal('');
+  protected readonly cityPlanNoteDialogOpen = signal(false);
+  protected readonly cityPlanNoteDraft = signal('');
+  protected readonly cityPlanNoteMaxLength = maxCityPlanNoteLength;
 
   private readonly maxUnitAmount = 10000;
   private unitAmountOptionsCloseTimer: ReturnType<typeof setTimeout> | null = null;
@@ -365,6 +371,67 @@ export class TroopsPlanner {
 
   protected updateNewPlanName(value: string): void {
     this.newPlanName.set(value);
+  }
+
+  protected openRenamePlanDialog(): void {
+    this.renamePlanName.set(this.activePlanName());
+    this.closeExportMenu();
+    this.closeConfigurationMenu();
+    this.renamePlanDialogOpen.set(true);
+  }
+
+  protected updateRenamePlanName(value: string): void {
+    this.renamePlanName.set(value);
+  }
+
+  protected cancelRenamePlan(): void {
+    this.renamePlanDialogOpen.set(false);
+    this.renamePlanName.set('');
+  }
+
+  protected confirmRenamePlan(): void {
+    const planName = this.renamePlanName().trim();
+
+    if (!planName) {
+      return;
+    }
+
+    this.planConfigService.renameActivePlan(planName);
+    this.renamePlanDialogOpen.set(false);
+    this.renamePlanName.set('');
+  }
+
+  protected openCityPlanNoteDialog(): void {
+    this.cityPlanNoteDraft.set(this.planConfigService.activePlan().cityPlan.note ?? '');
+    this.closeExportMenu();
+    this.closeConfigurationMenu();
+    this.cityPlanNoteDialogOpen.set(true);
+  }
+
+  protected updateCityPlanNoteDraft(value: string): void {
+    this.cityPlanNoteDraft.set(value.slice(0, this.cityPlanNoteMaxLength));
+  }
+
+  protected getCityPlanNoteCounter(): string {
+    return this.translationService.translate(
+      'planConfig.noteDialog.counter',
+      '{count}/{max} characters',
+      {
+        count: this.cityPlanNoteDraft().length,
+        max: this.cityPlanNoteMaxLength,
+      },
+    );
+  }
+
+  protected cancelCityPlanNote(): void {
+    this.cityPlanNoteDialogOpen.set(false);
+    this.cityPlanNoteDraft.set('');
+  }
+
+  protected confirmCityPlanNote(): void {
+    this.planConfigService.updateActiveCityPlanNote(this.cityPlanNoteDraft());
+    this.cityPlanNoteDialogOpen.set(false);
+    this.cityPlanNoteDraft.set('');
   }
 
   protected cancelNewPlan(): void {

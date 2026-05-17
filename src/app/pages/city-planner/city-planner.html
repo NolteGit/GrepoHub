@@ -108,6 +108,24 @@
             <button
               type="button"
               role="menuitem"
+              (click)="closeConfigurationMenu(); openRenamePlanDialog()"
+            >
+              <app-icon name="save" />
+              <span>{{ 'planConfig.rename' | translate: 'Rename' }}</span>
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
+              (click)="closeConfigurationMenu(); openCityPlanNoteDialog()"
+            >
+              <app-icon name="save" />
+              <span>{{ 'planConfig.note' | translate: 'Note' }}</span>
+            </button>
+
+            <button
+              type="button"
+              role="menuitem"
               (click)="closeConfigurationMenu(); planImportInput.click()"
             >
               <app-icon name="import" />
@@ -541,6 +559,125 @@
 
           <button type="submit" class="plan-dialog__button" [disabled]="!newPlanName().trim()">
             {{ 'planConfig.newPlanDialog.confirm' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+
+  @if (renamePlanDialogOpen()) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="cancelRenamePlan()">
+      <form
+        class="plan-dialog plan-dialog--form"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'city-rename-plan-dialog-title'"
+        [attr.aria-describedby]="'city-rename-plan-dialog-description'"
+        (click)="$event.stopPropagation()"
+        (ngSubmit)="confirmRenamePlan()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          <app-icon name="save" />
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="city-rename-plan-dialog-title">
+            {{ 'planConfig.renameDialog.title' | translate: 'Rename plan' }}
+          </h2>
+          <p id="city-rename-plan-dialog-description">
+            {{
+              'planConfig.renameDialog.message'
+                | translate: 'Renames the selected plan in this browser. Default plans can be renamed too.'
+            }}
+          </p>
+
+          <label class="plan-dialog__field">
+            <span>{{ 'planConfig.renameDialog.nameLabel' | translate: 'Plan name' }}</span>
+            <input
+              class="plan-dialog__input"
+              type="text"
+              name="renamePlanName"
+              maxlength="60"
+              autocomplete="off"
+              [ngModel]="renamePlanName()"
+              (ngModelChange)="updateRenamePlanName($event)"
+            />
+          </label>
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--secondary"
+            (click)="cancelRenamePlan()"
+          >
+            {{ 'planConfig.renameDialog.cancel' | translate: 'Cancel' }}
+          </button>
+
+          <button type="submit" class="plan-dialog__button" [disabled]="!renamePlanName().trim()">
+            {{ 'planConfig.renameDialog.confirm' | translate: 'Save name' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (cityPlanNoteDialogOpen()) {
+    <div class="plan-dialog-backdrop" role="presentation" (click)="cancelCityPlanNote()">
+      <form
+        class="plan-dialog plan-dialog--form"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'city-plan-note-dialog-title'"
+        [attr.aria-describedby]="'city-plan-note-dialog-description'"
+        (click)="$event.stopPropagation()"
+        (ngSubmit)="confirmCityPlanNote()"
+      >
+        <div class="plan-dialog__icon" aria-hidden="true">
+          <app-icon name="save" />
+        </div>
+
+        <div class="plan-dialog__body">
+          <h2 id="city-plan-note-dialog-title">
+            {{ 'planConfig.noteDialog.title' | translate: 'City plan note' }}
+          </h2>
+          <p id="city-plan-note-dialog-description">
+            {{
+              'planConfig.noteDialog.message'
+                | translate: 'Add an optional short note for this city plan. Leave it empty to remove the note.'
+            }}
+          </p>
+
+          <label class="plan-dialog__field">
+            <span>{{ 'planConfig.noteDialog.noteLabel' | translate: 'Note' }}</span>
+            <textarea
+              class="plan-dialog__input plan-dialog__textarea"
+              name="cityPlanNote"
+              rows="6"
+              [attr.maxlength]="cityPlanNoteMaxLength"
+              [placeholder]="'planConfig.noteDialog.placeholder' | translate: 'Example: Harbor city for fast support ships.'"
+              [ngModel]="cityPlanNoteDraft()"
+              (ngModelChange)="updateCityPlanNoteDraft($event)"
+            ></textarea>
+          </label>
+
+          <p class="plan-dialog__field-hint">
+            {{ getCityPlanNoteCounter() }}
+          </p>
+        </div>
+
+        <div class="plan-dialog__actions">
+          <button
+            type="button"
+            class="plan-dialog__button plan-dialog__button--secondary"
+            (click)="cancelCityPlanNote()"
+          >
+            {{ 'planConfig.noteDialog.cancel' | translate: 'Cancel' }}
+          </button>
+
+          <button type="submit" class="plan-dialog__button">
+            {{ 'planConfig.noteDialog.confirm' | translate: 'Save note' }}
           </button>
         </div>
       </form>

@@ -52,6 +52,7 @@ describe('PlanConfigService import validation', () => {
           name: 'Empty',
           cityPlan: {
             name: 'Imported City A',
+            note: 'Imported note',
             buildingLevels: {
               farm: 100,
             },
@@ -93,11 +94,33 @@ describe('PlanConfigService import validation', () => {
     expect(service.activePlan().id).toBe(importedPlans[0].id);
     expect(importedPlans[0].isPreset).toBe(false);
     expect(importedPlans[0].cityPlan.buildingLevels['farm']).toBe(45);
+    expect(importedPlans[0].cityPlan.note).toBe('Imported note');
     expect(importedPlans[0].cityPlan.specialBuildings).toEqual({
       slot1: 'library',
       slot2: 'tower',
     });
     expect(importedPlans[1].troopPlan.unitAmounts['swordsman']).toBe(2);
+  });
+
+
+  it('renames preset plans and saves a bounded city-plan note', () => {
+    service.selectPlan('preset-hybrid-plan');
+
+    const renamedPlan = service.renameActivePlan('  Empty  ');
+
+    expect(renamedPlan?.name).toBe('Empty Copy');
+    expect(service.activePlan().name).toBe('Empty Copy');
+    expect(service.activePlan().isPreset).toBe(false);
+    expect(service.activePlan().cityPlan.name).toBe('Empty Copy');
+    expect(service.activePlan().troopPlan.name).toBe('Empty Copy');
+
+    service.updateActiveCityPlanNote('  ' + 'n'.repeat(520) + '  ');
+
+    expect(service.activePlan().cityPlan.note).toHaveLength(500);
+
+    service.updateActiveCityPlanNote('   ');
+
+    expect(service.activePlan().cityPlan.note).toBeUndefined();
   });
 
   it('clears a custom plan back to minimum city levels and zero troop amounts', () => {
@@ -240,7 +263,7 @@ describe('PlanConfigService import validation', () => {
     const bbCode = service.toBbCode();
 
     expect(planOverviewCsv.split('\n')[0]).toBe(
-      'planId,planName,cityPlanName,troopPlanName,worldSpeed,unitSpeed,updatedAt',
+      'planId,planName,cityPlanName,troopPlanName,worldSpeed,unitSpeed,cityPlanNote,updatedAt',
     );
     expect(planOverviewCsv).toContain('"CSV, BBCode ""Plan"""');
     expect(troopAmountsCsv).toContain('swordsman,12');

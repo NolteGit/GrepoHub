@@ -29,6 +29,7 @@ import {
   createUniqueNameFromNames,
   isPlainRecord,
   normalizeCityConfiguration,
+  normalizeCityPlanNote,
   normalizeDisplayPlanName,
   normalizeImportName,
   normalizeNameKey,
@@ -146,6 +147,53 @@ export class PlanConfigService {
     this.savePlans();
 
     return duplicatedPlan;
+  }
+
+
+  renameActivePlan(name: string): PlanConfig | null {
+    const requestedName = normalizeDisplayPlanName(name, 'Configuration');
+
+    if (!requestedName) {
+      return null;
+    }
+
+    const currentPlan = this.activePlan();
+    const uniqueName = createUniqueNameFromNames(
+      requestedName,
+      'Copy',
+      this.planConfigs()
+        .filter((plan) => plan.id !== currentPlan.id)
+        .map((plan) => plan.name),
+    );
+    let renamedPlan: PlanConfig | null = null;
+
+    this.updateActivePlan((plan) => {
+      const nextPlan = normalizePlanConfig({
+        ...plan,
+        name: uniqueName,
+        isPreset: false,
+        cityPlan: {
+          ...plan.cityPlan,
+          name: uniqueName,
+        },
+        troopPlan: {
+          ...plan.troopPlan,
+          name: uniqueName,
+        },
+      });
+
+      renamedPlan = nextPlan;
+
+      return nextPlan;
+    });
+
+    return renamedPlan;
+  }
+
+  updateActiveCityPlanNote(note: string): void {
+    this.updateActiveCityPlan({
+      note: normalizeCityPlanNote(note),
+    });
   }
 
   deleteActivePlan(): {
@@ -267,7 +315,10 @@ export class PlanConfigService {
 
     this.updateActivePlan((plan) => ({
       ...plan,
-      cityPlan: cloneCityPlan(presetCityPlan),
+      cityPlan: {
+        ...cloneCityPlan(presetCityPlan),
+        note: plan.cityPlan.note,
+      },
     }));
     this.savePlans();
   }
@@ -464,6 +515,7 @@ export class PlanConfigService {
       plan.troopPlan.name,
       plan.settings.worldSpeed ?? '',
       plan.settings.unitSpeed ?? '',
+      plan.cityPlan.note ?? '',
       plan.updatedAt ?? '',
     ]);
 
@@ -475,6 +527,7 @@ export class PlanConfigService {
         'troopPlanName',
         'worldSpeed',
         'unitSpeed',
+        'cityPlanNote',
         'updatedAt',
       ],
       ...rows,

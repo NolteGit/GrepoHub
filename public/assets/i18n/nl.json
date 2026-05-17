@@ -619,5 +619,19 @@
     "planConfig.exportTxt": "TXT exporteren",
     "planConfig.exportCsv": "CSV exporteren",
     "planConfig.moreActionsAria": "Meer configuratieacties",
-    "planConfig.more": "Meer"
+    "planConfig.more": "Meer",
+    "planConfig.rename": "Hernoemen",
+    "planConfig.note": "Notitie",
+    "planConfig.renameDialog.title": "Plan hernoemen",
+    "planConfig.renameDialog.message": "Hernoemt het geselecteerde plan in deze browser. Standaardplannen kunnen ook worden hernoemd.",
+    "planConfig.renameDialog.nameLabel": "Plannaam",
+    "planConfig.renameDialog.cancel": "Annuleren",
+    "planConfig.renameDialog.confirm": "Naam opslaan",
+    "planConfig.noteDialog.title": "Stadsplan-notitie",
+    "planConfig.noteDialog.message": "Voeg optioneel een korte notitie toe aan dit stadsplan. Laat het veld leeg om de notitie te verwijderen.",
+    "planConfig.noteDialog.noteLabel": "Notitie",
+    "planConfig.noteDialog.placeholder": "Voorbeeld: havenstad voor snelle ondersteuningsschepen.",
+    "planConfig.noteDialog.counter": "{count}/{max} tekens",
+    "planConfig.noteDialog.cancel": "Annuleren",
+    "planConfig.noteDialog.confirm": "Notitie opslaan"
 }

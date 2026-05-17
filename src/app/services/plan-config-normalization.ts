@@ -12,6 +12,8 @@ import {
 import { PlanConfig, PlanConfigSettings } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
+export const maxCityPlanNoteLength = 500;
+
 const maxTroopUnitAmount = 10000;
 const allowedTroopUnitIds = new Set([
   'swordsman',
@@ -121,6 +123,7 @@ export function normalizeCityConfiguration(
   return {
     id: normalizeOptionalString(rawConfiguration.id) ?? `custom-city-${Date.now()}`,
     name: normalizeImportName(rawConfiguration.name, 'City Plan'),
+    note: normalizeCityPlanNote(rawConfiguration.note),
     isPreset: Boolean(rawConfiguration.isPreset),
     buildingLevels: cityBuildingPlanDefinitions.reduce(
       (accumulator, building) => {
@@ -307,6 +310,16 @@ export function createImportedPlanId(prefix: string, name: string, suffix: strin
 
 function normalizeOptionalString(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value : null;
+}
+
+export function normalizeCityPlanNote(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const normalizedNote = value.replace(/\r\n/g, '\n').trim();
+
+  return normalizedNote.length > 0 ? normalizedNote.slice(0, maxCityPlanNoteLength) : undefined;
 }
 
 export function isPlainRecord(value: unknown): value is Record<string, unknown> {

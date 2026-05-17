@@ -619,5 +619,19 @@
   "planConfig.exportTxt": "Esporta TXT",
   "planConfig.exportCsv": "Esporta CSV",
   "planConfig.moreActionsAria": "Altre azioni configurazione",
-  "planConfig.more": "Altro"
+  "planConfig.more": "Altro",
+  "planConfig.rename": "Rinomina",
+  "planConfig.note": "Nota",
+  "planConfig.renameDialog.title": "Rinomina piano",
+  "planConfig.renameDialog.message": "Rinomina il piano selezionato in questo browser. Anche i piani predefiniti possono essere rinominati.",
+  "planConfig.renameDialog.nameLabel": "Nome piano",
+  "planConfig.renameDialog.cancel": "Annulla",
+  "planConfig.renameDialog.confirm": "Salva nome",
+  "planConfig.noteDialog.title": "Nota piano città",
+  "planConfig.noteDialog.message": "Aggiungi una breve nota facoltativa per questo piano città. Lascia vuoto per rimuovere la nota.",
+  "planConfig.noteDialog.noteLabel": "Nota",
+  "planConfig.noteDialog.placeholder": "Esempio: città portuale per navi di supporto rapide.",
+  "planConfig.noteDialog.counter": "{count}/{max} caratteri",
+  "planConfig.noteDialog.cancel": "Annulla",
+  "planConfig.noteDialog.confirm": "Salva nota"
 }

@@ -21,6 +21,7 @@ describe('plan config normalization', () => {
       id: 'city-1',
       name: '  Imported City  ',
       isPreset: true,
+      note: '  Test note  ',
       buildingLevels: {
         farm: 99.6,
         senate: -5,
@@ -44,6 +45,7 @@ describe('plan config normalization', () => {
     expect(normalized.id).toBe('city-1');
     expect(normalized.name).toBe('Imported City');
     expect(normalized.isPreset).toBe(true);
+    expect(normalized.note).toBe('Test note');
     expect(normalized.buildingLevels['farm']).toBe(45);
     expect(normalized.buildingLevels['senate']).toBe(0);
     expect(normalized.buildingLevels['barracks']).toBe(7);
@@ -96,6 +98,7 @@ describe('plan config normalization', () => {
     const rawPlan = {
       id: '',
       name: '  Attack Plan  ',
+      note: 'x'.repeat(550),
       settings: {
         worldSpeed: '3',
         unitSpeed: -1,
@@ -104,6 +107,7 @@ describe('plan config normalization', () => {
       },
       cityPlan: {
         name: 'Nested City',
+        note: 'x'.repeat(550),
         buildingLevels: { farm: 12 },
       },
       troopPlan: {
@@ -116,6 +120,7 @@ describe('plan config normalization', () => {
 
     expect(normalized.id).toMatch(/^custom-plan-/);
     expect(normalized.name).toBe('Attack');
+    expect(normalized.cityPlan.note).toBeUndefined();
     expect(normalized.settings).toEqual({
       worldSpeed: 3,
       unitSpeed: null,
@@ -123,6 +128,7 @@ describe('plan config normalization', () => {
       locale: null,
     });
     expect(normalized.cityPlan.name).toBe('Nested City');
+    expect(normalized.cityPlan.note).toHaveLength(500);
     expect(normalized.cityPlan.buildingLevels['farm']).toBe(12);
     expect(normalized.troopPlan.name).toBe('Nested Troops');
     expect(normalized.troopPlan.unitAmounts['swordsman']).toBe(20);

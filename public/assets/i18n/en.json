@@ -619,5 +619,19 @@
   "planConfig.exportTxt": "Export TXT",
   "planConfig.exportCsv": "Export CSV",
   "planConfig.moreActionsAria": "More configuration actions",
-  "planConfig.more": "More"
+  "planConfig.more": "More",
+  "planConfig.rename": "Rename",
+  "planConfig.note": "Note",
+  "planConfig.renameDialog.title": "Rename plan",
+  "planConfig.renameDialog.message": "Renames the selected plan in this browser. Default plans can be renamed too.",
+  "planConfig.renameDialog.nameLabel": "Plan name",
+  "planConfig.renameDialog.cancel": "Cancel",
+  "planConfig.renameDialog.confirm": "Save name",
+  "planConfig.noteDialog.title": "City plan note",
+  "planConfig.noteDialog.message": "Add an optional short note for this city plan. Leave it empty to remove the note.",
+  "planConfig.noteDialog.noteLabel": "Note",
+  "planConfig.noteDialog.placeholder": "Example: Harbor city for fast support ships.",
+  "planConfig.noteDialog.counter": "{count}/{max} characters",
+  "planConfig.noteDialog.cancel": "Cancel",
+  "planConfig.noteDialog.confirm": "Save note"
 }

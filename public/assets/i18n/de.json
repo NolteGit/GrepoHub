@@ -619,5 +619,19 @@
   "planConfig.exportTxt": "TXT exportieren",
   "planConfig.exportCsv": "CSV exportieren",
   "planConfig.moreActionsAria": "Weitere Konfigurationsaktionen",
-  "planConfig.more": "Mehr"
+  "planConfig.more": "Mehr",
+  "planConfig.rename": "Umbenennen",
+  "planConfig.note": "Notiz",
+  "planConfig.renameDialog.title": "Plan umbenennen",
+  "planConfig.renameDialog.message": "Benennt den ausgewählten Plan in diesem Browser um. Standardpläne können ebenfalls umbenannt werden.",
+  "planConfig.renameDialog.nameLabel": "Planname",
+  "planConfig.renameDialog.cancel": "Abbrechen",
+  "planConfig.renameDialog.confirm": "Namen speichern",
+  "planConfig.noteDialog.title": "Stadtplan-Notiz",
+  "planConfig.noteDialog.message": "Füge diesem Stadtplan optional eine kurze Notiz hinzu. Lasse das Feld leer, um die Notiz zu entfernen.",
+  "planConfig.noteDialog.noteLabel": "Notiz",
+  "planConfig.noteDialog.placeholder": "Beispiel: Hafenstadt für schnelle Unterstützungsschiffe.",
+  "planConfig.noteDialog.counter": "{count}/{max} Zeichen",
+  "planConfig.noteDialog.cancel": "Abbrechen",
+  "planConfig.noteDialog.confirm": "Notiz speichern"
 }
