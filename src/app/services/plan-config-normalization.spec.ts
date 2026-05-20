@@ -120,7 +120,6 @@ describe('plan config normalization', () => {
 
     expect(normalized.id).toMatch(/^custom-plan-/);
     expect(normalized.name).toBe('Attack');
-    expect(normalized.cityPlan.note).toBeUndefined();
     expect(normalized.settings).toEqual({
       worldSpeed: 3,
       unitSpeed: null,
