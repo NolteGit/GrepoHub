@@ -763,5 +763,12 @@
   "plannerV2.summary.bunksBonus": "Bonus de couchettes",
   "plannerV2.summary.noUnitsSelected": "Aucune unité sélectionnée pour le moment.",
   "plannerV2.bottom.totalDefense": "Défense totale",
-  "plannerV2.bottom.transportSpace": "Espace de transport"
+  "plannerV2.bottom.transportSpace": "Espace de transport",
+  "plannerV2.header.import": "Importer",
+  "plannerV2.header.delete": "Supprimer",
+  "plannerV2.planControls.defaultPlanName": "Nouveau plan",
+  "plannerV2.planControls.newPrompt": "Saisis un nom pour le nouveau plan vide.",
+  "plannerV2.planControls.createdTitle": "Plan créé",
+  "plannerV2.planControls.createdDetail": "Modification en cours : {name}.",
+  "plannerV2.planControls.deleteConfirm": "Supprimer \"{name}\" de ce navigateur ? Exporte-le d’abord si tu veux une sauvegarde."
 }

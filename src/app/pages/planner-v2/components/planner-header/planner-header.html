@@ -1,5 +1,5 @@
 <header
-  class="grid items-end gap-6 px-4 py-3 min-[74rem]:grid-cols-[minmax(0,1fr)_minmax(25rem,auto)]"
+  class="grid items-end gap-6 px-4 py-3 min-[74rem]:grid-cols-[minmax(0,1fr)_minmax(31rem,auto)]"
 >
   <div class="min-w-0">
     <h1
@@ -13,7 +13,7 @@
   </div>
 
   <div
-    class="grid items-end gap-3 min-[48rem]:grid-cols-[minmax(12rem,1fr)_repeat(3,auto)] min-[74rem]:grid-cols-[minmax(13rem,18rem)_repeat(3,auto)]"
+    class="grid items-end gap-3 min-[48rem]:grid-cols-[minmax(12rem,1fr)_repeat(4,auto)] min-[74rem]:grid-cols-[minmax(13rem,18rem)_repeat(4,auto)]"
   >
     <app-gh-select-field
       [labelKey]="planLabelKey"
@@ -24,11 +24,13 @@
       (valueChange)="planSelected.emit($event)"
     />
 
-    @for (action of actions; track action.labelKey) {
+    @for (action of actions(); track action.id) {
       <app-gh-button
         size="lg"
         [variant]="action.variant === 'primary' ? 'primary' : 'default'"
         [wide]="true"
+        [disabled]="action.disabled ?? false"
+        (click)="actionSelected.emit(action.id)"
       >
         <span class="text-base leading-none text-[var(--gh-gold)]">{{ action.icon }}</span>
         {{ action.labelKey | translate: action.fallback }}

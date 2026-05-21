@@ -763,5 +763,12 @@
   "plannerV2.summary.bunksBonus": "Kojen-Bonus",
   "plannerV2.summary.noUnitsSelected": "Noch keine Einheiten ausgewählt.",
   "plannerV2.bottom.totalDefense": "Gesamtverteidigung",
-  "plannerV2.bottom.transportSpace": "Transportbedarf"
+  "plannerV2.bottom.transportSpace": "Transportbedarf",
+  "plannerV2.header.import": "Importieren",
+  "plannerV2.header.delete": "Löschen",
+  "plannerV2.planControls.defaultPlanName": "Neuer Plan",
+  "plannerV2.planControls.newPrompt": "Gib einen Namen für den neuen leeren Plan ein.",
+  "plannerV2.planControls.createdTitle": "Plan erstellt",
+  "plannerV2.planControls.createdDetail": "Jetzt in Bearbeitung: {name}.",
+  "plannerV2.planControls.deleteConfirm": "„{name}“ aus diesem Browser löschen? Exportiere den Plan vorher, wenn du ein Backup möchtest."
 }

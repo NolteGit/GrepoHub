@@ -102,6 +102,34 @@ describe('PlanConfigService import validation', () => {
     expect(importedPlans[1].troopPlan.unitAmounts['swordsman']).toBe(2);
   });
 
+  it('creates a new empty custom plan and selects it', () => {
+    const initialPlanCount = service.plans().length;
+
+    const createdPlan = service.createNewPlan('  Empty  ');
+
+    expect(service.plans().length).toBe(initialPlanCount + 1);
+    expect(service.activePlan().id).toBe(createdPlan.id);
+    expect(createdPlan.name).toBe('Empty Copy');
+    expect(createdPlan.isPreset).toBe(false);
+    expect(createdPlan.cityPlan.isPreset).toBe(false);
+    expect(createdPlan.troopPlan.isPreset).toBe(false);
+    expect(createdPlan.cityPlan.buildingLevels['senate']).toBe(9);
+    expect(createdPlan.cityPlan.buildingLevels['farm']).toBe(1);
+    expect(createdPlan.cityPlan.buildingLevels['harbour']).toBe(0);
+    expect(createdPlan.cityPlan.modifiers).toEqual({
+      plowResearched: false,
+      aphroditeActive: false,
+    });
+    expect(createdPlan.cityPlan.specialBuildings).toEqual({
+      slot1: 'none',
+      slot2: 'none',
+    });
+    expect(Object.values(createdPlan.troopPlan.unitAmounts).every((amount) => amount === 0)).toBe(
+      true,
+    );
+    expect(createdPlan.troopPlan.modifiers.bunks).toBe(false);
+  });
+
   it('renames preset plans and saves a bounded city-plan note', () => {
     service.selectPlan('preset-hybrid-plan');
 
@@ -217,6 +245,16 @@ describe('PlanConfigService import validation', () => {
     });
     expect(service.activePlan().id).toBe(firstCustomPlan.id);
     expect(service.plans().some((plan) => plan.id === secondCustomPlan.id)).toBe(false);
+  });
+
+  it('keeps the selected plan after the service reloads', () => {
+    service.selectPlan('preset-hybrid-plan');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(PlanConfigService);
+
+    expect(service.activePlan().id).toBe('preset-hybrid-plan');
   });
 
   it('keeps deleted preset plans removed after the service reloads', () => {

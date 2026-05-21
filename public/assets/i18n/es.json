@@ -763,5 +763,12 @@
   "plannerV2.summary.bunksBonus": "Bono de literas",
   "plannerV2.summary.noUnitsSelected": "Aún no hay unidades seleccionadas.",
   "plannerV2.bottom.totalDefense": "Defensa total",
-  "plannerV2.bottom.transportSpace": "Espacio de transporte"
+  "plannerV2.bottom.transportSpace": "Espacio de transporte",
+  "plannerV2.header.import": "Importar",
+  "plannerV2.header.delete": "Eliminar",
+  "plannerV2.planControls.defaultPlanName": "Nuevo plan",
+  "plannerV2.planControls.newPrompt": "Introduce un nombre para el nuevo plan vacío.",
+  "plannerV2.planControls.createdTitle": "Plan creado",
+  "plannerV2.planControls.createdDetail": "Editando ahora: {name}.",
+  "plannerV2.planControls.deleteConfirm": "¿Eliminar \"{name}\" de este navegador? Expórtalo antes si quieres una copia de seguridad."
 }

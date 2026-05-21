@@ -17,10 +17,15 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
+import { TranslationService } from '../../services/translation.service';
 
 import { PlannerBottomSummary } from './components/planner-bottom-summary/planner-bottom-summary';
 import { PlannerCitySetup } from './components/planner-city-setup/planner-city-setup';
-import { PlannerHeader } from './components/planner-header/planner-header';
+import {
+  PlannerHeader,
+  type PlannerHeaderActionId,
+} from './components/planner-header/planner-header';
 import {
   PlannerMode,
   PlannerModeSwitch,
@@ -28,6 +33,7 @@ import {
 import { PlannerSummarySidebar } from './components/planner-summary-sidebar/planner-summary-sidebar';
 import { PlannerToolbox } from './components/planner-toolbox/planner-toolbox';
 import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
+import { GhButton } from '../../shared/ui/gh-button/gh-button';
 import type {
   BottomSummaryStat,
   BuildingTileStat,
@@ -323,6 +329,13 @@ type TroopPlannerSummary = {
   readonly bunksBonus: number;
 };
 
+type PlannerNotice = {
+  readonly tone: 'success' | 'error';
+  readonly titleKey: string;
+  readonly titleFallback: string;
+  readonly detailLines: readonly string[];
+};
+
 @Component({
   selector: 'app-planner-v2',
   imports: [
@@ -334,15 +347,21 @@ type TroopPlannerSummary = {
     PlannerTroopSetup,
     PlannerBottomSummary,
     PlannerSummarySidebar,
+    GhButton,
   ],
+  providers: [PlanImportExportUiService],
   templateUrl: './planner-v2.html',
 })
 export class PlannerV2 {
   private readonly planConfigService = inject(PlanConfigService);
   private readonly gameDataService = inject(GameDataService);
+  private readonly planImportExportUiService = inject(PlanImportExportUiService);
+  private readonly translationService = inject(TranslationService);
 
   protected readonly plans = this.planConfigService.plans;
   protected readonly activePlan = this.planConfigService.activePlan;
+  protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
+  private readonly localPlanNotice = signal<PlannerNotice | null>(null);
   protected readonly activeCityPlan = computed(() => this.activePlan().cityPlan);
   protected readonly activeTroopPlan = computed(() => this.activePlan().troopPlan);
   protected readonly buildingLevels = computed(() => this.activeCityPlan().buildingLevels);
@@ -355,6 +374,22 @@ export class PlannerV2 {
   protected readonly selectedGod = signal('zeus');
   protected readonly troopCategories = troopCategories;
   protected readonly gods = gods;
+  protected readonly planNotice = computed<PlannerNotice | null>(() => {
+    const importDialog = this.planImportExportUiService.planImportDialog();
+
+    if (importDialog) {
+      return {
+        tone: importDialog.isError ? 'error' : 'success',
+        titleKey: importDialog.isError
+          ? 'planConfig.importDialog.errorTitle'
+          : 'planConfig.importDialog.successTitle',
+        titleFallback: importDialog.isError ? 'Import failed' : 'Import complete',
+        detailLines: importDialog.detailLines,
+      };
+    }
+
+    return this.localPlanNotice();
+  });
 
   protected readonly cityPopulation = computed(() =>
     calculateCityPlannerPopulation(this.activeCityPlan()),
@@ -794,6 +829,38 @@ export class PlannerV2 {
     ];
   });
 
+  protected handlePlanAction(
+    actionId: PlannerHeaderActionId,
+    planImportInput: HTMLInputElement,
+  ): void {
+    if (actionId === 'new') {
+      this.createNewPlanFromPrompt();
+      return;
+    }
+
+    if (actionId === 'import') {
+      planImportInput.click();
+      return;
+    }
+
+    if (actionId === 'export') {
+      this.planImportExportUiService.exportActivePlanAsJson();
+      return;
+    }
+
+    this.deleteActivePlanWithConfirmation();
+  }
+
+  protected async importPlanFromFile(event: Event): Promise<void> {
+    this.localPlanNotice.set(null);
+    await this.planImportExportUiService.importPlanFromJsonFile(event);
+  }
+
+  protected closePlanNotice(): void {
+    this.localPlanNotice.set(null);
+    this.planImportExportUiService.closePlanImportDialog();
+  }
+
   protected selectMode(mode: PlannerMode): void {
     this.activeMode.set(mode);
   }
@@ -866,6 +933,104 @@ export class PlannerV2 {
     createPartialTroopPlan: (troopPlan: TroopConfiguration) => Partial<TroopConfiguration>,
   ): void {
     this.planConfigService.updateActiveTroopPlan(createPartialTroopPlan(this.activeTroopPlan()));
+  }
+
+  private createNewPlanFromPrompt(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    const defaultName = this.translationService.translate(
+      'plannerV2.planControls.defaultPlanName',
+      'New Plan',
+    );
+    const message = this.translationService.translate(
+      'plannerV2.planControls.newPrompt',
+      'Enter a name for the new empty plan.',
+    );
+    const requestedName = window.prompt(message, defaultName);
+
+    if (requestedName === null) {
+      return;
+    }
+
+    const createdPlan = this.planConfigService.createNewPlan(requestedName);
+
+    this.localPlanNotice.set({
+      tone: 'success',
+      titleKey: 'plannerV2.planControls.createdTitle',
+      titleFallback: 'Plan created',
+      detailLines: [
+        this.translationService.translate(
+          'plannerV2.planControls.createdDetail',
+          'Now editing: {name}.',
+          { name: createdPlan.name },
+        ),
+      ],
+    });
+  }
+
+  private deleteActivePlanWithConfirmation(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+
+    if (!this.canDeleteActivePlan()) {
+      this.localPlanNotice.set({
+        tone: 'error',
+        titleKey: 'planConfig.deleteDialog.errorTitle',
+        titleFallback: 'Plan not deleted',
+        detailLines: [
+          this.translationService.translate(
+            'planConfig.deleteDialog.lastPlanDetail',
+            'At least one plan is required. Create or import another plan before deleting this one.',
+          ),
+        ],
+      });
+      return;
+    }
+
+    const confirmed = window.confirm(
+      this.translationService.translate(
+        'plannerV2.planControls.deleteConfirm',
+        'Delete "{name}" from this browser? Export it first if you want a backup.',
+        { name: this.activePlan().name },
+      ),
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    const result = this.planConfigService.deleteActivePlan();
+
+    if (!result) {
+      this.localPlanNotice.set({
+        tone: 'error',
+        titleKey: 'planConfig.deleteDialog.errorTitle',
+        titleFallback: 'Plan not deleted',
+        detailLines: [
+          this.translationService.translate(
+            'planConfig.deleteDialog.lastPlanDetail',
+            'At least one plan is required. Create or import another plan before deleting this one.',
+          ),
+        ],
+      });
+      return;
+    }
+
+    this.localPlanNotice.set({
+      tone: 'success',
+      titleKey: 'planConfig.deleteDialog.successTitle',
+      titleFallback: 'Plan deleted',
+      detailLines: [
+        this.translationService.translate(
+          'planConfig.deleteDialog.deletedDetail',
+          '{name} deleted.',
+          { name: result.deletedPlanName },
+        ),
+        this.translationService.translate(
+          'planConfig.deleteDialog.selectedDetail',
+          'Now selected: {name}.',
+          { name: result.selectedPlanName },
+        ),
+      ],
+    });
   }
 
   private createSpecialBuildingOption(

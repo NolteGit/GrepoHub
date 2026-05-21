@@ -763,5 +763,12 @@
   "plannerV2.summary.bunksBonus": "Kooienbonus",
   "plannerV2.summary.noUnitsSelected": "Nog geen eenheden geselecteerd.",
   "plannerV2.bottom.totalDefense": "Totale verdediging",
-  "plannerV2.bottom.transportSpace": "Transportruimte"
+  "plannerV2.bottom.transportSpace": "Transportruimte",
+  "plannerV2.header.import": "Importeren",
+  "plannerV2.header.delete": "Verwijderen",
+  "plannerV2.planControls.defaultPlanName": "Nieuw plan",
+  "plannerV2.planControls.newPrompt": "Voer een naam in voor het nieuwe lege plan.",
+  "plannerV2.planControls.createdTitle": "Plan aangemaakt",
+  "plannerV2.planControls.createdDetail": "Nu bewerken: {name}.",
+  "plannerV2.planControls.deleteConfirm": "\"{name}\" uit deze browser verwijderen? Exporteer het eerst als je een back-up wilt."
 }

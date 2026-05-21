@@ -763,5 +763,12 @@
   "plannerV2.summary.bunksBonus": "Bunks bonus",
   "plannerV2.summary.noUnitsSelected": "No units selected yet.",
   "plannerV2.bottom.totalDefense": "Total Defense",
-  "plannerV2.bottom.transportSpace": "Transport Space"
+  "plannerV2.bottom.transportSpace": "Transport Space",
+  "plannerV2.header.import": "Import",
+  "plannerV2.header.delete": "Delete",
+  "plannerV2.planControls.defaultPlanName": "New Plan",
+  "plannerV2.planControls.newPrompt": "Enter a name for the new empty plan.",
+  "plannerV2.planControls.createdTitle": "Plan created",
+  "plannerV2.planControls.createdDetail": "Now editing: {name}.",
+  "plannerV2.planControls.deleteConfirm": "Delete \"{name}\" from this browser? Export it first if you want a backup."
 }

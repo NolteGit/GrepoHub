@@ -763,5 +763,12 @@
   "plannerV2.summary.bunksBonus": "Bonus cuccette",
   "plannerV2.summary.noUnitsSelected": "Nessuna unità selezionata.",
   "plannerV2.bottom.totalDefense": "Difesa totale",
-  "plannerV2.bottom.transportSpace": "Spazio di trasporto"
+  "plannerV2.bottom.transportSpace": "Spazio di trasporto",
+  "plannerV2.header.import": "Importa",
+  "plannerV2.header.delete": "Elimina",
+  "plannerV2.planControls.defaultPlanName": "Nuovo piano",
+  "plannerV2.planControls.newPrompt": "Inserisci un nome per il nuovo piano vuoto.",
+  "plannerV2.planControls.createdTitle": "Piano creato",
+  "plannerV2.planControls.createdDetail": "Ora stai modificando: {name}.",
+  "plannerV2.planControls.deleteConfirm": "Eliminare \"{name}\" da questo browser? Esportalo prima se vuoi un backup."
 }

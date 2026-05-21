@@ -8,11 +8,15 @@ import {
   type GhSelectOption,
 } from '../../../../shared/ui/gh-select-field/gh-select-field';
 
+export type PlannerHeaderActionId = 'new' | 'import' | 'export' | 'delete';
+
 type HeaderAction = {
+  readonly id: PlannerHeaderActionId;
   readonly labelKey: string;
   readonly fallback: string;
   readonly icon: string;
   readonly variant?: 'primary';
+  readonly disabled?: boolean;
 };
 
 @Component({
@@ -24,7 +28,9 @@ export class PlannerHeader {
   readonly title = input.required<string>();
   readonly plans = input.required<readonly PlanConfig[]>();
   readonly activePlanId = input.required<string>();
+  readonly canDeletePlan = input(true);
   readonly planSelected = output<string>();
+  readonly actionSelected = output<PlannerHeaderActionId>();
 
   protected readonly subtitleKey = 'plannerV2.header.subtitle';
   protected readonly subtitleFallback =
@@ -34,14 +40,22 @@ export class PlannerHeader {
   protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>
     this.plans().map((plan) => ({ value: plan.id, label: plan.name })),
   );
-  protected readonly actions: readonly HeaderAction[] = [
+  protected readonly actions = computed<readonly HeaderAction[]>(() => [
     {
+      id: 'new',
       labelKey: 'plannerV2.header.newPlan',
       fallback: 'New plan',
       icon: '+',
       variant: 'primary',
     },
-    { labelKey: 'plannerV2.header.export', fallback: 'Export', icon: '⇩' },
-    { labelKey: 'plannerV2.header.more', fallback: 'More', icon: '⌄' },
-  ];
+    { id: 'import', labelKey: 'plannerV2.header.import', fallback: 'Import', icon: '⇧' },
+    { id: 'export', labelKey: 'plannerV2.header.export', fallback: 'Export', icon: '⇩' },
+    {
+      id: 'delete',
+      labelKey: 'plannerV2.header.delete',
+      fallback: 'Delete',
+      icon: '×',
+      disabled: !this.canDeletePlan(),
+    },
+  ]);
 }

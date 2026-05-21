@@ -54,13 +54,14 @@ type PlanImportResultPlan = PlanImportResult['plans'][number];
 export class PlanConfigService {
   readonly planImportFileSizeLimitBytes = planImportFileSizeLimitBytes;
   private readonly storageKey = 'grepo-hub-plan-configs';
+  private readonly selectedPlanStorageKey = 'grepo-hub-selected-plan-id';
   private readonly legacyCityStorageKey = 'grepo-hub-city-configurations';
   private readonly legacyTroopStorageKey = 'grepo-hub-troop-configurations';
   private readonly autosaveDelayMs = 300;
   private autosaveTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private customPlanIdCounter = 0;
   private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
-  private readonly selectedPlanId = signal(this.planConfigs()[0]?.id ?? '');
+  private readonly selectedPlanId = signal(this.getInitialSelectedPlanId(this.planConfigs()));
 
   readonly plans = this.planConfigs.asReadonly();
   readonly activePlanId = this.selectedPlanId.asReadonly();
@@ -104,6 +105,51 @@ export class PlanConfigService {
     }
 
     this.selectedPlanId.set(planId);
+    this.saveSelectedPlanId();
+  }
+
+  createNewPlan(name = 'New Plan'): PlanConfig {
+    const now = new Date().toISOString();
+    const requestedName = normalizeDisplayPlanName(name, 'New Plan');
+    const uniqueName = this.createUniquePlanName(requestedName, 'Copy');
+    const idSuffix = this.createCustomPlanIdSuffix();
+    const newPlan = normalizePlanConfig({
+      id: `custom-plan-${idSuffix}`,
+      name: uniqueName,
+      isPreset: false,
+      createdAt: now,
+      updatedAt: now,
+      settings: createDefaultSettings(),
+      cityPlan: {
+        id: `custom-city-${idSuffix}`,
+        name: uniqueName,
+        isPreset: false,
+        buildingLevels: createMinimumBuildingLevels(),
+        modifiers: {
+          plowResearched: false,
+          aphroditeActive: false,
+        },
+        specialBuildings: {
+          slot1: 'none',
+          slot2: 'none',
+        },
+      },
+      troopPlan: {
+        id: `custom-troops-${idSuffix}`,
+        name: uniqueName,
+        isPreset: false,
+        unitAmounts: createEmptyUnitAmounts({}),
+        modifiers: {
+          bunks: false,
+        },
+      },
+    });
+
+    this.planConfigs.update((plans) => [...plans, newPlan]);
+    this.selectedPlanId.set(newPlan.id);
+    this.savePlans();
+
+    return newPlan;
   }
 
   savePlans(): void {
@@ -113,6 +159,7 @@ export class PlanConfigService {
     }
 
     localStorage.setItem(this.storageKey, JSON.stringify(this.createExportBundle()));
+    this.saveSelectedPlanId();
   }
   duplicateActivePlan(name: string): PlanConfig {
     const now = new Date().toISOString();
@@ -618,6 +665,27 @@ export class PlanConfigService {
       this.autosaveTimeoutId = null;
       this.savePlans();
     }, this.autosaveDelayMs);
+  }
+
+  private getInitialSelectedPlanId(plans: readonly PlanConfig[]): string {
+    const storedPlanId = localStorage.getItem(this.selectedPlanStorageKey);
+
+    if (storedPlanId && plans.some((plan) => plan.id === storedPlanId)) {
+      return storedPlanId;
+    }
+
+    return plans[0]?.id ?? '';
+  }
+
+  private saveSelectedPlanId(): void {
+    const planId = this.selectedPlanId();
+
+    if (planId) {
+      localStorage.setItem(this.selectedPlanStorageKey, planId);
+      return;
+    }
+
+    localStorage.removeItem(this.selectedPlanStorageKey);
   }
 
   private loadPlans(): PlanConfig[] {
