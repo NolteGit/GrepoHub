@@ -25,18 +25,30 @@
     @for (modifier of modifiers(); track modifier.id) {
       <button
         type="button"
-        class="inline-flex min-h-[3.7rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)]"
+        class="grid min-h-[3.7rem] min-w-0 cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-center justify-center gap-x-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)] transition hover:bg-white/5"
         [class.gh-tab-active]="modifier.active"
+        [class.opacity-60]="!modifier.active"
         [attr.aria-pressed]="modifier.active"
         (click)="modifierToggled.emit(modifier.id)"
       >
-        <span class="text-base leading-none" aria-hidden="true">{{ modifier.icon }}</span>
-        <strong class="truncate max-[70rem]:hidden">{{
+        <span class="row-span-2 text-base leading-none" aria-hidden="true">{{
+          modifier.icon
+        }}</span>
+        <strong class="truncate text-left max-[70rem]:hidden">{{
           modifier.labelKey | translate: modifier.fallback
         }}</strong>
-        <strong class="hidden truncate max-[70rem]:block">{{
+        <strong class="hidden truncate text-left max-[70rem]:block">{{
           modifier.shortLabelKey | translate: modifier.shortFallback
         }}</strong>
+        <small
+          class="truncate text-left text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+        >
+          @if (modifier.active) {
+            {{ 'plannerV2.modifier.active' | translate: 'Active' }}
+          } @else {
+            {{ 'plannerV2.modifier.inactive' | translate: 'Inactive' }}
+          }
+        </small>
       </button>
     }
   </nav>

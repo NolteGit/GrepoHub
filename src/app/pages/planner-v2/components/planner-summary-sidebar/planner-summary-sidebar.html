@@ -38,17 +38,16 @@
     </header>
 
     @if (activeMode() === 'city') {
-      <ol class="m-0 grid list-none gap-3 p-0">
-        @for (unit of usedUnitsPreview; track unit.labelKey; let index = $index) {
-          <li
-            class="grid grid-cols-[1.4rem_minmax(0,1fr)_auto] items-center gap-2 text-[var(--gh-text)]"
-          >
-            <span class="text-[var(--gh-muted)]">{{ index + 1 }}.</span>
-            <span class="truncate">{{ unit.labelKey | translate: unit.fallback }}</span>
-            <strong class="text-sm text-[var(--gh-text)]">{{ unit.value }}</strong>
-          </li>
+      <div class="grid gap-4">
+        @for (stat of cityPreviewStats(); track stat.labelKey) {
+          <app-gh-stat-row
+            class="border-b border-[rgba(212,160,55,0.22)] pb-4 last:border-b-0 last:pb-0"
+            [labelKey]="stat.labelKey"
+            [fallback]="stat.fallback"
+            [value]="stat.value"
+          />
         }
-      </ol>
+      </div>
     } @else {
       <div class="grid gap-3">
         <span class="text-sm text-[var(--gh-text)]">{{

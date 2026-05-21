@@ -731,4 +731,20 @@
     "plannerV2.summary.populationCapacity": "Population capacity",
     "plannerV2.summary.usedPopulation": "Used population",
     "plannerV2.summary.freePopulation": "Free population"
+,
+  "plannerV2.modifier.active": "Actief",
+  "plannerV2.modifier.inactive": "Inactief",
+  "plannerV2.stat.populationEffect": "Pop.-effect",
+  "plannerV2.stat.levelCap": "Max. niveau",
+  "plannerV2.context.freeBhp": "Vrije BHP",
+  "plannerV2.context.buildingLevels": "Gebouwniveaus",
+  "plannerV2.summary.context.cityPreview": "Stadsplanvoorbeeld",
+  "plannerV2.summary.activeBuildings": "Actieve gebouwen",
+  "plannerV2.summary.buildingLevels": "Gebouwniveaus",
+  "plannerV2.summary.activeModifiers": "Actieve modifiers",
+  "plannerV2.summary.specialBuildings": "Speciale gebouwen",
+  "plannerV2.summary.modifierPopulationEffect": "Modifier-pop. effect",
+  "plannerV2.summary.specialPopulationEffect": "Speciaal pop. effect",
+  "plannerV2.bottom.buildingLevels": "Gebouwniveaus",
+  "plannerV2.bottom.activeModifiers": "Actieve modifiers"
 }

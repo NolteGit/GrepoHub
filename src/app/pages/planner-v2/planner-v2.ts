@@ -26,12 +26,14 @@ import { PlannerToolbox } from './components/planner-toolbox/planner-toolbox';
 import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
 import type {
   BottomSummaryStat,
+  BuildingTileStat,
   BuildingTileView,
   CityModifierToggle,
   CityModifierToggleId,
   GodOption,
   SetupContextItem,
   SidebarPopulationStats,
+  SidebarPreviewStat,
   SpecialBuildingOptionView,
   SpecialBuildingSlotView,
   TroopCategory,
@@ -212,13 +214,25 @@ const getBuildingDefinition = (buildingId: string) => {
   return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
 };
 
+const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
+
 const formatSignedNumber = (value: number): string => {
   if (value > 0) {
-    return `+${value}`;
+    return `+${formatNumber(value)}`;
   }
 
-  return String(value);
+  return formatNumber(value);
 };
+
+const formatPopulationDelta = (value: number): string => {
+  if (value === 0) {
+    return '0';
+  }
+
+  return formatSignedNumber(value);
+};
+
+const formatRatio = (current: number, maximum: number): string => `${current}/${maximum}`;
 
 @Component({
   selector: 'app-planner-v2',
@@ -248,25 +262,72 @@ export class PlannerV2 {
   protected readonly cityPopulation = computed(() =>
     calculateCityPlannerPopulation(this.activePlan().cityPlan),
   );
+  protected readonly cityBuildingLevels = computed(() =>
+    cityBuildingOrder.reduce((sum, buildingId) => {
+      return sum + (this.activePlan().cityPlan.buildingLevels[buildingId] ?? 0);
+    }, 0),
+  );
+  protected readonly activeBuildingCount = computed(
+    () =>
+      cityBuildingOrder.filter((buildingId) => {
+        return (this.activePlan().cityPlan.buildingLevels[buildingId] ?? 0) > 0;
+      }).length,
+  );
+  protected readonly activeModifierCount = computed(() => {
+    const cityPlan = this.activePlan().cityPlan;
+    const enabledModifierCount = Object.values(cityPlan.modifiers).filter(Boolean).length;
+    const hasLandExpansion = (cityPlan.buildingLevels['land_expansion'] ?? 0) > 0;
+
+    return enabledModifierCount + (hasLandExpansion ? 1 : 0);
+  });
+  protected readonly selectedSpecialBuildingCount = computed(
+    () =>
+      Object.values(this.activePlan().cityPlan.specialBuildings).filter((optionId) => {
+        return optionId !== 'none';
+      }).length,
+  );
+  protected readonly cityModifierPopulationBonus = computed(() => {
+    const population = this.cityPopulation().breakdown;
+
+    return population.aphroditeCapacity + population.fixedModifierCapacity;
+  });
+  protected readonly citySpecialBuildingPopulationEffect = computed(() => {
+    const population = this.cityPopulation().breakdown;
+
+    return population.specialBuildingCapacity - population.specialBuildingUsedPopulation;
+  });
   protected readonly cityBuildings = computed<readonly BuildingTileView[]>(() => {
     const cityPlan = this.activePlan().cityPlan;
 
     return cityBuildingOrder.map((buildingId) => {
       const definition = getBuildingDefinition(buildingId);
       const level = cityPlan.buildingLevels[buildingId] ?? 0;
+      const maxLevel = definition?.maxLevel ?? 40;
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
+      const stats: readonly BuildingTileStat[] = [
+        {
+          labelKey: 'plannerV2.stat.populationEffect',
+          fallback: 'Pop. effect',
+          value: formatPopulationDelta(population),
+          tone: population === 0 ? 'muted' : 'gold',
+        },
+        {
+          labelKey: 'plannerV2.stat.levelCap',
+          fallback: 'Level cap',
+          value: formatRatio(level, maxLevel),
+          tone: 'muted',
+        },
+      ];
 
       return {
         id: buildingId,
         labelKey: `building.${buildingId}`,
-        fallback: buildingFallbacks[buildingId],
-        icon: buildingFallbackIcons[buildingId],
+        fallback: buildingFallbacks[buildingId] ?? buildingId,
+        icon: buildingFallbackIcons[buildingId] ?? '▥',
         imagePath: getBuildingImagePath(buildingId),
         level,
-        maxLevel: definition?.maxLevel ?? 40,
-        statLabelKey: 'plannerV2.stat.population',
-        statFallback: 'Population',
-        statValue: formatSignedNumber(population),
+        maxLevel,
+        stats,
       };
     });
   });
@@ -275,37 +336,29 @@ export class PlannerV2 {
       labelKey: 'plannerV2.context.populationCapacity',
       fallback: 'Population cap',
       icon: '♟',
-      value: String(this.cityPopulation().populationCapacity),
+      value: formatNumber(this.cityPopulation().populationCapacity),
     },
     {
-      labelKey: 'plannerV2.context.freePopulation',
-      fallback: 'Free pop',
+      labelKey: 'plannerV2.context.freeBhp',
+      fallback: 'Free BHP',
       icon: '◇',
-      value: String(this.cityPopulation().freePopulation),
+      value: formatNumber(this.cityPopulation().freePopulation),
     },
   ]);
-  protected readonly cityContextRight = computed<readonly SetupContextItem[]>(() => {
-    const cityPlan = this.activePlan().cityPlan;
-    const selectedSpecialBuildings = Object.values(cityPlan.specialBuildings).filter(
-      (optionId) => optionId !== 'none',
-    ).length;
-    const activeBuildings = this.cityBuildings().filter((building) => building.level > 0).length;
-
-    return [
-      {
-        labelKey: 'plannerV2.context.specialSlots',
-        fallback: 'Special slots',
-        icon: '★',
-        value: `${selectedSpecialBuildings}/2`,
-      },
-      {
-        labelKey: 'plannerV2.context.buildings',
-        fallback: 'Buildings',
-        icon: '▥',
-        value: `${activeBuildings}/${this.cityBuildings().length}`,
-      },
-    ];
-  });
+  protected readonly cityContextRight = computed<readonly SetupContextItem[]>(() => [
+    {
+      labelKey: 'plannerV2.context.specialSlots',
+      fallback: 'Special slots',
+      icon: '★',
+      value: formatRatio(this.selectedSpecialBuildingCount(), 2),
+    },
+    {
+      labelKey: 'plannerV2.context.buildingLevels',
+      fallback: 'Building levels',
+      icon: '▥',
+      value: formatNumber(this.cityBuildingLevels()),
+    },
+  ]);
   protected readonly cityModifiers = computed<readonly CityModifierToggle[]>(() => {
     const cityPlan = this.activePlan().cityPlan;
 
@@ -350,6 +403,38 @@ export class PlannerV2 {
       options: slot.optionIds.map((optionId) => this.createSpecialBuildingOption(optionId)),
     }));
   });
+  protected readonly cityPreviewStats = computed<readonly SidebarPreviewStat[]>(() => [
+    {
+      labelKey: 'plannerV2.summary.activeBuildings',
+      fallback: 'Active buildings',
+      value: `${this.activeBuildingCount()}/${cityBuildingOrder.length}`,
+    },
+    {
+      labelKey: 'plannerV2.summary.buildingLevels',
+      fallback: 'Building levels',
+      value: formatNumber(this.cityBuildingLevels()),
+    },
+    {
+      labelKey: 'plannerV2.summary.activeModifiers',
+      fallback: 'Active modifiers',
+      value: this.activeModifierCount(),
+    },
+    {
+      labelKey: 'plannerV2.summary.specialBuildings',
+      fallback: 'Special buildings',
+      value: formatRatio(this.selectedSpecialBuildingCount(), 2),
+    },
+    {
+      labelKey: 'plannerV2.summary.modifierPopulationEffect',
+      fallback: 'Modifier pop. effect',
+      value: formatSignedNumber(this.cityModifierPopulationBonus()),
+    },
+    {
+      labelKey: 'plannerV2.summary.specialPopulationEffect',
+      fallback: 'Special pop. effect',
+      value: formatSignedNumber(this.citySpecialBuildingPopulationEffect()),
+    },
+  ]);
   protected readonly troopContextLeft = computed<readonly SetupContextItem[]>(() => {
     const buildingLevels = this.activePlan().cityPlan.buildingLevels;
 
@@ -376,7 +461,6 @@ export class PlannerV2 {
       value: String(this.activePlan().cityPlan.buildingLevels['temple'] ?? 0),
     },
   ]);
-  protected readonly buildingCount = computed(() => this.cityBuildings().length);
   protected readonly usedUnitCount = computed(
     () =>
       Object.values(this.activePlan().troopPlan.unitAmounts).filter((amount) => amount > 0).length,
@@ -386,7 +470,11 @@ export class PlannerV2 {
     populationCapacity: this.cityPopulation().populationCapacity,
     usedPopulation: this.cityPopulation().usedPopulation,
     freePopulation: this.cityPopulation().freePopulation,
-    freeBhp: 0,
+    freeBhp: this.cityPopulation().freePopulation,
+    usedBuildingLevels: this.cityBuildingLevels(),
+    activeBuildingCount: this.activeBuildingCount(),
+    activeModifierCount: this.activeModifierCount(),
+    selectedSpecialBuildingCount: this.selectedSpecialBuildingCount(),
   }));
   protected readonly bottomSummaryStats = computed<readonly BottomSummaryStat[]>(() =>
     this.activeMode() === 'city'
@@ -394,28 +482,33 @@ export class PlannerV2 {
           {
             labelKey: 'plannerV2.bottom.totalPopulation',
             fallback: 'Total Population',
-            value: String(this.cityPopulation().populationCapacity),
+            value: formatNumber(this.cityPopulation().populationCapacity),
             icon: '♟',
           },
           {
             labelKey: 'plannerV2.bottom.usedPopulation',
             fallback: 'Used Population',
-            value: String(this.cityPopulation().usedPopulation),
+            value: formatNumber(this.cityPopulation().usedPopulation),
             icon: '◉',
           },
           {
-            labelKey: 'plannerV2.bottom.freePopulation',
-            fallback: 'Free Population',
-            value: String(this.cityPopulation().freePopulation),
+            labelKey: 'plannerV2.bottom.freeBhp',
+            fallback: 'Free BHP',
+            value: formatNumber(this.cityPopulation().freePopulation),
             icon: '◇',
           },
           {
-            labelKey: 'plannerV2.bottom.totalBuildings',
-            fallback: 'Total Buildings',
-            value: String(this.buildingCount()),
+            labelKey: 'plannerV2.bottom.buildingLevels',
+            fallback: 'Building Levels',
+            value: formatNumber(this.cityBuildingLevels()),
             icon: '▥',
           },
-          { labelKey: 'plannerV2.bottom.freeBhp', fallback: 'Free BHP', value: '0', icon: '◇' },
+          {
+            labelKey: 'plannerV2.bottom.activeModifiers',
+            fallback: 'Active Modifiers',
+            value: String(this.activeModifierCount()),
+            icon: '✦',
+          },
         ]
       : [
           {

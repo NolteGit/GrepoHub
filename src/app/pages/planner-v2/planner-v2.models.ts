@@ -9,15 +9,18 @@ export type TranslatableText = {
   readonly fallback: string;
 };
 
+export type BuildingTileStat = TranslatableText & {
+  readonly value: string;
+  readonly tone?: 'default' | 'gold' | 'muted';
+};
+
 export type BuildingTileView = TranslatableText & {
   readonly id: string;
   readonly imagePath: string;
   readonly icon: string;
   readonly level: number;
   readonly maxLevel: number;
-  readonly statLabelKey: string;
-  readonly statFallback: string;
-  readonly statValue: string;
+  readonly stats: readonly BuildingTileStat[];
 };
 
 export type UnitTilePlaceholder = TranslatableText & {
@@ -71,10 +74,18 @@ export type BottomSummaryStat = TranslatableText & {
   readonly icon: string;
 };
 
+export type SidebarPreviewStat = TranslatableText & {
+  readonly value: string | number;
+};
+
 export type SidebarPopulationStats = {
   readonly activePlanName: string;
   readonly populationCapacity: number;
   readonly usedPopulation: number;
   readonly freePopulation: number;
   readonly freeBhp: number;
+  readonly usedBuildingLevels: number;
+  readonly activeBuildingCount: number;
+  readonly activeModifierCount: number;
+  readonly selectedSpecialBuildingCount: number;
 };

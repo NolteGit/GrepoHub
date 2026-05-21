@@ -731,4 +731,20 @@
   "plannerV2.summary.populationCapacity": "Population capacity",
   "plannerV2.summary.usedPopulation": "Used population",
   "plannerV2.summary.freePopulation": "Free population"
+,
+  "plannerV2.modifier.active": "Aktiv",
+  "plannerV2.modifier.inactive": "Inaktiv",
+  "plannerV2.stat.populationEffect": "BHP-Effekt",
+  "plannerV2.stat.levelCap": "Max. Stufe",
+  "plannerV2.context.freeBhp": "Freie BHP",
+  "plannerV2.context.buildingLevels": "Gebäudestufen",
+  "plannerV2.summary.context.cityPreview": "Stadtplan-Vorschau",
+  "plannerV2.summary.activeBuildings": "Aktive Gebäude",
+  "plannerV2.summary.buildingLevels": "Gebäudestufen",
+  "plannerV2.summary.activeModifiers": "Aktive Modifikatoren",
+  "plannerV2.summary.specialBuildings": "Spezialgebäude",
+  "plannerV2.summary.modifierPopulationEffect": "Modifikator-BHP",
+  "plannerV2.summary.specialPopulationEffect": "Spezialgebäude-BHP",
+  "plannerV2.bottom.buildingLevels": "Gebäudestufen",
+  "plannerV2.bottom.activeModifiers": "Aktive Modifikatoren"
 }
