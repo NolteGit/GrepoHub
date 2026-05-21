@@ -1,0 +1,46 @@
+<aside class="planner-summary-sidebar">
+  <section class="planner-summary-panel planner-summary-panel--primary">
+    <header class="planner-summary-panel__header">
+      <h2>{{ populationTitle }}</h2>
+      <button type="button" [attr.aria-label]="infoLabel">
+        <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
+      </button>
+    </header>
+
+    <div class="planner-summary-panel__rows">
+      @for (stat of populationStats(); track stat.label) {
+        <div class="planner-summary-panel__row">
+          <span>{{ stat.label }}</span>
+          <strong>{{ stat.value }}</strong>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="planner-summary-panel">
+    <header class="planner-summary-panel__header">
+      <h2>{{ contextTitle() }}</h2>
+      <button type="button" [attr.aria-label]="infoLabel">
+        <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
+      </button>
+    </header>
+
+    @if (activeMode() === 'city') {
+      <ol class="planner-summary-list">
+        @for (unit of usedUnitsPreview; track unit.label) {
+          <li>
+            <span>{{ unit.label }}</span>
+            <strong>{{ unit.value }}</strong>
+          </li>
+        }
+      </ol>
+    } @else {
+      <div class="planner-capacity-preview">
+        <span>{{ capacityLabel }}</span>
+        <strong>48,760 / 105,000</strong>
+        <div><span></span></div>
+        <small>46%</small>
+      </div>
+    }
+  </section>
+</aside>

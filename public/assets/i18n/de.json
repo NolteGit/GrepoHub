@@ -636,5 +636,15 @@
   "planConfig.noteDialog.confirm": "Notiz speichern",
   "plannerV2.title": "Planner V2 Arbeitsbereich",
   "plannerV2.planStatus": "Verfügbare Pläne: {count}. Aktiver Plan: {name}.",
-  "plannerV2.coreStatus": "Der wiederverwendbare Kern ist verbunden: {buildings} Gebäudeeinträge und {units} genutzte Einheiteneinträge."
+  "plannerV2.coreStatus": "Der wiederverwendbare Kern ist verbunden: {buildings} Gebäudeeinträge und {units} genutzte Einheiteneinträge.",
+  "plannerV2.infoGlyph": "i",
+  "plannerV2.citySetupPlaceholderLabel": "Stadt-Setup-Platzhalter",
+  "plannerV2.specialBuildingPlaceholderLabel": "Sondergebäude-Platzhalter",
+  "plannerV2.troopCategoryLabel": "Truppenkategorie",
+  "plannerV2.troopSetupContextLabel": "Truppen-Setup-Kontext",
+  "plannerV2.troopSetupPlaceholderLabel": "Truppen-Setup-Platzhalter",
+  "plannerV2.level": "Stufe",
+  "plannerV2.min": "MIN",
+  "plannerV2.max": "MAX",
+  "plannerV2.none": "Keine"
 }

@@ -636,5 +636,15 @@
   "planConfig.noteDialog.confirm": "Salva nota",
   "plannerV2.title": "Area di lavoro Planner V2",
   "plannerV2.planStatus": "Piani disponibili: {count}. Piano attivo: {name}.",
-  "plannerV2.coreStatus": "Il nucleo riutilizzabile è collegato: {buildings} voci edificio e {units} voci unità utilizzate."
+  "plannerV2.coreStatus": "Il nucleo riutilizzabile è collegato: {buildings} voci edificio e {units} voci unità utilizzate.",
+  "plannerV2.infoGlyph": "i",
+  "plannerV2.citySetupPlaceholderLabel": "Segnaposto configurazione città",
+  "plannerV2.specialBuildingPlaceholderLabel": "Segnaposto edifici speciali",
+  "plannerV2.troopCategoryLabel": "Categoria truppe",
+  "plannerV2.troopSetupContextLabel": "Contesto configurazione truppe",
+  "plannerV2.troopSetupPlaceholderLabel": "Segnaposto configurazione truppe",
+  "plannerV2.level": "Livello",
+  "plannerV2.min": "MIN",
+  "plannerV2.max": "MAX",
+  "plannerV2.none": "Nessuno"
 }

@@ -1,19 +1,134 @@
-<main>
-  <h1>{{ 'plannerV2.title' | translate }}</h1>
-  <p>
-    {{
-      'plannerV2.planStatus'
-        | translate
-          : 'Plans available: {count}. Active plan: {name}.'
-          : { count: plans().length, name: activePlan().name }
-    }}
-  </p>
-  <p>
-    {{
-      'plannerV2.coreStatus'
-        | translate
-          : 'Reusable core is connected: {buildings} building entries and {units} used unit entries.'
-          : { buildings: buildingCount(), units: usedUnitCount() }
-    }}
-  </p>
+<main class="planner-shell">
+  <app-planner-toolbox class="planner-shell__toolbox" />
+
+  <app-planner-header
+    class="planner-shell__header"
+    [activePlanId]="activePlan().id"
+    [activePlanName]="activePlan().name"
+    [plans]="plans()"
+    [title]="'plannerV2.title' | translate"
+    (planSelected)="selectPlan($event)"
+  />
+
+  <section class="planner-shell__main">
+    <section class="planner-surface">
+      <app-planner-mode-switch [activeMode]="activeMode()" (modeSelected)="selectMode($event)" />
+
+      <section class="planner-content-frame">
+        @if (activeMode() === 'city') {
+          <section
+            class="planner-city-grid"
+            [attr.aria-label]="
+              'plannerV2.citySetupPlaceholderLabel' | translate: 'City setup placeholder'
+            "
+          >
+            @for (building of buildingPlaceholders; track building.name) {
+              <article class="planner-tile planner-tile--building">
+                <div class="planner-tile__image" aria-hidden="true">{{ building.icon }}</div>
+                <div class="planner-tile__body">
+                  <h2>{{ building.name }}</h2>
+                  <span>{{ 'plannerV2.level' | translate: 'Level' }}</span>
+                  <div class="planner-tile__controls">
+                    <button type="button">−</button>
+                    <strong>{{ building.level }}</strong>
+                    <button type="button">+</button>
+                    <button type="button">{{ 'plannerV2.min' | translate: 'MIN' }}</button>
+                    <button type="button">{{ 'plannerV2.max' | translate: 'MAX' }}</button>
+                  </div>
+                </div>
+                <footer>{{ building.stat }}</footer>
+              </article>
+            }
+          </section>
+
+          <section
+            class="planner-special-grid"
+            [attr.aria-label]="
+              'plannerV2.specialBuildingPlaceholderLabel'
+                | translate: 'Special building placeholders'
+            "
+          >
+            @for (slot of specialSlots; track slot) {
+              <article class="planner-special-card">
+                <h2>★ {{ slot }}</h2>
+                <select>
+                  <option>{{ 'plannerV2.none' | translate: 'None' }}</option>
+                </select>
+              </article>
+            }
+          </section>
+        } @else {
+          <nav
+            class="planner-category-tabs"
+            [attr.aria-label]="'plannerV2.troopCategoryLabel' | translate: 'Troop category'"
+          >
+            @for (category of troopCategories; track category) {
+              <button type="button" [class.planner-category-tabs__button--active]="$first">
+                {{ category }}
+              </button>
+            }
+          </nav>
+
+          <section
+            class="planner-requirement-strip"
+            [attr.aria-label]="
+              'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'
+            "
+          >
+            @for (requirement of requirementCards; track requirement.label) {
+              <article class="planner-context-card">
+                <span>{{ requirement.icon }}</span>
+                <div>
+                  <h2>{{ requirement.label }}</h2>
+                  <p>{{ requirement.value }}</p>
+                </div>
+              </article>
+            }
+          </section>
+
+          <section
+            class="planner-unit-grid"
+            [attr.aria-label]="
+              'plannerV2.troopSetupPlaceholderLabel' | translate: 'Troop setup placeholder'
+            "
+          >
+            @for (unit of unitPlaceholders; track unit.name) {
+              <article class="planner-tile planner-tile--unit">
+                <div class="planner-tile__image" aria-hidden="true">{{ unit.icon }}</div>
+                <div class="planner-tile__body">
+                  <h2>{{ unit.name }}</h2>
+                  <div class="planner-tile__controls">
+                    <button type="button">−</button>
+                    <strong>{{ unit.amount }}</strong>
+                    <button type="button">+</button>
+                  </div>
+                </div>
+                <footer>{{ unit.stat }}</footer>
+              </article>
+            }
+          </section>
+        }
+      </section>
+
+      <section class="planner-bottom-summary">
+        @for (stat of bottomSummaryStats(); track stat.label) {
+          <article class="planner-bottom-summary__card">
+            <span>{{ stat.icon }}</span>
+            <div>
+              <p>{{ stat.label }}</p>
+              <strong>{{ stat.value }}</strong>
+            </div>
+          </article>
+        }
+      </section>
+    </section>
+  </section>
+
+  <app-planner-summary-sidebar
+    class="planner-shell__summary"
+    [activeMode]="activeMode()"
+    [activePlanName]="activePlan().name"
+    [buildingCount]="buildingCount()"
+    [usedUnitCount]="usedUnitCount()"
+  />
 </main>

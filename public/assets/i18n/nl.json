@@ -636,5 +636,15 @@
     "planConfig.noteDialog.confirm": "Notitie opslaan",
     "plannerV2.title": "Planner V2 Werkruimte",
     "plannerV2.planStatus": "Beschikbare plannen: {count}. Actief plan: {name}.",
-    "plannerV2.coreStatus": "De herbruikbare kern is verbonden: {buildings} gebouwvermeldingen en {units} gebruikte eenheidsvermeldingen."
+    "plannerV2.coreStatus": "De herbruikbare kern is verbonden: {buildings} gebouwvermeldingen en {units} gebruikte eenheidsvermeldingen.",
+    "plannerV2.infoGlyph": "i",
+    "plannerV2.citySetupPlaceholderLabel": "Plaatshouder voor stadsconfiguratie",
+    "plannerV2.specialBuildingPlaceholderLabel": "Plaatshouders voor speciale gebouwen",
+    "plannerV2.troopCategoryLabel": "Troepencategorie",
+    "plannerV2.troopSetupContextLabel": "Context voor troepenconfiguratie",
+    "plannerV2.troopSetupPlaceholderLabel": "Plaatshouder voor troepenconfiguratie",
+    "plannerV2.level": "Niveau",
+    "plannerV2.min": "MIN",
+    "plannerV2.max": "MAX",
+    "plannerV2.none": "Geen"
 }

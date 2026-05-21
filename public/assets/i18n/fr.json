@@ -636,5 +636,15 @@
   "planConfig.noteDialog.confirm": "Enregistrer la note",
   "plannerV2.title": "Espace de travail Planner V2",
   "plannerV2.planStatus": "Plans disponibles : {count}. Plan actif : {name}.",
-  "plannerV2.coreStatus": "Le noyau réutilisable est connecté : {buildings} entrées de bâtiments et {units} entrées d’unités utilisées."
+  "plannerV2.coreStatus": "Le noyau réutilisable est connecté : {buildings} entrées de bâtiments et {units} entrées d’unités utilisées.",
+  "plannerV2.infoGlyph": "i",
+  "plannerV2.citySetupPlaceholderLabel": "Emplacement de configuration de ville",
+  "plannerV2.specialBuildingPlaceholderLabel": "Emplacements de bâtiments spéciaux",
+  "plannerV2.troopCategoryLabel": "Catégorie de troupes",
+  "plannerV2.troopSetupContextLabel": "Contexte de configuration des troupes",
+  "plannerV2.troopSetupPlaceholderLabel": "Emplacement de configuration des troupes",
+  "plannerV2.level": "Niveau",
+  "plannerV2.min": "MIN",
+  "plannerV2.max": "MAX",
+  "plannerV2.none": "Aucun"
 }

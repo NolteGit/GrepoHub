@@ -1,0 +1,243 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.planner-toolbox {
+  display: grid;
+  grid-template-rows: auto auto minmax(10rem, 1fr) auto auto;
+  gap: 0.8rem;
+  min-height: 100dvh;
+  padding: 0.65rem;
+  border-right: 1px solid var(--gh-border-soft);
+  background: rgba(2, 13, 23, 0.84);
+}
+
+.planner-toolbox__brand {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0 0.85rem;
+  border-bottom: 1px solid var(--gh-border-soft);
+  text-align: center;
+}
+
+.planner-toolbox__clock {
+  display: grid;
+  width: 7rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid var(--gh-border);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(246, 195, 67, 0.36), transparent 2.4rem),
+    radial-gradient(circle, rgba(8, 35, 58, 0.95), rgba(2, 13, 23, 0.96));
+  box-shadow:
+    inset 0 0 0 0.4rem rgba(255, 255, 255, 0.03),
+    var(--gh-shadow-soft);
+}
+
+.planner-toolbox__clock strong {
+  color: var(--gh-gold);
+  font-size: 2rem;
+  line-height: 0.9;
+}
+
+.planner-toolbox__clock span {
+  color: var(--gh-text);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.planner-toolbox__brand time {
+  color: var(--gh-text);
+  font-size: 0.8rem;
+}
+
+.planner-toolbox__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.planner-toolbox__button,
+.planner-toolbox__panel,
+.planner-toolbox__footer button,
+.planner-toolbox__calculator-grid button,
+.planner-toolbox__panel header button {
+  border: 1px solid var(--gh-border-soft);
+  border-radius: var(--gh-radius-sm);
+  background: rgba(8, 35, 58, 0.74);
+  color: var(--gh-text);
+}
+
+.planner-toolbox__button,
+.planner-toolbox__footer button,
+.planner-toolbox__calculator-grid button,
+.planner-toolbox__panel header button {
+  cursor: pointer;
+}
+
+.planner-toolbox__button {
+  display: grid;
+  gap: 0.24rem;
+  min-height: 3.65rem;
+  padding: 0.45rem 0.25rem;
+  place-items: center;
+}
+
+.planner-toolbox__button span {
+  display: grid;
+  width: 1.55rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(246, 195, 67, 0.12);
+  color: var(--gh-gold);
+  font-weight: 900;
+}
+
+.planner-toolbox__button small {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--gh-muted);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planner-toolbox__panel {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+  padding: 0.75rem;
+}
+
+.planner-toolbox__panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.planner-toolbox__panel h2 {
+  margin: 0;
+  color: var(--gh-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.planner-toolbox__panel header button {
+  display: grid;
+  width: 1.7rem;
+  aspect-ratio: 1;
+  place-items: center;
+  color: var(--gh-gold);
+}
+
+.planner-toolbox__queue {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.planner-toolbox__queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--gh-border-soft);
+}
+
+.planner-toolbox__queue-item span {
+  overflow: hidden;
+  color: var(--gh-muted);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planner-toolbox__queue-item strong {
+  flex: 0 0 auto;
+  color: var(--gh-text);
+  font-size: 0.74rem;
+}
+
+.planner-toolbox__section--calculator {
+  align-self: end;
+}
+
+.planner-toolbox__calculator-display {
+  padding: 0.35rem 0.2rem;
+  border-bottom: 1px solid var(--gh-border-soft);
+  color: var(--gh-text);
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.planner-toolbox__calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.3rem;
+}
+
+.planner-toolbox__calculator-grid button {
+  min-height: 1.9rem;
+}
+
+.planner-toolbox__calculator-grid button:last-child {
+  background: linear-gradient(180deg, rgba(246, 195, 67, 0.86), rgba(195, 130, 31, 0.9));
+  color: #061826;
+  font-weight: 900;
+}
+
+.planner-toolbox__footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gh-border-soft);
+}
+
+.planner-toolbox__footer button {
+  min-height: 2.6rem;
+  font-size: 0.9rem;
+}
+
+.planner-toolbox__button:hover,
+.planner-toolbox__calculator-grid button:hover,
+.planner-toolbox__footer button:hover,
+.planner-toolbox__panel header button:hover {
+  border-color: var(--gh-border);
+  background: rgba(246, 195, 67, 0.1);
+}
+
+@media (max-width: 76rem) {
+  .planner-toolbox {
+    align-items: center;
+    grid-template-rows: auto auto;
+    padding-inline: 0.45rem;
+  }
+
+  .planner-toolbox__brand time,
+  .planner-toolbox__button small,
+  .planner-toolbox__panel,
+  .planner-toolbox__footer {
+    display: none;
+  }
+
+  .planner-toolbox__clock {
+    width: 3.6rem;
+  }
+
+  .planner-toolbox__clock strong {
+    font-size: 1.1rem;
+  }
+
+  .planner-toolbox__actions {
+    grid-template-columns: 1fr;
+  }
+}

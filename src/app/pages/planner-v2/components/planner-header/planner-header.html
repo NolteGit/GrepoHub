@@ -1,0 +1,29 @@
+<header class="planner-header">
+  <div class="planner-header__title-block">
+    <h1>{{ title() }}</h1>
+    <p>{{ subtitle }}</p>
+  </div>
+
+  <div class="planner-header__controls">
+    <label class="planner-header__select">
+      <span>{{ planLabel }}</span>
+      <select [value]="activePlanId()" (change)="selectPlan($event)">
+        @for (plan of plans(); track plan.id) {
+          <option [value]="plan.id">{{ plan.name }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="planner-header__actions">
+      @for (action of actions; track action.label) {
+        <button
+          type="button"
+          [class.planner-header__button--primary]="action.variant === 'primary'"
+        >
+          <span>{{ action.icon }}</span>
+          {{ action.label }}
+        </button>
+      }
+    </div>
+  </div>
+</header>

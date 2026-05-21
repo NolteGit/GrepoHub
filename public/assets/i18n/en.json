@@ -636,5 +636,15 @@
   "planConfig.noteDialog.confirm": "Save note",
   "plannerV2.title": "Planner V2 Workspace",
   "plannerV2.planStatus": "Plans available: {count}. Active plan: {name}.",
-  "plannerV2.coreStatus": "Reusable core is connected: {buildings} building entries and {units} used unit entries."
+  "plannerV2.coreStatus": "Reusable core is connected: {buildings} building entries and {units} used unit entries.",
+  "plannerV2.infoGlyph": "i",
+  "plannerV2.citySetupPlaceholderLabel": "City setup placeholder",
+  "plannerV2.specialBuildingPlaceholderLabel": "Special building placeholders",
+  "plannerV2.troopCategoryLabel": "Troop category",
+  "plannerV2.troopSetupContextLabel": "Troop setup context",
+  "plannerV2.troopSetupPlaceholderLabel": "Troop setup placeholder",
+  "plannerV2.level": "Level",
+  "plannerV2.min": "MIN",
+  "plannerV2.max": "MAX",
+  "plannerV2.none": "None"
 }

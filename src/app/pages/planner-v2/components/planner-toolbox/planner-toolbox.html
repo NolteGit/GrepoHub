@@ -1,0 +1,49 @@
+<aside class="planner-toolbox">
+  <header class="planner-toolbox__brand">
+    <div class="planner-toolbox__clock" aria-hidden="true">
+      <strong>{{ brandInitial }}</strong>
+      <span>{{ clockTime() }}</span>
+    </div>
+    <time>{{ clockDate() }}</time>
+  </header>
+
+  <section class="planner-toolbox__actions" [attr.aria-label]="actionTitle">
+    @for (action of actionButtons; track action.label) {
+      <button class="planner-toolbox__button" type="button" [attr.aria-label]="action.label">
+        <span>{{ action.icon }}</span>
+        <small>{{ action.label }}</small>
+      </button>
+    }
+  </section>
+
+  <section class="planner-toolbox__panel planner-toolbox__panel--queue">
+    <header>
+      <h2>{{ queueTitle }}</h2>
+      <button type="button" [attr.aria-label]="addReminderLabel">+</button>
+    </header>
+    <div class="planner-toolbox__queue">
+      @for (item of queueItems; track item.label) {
+        <div class="planner-toolbox__queue-item">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.time }}</strong>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="planner-toolbox__panel planner-toolbox__panel--calculator">
+    <h2>{{ calculatorTitle }}</h2>
+    <div class="planner-toolbox__calculator-display">0</div>
+    <div class="planner-toolbox__calculator-grid">
+      @for (key of calculatorKeys; track key) {
+        <button type="button">{{ key }}</button>
+      }
+    </div>
+  </section>
+
+  <footer class="planner-toolbox__footer">
+    @for (link of footerLinks; track link) {
+      <button type="button">{{ link }}</button>
+    }
+  </footer>
+</aside>
