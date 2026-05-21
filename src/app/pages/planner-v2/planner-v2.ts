@@ -19,7 +19,13 @@ type PlannerTilePlaceholder = {
   readonly stat: string;
 };
 
-type RequirementCard = {
+type TroopCategoryTab = {
+  readonly label: string;
+  readonly shortLabel: string;
+  readonly icon: string;
+};
+
+type TroopContextItem = {
   readonly label: string;
   readonly icon: string;
   readonly value: string;
@@ -57,11 +63,30 @@ const unitPlaceholders: readonly PlannerTilePlaceholder[] = [
   { name: 'Militia', icon: '◉', amount: '4,300', stat: '10 attack · 1 pop · 00:20' },
 ];
 
-const requirementCards: readonly RequirementCard[] = [
-  { label: 'Barracks', icon: '⚔', value: 'Level 25' },
-  { label: 'Harbour', icon: '⚓', value: 'Level 20' },
-  { label: 'Temple', icon: '♛', value: 'Level 18' },
-  { label: 'God', icon: '☉', value: 'Zeus' },
+const troopCategories: readonly TroopCategoryTab[] = [
+  { label: 'Land Units', shortLabel: 'Land', icon: '⚔' },
+  { label: 'Sea Units', shortLabel: 'Sea', icon: '⚓' },
+  { label: 'Mythical Units', shortLabel: 'Mythical', icon: '♛' },
+];
+
+const troopContextLeft: readonly TroopContextItem[] = [
+  { label: 'Barracks', icon: '⚔', value: '25' },
+  { label: 'Harbour', icon: '⚓', value: '20' },
+];
+
+const troopContextRight: readonly TroopContextItem[] = [
+  { label: 'Temple', icon: '♛', value: '18' },
+];
+
+const gods: readonly string[] = [
+  'Zeus',
+  'Poseidon',
+  'Hera',
+  'Athena',
+  'Hades',
+  'Artemis',
+  'Aphrodite',
+  'Ares',
 ];
 
 @Component({
@@ -78,9 +103,11 @@ export class PlannerV2 {
   protected readonly activeMode = signal<PlannerMode>('city');
   protected readonly buildingPlaceholders = buildingPlaceholders;
   protected readonly unitPlaceholders = unitPlaceholders;
-  protected readonly requirementCards = requirementCards;
+  protected readonly troopCategories = troopCategories;
+  protected readonly troopContextLeft = troopContextLeft;
+  protected readonly troopContextRight = troopContextRight;
+  protected readonly gods = gods;
   protected readonly specialSlots = ['Special Building 1', 'Special Building 2'];
-  protected readonly troopCategories = ['Land Units', 'Sea Units', 'Mythical Units', 'Favorites'];
   protected readonly buildingCount = computed(
     () => Object.keys(this.activePlan().cityPlan.buildingLevels).length,
   );

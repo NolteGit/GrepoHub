@@ -58,32 +58,53 @@
             }
           </section>
         } @else {
-          <nav
-            class="planner-category-tabs"
-            [attr.aria-label]="'plannerV2.troopCategoryLabel' | translate: 'Troop category'"
-          >
-            @for (category of troopCategories; track category) {
-              <button type="button" [class.planner-category-tabs__button--active]="$first">
-                {{ category }}
-              </button>
-            }
-          </nav>
-
           <section
-            class="planner-requirement-strip"
+            class="planner-troop-setup-bar"
             [attr.aria-label]="
               'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'
             "
           >
-            @for (requirement of requirementCards; track requirement.label) {
-              <article class="planner-context-card">
-                <span>{{ requirement.icon }}</span>
-                <div>
-                  <h2>{{ requirement.label }}</h2>
-                  <p>{{ requirement.value }}</p>
-                </div>
-              </article>
-            }
+            <div class="planner-context-stack planner-context-stack--left">
+              @for (item of troopContextLeft; track item.label) {
+                <article class="planner-compact-context" [attr.title]="item.label">
+                  <span aria-hidden="true">{{ item.icon }}</span>
+                  <strong>{{ item.value }}</strong>
+                </article>
+              }
+            </div>
+
+            <nav
+              class="planner-category-tabs"
+              [attr.aria-label]="'plannerV2.troopCategoryLabel' | translate: 'Troop category'"
+            >
+              @for (category of troopCategories; track category.label) {
+                <button type="button" [class.planner-category-tabs__button--active]="$first">
+                  <span aria-hidden="true">{{ category.icon }}</span>
+                  <strong class="planner-category-tabs__label">{{ category.label }}</strong>
+                  <strong class="planner-category-tabs__label-short">{{
+                    category.shortLabel
+                  }}</strong>
+                </button>
+              }
+            </nav>
+
+            <div class="planner-context-stack planner-context-stack--right">
+              @for (item of troopContextRight; track item.label) {
+                <article class="planner-compact-context" [attr.title]="item.label">
+                  <span aria-hidden="true">{{ item.icon }}</span>
+                  <strong>{{ item.value }}</strong>
+                </article>
+              }
+
+              <label class="planner-god-select">
+                <span aria-hidden="true">☉</span>
+                <select [attr.aria-label]="'unitAttribute.god' | translate: 'God'">
+                  @for (god of gods; track god) {
+                    <option>{{ god }}</option>
+                  }
+                </select>
+              </label>
+            </div>
           </section>
 
           <section
