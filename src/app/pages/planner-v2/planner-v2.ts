@@ -7,10 +7,11 @@ import {
 } from '../../data/city-planner-presets';
 import { getBuildingImagePath, getUnitIconPath } from '../../data/asset-paths';
 import type {
-  CityModifierId,
+  CityConfiguration,
   CitySpecialBuildingOptionId,
   CitySpecialBuildingSlotId,
 } from '../../models/city-configuration.model';
+import type { TroopConfiguration } from '../../models/troop-configuration.model';
 import type { Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
@@ -182,6 +183,18 @@ const getBuildingDefinition = (buildingId: string) => {
   return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
 };
 
+const getBuildingMaxLevel = (buildingId: string): number => {
+  return getBuildingDefinition(buildingId)?.maxLevel ?? 40;
+};
+
+const normalizeNonNegativeInteger = (value: number): number => {
+  return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
+};
+
+const clampBuildingLevel = (buildingId: string, level: number): number => {
+  return Math.min(getBuildingMaxLevel(buildingId), normalizeNonNegativeInteger(level));
+};
+
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
 
 const formatSignedNumber = (value: number): string => {
@@ -274,6 +287,42 @@ const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
   return stats;
 };
 
+type CityPopulationSummary = ReturnType<typeof calculateCityPlannerPopulation>;
+
+type CityPlannerSummary = {
+  readonly population: CityPopulationSummary;
+  readonly populationCapacity: number;
+  readonly usedPopulation: number;
+  readonly freePopulation: number;
+  readonly freeBhp: number;
+  readonly buildingLevels: number;
+  readonly activeBuildingCount: number;
+  readonly activeModifierCount: number;
+  readonly selectedSpecialBuildingCount: number;
+  readonly modifierPopulationBonus: number;
+  readonly specialBuildingPopulationEffect: number;
+};
+
+type TroopPlannerSummary = {
+  readonly totalUnits: number;
+  readonly usedPopulation: number;
+  readonly landPopulation: number;
+  readonly seaPopulation: number;
+  readonly totalAttack: number;
+  readonly totalDefense: number;
+  readonly transportCapacity: number;
+  readonly transportSpace: number;
+  readonly transportBalance: number;
+  readonly transportUsagePercent: number;
+  readonly usedUnitTypes: number;
+  readonly wood: number;
+  readonly stone: number;
+  readonly silver: number;
+  readonly favor: number;
+  readonly transportShipCount: number;
+  readonly bunksBonus: number;
+};
+
 @Component({
   selector: 'app-planner-v2',
   imports: [
@@ -294,6 +343,10 @@ export class PlannerV2 {
 
   protected readonly plans = this.planConfigService.plans;
   protected readonly activePlan = this.planConfigService.activePlan;
+  protected readonly activeCityPlan = computed(() => this.activePlan().cityPlan);
+  protected readonly activeTroopPlan = computed(() => this.activePlan().troopPlan);
+  protected readonly buildingLevels = computed(() => this.activeCityPlan().buildingLevels);
+  protected readonly unitAmounts = computed(() => this.activeTroopPlan().unitAmounts);
   protected readonly unitDefinitions = toSignal(this.gameDataService.getUnitDefinitions(), {
     initialValue: [] as Unit[],
   });
@@ -302,50 +355,51 @@ export class PlannerV2 {
   protected readonly selectedGod = signal('zeus');
   protected readonly troopCategories = troopCategories;
   protected readonly gods = gods;
+
   protected readonly cityPopulation = computed(() =>
-    calculateCityPlannerPopulation(this.activePlan().cityPlan),
+    calculateCityPlannerPopulation(this.activeCityPlan()),
   );
-  protected readonly cityBuildingLevels = computed(() =>
-    cityBuildingOrder.reduce((sum, buildingId) => {
-      return sum + (this.activePlan().cityPlan.buildingLevels[buildingId] ?? 0);
-    }, 0),
-  );
-  protected readonly activeBuildingCount = computed(
-    () =>
-      cityBuildingOrder.filter((buildingId) => {
-        return (this.activePlan().cityPlan.buildingLevels[buildingId] ?? 0) > 0;
-      }).length,
-  );
-  protected readonly activeModifierCount = computed(() => {
-    const cityPlan = this.activePlan().cityPlan;
+  protected readonly citySummary = computed<CityPlannerSummary>(() => {
+    const cityPlan = this.activeCityPlan();
+    const buildingLevels = this.buildingLevels();
+    const population = this.cityPopulation();
+    const activeBuildingCount = cityBuildingOrder.filter((buildingId) => {
+      return (buildingLevels[buildingId] ?? 0) > 0;
+    }).length;
     const enabledModifierCount = Object.values(cityPlan.modifiers).filter(Boolean).length;
-    const hasLandExpansion = (cityPlan.buildingLevels['land_expansion'] ?? 0) > 0;
+    const hasLandExpansion = (buildingLevels['land_expansion'] ?? 0) > 0;
+    const selectedSpecialBuildingCount = Object.values(cityPlan.specialBuildings).filter(
+      (optionId) => optionId !== 'none',
+    ).length;
+    const modifierPopulationBonus =
+      population.breakdown.aphroditeCapacity + population.breakdown.fixedModifierCapacity;
+    const specialBuildingPopulationEffect =
+      population.breakdown.specialBuildingCapacity -
+      population.breakdown.specialBuildingUsedPopulation;
 
-    return enabledModifierCount + (hasLandExpansion ? 1 : 0);
-  });
-  protected readonly selectedSpecialBuildingCount = computed(
-    () =>
-      Object.values(this.activePlan().cityPlan.specialBuildings).filter((optionId) => {
-        return optionId !== 'none';
-      }).length,
-  );
-  protected readonly cityModifierPopulationBonus = computed(() => {
-    const population = this.cityPopulation().breakdown;
-
-    return population.aphroditeCapacity + population.fixedModifierCapacity;
-  });
-  protected readonly citySpecialBuildingPopulationEffect = computed(() => {
-    const population = this.cityPopulation().breakdown;
-
-    return population.specialBuildingCapacity - population.specialBuildingUsedPopulation;
+    return {
+      population,
+      populationCapacity: population.populationCapacity,
+      usedPopulation: population.usedPopulation,
+      freePopulation: population.freePopulation,
+      freeBhp: population.freePopulation,
+      buildingLevels: cityBuildingOrder.reduce((sum, buildingId) => {
+        return sum + (buildingLevels[buildingId] ?? 0);
+      }, 0),
+      activeBuildingCount,
+      activeModifierCount: enabledModifierCount + (hasLandExpansion ? 1 : 0),
+      selectedSpecialBuildingCount,
+      modifierPopulationBonus,
+      specialBuildingPopulationEffect,
+    };
   });
   protected readonly cityBuildings = computed<readonly BuildingTileView[]>(() => {
-    const cityPlan = this.activePlan().cityPlan;
+    const buildingLevels = this.buildingLevels();
 
     return cityBuildingOrder.map((buildingId) => {
       const definition = getBuildingDefinition(buildingId);
-      const level = cityPlan.buildingLevels[buildingId] ?? 0;
-      const maxLevel = definition?.maxLevel ?? 40;
+      const level = buildingLevels[buildingId] ?? 0;
+      const maxLevel = getBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
       const stats: readonly BuildingTileStat[] = [
         {
@@ -374,36 +428,45 @@ export class PlannerV2 {
       };
     });
   });
-  protected readonly cityContextLeft = computed<readonly SetupContextItem[]>(() => [
-    {
-      labelKey: 'plannerV2.context.populationCapacity',
-      fallback: 'Population cap',
-      icon: '♟',
-      value: formatNumber(this.cityPopulation().populationCapacity),
-    },
-    {
-      labelKey: 'plannerV2.context.freeBhp',
-      fallback: 'Free BHP',
-      icon: '◇',
-      value: formatNumber(this.cityPopulation().freePopulation),
-    },
-  ]);
-  protected readonly cityContextRight = computed<readonly SetupContextItem[]>(() => [
-    {
-      labelKey: 'plannerV2.context.specialSlots',
-      fallback: 'Special slots',
-      icon: '★',
-      value: formatRatio(this.selectedSpecialBuildingCount(), 2),
-    },
-    {
-      labelKey: 'plannerV2.context.buildingLevels',
-      fallback: 'Building levels',
-      icon: '▥',
-      value: formatNumber(this.cityBuildingLevels()),
-    },
-  ]);
+  protected readonly cityContextLeft = computed<readonly SetupContextItem[]>(() => {
+    const summary = this.citySummary();
+
+    return [
+      {
+        labelKey: 'plannerV2.context.populationCapacity',
+        fallback: 'Population cap',
+        icon: '♟',
+        value: formatNumber(summary.populationCapacity),
+      },
+      {
+        labelKey: 'plannerV2.context.freeBhp',
+        fallback: 'Free BHP',
+        icon: '◇',
+        value: formatNumber(summary.freeBhp),
+      },
+    ];
+  });
+  protected readonly cityContextRight = computed<readonly SetupContextItem[]>(() => {
+    const summary = this.citySummary();
+
+    return [
+      {
+        labelKey: 'plannerV2.context.specialSlots',
+        fallback: 'Special slots',
+        icon: '★',
+        value: formatRatio(summary.selectedSpecialBuildingCount, 2),
+      },
+      {
+        labelKey: 'plannerV2.context.buildingLevels',
+        fallback: 'Building levels',
+        icon: '▥',
+        value: formatNumber(summary.buildingLevels),
+      },
+    ];
+  });
   protected readonly cityModifiers = computed<readonly CityModifierToggle[]>(() => {
-    const cityPlan = this.activePlan().cityPlan;
+    const cityPlan = this.activeCityPlan();
+    const buildingLevels = this.buildingLevels();
 
     return [
       {
@@ -422,7 +485,7 @@ export class PlannerV2 {
         shortLabelKey: 'plannerV2.modifier.landExpansionShort',
         shortFallback: 'Land',
         icon: '▦',
-        active: (cityPlan.buildingLevels['land_expansion'] ?? 0) > 0,
+        active: (buildingLevels['land_expansion'] ?? 0) > 0,
       },
       {
         id: 'plowResearched',
@@ -436,7 +499,7 @@ export class PlannerV2 {
     ];
   });
   protected readonly specialSlots = computed<readonly SpecialBuildingSlotView[]>(() => {
-    const cityPlan = this.activePlan().cityPlan;
+    const cityPlan = this.activeCityPlan();
 
     return citySpecialBuildingSlotDefinitions.map((slot, index) => ({
       id: slot.id,
@@ -446,40 +509,44 @@ export class PlannerV2 {
       options: slot.optionIds.map((optionId) => this.createSpecialBuildingOption(optionId)),
     }));
   });
-  protected readonly cityPreviewStats = computed<readonly SidebarPreviewStat[]>(() => [
-    {
-      labelKey: 'plannerV2.summary.activeBuildings',
-      fallback: 'Active buildings',
-      value: `${this.activeBuildingCount()}/${cityBuildingOrder.length}`,
-    },
-    {
-      labelKey: 'plannerV2.summary.buildingLevels',
-      fallback: 'Building levels',
-      value: formatNumber(this.cityBuildingLevels()),
-    },
-    {
-      labelKey: 'plannerV2.summary.activeModifiers',
-      fallback: 'Active modifiers',
-      value: this.activeModifierCount(),
-    },
-    {
-      labelKey: 'plannerV2.summary.specialBuildings',
-      fallback: 'Special buildings',
-      value: formatRatio(this.selectedSpecialBuildingCount(), 2),
-    },
-    {
-      labelKey: 'plannerV2.summary.modifierPopulationEffect',
-      fallback: 'Modifier pop. effect',
-      value: formatSignedNumber(this.cityModifierPopulationBonus()),
-    },
-    {
-      labelKey: 'plannerV2.summary.specialPopulationEffect',
-      fallback: 'Special pop. effect',
-      value: formatSignedNumber(this.citySpecialBuildingPopulationEffect()),
-    },
-  ]);
+  protected readonly cityPreviewStats = computed<readonly SidebarPreviewStat[]>(() => {
+    const summary = this.citySummary();
+
+    return [
+      {
+        labelKey: 'plannerV2.summary.activeBuildings',
+        fallback: 'Active buildings',
+        value: `${summary.activeBuildingCount}/${cityBuildingOrder.length}`,
+      },
+      {
+        labelKey: 'plannerV2.summary.buildingLevels',
+        fallback: 'Building levels',
+        value: formatNumber(summary.buildingLevels),
+      },
+      {
+        labelKey: 'plannerV2.summary.activeModifiers',
+        fallback: 'Active modifiers',
+        value: summary.activeModifierCount,
+      },
+      {
+        labelKey: 'plannerV2.summary.specialBuildings',
+        fallback: 'Special buildings',
+        value: formatRatio(summary.selectedSpecialBuildingCount, 2),
+      },
+      {
+        labelKey: 'plannerV2.summary.modifierPopulationEffect',
+        fallback: 'Modifier pop. effect',
+        value: formatSignedNumber(summary.modifierPopulationBonus),
+      },
+      {
+        labelKey: 'plannerV2.summary.specialPopulationEffect',
+        fallback: 'Special pop. effect',
+        value: formatSignedNumber(summary.specialBuildingPopulationEffect),
+      },
+    ];
+  });
   protected readonly troopContextLeft = computed<readonly SetupContextItem[]>(() => {
-    const buildingLevels = this.activePlan().cityPlan.buildingLevels;
+    const buildingLevels = this.buildingLevels();
 
     return [
       {
@@ -501,11 +568,11 @@ export class PlannerV2 {
       labelKey: 'building.temple',
       fallback: 'Temple',
       icon: '♛',
-      value: String(this.activePlan().cityPlan.buildingLevels['temple'] ?? 0),
+      value: String(this.buildingLevels()['temple'] ?? 0),
     },
   ]);
   protected readonly visibleUnits = computed<readonly UnitTileView[]>(() => {
-    const unitAmounts = this.activePlan().troopPlan.unitAmounts;
+    const unitAmounts = this.unitAmounts();
     const category = this.selectedTroopCategory();
     const selectedGod = this.selectedGod();
 
@@ -521,9 +588,9 @@ export class PlannerV2 {
         stats: createUnitTileStats(unit),
       }));
   });
-  protected readonly troopTotals = computed(() => {
-    const plan = this.activePlan();
-    const unitAmounts = plan.troopPlan.unitAmounts;
+  protected readonly troopSummary = computed<TroopPlannerSummary>(() => {
+    const troopPlan = this.activeTroopPlan();
+    const unitAmounts = this.unitAmounts();
 
     const totals = this.unitDefinitions().reduce(
       (sum, unit) => {
@@ -578,7 +645,7 @@ export class PlannerV2 {
         transportShipCount: 0,
       },
     );
-    const bunksBonus = plan.troopPlan.modifiers.bunks ? totals.transportShipCount * 6 : 0;
+    const bunksBonus = troopPlan.modifiers.bunks ? totals.transportShipCount * 6 : 0;
     const transportCapacity = totals.transportCapacity + bunksBonus;
     const transportBalance = transportCapacity - totals.transportSpace;
 
@@ -594,7 +661,7 @@ export class PlannerV2 {
     };
   });
   protected readonly topUsedUnits = computed<readonly SidebarUsedUnit[]>(() => {
-    const unitAmounts = this.activePlan().troopPlan.unitAmounts;
+    const unitAmounts = this.unitAmounts();
     const highestAmount = Math.max(0, ...Object.values(unitAmounts).filter((amount) => amount > 0));
 
     if (highestAmount <= 0) {
@@ -617,101 +684,115 @@ export class PlannerV2 {
         sharePercent: clampPercentage((unit.amount / highestAmount) * 100),
       }));
   });
-  protected readonly troopTransportStats = computed<SidebarTroopTransportStats>(() => ({
-    transportCapacity: this.troopTotals().transportCapacity,
-    transportSpace: this.troopTotals().transportSpace,
-    transportBalance: this.troopTotals().transportBalance,
-    transportUsagePercent: this.troopTotals().transportUsagePercent,
-    bunksBonus: this.troopTotals().bunksBonus,
-  }));
-  protected readonly usedUnitCount = computed(() => this.troopTotals().usedUnitTypes);
-  protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => ({
-    activePlanName: this.activePlan().name,
-    populationCapacity: this.cityPopulation().populationCapacity,
-    usedPopulation: this.cityPopulation().usedPopulation,
-    troopPopulation: this.troopTotals().usedPopulation,
-    freePopulation: this.cityPopulation().freePopulation,
-    freePopulationAfterTroops:
-      this.cityPopulation().freePopulation - this.troopTotals().usedPopulation,
-    freeBhp: this.cityPopulation().freePopulation,
-    usedBuildingLevels: this.cityBuildingLevels(),
-    activeBuildingCount: this.activeBuildingCount(),
-    activeModifierCount: this.activeModifierCount(),
-    selectedSpecialBuildingCount: this.selectedSpecialBuildingCount(),
-  }));
-  protected readonly bottomSummaryStats = computed<readonly BottomSummaryStat[]>(() =>
-    this.activeMode() === 'city'
-      ? [
-          {
-            labelKey: 'plannerV2.bottom.totalPopulation',
-            fallback: 'Total Population',
-            value: formatNumber(this.cityPopulation().populationCapacity),
-            icon: '♟',
-          },
-          {
-            labelKey: 'plannerV2.bottom.usedPopulation',
-            fallback: 'Used Population',
-            value: formatNumber(this.cityPopulation().usedPopulation),
-            icon: '◉',
-          },
-          {
-            labelKey: 'plannerV2.bottom.freeBhp',
-            fallback: 'Free BHP',
-            value: formatNumber(this.cityPopulation().freePopulation),
-            icon: '◇',
-          },
-          {
-            labelKey: 'plannerV2.bottom.buildingLevels',
-            fallback: 'Building Levels',
-            value: formatNumber(this.cityBuildingLevels()),
-            icon: '▥',
-          },
-          {
-            labelKey: 'plannerV2.bottom.activeModifiers',
-            fallback: 'Active Modifiers',
-            value: String(this.activeModifierCount()),
-            icon: '✦',
-          },
-        ]
-      : [
-          {
-            labelKey: 'plannerV2.bottom.totalUnits',
-            fallback: 'Total Units',
-            value: formatNumber(this.troopTotals().totalUnits),
-            icon: '⚔',
-          },
-          {
-            labelKey: 'plannerV2.bottom.usedPopulation',
-            fallback: 'Used Population',
-            value: formatNumber(this.troopTotals().usedPopulation),
-            icon: '♟',
-          },
-          {
-            labelKey: 'plannerV2.bottom.totalAttack',
-            fallback: 'Total Attack',
-            value: formatNumber(this.troopTotals().totalAttack),
-            icon: '⚔',
-          },
-          {
-            labelKey: 'plannerV2.bottom.totalDefense',
-            fallback: 'Total Defense',
-            value: formatNumber(this.troopTotals().totalDefense),
-            icon: '◈',
-          },
-          {
-            labelKey: 'plannerV2.bottom.carryingCapacity',
-            fallback: 'Carrying Capacity',
-            value: formatNumber(this.troopTotals().transportCapacity),
-            icon: '⚓',
-          },
-          {
-            labelKey: 'plannerV2.bottom.transportSpace',
-            fallback: 'Transport Space',
-            value: formatNumber(this.troopTotals().transportSpace),
-            icon: '▣',
-          },
-        ],
-  );
+  protected readonly troopTransportStats = computed<SidebarTroopTransportStats>(() => {
+    const summary = this.troopSummary();
+
+    return {
+      transportCapacity: summary.transportCapacity,
+      transportSpace: summary.transportSpace,
+      transportBalance: summary.transportBalance,
+      transportUsagePercent: summary.transportUsagePercent,
+      bunksBonus: summary.bunksBonus,
+    };
+  });
+  protected readonly usedUnitCount = computed(() => this.troopSummary().usedUnitTypes);
+  protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => {
+    const citySummary = this.citySummary();
+    const troopSummary = this.troopSummary();
+
+    return {
+      activePlanName: this.activePlan().name,
+      populationCapacity: citySummary.populationCapacity,
+      usedPopulation: citySummary.usedPopulation,
+      troopPopulation: troopSummary.usedPopulation,
+      freePopulation: citySummary.freePopulation,
+      freePopulationAfterTroops: citySummary.freePopulation - troopSummary.usedPopulation,
+      freeBhp: citySummary.freeBhp,
+      usedBuildingLevels: citySummary.buildingLevels,
+      activeBuildingCount: citySummary.activeBuildingCount,
+      activeModifierCount: citySummary.activeModifierCount,
+      selectedSpecialBuildingCount: citySummary.selectedSpecialBuildingCount,
+    };
+  });
+  protected readonly bottomSummaryStats = computed<readonly BottomSummaryStat[]>(() => {
+    if (this.activeMode() === 'city') {
+      const summary = this.citySummary();
+
+      return [
+        {
+          labelKey: 'plannerV2.bottom.totalPopulation',
+          fallback: 'Total Population',
+          value: formatNumber(summary.populationCapacity),
+          icon: '♟',
+        },
+        {
+          labelKey: 'plannerV2.bottom.usedPopulation',
+          fallback: 'Used Population',
+          value: formatNumber(summary.usedPopulation),
+          icon: '◉',
+        },
+        {
+          labelKey: 'plannerV2.bottom.freeBhp',
+          fallback: 'Free BHP',
+          value: formatNumber(summary.freeBhp),
+          icon: '◇',
+        },
+        {
+          labelKey: 'plannerV2.bottom.buildingLevels',
+          fallback: 'Building Levels',
+          value: formatNumber(summary.buildingLevels),
+          icon: '▥',
+        },
+        {
+          labelKey: 'plannerV2.bottom.activeModifiers',
+          fallback: 'Active Modifiers',
+          value: String(summary.activeModifierCount),
+          icon: '✦',
+        },
+      ];
+    }
+
+    const summary = this.troopSummary();
+
+    return [
+      {
+        labelKey: 'plannerV2.bottom.totalUnits',
+        fallback: 'Total Units',
+        value: formatNumber(summary.totalUnits),
+        icon: '⚔',
+      },
+      {
+        labelKey: 'plannerV2.bottom.usedPopulation',
+        fallback: 'Used Population',
+        value: formatNumber(summary.usedPopulation),
+        icon: '♟',
+      },
+      {
+        labelKey: 'plannerV2.bottom.totalAttack',
+        fallback: 'Total Attack',
+        value: formatNumber(summary.totalAttack),
+        icon: '⚔',
+      },
+      {
+        labelKey: 'plannerV2.bottom.totalDefense',
+        fallback: 'Total Defense',
+        value: formatNumber(summary.totalDefense),
+        icon: '◈',
+      },
+      {
+        labelKey: 'plannerV2.bottom.carryingCapacity',
+        fallback: 'Carrying Capacity',
+        value: formatNumber(summary.transportCapacity),
+        icon: '⚓',
+      },
+      {
+        labelKey: 'plannerV2.bottom.transportSpace',
+        fallback: 'Transport Space',
+        value: formatNumber(summary.transportSpace),
+        icon: '▣',
+      },
+    ];
+  });
 
   protected selectMode(mode: PlannerMode): void {
     this.activeMode.set(mode);
@@ -730,55 +811,61 @@ export class PlannerV2 {
   }
 
   protected updateUnitAmount(unitId: string, amount: number): void {
-    const troopPlan = this.activePlan().troopPlan;
-
-    this.planConfigService.updateActiveTroopPlan({
+    this.updateTroopPlan((troopPlan) => ({
       unitAmounts: {
         ...troopPlan.unitAmounts,
-        [unitId]: amount,
+        [unitId]: normalizeNonNegativeInteger(amount),
       },
-    });
+    }));
   }
 
   protected updateBuildingLevel(buildingId: string, level: number): void {
-    const cityPlan = this.activePlan().cityPlan;
-
-    this.planConfigService.updateActiveCityPlan({
+    this.updateCityPlan((cityPlan) => ({
       buildingLevels: {
         ...cityPlan.buildingLevels,
-        [buildingId]: level,
+        [buildingId]: clampBuildingLevel(buildingId, level),
       },
-    });
+    }));
   }
 
   protected toggleCityModifier(modifierId: CityModifierToggleId): void {
-    const cityPlan = this.activePlan().cityPlan;
-
     if (modifierId === 'landExpansion') {
       this.updateBuildingLevel(
         'land_expansion',
-        (cityPlan.buildingLevels['land_expansion'] ?? 0) > 0 ? 0 : 6,
+        (this.buildingLevels()['land_expansion'] ?? 0) > 0
+          ? 0
+          : getBuildingMaxLevel('land_expansion'),
       );
       return;
     }
 
-    this.planConfigService.updateActiveCityPlan({
+    this.updateCityPlan((cityPlan) => ({
       modifiers: {
         ...cityPlan.modifiers,
         [modifierId]: !cityPlan.modifiers[modifierId],
       },
-    });
+    }));
   }
 
   protected selectSpecialBuilding(slotId: string, optionId: string): void {
-    const cityPlan = this.activePlan().cityPlan;
-
-    this.planConfigService.updateActiveCityPlan({
+    this.updateCityPlan((cityPlan) => ({
       specialBuildings: {
         ...cityPlan.specialBuildings,
         [slotId as CitySpecialBuildingSlotId]: optionId as CitySpecialBuildingOptionId,
       },
-    });
+    }));
+  }
+
+  private updateCityPlan(
+    createPartialCityPlan: (cityPlan: CityConfiguration) => Partial<CityConfiguration>,
+  ): void {
+    this.planConfigService.updateActiveCityPlan(createPartialCityPlan(this.activeCityPlan()));
+  }
+
+  private updateTroopPlan(
+    createPartialTroopPlan: (troopPlan: TroopConfiguration) => Partial<TroopConfiguration>,
+  ): void {
+    this.planConfigService.updateActiveTroopPlan(createPartialTroopPlan(this.activeTroopPlan()));
   }
 
   private createSpecialBuildingOption(
