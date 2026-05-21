@@ -633,5 +633,8 @@
   "planConfig.noteDialog.placeholder": "Esempio: città portuale per navi di supporto rapide.",
   "planConfig.noteDialog.counter": "{count}/{max} caratteri",
   "planConfig.noteDialog.cancel": "Annulla",
-  "planConfig.noteDialog.confirm": "Salva nota"
+  "planConfig.noteDialog.confirm": "Salva nota",
+  "plannerV2.title": "Area di lavoro Planner V2",
+  "plannerV2.planStatus": "Piani disponibili: {count}. Piano attivo: {name}.",
+  "plannerV2.coreStatus": "Il nucleo riutilizzabile è collegato: {buildings} voci edificio e {units} voci unità utilizzate."
 }

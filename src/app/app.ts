@@ -1,13 +1,10 @@
-import { Component, signal } from '@angular/core';
-
-import { AppShell } from './layout/app-shell/app-shell';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [AppShell],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('grepo-hub');
-}
+export class App {}

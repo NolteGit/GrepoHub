@@ -633,5 +633,8 @@
   "planConfig.noteDialog.placeholder": "Example: Harbor city for fast support ships.",
   "planConfig.noteDialog.counter": "{count}/{max} characters",
   "planConfig.noteDialog.cancel": "Cancel",
-  "planConfig.noteDialog.confirm": "Save note"
+  "planConfig.noteDialog.confirm": "Save note",
+  "plannerV2.title": "Planner V2 Workspace",
+  "plannerV2.planStatus": "Plans available: {count}. Active plan: {name}.",
+  "plannerV2.coreStatus": "Reusable core is connected: {buildings} building entries and {units} used unit entries."
 }

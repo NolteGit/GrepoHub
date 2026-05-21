@@ -1,0 +1,19 @@
+<main>
+  <h1>{{ 'plannerV2.title' | translate }}</h1>
+  <p>
+    {{
+      'plannerV2.planStatus'
+        | translate
+          : 'Plans available: {count}. Active plan: {name}.'
+          : { count: plans().length, name: activePlan().name }
+    }}
+  </p>
+  <p>
+    {{
+      'plannerV2.coreStatus'
+        | translate
+          : 'Reusable core is connected: {buildings} building entries and {units} used unit entries.'
+          : { buildings: buildingCount(), units: usedUnitCount() }
+    }}
+  </p>
+</main>

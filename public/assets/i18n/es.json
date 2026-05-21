@@ -633,5 +633,8 @@
   "planConfig.noteDialog.counter": "{count}/{max} caracteres",
   "planConfig.noteDialog.cancel": "Cancelar",
   "planConfig.noteDialog.confirm": "Guardar nota",
-  "planConfig.deleteDialog.lastPlanDetail": "Se requiere al menos un plan. Crea o importa otro plan antes de eliminar este."
+  "planConfig.deleteDialog.lastPlanDetail": "Se requiere al menos un plan. Crea o importa otro plan antes de eliminar este.",
+  "plannerV2.title": "Espacio de trabajo Planner V2",
+  "plannerV2.planStatus": "Planes disponibles: {count}. Plan activo: {name}.",
+  "plannerV2.coreStatus": "El núcleo reutilizable está conectado: {buildings} entradas de edificios y {units} entradas de unidades usadas."
 }

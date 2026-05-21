@@ -633,5 +633,8 @@
     "planConfig.noteDialog.placeholder": "Voorbeeld: havenstad voor snelle ondersteuningsschepen.",
     "planConfig.noteDialog.counter": "{count}/{max} tekens",
     "planConfig.noteDialog.cancel": "Annuleren",
-    "planConfig.noteDialog.confirm": "Notitie opslaan"
+    "planConfig.noteDialog.confirm": "Notitie opslaan",
+    "plannerV2.title": "Planner V2 Werkruimte",
+    "plannerV2.planStatus": "Beschikbare plannen: {count}. Actief plan: {name}.",
+    "plannerV2.coreStatus": "De herbruikbare kern is verbonden: {buildings} gebouwvermeldingen en {units} gebruikte eenheidsvermeldingen."
 }

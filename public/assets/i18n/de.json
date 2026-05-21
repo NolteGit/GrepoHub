@@ -633,5 +633,8 @@
   "planConfig.noteDialog.placeholder": "Beispiel: Hafenstadt für schnelle Unterstützungsschiffe.",
   "planConfig.noteDialog.counter": "{count}/{max} Zeichen",
   "planConfig.noteDialog.cancel": "Abbrechen",
-  "planConfig.noteDialog.confirm": "Notiz speichern"
+  "planConfig.noteDialog.confirm": "Notiz speichern",
+  "plannerV2.title": "Planner V2 Arbeitsbereich",
+  "plannerV2.planStatus": "Verfügbare Pläne: {count}. Aktiver Plan: {name}.",
+  "plannerV2.coreStatus": "Der wiederverwendbare Kern ist verbunden: {buildings} Gebäudeeinträge und {units} genutzte Einheiteneinträge."
 }
