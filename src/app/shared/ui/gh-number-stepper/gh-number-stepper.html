@@ -1,0 +1,36 @@
+<div class="flex min-w-0 items-center gap-1">
+  <button
+    class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+    type="button"
+    (click)="decrease()"
+  >
+    −
+  </button>
+  <strong class="min-w-7 text-center text-sm text-[var(--gh-text)]">{{ displayValue() }}</strong>
+  <button
+    class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+    type="button"
+    (click)="increase()"
+  >
+    +
+  </button>
+
+  @if (showMinMax()) {
+    <button
+      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)] disabled:cursor-not-allowed disabled:opacity-40"
+      type="button"
+      [disabled]="min() === null"
+      (click)="setMinimum()"
+    >
+      {{ 'plannerV2.min' | translate: 'MIN' }}
+    </button>
+    <button
+      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)] disabled:cursor-not-allowed disabled:opacity-40"
+      type="button"
+      [disabled]="max() === null"
+      (click)="setMaximum()"
+    >
+      {{ 'plannerV2.max' | translate: 'MAX' }}
+    </button>
+  }
+</div>

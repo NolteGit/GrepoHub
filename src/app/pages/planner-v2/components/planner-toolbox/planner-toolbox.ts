@@ -1,6 +1,9 @@
 import { Component, computed, OnDestroy, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { GhButton } from '../../../../shared/ui/gh-button/gh-button';
+import { GhIconButton } from '../../../../shared/ui/gh-icon-button/gh-icon-button';
+import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
 
 type ToolboxButton = {
   readonly labelKey: string;
@@ -16,7 +19,7 @@ type ToolboxQueueItem = {
 
 @Component({
   selector: 'app-planner-toolbox',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, GhButton, GhIconButton, GhPanel],
   templateUrl: './planner-toolbox.html',
 })
 export class PlannerToolbox implements OnDestroy {

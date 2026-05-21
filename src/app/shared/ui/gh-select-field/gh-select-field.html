@@ -1,0 +1,22 @@
+<label class="grid min-w-0 gap-1">
+  @if (labelKey(); as key) {
+    <span class="text-xs text-[var(--gh-text)]">{{ key | translate: labelFallback() }}</span>
+  }
+
+  <select
+    [class]="selectClasses()"
+    [value]="value()"
+    [attr.aria-label]="ariaLabel()"
+    (change)="selectValue($event)"
+  >
+    @for (option of options(); track option.value) {
+      <option [value]="option.value">
+        @if (option.labelKey) {
+          {{ option.labelKey | translate: option.fallback ?? option.label ?? option.value }}
+        } @else {
+          {{ option.label ?? option.value }}
+        }
+      </option>
+    }
+  </select>
+</label>

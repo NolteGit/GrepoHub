@@ -1,7 +1,12 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
 import { PlanConfig } from '../../../../models/plan-config.model';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { GhButton } from '../../../../shared/ui/gh-button/gh-button';
+import {
+  GhSelectField,
+  type GhSelectOption,
+} from '../../../../shared/ui/gh-select-field/gh-select-field';
 
 type HeaderAction = {
   readonly labelKey: string;
@@ -12,7 +17,7 @@ type HeaderAction = {
 
 @Component({
   selector: 'app-planner-header',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, GhButton, GhSelectField],
   templateUrl: './planner-header.html',
 })
 export class PlannerHeader {
@@ -26,6 +31,9 @@ export class PlannerHeader {
     'Plan your city and troops together. Optimize for power, efficiency, and victory.';
   protected readonly planLabelKey = 'plannerV2.header.planLabel';
   protected readonly planLabelFallback = 'Plan';
+  protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>
+    this.plans().map((plan) => ({ value: plan.id, label: plan.name })),
+  );
   protected readonly actions: readonly HeaderAction[] = [
     {
       labelKey: 'plannerV2.header.newPlan',
@@ -36,8 +44,4 @@ export class PlannerHeader {
     { labelKey: 'plannerV2.header.export', fallback: 'Export', icon: '⇩' },
     { labelKey: 'plannerV2.header.more', fallback: 'More', icon: '⌄' },
   ];
-
-  protected selectPlan(event: Event): void {
-    this.planSelected.emit((event.target as HTMLSelectElement).value);
-  }
 }

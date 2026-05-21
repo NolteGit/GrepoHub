@@ -1,0 +1,23 @@
+<article
+  class="gh-panel grid min-h-[9.4rem] grid-cols-[4.4rem_minmax(0,1fr)] grid-rows-[minmax(6.35rem,auto)_auto] gap-2 rounded-md p-3"
+>
+  <div
+    class="gh-icon-box grid aspect-square w-16 place-items-center rounded-md text-2xl"
+    aria-hidden="true"
+  >
+    {{ icon() }}
+  </div>
+
+  <div class="grid min-w-0 content-start gap-2">
+    <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
+      {{ labelKey() | translate: fallback() }}
+    </h2>
+    <ng-content select="[ghTileControls]" />
+  </div>
+
+  <footer
+    class="col-span-full border-t border-[var(--gh-border-soft)] pt-2 text-xs text-[var(--gh-muted)]"
+  >
+    <ng-content select="[ghTileFooter]" />
+  </footer>
+</article>

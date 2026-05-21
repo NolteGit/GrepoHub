@@ -40,18 +40,17 @@
     }
   </section>
 
-  <section class="gh-panel grid content-start gap-3 rounded-md p-3 max-[76rem]:hidden">
+  <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
     <header class="flex items-center justify-between gap-3">
       <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
         {{ queueTitleKey | translate: queueTitleFallback }}
       </h2>
-      <button
-        class="gh-button grid aspect-square w-7 cursor-pointer place-items-center rounded-md text-[var(--gh-gold)]"
-        type="button"
-        [attr.aria-label]="addReminderLabelKey | translate: addReminderLabelFallback"
-      >
-        +
-      </button>
+      <app-gh-icon-button
+        size="sm"
+        variant="primary"
+        icon="+"
+        [ariaLabel]="addReminderLabelKey | translate: addReminderLabelFallback"
+      />
     </header>
     <div class="grid gap-2">
       @for (item of queueItems; track item.labelKey) {
@@ -65,9 +64,9 @@
         </div>
       }
     </div>
-  </section>
+  </app-gh-panel>
 
-  <section class="gh-panel grid content-start gap-3 rounded-md p-3 max-[76rem]:hidden">
+  <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
     <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
       {{ calculatorTitleKey | translate: calculatorTitleFallback }}
     </h2>
@@ -78,24 +77,18 @@
     </div>
     <div class="grid grid-cols-4 gap-1">
       @for (key of calculatorKeys; track key) {
-        <button
-          class="gh-button min-h-8 cursor-pointer rounded-md"
-          [class.gh-gold-fill]="$last"
-          type="button"
-        >
+        <app-gh-button size="sm" [variant]="$last ? 'gold' : 'default'" [wide]="true">
           {{ key }}
-        </button>
+        </app-gh-button>
       }
     </div>
-  </section>
+  </app-gh-panel>
 
   <footer
     class="grid grid-cols-2 gap-2 border-t border-[var(--gh-border-soft)] pt-3 max-[76rem]:hidden"
   >
     @for (link of footerLinks; track link.labelKey) {
-      <button class="gh-button min-h-10 cursor-pointer rounded-md text-sm" type="button">
-        {{ link.labelKey | translate: link.fallback }}
-      </button>
+      <app-gh-button [wide]="true">{{ link.labelKey | translate: link.fallback }}</app-gh-button>
     }
   </footer>
 </aside>

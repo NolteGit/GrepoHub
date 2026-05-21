@@ -89,59 +89,28 @@
             "
           >
             @for (building of buildingPlaceholders; track building.labelKey) {
-              <article
-                class="gh-panel grid min-h-[9.4rem] grid-cols-[4.4rem_minmax(0,1fr)] grid-rows-[minmax(6.35rem,auto)_auto] gap-2 rounded-md p-3"
+              <app-gh-tile-shell
+                [icon]="building.icon"
+                [labelKey]="building.labelKey"
+                [fallback]="building.fallback"
               >
-                <div
-                  class="gh-icon-box grid aspect-square w-16 place-items-center rounded-md text-2xl"
-                  aria-hidden="true"
-                >
-                  {{ building.icon }}
-                </div>
-                <div class="grid min-w-0 content-start gap-2">
-                  <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
-                    {{ building.labelKey | translate: building.fallback }}
-                  </h2>
+                <div ghTileControls class="grid min-w-0 gap-2">
                   <span class="text-xs text-[var(--gh-muted)]">{{
                     'plannerV2.level' | translate: 'Level'
                   }}</span>
-                  <div class="flex min-w-0 items-center gap-1">
-                    <button
-                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-                      type="button"
-                    >
-                      −
-                    </button>
-                    <strong class="min-w-7 text-center text-sm text-[var(--gh-text)]">{{
-                      building.level
-                    }}</strong>
-                    <button
-                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-                      type="button"
-                    >
-                      +
-                    </button>
-                    <button
-                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-                      type="button"
-                    >
-                      {{ 'plannerV2.min' | translate: 'MIN' }}
-                    </button>
-                    <button
-                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-                      type="button"
-                    >
-                      {{ 'plannerV2.max' | translate: 'MAX' }}
-                    </button>
-                  </div>
+                  <app-gh-number-stepper
+                    [value]="building.level"
+                    [min]="0"
+                    [max]="40"
+                    [showMinMax]="true"
+                  />
                 </div>
-                <footer
-                  class="col-span-full border-t border-[var(--gh-border-soft)] pt-2 text-xs text-[var(--gh-muted)]"
-                >
+
+                <span ghTileFooter>
                   {{ building.statLabelKey | translate: building.statFallback }}
                   {{ building.statValue }}
-                </footer>
-              </article>
+                </span>
+              </app-gh-tile-shell>
             }
           </section>
 
@@ -153,14 +122,12 @@
             "
           >
             @for (slot of specialSlots; track slot.labelKey) {
-              <article class="gh-panel grid gap-2 rounded-md p-3">
+              <app-gh-panel class="grid gap-2" padding="sm">
                 <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
                   ★ {{ slot.labelKey | translate: slot.fallback }}
                 </h2>
-                <select class="gh-control min-h-9 rounded-md px-3">
-                  <option>{{ 'plannerV2.none' | translate: 'None' }}</option>
-                </select>
-              </article>
+                <app-gh-select-field [value]="'none'" [options]="noneOptions" size="sm" />
+              </app-gh-panel>
             }
           </section>
         } @else {
@@ -253,45 +220,21 @@
             "
           >
             @for (unit of unitPlaceholders; track unit.labelKey) {
-              <article
-                class="gh-panel grid min-h-[9.4rem] grid-cols-[4.4rem_minmax(0,1fr)] grid-rows-[minmax(6.35rem,auto)_auto] gap-2 rounded-md p-3"
+              <app-gh-tile-shell
+                [icon]="unit.icon"
+                [labelKey]="unit.labelKey"
+                [fallback]="unit.fallback"
               >
-                <div
-                  class="gh-icon-box grid aspect-square w-16 place-items-center rounded-md text-2xl"
-                  aria-hidden="true"
-                >
-                  {{ unit.icon }}
+                <div ghTileControls class="mt-1">
+                  <app-gh-number-stepper [value]="unit.amount" />
                 </div>
-                <div class="grid min-w-0 content-start gap-2">
-                  <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
-                    {{ unit.labelKey | translate: unit.fallback }}
-                  </h2>
-                  <div class="mt-1 flex min-w-0 items-center gap-1">
-                    <button
-                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-                      type="button"
-                    >
-                      −
-                    </button>
-                    <strong class="min-w-10 text-center text-sm text-[var(--gh-text)]">{{
-                      unit.amount
-                    }}</strong>
-                    <button
-                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-                      type="button"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-                <footer
-                  class="col-span-full border-t border-[var(--gh-border-soft)] pt-2 text-xs text-[var(--gh-muted)]"
-                >
+
+                <span ghTileFooter>
                   {{ unit.attack }} {{ 'plannerV2.stat.attackShort' | translate: 'attack' }} ·
                   {{ unit.population }} {{ 'plannerV2.stat.populationShort' | translate: 'pop' }} ·
                   {{ unit.time }}
-                </footer>
-              </article>
+                </span>
+              </app-gh-tile-shell>
             }
           </section>
         }
@@ -301,19 +244,13 @@
         class="gh-panel grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-0 border-x-0 border-b-0 p-3"
       >
         @for (stat of bottomSummaryStats(); track stat.labelKey) {
-          <article
-            class="gh-divider-right flex min-w-0 items-center justify-center gap-3 px-3 py-1 max-[58rem]:border-r-0 max-[58rem]:border-b"
-          >
-            <span class="text-lg text-[var(--gh-muted)]">{{ stat.icon }}</span>
-            <div class="min-w-0">
-              <p class="m-0 text-sm text-[var(--gh-text)]">
-                {{ stat.labelKey | translate: stat.fallback }}
-              </p>
-              <strong class="mt-1 block truncate text-lg font-bold text-[var(--gh-gold)]">{{
-                stat.value
-              }}</strong>
-            </div>
-          </article>
+          <app-gh-stat-row
+            class="gh-divider-right px-3 py-1 max-[58rem]:border-r-0 max-[58rem]:border-b"
+            [labelKey]="stat.labelKey"
+            [fallback]="stat.fallback"
+            [value]="stat.value"
+            [icon]="stat.icon"
+          />
         }
       </section>
     </section>

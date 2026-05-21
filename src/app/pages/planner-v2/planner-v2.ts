@@ -1,6 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { GhNumberStepper } from '../../shared/ui/gh-number-stepper/gh-number-stepper';
+import { GhPanel } from '../../shared/ui/gh-panel/gh-panel';
+import {
+  GhSelectField,
+  type GhSelectOption,
+} from '../../shared/ui/gh-select-field/gh-select-field';
+import { GhStatRow } from '../../shared/ui/gh-stat-row/gh-stat-row';
+import { GhTileShell } from '../../shared/ui/gh-tile-shell/gh-tile-shell';
 import { PlanConfigService } from '../../services/plan-config.service';
 
 import { PlannerHeader } from './components/planner-header/planner-header';
@@ -329,9 +337,24 @@ const specialSlots: readonly TranslatableText[] = [
   { labelKey: 'plannerV2.specialBuilding2', fallback: 'Special Building 2' },
 ];
 
+const noneOptions: readonly GhSelectOption[] = [
+  { value: 'none', labelKey: 'plannerV2.none', fallback: 'None' },
+];
+
 @Component({
   selector: 'app-planner-v2',
-  imports: [TranslatePipe, PlannerToolbox, PlannerHeader, PlannerModeSwitch, PlannerSummarySidebar],
+  imports: [
+    TranslatePipe,
+    GhNumberStepper,
+    GhPanel,
+    GhSelectField,
+    GhStatRow,
+    GhTileShell,
+    PlannerToolbox,
+    PlannerHeader,
+    PlannerModeSwitch,
+    PlannerSummarySidebar,
+  ],
   templateUrl: './planner-v2.html',
 })
 export class PlannerV2 {
@@ -350,6 +373,7 @@ export class PlannerV2 {
   protected readonly cityModifiers = cityModifiers;
   protected readonly gods = gods;
   protected readonly specialSlots = specialSlots;
+  protected readonly noneOptions = noneOptions;
   protected readonly buildingCount = computed(
     () => Object.keys(this.activePlan().cityPlan.buildingLevels).length,
   );

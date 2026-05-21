@@ -1,46 +1,40 @@
 <aside
   class="gh-scroll-area grid h-full min-h-0 content-start gap-3 overflow-auto border-l border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.74)] p-3"
 >
-  <section class="gh-panel gh-panel-primary grid gap-4 rounded-xl p-4">
+  <app-gh-panel class="grid gap-4" variant="primary">
     <header class="flex items-center justify-between gap-3">
       <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
         {{ populationTitleKey | translate: populationTitleFallback }}
       </h2>
-      <button
-        class="grid aspect-square w-6 cursor-pointer place-items-center rounded-full border border-[var(--gh-border-soft)] bg-transparent text-xs text-[var(--gh-text)]"
-        type="button"
-        [attr.aria-label]="infoLabelKey | translate: infoLabelFallback"
-      >
-        <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
-      </button>
+      <app-gh-icon-button
+        size="sm"
+        [icon]="'plannerV2.infoGlyph' | translate: 'i'"
+        [ariaLabel]="infoLabelKey | translate: infoLabelFallback"
+      />
     </header>
 
     <div class="grid gap-4">
       @for (stat of populationStats(); track stat.labelKey) {
-        <div
-          class="flex items-center justify-between gap-4 border-b border-[rgba(212,160,55,0.22)] pb-4 last:border-b-0 last:pb-0"
-        >
-          <span class="text-sm text-[var(--gh-text)]">{{
-            stat.labelKey | translate: stat.fallback
-          }}</span>
-          <strong class="text-right text-sm text-[var(--gh-gold)]">{{ stat.value }}</strong>
-        </div>
+        <app-gh-stat-row
+          class="border-b border-[rgba(212,160,55,0.22)] pb-4 last:border-b-0 last:pb-0"
+          [labelKey]="stat.labelKey"
+          [fallback]="stat.fallback"
+          [value]="stat.value"
+        />
       }
     </div>
-  </section>
+  </app-gh-panel>
 
-  <section class="gh-panel grid gap-4 rounded-xl p-4">
+  <app-gh-panel class="grid gap-4">
     <header class="flex items-center justify-between gap-3">
       <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
         {{ contextTitle().labelKey | translate: contextTitle().fallback }}
       </h2>
-      <button
-        class="grid aspect-square w-6 cursor-pointer place-items-center rounded-full border border-[var(--gh-border-soft)] bg-transparent text-xs text-[var(--gh-text)]"
-        type="button"
-        [attr.aria-label]="infoLabelKey | translate: infoLabelFallback"
-      >
-        <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
-      </button>
+      <app-gh-icon-button
+        size="sm"
+        [icon]="'plannerV2.infoGlyph' | translate: 'i'"
+        [ariaLabel]="infoLabelKey | translate: infoLabelFallback"
+      />
     </header>
 
     @if (activeMode() === 'city') {
@@ -71,5 +65,5 @@
         <small class="text-center text-base text-[var(--gh-text)]">46%</small>
       </div>
     }
-  </section>
+  </app-gh-panel>
 </aside>

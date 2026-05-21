@@ -15,30 +15,24 @@
   <div
     class="grid items-end gap-3 min-[48rem]:grid-cols-[minmax(12rem,1fr)_repeat(3,auto)] min-[74rem]:grid-cols-[minmax(13rem,18rem)_repeat(3,auto)]"
   >
-    <label class="grid min-w-0 gap-1">
-      <span class="text-xs text-[var(--gh-text)]">{{
-        planLabelKey | translate: planLabelFallback
-      }}</span>
-      <select
-        class="gh-control min-h-11 w-full rounded-md px-3"
-        [value]="activePlanId()"
-        (change)="selectPlan($event)"
-      >
-        @for (plan of plans(); track plan.id) {
-          <option [value]="plan.id">{{ plan.name }}</option>
-        }
-      </select>
-    </label>
+    <app-gh-select-field
+      [labelKey]="planLabelKey"
+      [labelFallback]="planLabelFallback"
+      [value]="activePlanId()"
+      [options]="planOptions()"
+      size="lg"
+      (valueChange)="planSelected.emit($event)"
+    />
 
     @for (action of actions; track action.labelKey) {
-      <button
-        type="button"
-        class="gh-button inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-4 font-bold max-[48rem]:w-full"
-        [class.gh-button-primary]="action.variant === 'primary'"
+      <app-gh-button
+        size="lg"
+        [variant]="action.variant === 'primary' ? 'primary' : 'default'"
+        [wide]="true"
       >
         <span class="text-base leading-none text-[var(--gh-gold)]">{{ action.icon }}</span>
         {{ action.labelKey | translate: action.fallback }}
-      </button>
+      </app-gh-button>
     }
   </div>
 </header>

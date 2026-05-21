@@ -1,6 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { GhIconButton } from '../../../../shared/ui/gh-icon-button/gh-icon-button';
+import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
+import { GhStatRow } from '../../../../shared/ui/gh-stat-row/gh-stat-row';
 
 import { PlannerMode } from '../planner-mode-switch/planner-mode-switch';
 
@@ -19,7 +22,7 @@ type PreviewStat = TranslatableText & {
 
 @Component({
   selector: 'app-planner-summary-sidebar',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, GhIconButton, GhPanel, GhStatRow],
   templateUrl: './planner-summary-sidebar.html',
 })
 export class PlannerSummarySidebar {

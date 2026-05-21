@@ -69,3 +69,19 @@ Avoid repeated raw colors:
 ```
 
 Avoid creating new SCSS files for simple layout-only rules.
+
+## Shared UI Primitives
+
+Planner V2 uses small Angular components for repeated visual patterns instead of repeating long Tailwind class strings in every template.
+
+Current primitives:
+
+- `app-gh-panel` for summary boxes, toolbox sections, and special configuration panels.
+- `app-gh-button` for regular action buttons.
+- `app-gh-icon-button` for compact square icon actions.
+- `app-gh-select-field` for styled select controls with translation-aware options.
+- `app-gh-stat-row` for label/value rows in summaries.
+- `app-gh-tile-shell` for the shared building/unit tile frame.
+- `app-gh-number-stepper` for compact minus/value/plus controls.
+
+Use direct Tailwind utilities for one-off layout. Use these primitives when a visual pattern appears more than once or is expected to be shared by city setup, troop setup, toolbox, and summaries.
