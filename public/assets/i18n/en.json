@@ -640,6 +640,8 @@
   "plannerV2.infoGlyph": "i",
   "plannerV2.citySetupPlaceholderLabel": "City setup placeholder",
   "plannerV2.specialBuildingPlaceholderLabel": "Special building placeholders",
+  "plannerV2.citySetupContextLabel": "City setup context",
+  "plannerV2.cityModifierLabel": "City modifiers",
   "plannerV2.troopCategoryLabel": "Troop category",
   "plannerV2.troopSetupContextLabel": "Troop setup context",
   "plannerV2.troopSetupPlaceholderLabel": "Troop setup placeholder",

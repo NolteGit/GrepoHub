@@ -640,6 +640,8 @@
     "plannerV2.infoGlyph": "i",
     "plannerV2.citySetupPlaceholderLabel": "Plaatshouder voor stadsconfiguratie",
     "plannerV2.specialBuildingPlaceholderLabel": "Plaatshouders voor speciale gebouwen",
+    "plannerV2.citySetupContextLabel": "Context voor stadsconfiguratie",
+    "plannerV2.cityModifierLabel": "Stadsmodificatoren",
     "plannerV2.troopCategoryLabel": "Troepencategorie",
     "plannerV2.troopSetupContextLabel": "Context voor troepenconfiguratie",
     "plannerV2.troopSetupPlaceholderLabel": "Plaatshouder voor troepenconfiguratie",

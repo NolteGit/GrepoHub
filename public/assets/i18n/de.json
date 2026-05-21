@@ -640,6 +640,8 @@
   "plannerV2.infoGlyph": "i",
   "plannerV2.citySetupPlaceholderLabel": "Stadt-Setup-Platzhalter",
   "plannerV2.specialBuildingPlaceholderLabel": "Sondergebäude-Platzhalter",
+  "plannerV2.citySetupContextLabel": "Stadt-Setup-Kontext",
+  "plannerV2.cityModifierLabel": "Stadtmodifikatoren",
   "plannerV2.troopCategoryLabel": "Truppenkategorie",
   "plannerV2.troopSetupContextLabel": "Truppen-Setup-Kontext",
   "plannerV2.troopSetupPlaceholderLabel": "Truppen-Setup-Platzhalter",

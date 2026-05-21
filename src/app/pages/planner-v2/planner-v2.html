@@ -17,6 +17,48 @@
       <section class="planner-content-frame">
         @if (activeMode() === 'city') {
           <section
+            class="planner-setup-bar planner-setup-bar--city"
+            [attr.aria-label]="'plannerV2.citySetupContextLabel' | translate: 'City setup context'"
+          >
+            <div class="planner-context-stack planner-context-stack--left">
+              @for (item of cityContextLeft; track item.label) {
+                <article class="planner-compact-context" [attr.title]="item.label">
+                  <span aria-hidden="true">{{ item.icon }}</span>
+                  <strong>{{ item.value }}</strong>
+                </article>
+              }
+            </div>
+
+            <nav
+              class="planner-modifier-tabs"
+              [attr.aria-label]="'plannerV2.cityModifierLabel' | translate: 'City modifiers'"
+            >
+              @for (modifier of cityModifiers; track modifier.label) {
+                <button
+                  type="button"
+                  [class.planner-modifier-tabs__button--active]="modifier.active"
+                  [attr.aria-pressed]="modifier.active"
+                >
+                  <span aria-hidden="true">{{ modifier.icon }}</span>
+                  <strong class="planner-modifier-tabs__label">{{ modifier.label }}</strong>
+                  <strong class="planner-modifier-tabs__label-short">{{
+                    modifier.shortLabel
+                  }}</strong>
+                </button>
+              }
+            </nav>
+
+            <div class="planner-context-stack planner-context-stack--right">
+              @for (item of cityContextRight; track item.label) {
+                <article class="planner-compact-context" [attr.title]="item.label">
+                  <span aria-hidden="true">{{ item.icon }}</span>
+                  <strong>{{ item.value }}</strong>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section
             class="planner-city-grid"
             [attr.aria-label]="
               'plannerV2.citySetupPlaceholderLabel' | translate: 'City setup placeholder'
@@ -59,7 +101,7 @@
           </section>
         } @else {
           <section
-            class="planner-troop-setup-bar"
+            class="planner-setup-bar planner-setup-bar--troop"
             [attr.aria-label]="
               'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'
             "

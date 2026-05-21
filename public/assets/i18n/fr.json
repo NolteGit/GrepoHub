@@ -640,6 +640,8 @@
   "plannerV2.infoGlyph": "i",
   "plannerV2.citySetupPlaceholderLabel": "Emplacement de configuration de ville",
   "plannerV2.specialBuildingPlaceholderLabel": "Emplacements de bâtiments spéciaux",
+  "plannerV2.citySetupContextLabel": "Contexte de configuration de ville",
+  "plannerV2.cityModifierLabel": "Modificateurs de ville",
   "plannerV2.troopCategoryLabel": "Catégorie de troupes",
   "plannerV2.troopSetupContextLabel": "Contexte de configuration des troupes",
   "plannerV2.troopSetupPlaceholderLabel": "Emplacement de configuration des troupes",

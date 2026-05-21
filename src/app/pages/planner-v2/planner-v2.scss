@@ -186,7 +186,7 @@
   color: var(--gh-text);
 }
 
-.planner-troop-setup-bar {
+.planner-setup-bar {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: stretch;
@@ -253,13 +253,15 @@
   font-weight: 700;
 }
 
-.planner-category-tabs {
+.planner-category-tabs,
+.planner-modifier-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
 }
 
-.planner-category-tabs button {
+.planner-category-tabs button,
+.planner-modifier-tabs button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -274,34 +276,41 @@
   font-weight: 700;
 }
 
-.planner-category-tabs button span {
+.planner-category-tabs button span,
+.planner-modifier-tabs button span {
   color: currentColor;
   font-size: 1rem;
   line-height: 1;
 }
 
 .planner-category-tabs__label,
-.planner-category-tabs__label-short {
+.planner-category-tabs__label-short,
+.planner-modifier-tabs__label,
+.planner-modifier-tabs__label-short {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.planner-category-tabs__label-short {
+.planner-category-tabs__label-short,
+.planner-modifier-tabs__label-short {
   display: none;
 }
 
-.planner-category-tabs__button--active {
+.planner-category-tabs__button--active,
+.planner-modifier-tabs__button--active {
   border-bottom-color: var(--gh-gold) !important;
   color: var(--gh-gold) !important;
 }
 
 @media (max-width: 70rem) {
-  .planner-category-tabs__label {
+  .planner-category-tabs__label,
+  .planner-modifier-tabs__label {
     display: none;
   }
 
-  .planner-category-tabs__label-short {
+  .planner-category-tabs__label-short,
+  .planner-modifier-tabs__label-short {
     display: block;
   }
 }
@@ -312,7 +321,7 @@
 
 .planner-bottom-summary {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
   gap: 0;
   padding: 0.75rem;
   border-inline: 0;
@@ -379,12 +388,13 @@
   .planner-city-grid,
   .planner-unit-grid,
   .planner-category-tabs,
+  .planner-modifier-tabs,
   .planner-special-grid,
   .planner-bottom-summary {
     grid-template-columns: 1fr;
   }
 
-  .planner-troop-setup-bar {
+  .planner-setup-bar {
     grid-template-columns: 1fr;
   }
 
@@ -407,7 +417,8 @@
     border-top: 1px solid var(--gh-border-soft);
   }
 
-  .planner-category-tabs {
+  .planner-category-tabs,
+  .planner-modifier-tabs {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 

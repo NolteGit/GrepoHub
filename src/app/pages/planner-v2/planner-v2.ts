@@ -19,16 +19,20 @@ type PlannerTilePlaceholder = {
   readonly stat: string;
 };
 
-type TroopCategoryTab = {
+type SetupBarTab = {
   readonly label: string;
   readonly shortLabel: string;
   readonly icon: string;
 };
 
-type TroopContextItem = {
+type SetupContextItem = {
   readonly label: string;
   readonly icon: string;
   readonly value: string;
+};
+
+type CityModifierToggle = SetupBarTab & {
+  readonly active: boolean;
 };
 
 type BottomSummaryStat = {
@@ -63,19 +67,35 @@ const unitPlaceholders: readonly PlannerTilePlaceholder[] = [
   { name: 'Militia', icon: '◉', amount: '4,300', stat: '10 attack · 1 pop · 00:20' },
 ];
 
-const troopCategories: readonly TroopCategoryTab[] = [
+const troopCategories: readonly SetupBarTab[] = [
   { label: 'Land Units', shortLabel: 'Land', icon: '⚔' },
   { label: 'Sea Units', shortLabel: 'Sea', icon: '⚓' },
   { label: 'Mythical Units', shortLabel: 'Mythical', icon: '♛' },
 ];
 
-const troopContextLeft: readonly TroopContextItem[] = [
+const troopContextLeft: readonly SetupContextItem[] = [
   { label: 'Barracks', icon: '⚔', value: '25' },
   { label: 'Harbour', icon: '⚓', value: '20' },
 ];
 
-const troopContextRight: readonly TroopContextItem[] = [
+const troopContextRight: readonly SetupContextItem[] = [
   { label: 'Temple', icon: '♛', value: '18' },
+];
+
+const cityContextLeft: readonly SetupContextItem[] = [
+  { label: 'Max BHP', icon: '♟', value: '114' },
+  { label: 'Used Land', icon: '▦', value: '20/20' },
+];
+
+const cityContextRight: readonly SetupContextItem[] = [
+  { label: 'Special slots', icon: '★', value: '0/2' },
+  { label: 'Buildings', icon: '▥', value: '14' },
+];
+
+const cityModifiers: readonly CityModifierToggle[] = [
+  { label: 'Aphrodite', shortLabel: 'Aphro', icon: '♡', active: true },
+  { label: 'Land Expansion', shortLabel: 'Land', icon: '▦', active: true },
+  { label: 'Plow', shortLabel: 'Plow', icon: '⚱', active: true },
 ];
 
 const gods: readonly string[] = [
@@ -106,6 +126,9 @@ export class PlannerV2 {
   protected readonly troopCategories = troopCategories;
   protected readonly troopContextLeft = troopContextLeft;
   protected readonly troopContextRight = troopContextRight;
+  protected readonly cityContextLeft = cityContextLeft;
+  protected readonly cityContextRight = cityContextRight;
+  protected readonly cityModifiers = cityModifiers;
   protected readonly gods = gods;
   protected readonly specialSlots = ['Special Building 1', 'Special Building 2'];
   protected readonly buildingCount = computed(
@@ -121,7 +144,7 @@ export class PlannerV2 {
           { label: 'Total Population', value: '114', icon: '♟' },
           { label: 'Total Buildings', value: String(this.buildingCount()), icon: '▥' },
           { label: 'Used Land', value: '20 / 20', icon: '▦' },
-          { label: 'City Modifiers', value: 'Aphro, Expansion, Pflug', icon: '★' },
+          { label: 'Free BHP', value: '0', icon: '◇' },
         ]
       : [
           { label: 'Total Units', value: '28,520', icon: '⚔' },
