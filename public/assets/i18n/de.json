@@ -730,8 +730,7 @@
   "plannerV2.bottom.freePopulation": "Free Population",
   "plannerV2.summary.populationCapacity": "Population capacity",
   "plannerV2.summary.usedPopulation": "Used population",
-  "plannerV2.summary.freePopulation": "Free population"
-,
+  "plannerV2.summary.freePopulation": "Free population",
   "plannerV2.modifier.active": "Aktiv",
   "plannerV2.modifier.inactive": "Inaktiv",
   "plannerV2.stat.populationEffect": "BHP-Effekt",
@@ -752,5 +751,17 @@
   "plannerV2.stat.navalAttack": "Seeangriff",
   "plannerV2.stat.defenseShort": "Def",
   "plannerV2.stat.capacity": "Kapazität",
-  "plannerV2.stat.favorShort": "Gunst"
+  "plannerV2.stat.favorShort": "Gunst",
+  "plannerV2.summary.context.troopPreview": "Truppenplan-Vorschau",
+  "plannerV2.summary.usedByBuildings": "Von Gebäuden belegt",
+  "plannerV2.summary.usedByTroops": "Von Truppen belegt",
+  "plannerV2.summary.freePopulationAfterTroops": "Freie Bevölkerung",
+  "plannerV2.summary.transportSpace": "Transportbedarf",
+  "plannerV2.summary.transportCapacity": "Transportkapazität",
+  "plannerV2.summary.transportBalance": "Transportbilanz",
+  "plannerV2.summary.transportUsage": "Transportauslastung",
+  "plannerV2.summary.bunksBonus": "Kojen-Bonus",
+  "plannerV2.summary.noUnitsSelected": "Noch keine Einheiten ausgewählt.",
+  "plannerV2.bottom.totalDefense": "Gesamtverteidigung",
+  "plannerV2.bottom.transportSpace": "Transportbedarf"
 }

@@ -10,6 +10,8 @@ import { PlannerMode } from '../planner-mode-switch/planner-mode-switch';
 import type {
   SidebarPopulationStats,
   SidebarPreviewStat,
+  SidebarTroopTransportStats,
+  SidebarUsedUnit,
   TranslatableText,
 } from '../../planner-v2.models';
 
@@ -27,6 +29,8 @@ export class PlannerSummarySidebar {
   readonly population = input.required<SidebarPopulationStats>();
   readonly usedUnitCount = input.required<number>();
   readonly cityPreviewStats = input.required<readonly SidebarPreviewStat[]>();
+  readonly topUsedUnits = input.required<readonly SidebarUsedUnit[]>();
+  readonly troopTransport = input.required<SidebarTroopTransportStats>();
 
   protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
   protected readonly populationTitleFallback = 'Shared Population Summary';
@@ -41,8 +45,8 @@ export class PlannerSummarySidebar {
           fallback: 'City Plan Preview',
         }
       : {
-          labelKey: 'plannerV2.summary.context.boatCapacity',
-          fallback: 'Boat Carrying Capacity',
+          labelKey: 'plannerV2.summary.context.troopPreview',
+          fallback: 'Troop Plan Preview',
         },
   );
   protected readonly populationStats = computed<readonly SidebarStat[]>(() => {
@@ -57,21 +61,26 @@ export class PlannerSummarySidebar {
         fallback: 'Population capacity',
         value: this.population().populationCapacity,
       },
-      {
-        labelKey: 'plannerV2.summary.usedPopulation',
-        fallback: 'Used population',
-        value: this.population().usedPopulation,
-      },
-      {
-        labelKey: 'plannerV2.summary.freeBhp',
-        fallback: 'Free BHP',
-        value: this.population().freeBhp,
-      },
     ];
 
     if (this.activeMode() === 'troops') {
       return [
         ...sharedStats,
+        {
+          labelKey: 'plannerV2.summary.usedByBuildings',
+          fallback: 'Used by buildings',
+          value: this.population().usedPopulation,
+        },
+        {
+          labelKey: 'plannerV2.summary.usedByTroops',
+          fallback: 'Used by troops',
+          value: this.population().troopPopulation,
+        },
+        {
+          labelKey: 'plannerV2.summary.freePopulationAfterTroops',
+          fallback: 'Free population',
+          value: this.population().freePopulationAfterTroops,
+        },
         {
           labelKey: 'plannerV2.summary.usedUnits',
           fallback: 'Used units',
@@ -82,6 +91,16 @@ export class PlannerSummarySidebar {
 
     return [
       ...sharedStats,
+      {
+        labelKey: 'plannerV2.summary.usedPopulation',
+        fallback: 'Used population',
+        value: this.population().usedPopulation,
+      },
+      {
+        labelKey: 'plannerV2.summary.freeBhp',
+        fallback: 'Free BHP',
+        value: this.population().freeBhp,
+      },
       {
         labelKey: 'plannerV2.summary.buildingLevels',
         fallback: 'Building levels',
@@ -94,4 +113,26 @@ export class PlannerSummarySidebar {
       },
     ];
   });
+  protected readonly transportRows = computed<readonly SidebarStat[]>(() => [
+    {
+      labelKey: 'plannerV2.summary.transportSpace',
+      fallback: 'Transport space',
+      value: this.troopTransport().transportSpace,
+    },
+    {
+      labelKey: 'plannerV2.summary.transportCapacity',
+      fallback: 'Transport capacity',
+      value: this.troopTransport().transportCapacity,
+    },
+    {
+      labelKey: 'plannerV2.summary.transportBalance',
+      fallback: 'Transport balance',
+      value: this.troopTransport().transportBalance,
+    },
+    {
+      labelKey: 'plannerV2.summary.bunksBonus',
+      fallback: 'Bunks bonus',
+      value: this.troopTransport().bunksBonus,
+    },
+  ]);
 }

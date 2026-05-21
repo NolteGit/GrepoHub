@@ -730,8 +730,7 @@
   "plannerV2.bottom.freePopulation": "Free Population",
   "plannerV2.summary.populationCapacity": "Population capacity",
   "plannerV2.summary.usedPopulation": "Used population",
-  "plannerV2.summary.freePopulation": "Free population"
-,
+  "plannerV2.summary.freePopulation": "Free population",
   "plannerV2.modifier.active": "Activo",
   "plannerV2.modifier.inactive": "Inactivo",
   "plannerV2.stat.populationEffect": "Efecto pobl.",
@@ -752,5 +751,17 @@
   "plannerV2.stat.navalAttack": "Ataque naval",
   "plannerV2.stat.defenseShort": "def",
   "plannerV2.stat.capacity": "Capacidad",
-  "plannerV2.stat.favorShort": "favor"
+  "plannerV2.stat.favorShort": "favor",
+  "plannerV2.summary.context.troopPreview": "Vista previa de tropas",
+  "plannerV2.summary.usedByBuildings": "Usado por edificios",
+  "plannerV2.summary.usedByTroops": "Usado por tropas",
+  "plannerV2.summary.freePopulationAfterTroops": "Población libre",
+  "plannerV2.summary.transportSpace": "Espacio de transporte",
+  "plannerV2.summary.transportCapacity": "Capacidad de transporte",
+  "plannerV2.summary.transportBalance": "Balance de transporte",
+  "plannerV2.summary.transportUsage": "Uso de transporte",
+  "plannerV2.summary.bunksBonus": "Bono de literas",
+  "plannerV2.summary.noUnitsSelected": "Aún no hay unidades seleccionadas.",
+  "plannerV2.bottom.totalDefense": "Defensa total",
+  "plannerV2.bottom.transportSpace": "Espacio de transporte"
 }

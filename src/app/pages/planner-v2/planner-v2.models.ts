@@ -83,11 +83,26 @@ export type SidebarPreviewStat = TranslatableText & {
   readonly value: string | number;
 };
 
+export type SidebarUsedUnit = TranslatableText & {
+  readonly amount: number;
+  readonly sharePercent: number;
+};
+
+export type SidebarTroopTransportStats = {
+  readonly transportCapacity: number;
+  readonly transportSpace: number;
+  readonly transportBalance: number;
+  readonly transportUsagePercent: number;
+  readonly bunksBonus: number;
+};
+
 export type SidebarPopulationStats = {
   readonly activePlanName: string;
   readonly populationCapacity: number;
   readonly usedPopulation: number;
+  readonly troopPopulation: number;
   readonly freePopulation: number;
+  readonly freePopulationAfterTroops: number;
   readonly freeBhp: number;
   readonly usedBuildingLevels: number;
   readonly activeBuildingCount: number;

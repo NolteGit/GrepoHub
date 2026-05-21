@@ -49,20 +49,69 @@
         }
       </div>
     } @else {
-      <div class="grid gap-3">
+      <section class="grid gap-3">
         <span class="text-sm text-[var(--gh-text)]">{{
           capacityLabelKey | translate: capacityLabelFallback
         }}</span>
-        <strong class="text-2xl font-medium text-[var(--gh-gold)]">48,760 / 105,000</strong>
+        <strong class="text-2xl font-medium text-[var(--gh-gold)]">
+          {{ troopTransport().transportSpace }} / {{ troopTransport().transportCapacity }}
+        </strong>
         <div
           class="h-2 overflow-hidden rounded-full border border-[var(--gh-border-soft)] bg-white/5"
+          [attr.aria-label]="'plannerV2.summary.transportUsage' | translate: 'Transport usage'"
         >
           <span
-            class="block h-full w-[46%] bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.5))]"
+            class="block h-full bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.5))]"
+            [style.width.%]="troopTransport().transportUsagePercent"
           ></span>
         </div>
-        <small class="text-center text-base text-[var(--gh-text)]">46%</small>
+        <small class="text-center text-base text-[var(--gh-text)]">
+          {{ troopTransport().transportUsagePercent }}%
+        </small>
+      </section>
+
+      <div class="grid gap-4 border-t border-[rgba(212,160,55,0.22)] pt-4">
+        @for (stat of transportRows(); track stat.labelKey) {
+          <app-gh-stat-row
+            class="border-b border-[rgba(212,160,55,0.22)] pb-4 last:border-b-0 last:pb-0"
+            [labelKey]="stat.labelKey"
+            [fallback]="stat.fallback"
+            [value]="stat.value"
+          />
+        }
       </div>
+
+      <section class="grid gap-3 border-t border-[rgba(212,160,55,0.22)] pt-4">
+        <h3 class="m-0 text-sm font-bold uppercase tracking-[0.08em] text-[var(--gh-muted)]">
+          {{ 'plannerV2.summary.context.mostUsedUnits' | translate: 'Most Used Units' }}
+        </h3>
+
+        @if (topUsedUnits().length > 0) {
+          <ol class="grid gap-3">
+            @for (unit of topUsedUnits(); track unit.labelKey) {
+              <li class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-sm">
+                <span class="min-w-0 truncate text-[var(--gh-text)]">
+                  {{ unit.labelKey | translate: unit.fallback }}
+                </span>
+                <strong class="text-[var(--gh-gold)]">{{ unit.amount }}</strong>
+                <span
+                  class="col-span-2 h-1.5 overflow-hidden rounded-full bg-white/5"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="block h-full bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.38))]"
+                    [style.width.%]="unit.sharePercent"
+                  ></span>
+                </span>
+              </li>
+            }
+          </ol>
+        } @else {
+          <p class="m-0 text-sm text-[var(--gh-muted)]">
+            {{ 'plannerV2.summary.noUnitsSelected' | translate: 'No units selected yet.' }}
+          </p>
+        }
+      </section>
     }
   </app-gh-panel>
 </aside>

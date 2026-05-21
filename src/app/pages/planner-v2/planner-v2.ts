@@ -37,6 +37,8 @@ import type {
   SetupContextItem,
   SidebarPopulationStats,
   SidebarPreviewStat,
+  SidebarTroopTransportStats,
+  SidebarUsedUnit,
   SpecialBuildingOptionView,
   SpecialBuildingSlotView,
   TroopCategory,
@@ -136,6 +138,8 @@ const unitFallbackIcons: Record<string, string> = {
   colony_ship: '⚑',
 };
 
+const maxUsedUnitPreviewCount = 5;
+
 const troopCategories: readonly TroopCategoryTab[] = [
   {
     id: 'land',
@@ -197,6 +201,8 @@ const formatPopulationDelta = (value: number): string => {
 };
 
 const formatRatio = (current: number, maximum: number): string => `${current}/${maximum}`;
+
+const clampPercentage = (value: number): number => Math.max(0, Math.min(100, Math.round(value)));
 
 const formatUnitFallback = (unitId: string): string =>
   unitId
@@ -516,40 +522,117 @@ export class PlannerV2 {
       }));
   });
   protected readonly troopTotals = computed(() => {
-    const unitAmounts = this.activePlan().troopPlan.unitAmounts;
+    const plan = this.activePlan();
+    const unitAmounts = plan.troopPlan.unitAmounts;
 
-    return this.unitDefinitions().reduce(
-      (totals, unit) => {
+    const totals = this.unitDefinitions().reduce(
+      (sum, unit) => {
         const amount = unitAmounts[unit.id] ?? 0;
 
         if (amount <= 0) {
-          return totals;
+          return sum;
         }
 
+        const unitAttack = unit.type === 'sea' ? unit.attackSea : unit.attack;
+        const unitDefense =
+          unit.type === 'sea'
+            ? unit.defenseSea
+            : unit.defenseBlunt + unit.defenseSharp + unit.defenseDistance;
+        const unitPopulation = unit.cost.population * amount;
+        const transportCapacity = unit.transportCapacity * amount;
+        const transportSpace = unit.transportSpace * amount;
+
         return {
-          totalUnits: totals.totalUnits + amount,
-          usedPopulation: totals.usedPopulation + amount * unit.cost.population,
-          totalAttack:
-            totals.totalAttack + amount * (unit.type === 'sea' ? unit.attackSea : unit.attack),
-          carryingCapacity: totals.carryingCapacity + amount * unit.transportCapacity,
-          usedUnitTypes: totals.usedUnitTypes + 1,
+          totalUnits: sum.totalUnits + amount,
+          usedPopulation: sum.usedPopulation + unitPopulation,
+          landPopulation: sum.landPopulation + (unit.type === 'land' ? unitPopulation : 0),
+          seaPopulation: sum.seaPopulation + (unit.type === 'sea' ? unitPopulation : 0),
+          totalAttack: sum.totalAttack + amount * unitAttack,
+          totalDefense: sum.totalDefense + amount * unitDefense,
+          transportCapacity: sum.transportCapacity + transportCapacity,
+          transportSpace: sum.transportSpace + transportSpace,
+          usedUnitTypes: sum.usedUnitTypes + 1,
+          wood: sum.wood + amount * unit.cost.wood,
+          stone: sum.stone + amount * unit.cost.stone,
+          silver: sum.silver + amount * unit.cost.silver,
+          favor: sum.favor + amount * unit.cost.favor,
+          transportShipCount:
+            sum.transportShipCount +
+            (unit.id === 'transport_boat' || unit.id === 'fast_transport_ship' ? amount : 0),
         };
       },
       {
         totalUnits: 0,
         usedPopulation: 0,
+        landPopulation: 0,
+        seaPopulation: 0,
         totalAttack: 0,
-        carryingCapacity: 0,
+        totalDefense: 0,
+        transportCapacity: 0,
+        transportSpace: 0,
         usedUnitTypes: 0,
+        wood: 0,
+        stone: 0,
+        silver: 0,
+        favor: 0,
+        transportShipCount: 0,
       },
     );
+    const bunksBonus = plan.troopPlan.modifiers.bunks ? totals.transportShipCount * 6 : 0;
+    const transportCapacity = totals.transportCapacity + bunksBonus;
+    const transportBalance = transportCapacity - totals.transportSpace;
+
+    return {
+      ...totals,
+      bunksBonus,
+      transportCapacity,
+      transportBalance,
+      transportUsagePercent:
+        transportCapacity > 0
+          ? clampPercentage((totals.transportSpace / transportCapacity) * 100)
+          : 0,
+    };
   });
+  protected readonly topUsedUnits = computed<readonly SidebarUsedUnit[]>(() => {
+    const unitAmounts = this.activePlan().troopPlan.unitAmounts;
+    const highestAmount = Math.max(0, ...Object.values(unitAmounts).filter((amount) => amount > 0));
+
+    if (highestAmount <= 0) {
+      return [];
+    }
+
+    return this.unitDefinitions()
+      .map((unit) => ({
+        labelKey: unit.nameKey,
+        fallback: formatUnitFallback(unit.id),
+        amount: unitAmounts[unit.id] ?? 0,
+      }))
+      .filter((unit) => unit.amount > 0)
+      .sort(
+        (left, right) => right.amount - left.amount || left.fallback.localeCompare(right.fallback),
+      )
+      .slice(0, maxUsedUnitPreviewCount)
+      .map((unit) => ({
+        ...unit,
+        sharePercent: clampPercentage((unit.amount / highestAmount) * 100),
+      }));
+  });
+  protected readonly troopTransportStats = computed<SidebarTroopTransportStats>(() => ({
+    transportCapacity: this.troopTotals().transportCapacity,
+    transportSpace: this.troopTotals().transportSpace,
+    transportBalance: this.troopTotals().transportBalance,
+    transportUsagePercent: this.troopTotals().transportUsagePercent,
+    bunksBonus: this.troopTotals().bunksBonus,
+  }));
   protected readonly usedUnitCount = computed(() => this.troopTotals().usedUnitTypes);
   protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => ({
     activePlanName: this.activePlan().name,
     populationCapacity: this.cityPopulation().populationCapacity,
     usedPopulation: this.cityPopulation().usedPopulation,
+    troopPopulation: this.troopTotals().usedPopulation,
     freePopulation: this.cityPopulation().freePopulation,
+    freePopulationAfterTroops:
+      this.cityPopulation().freePopulation - this.troopTotals().usedPopulation,
     freeBhp: this.cityPopulation().freePopulation,
     usedBuildingLevels: this.cityBuildingLevels(),
     activeBuildingCount: this.activeBuildingCount(),
@@ -610,16 +693,22 @@ export class PlannerV2 {
             icon: '⚔',
           },
           {
+            labelKey: 'plannerV2.bottom.totalDefense',
+            fallback: 'Total Defense',
+            value: formatNumber(this.troopTotals().totalDefense),
+            icon: '◈',
+          },
+          {
             labelKey: 'plannerV2.bottom.carryingCapacity',
             fallback: 'Carrying Capacity',
-            value: formatNumber(this.troopTotals().carryingCapacity),
+            value: formatNumber(this.troopTotals().transportCapacity),
             icon: '⚓',
           },
           {
-            labelKey: 'plannerV2.bottom.marchTime',
-            fallback: 'March Time',
-            value: '—',
-            icon: '◷',
+            labelKey: 'plannerV2.bottom.transportSpace',
+            fallback: 'Transport Space',
+            value: formatNumber(this.troopTotals().transportSpace),
+            icon: '▣',
           },
         ],
   );

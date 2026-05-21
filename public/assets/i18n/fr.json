@@ -730,8 +730,7 @@
   "plannerV2.bottom.freePopulation": "Free Population",
   "plannerV2.summary.populationCapacity": "Population capacity",
   "plannerV2.summary.usedPopulation": "Used population",
-  "plannerV2.summary.freePopulation": "Free population"
-,
+  "plannerV2.summary.freePopulation": "Free population",
   "plannerV2.modifier.active": "Actif",
   "plannerV2.modifier.inactive": "Inactif",
   "plannerV2.stat.populationEffect": "Effet pop.",
@@ -752,5 +751,17 @@
   "plannerV2.stat.navalAttack": "Attaque navale",
   "plannerV2.stat.defenseShort": "déf",
   "plannerV2.stat.capacity": "Capacité",
-  "plannerV2.stat.favorShort": "faveur"
+  "plannerV2.stat.favorShort": "faveur",
+  "plannerV2.summary.context.troopPreview": "Aperçu du plan de troupes",
+  "plannerV2.summary.usedByBuildings": "Utilisée par les bâtiments",
+  "plannerV2.summary.usedByTroops": "Utilisée par les troupes",
+  "plannerV2.summary.freePopulationAfterTroops": "Population libre",
+  "plannerV2.summary.transportSpace": "Espace de transport",
+  "plannerV2.summary.transportCapacity": "Capacité de transport",
+  "plannerV2.summary.transportBalance": "Solde de transport",
+  "plannerV2.summary.transportUsage": "Utilisation du transport",
+  "plannerV2.summary.bunksBonus": "Bonus de couchettes",
+  "plannerV2.summary.noUnitsSelected": "Aucune unité sélectionnée pour le moment.",
+  "plannerV2.bottom.totalDefense": "Défense totale",
+  "plannerV2.bottom.transportSpace": "Espace de transport"
 }
