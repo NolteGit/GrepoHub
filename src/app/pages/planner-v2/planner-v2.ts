@@ -1,16 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { GhNumberStepper } from '../../shared/ui/gh-number-stepper/gh-number-stepper';
-import { GhPanel } from '../../shared/ui/gh-panel/gh-panel';
-import {
-  GhSelectField,
-  type GhSelectOption,
-} from '../../shared/ui/gh-select-field/gh-select-field';
-import { GhStatRow } from '../../shared/ui/gh-stat-row/gh-stat-row';
-import { GhTileShell } from '../../shared/ui/gh-tile-shell/gh-tile-shell';
+import { type GhSelectOption } from '../../shared/ui/gh-select-field/gh-select-field';
 import { PlanConfigService } from '../../services/plan-config.service';
 
+import { PlannerBottomSummary } from './components/planner-bottom-summary/planner-bottom-summary';
+import { PlannerCitySetup } from './components/planner-city-setup/planner-city-setup';
 import { PlannerHeader } from './components/planner-header/planner-header';
 import {
   PlannerMode,
@@ -18,47 +13,18 @@ import {
 } from './components/planner-mode-switch/planner-mode-switch';
 import { PlannerSummarySidebar } from './components/planner-summary-sidebar/planner-summary-sidebar';
 import { PlannerToolbox } from './components/planner-toolbox/planner-toolbox';
-
-type TranslatableText = {
-  readonly labelKey: string;
-  readonly fallback: string;
-};
-
-type BuildingTilePlaceholder = TranslatableText & {
-  readonly icon: string;
-  readonly level: number;
-  readonly statLabelKey: string;
-  readonly statFallback: string;
-  readonly statValue: string;
-};
-
-type UnitTilePlaceholder = TranslatableText & {
-  readonly icon: string;
-  readonly amount: string;
-  readonly attack: number;
-  readonly population: number;
-  readonly time: string;
-};
-
-type SetupBarTab = TranslatableText & {
-  readonly shortLabelKey: string;
-  readonly shortFallback: string;
-  readonly icon: string;
-};
-
-type SetupContextItem = TranslatableText & {
-  readonly icon: string;
-  readonly value: string;
-};
-
-type CityModifierToggle = SetupBarTab & {
-  readonly active: boolean;
-};
-
-type BottomSummaryStat = TranslatableText & {
-  readonly value: string;
-  readonly icon: string;
-};
+import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
+import type {
+  BottomSummaryStat,
+  BuildingTilePlaceholder,
+  CityModifierToggle,
+  GodOption,
+  SetupContextItem,
+  TranslatableText,
+  TroopCategory,
+  TroopCategoryTab,
+  UnitTilePlaceholder,
+} from './planner-v2.models';
 
 const buildingPlaceholders: readonly BuildingTilePlaceholder[] = [
   {
@@ -246,8 +212,9 @@ const unitPlaceholders: readonly UnitTilePlaceholder[] = [
   },
 ];
 
-const troopCategories: readonly SetupBarTab[] = [
+const troopCategories: readonly TroopCategoryTab[] = [
   {
+    id: 'land',
     labelKey: 'plannerV2.troop.landUnits',
     fallback: 'Land Units',
     shortLabelKey: 'plannerV2.troop.landUnitsShort',
@@ -255,6 +222,7 @@ const troopCategories: readonly SetupBarTab[] = [
     icon: '⚔',
   },
   {
+    id: 'sea',
     labelKey: 'plannerV2.troop.seaUnits',
     fallback: 'Sea Units',
     shortLabelKey: 'plannerV2.troop.seaUnitsShort',
@@ -262,6 +230,7 @@ const troopCategories: readonly SetupBarTab[] = [
     icon: '⚓',
   },
   {
+    id: 'mythical',
     labelKey: 'plannerV2.troop.mythicalUnits',
     fallback: 'Mythical Units',
     shortLabelKey: 'plannerV2.troop.mythicalUnitsShort',
@@ -321,15 +290,15 @@ const cityModifiers: readonly CityModifierToggle[] = [
   },
 ];
 
-const gods: readonly TranslatableText[] = [
-  { labelKey: 'god.zeus', fallback: 'Zeus' },
-  { labelKey: 'god.poseidon', fallback: 'Poseidon' },
-  { labelKey: 'god.hera', fallback: 'Hera' },
-  { labelKey: 'god.athena', fallback: 'Athena' },
-  { labelKey: 'god.hades', fallback: 'Hades' },
-  { labelKey: 'god.artemis', fallback: 'Artemis' },
-  { labelKey: 'god.aphrodite', fallback: 'Aphrodite' },
-  { labelKey: 'god.ares', fallback: 'Ares' },
+const gods: readonly GodOption[] = [
+  { value: 'zeus', labelKey: 'god.zeus', fallback: 'Zeus' },
+  { value: 'poseidon', labelKey: 'god.poseidon', fallback: 'Poseidon' },
+  { value: 'hera', labelKey: 'god.hera', fallback: 'Hera' },
+  { value: 'athena', labelKey: 'god.athena', fallback: 'Athena' },
+  { value: 'hades', labelKey: 'god.hades', fallback: 'Hades' },
+  { value: 'artemis', labelKey: 'god.artemis', fallback: 'Artemis' },
+  { value: 'aphrodite', labelKey: 'god.aphrodite', fallback: 'Aphrodite' },
+  { value: 'ares', labelKey: 'god.ares', fallback: 'Ares' },
 ];
 
 const specialSlots: readonly TranslatableText[] = [
@@ -345,14 +314,12 @@ const noneOptions: readonly GhSelectOption[] = [
   selector: 'app-planner-v2',
   imports: [
     TranslatePipe,
-    GhNumberStepper,
-    GhPanel,
-    GhSelectField,
-    GhStatRow,
-    GhTileShell,
     PlannerToolbox,
     PlannerHeader,
     PlannerModeSwitch,
+    PlannerCitySetup,
+    PlannerTroopSetup,
+    PlannerBottomSummary,
     PlannerSummarySidebar,
   ],
   templateUrl: './planner-v2.html',
@@ -363,6 +330,8 @@ export class PlannerV2 {
   protected readonly plans = this.planConfigService.plans;
   protected readonly activePlan = this.planConfigService.activePlan;
   protected readonly activeMode = signal<PlannerMode>('city');
+  protected readonly selectedTroopCategory = signal<TroopCategory>('land');
+  protected readonly selectedGod = signal('zeus');
   protected readonly buildingPlaceholders = buildingPlaceholders;
   protected readonly unitPlaceholders = unitPlaceholders;
   protected readonly troopCategories = troopCategories;
@@ -444,5 +413,13 @@ export class PlannerV2 {
 
   protected selectPlan(planId: string): void {
     this.planConfigService.selectPlan(planId);
+  }
+
+  protected selectTroopCategory(category: TroopCategory): void {
+    this.selectedTroopCategory.set(category);
+  }
+
+  protected selectGod(god: string): void {
+    this.selectedGod.set(god);
   }
 }

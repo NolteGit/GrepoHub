@@ -1,0 +1,13 @@
+<section
+  class="gh-panel grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-0 border-x-0 border-b-0 p-3"
+>
+  @for (stat of stats(); track stat.labelKey) {
+    <app-gh-stat-row
+      class="gh-divider-right px-3 py-1 max-[58rem]:border-r-0 max-[58rem]:border-b"
+      [labelKey]="stat.labelKey"
+      [fallback]="stat.fallback"
+      [value]="stat.value"
+      [icon]="stat.icon"
+    />
+  }
+</section>

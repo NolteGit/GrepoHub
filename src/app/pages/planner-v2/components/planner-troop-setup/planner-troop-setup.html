@@ -1,0 +1,96 @@
+<section
+  class="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
+  [attr.aria-label]="'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'"
+>
+  <div
+    class="grid min-w-[5.2rem] grid-rows-2 border-r border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-r-0 max-[58rem]:border-b"
+  >
+    @for (item of contextLeft(); track item.labelKey) {
+      <article
+        class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
+        [attr.title]="item.labelKey | translate: item.fallback"
+      >
+        <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
+          item.icon
+        }}</span>
+        <strong class="text-sm leading-none">{{ item.value }}</strong>
+      </article>
+    }
+  </div>
+
+  <nav
+    class="grid min-w-0 grid-cols-3"
+    [attr.aria-label]="'plannerV2.troopCategoryLabel' | translate: 'Troop category'"
+  >
+    @for (category of categories(); track category.id) {
+      <button
+        type="button"
+        class="inline-flex min-h-[3.7rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)]"
+        [class.gh-tab-active]="activeCategory() === category.id"
+        [attr.aria-pressed]="activeCategory() === category.id"
+        (click)="categorySelected.emit(category.id)"
+      >
+        <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
+        <strong class="truncate max-[70rem]:hidden">{{
+          category.labelKey | translate: category.fallback
+        }}</strong>
+        <strong class="hidden truncate max-[70rem]:block">{{
+          category.shortLabelKey | translate: category.shortFallback
+        }}</strong>
+      </button>
+    }
+  </nav>
+
+  <div
+    class="grid min-w-[5.2rem] grid-rows-2 border-l border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-l-0 max-[58rem]:border-t"
+  >
+    @for (item of contextRight(); track item.labelKey) {
+      <article
+        class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
+        [attr.title]="item.labelKey | translate: item.fallback"
+      >
+        <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
+          item.icon
+        }}</span>
+        <strong class="text-sm leading-none">{{ item.value }}</strong>
+      </article>
+    }
+
+    <label
+      class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 border-t border-[var(--gh-border-soft)] px-2 py-1 text-[var(--gh-text)] max-[58rem]:border-t-0 max-[58rem]:border-l"
+    >
+      <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true"
+        >☉</span
+      >
+      <select
+        class="w-full min-w-[4.6rem] cursor-pointer border-0 bg-transparent text-sm font-bold text-[var(--gh-text)]"
+        [value]="selectedGod()"
+        [attr.aria-label]="'unitAttribute.god' | translate: 'God'"
+        (change)="selectGod($event)"
+      >
+        @for (god of gods(); track god.value) {
+          <option [value]="god.value">{{ god.labelKey | translate: god.fallback }}</option>
+        }
+      </select>
+    </label>
+  </div>
+</section>
+
+<section
+  class="grid grid-cols-4 gap-3 max-[88rem]:grid-cols-3 max-[58rem]:grid-cols-1"
+  [attr.aria-label]="'plannerV2.troopSetupPlaceholderLabel' | translate: 'Troop setup placeholder'"
+>
+  @for (unit of units(); track unit.labelKey) {
+    <app-gh-tile-shell [icon]="unit.icon" [labelKey]="unit.labelKey" [fallback]="unit.fallback">
+      <div ghTileControls class="mt-1">
+        <app-gh-number-stepper [value]="unit.amount" />
+      </div>
+
+      <span ghTileFooter>
+        {{ unit.attack }} {{ 'plannerV2.stat.attackShort' | translate: 'attack' }} ·
+        {{ unit.population }} {{ 'plannerV2.stat.populationShort' | translate: 'pop' }} ·
+        {{ unit.time }}
+      </span>
+    </app-gh-tile-shell>
+  }
+</section>
