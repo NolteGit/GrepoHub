@@ -15,5 +15,13 @@
     "src/app/services/supported-languages.ts": ["exports", "types"],
     "src/app/utils/toolbox-time.util.ts": ["exports", "types"]
   },
-  "ignoreDependencies": ["@angular/forms"]
+  "ignoreDependencies": [
+    "@angular-devkit/core",
+    "@angular-devkit/schematics",
+    "@angular/cli",
+    "@angular/forms",
+    "@nx/angular",
+    "@nx/workspace",
+    "@schematics/angular"
+  ]
 }

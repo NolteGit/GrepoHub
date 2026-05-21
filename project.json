@@ -4,7 +4,7 @@
   "projectType": "application",
   "generators": {
     "@schematics/angular:component": {
-      "style": "scss"
+      "style": "css"
     }
   },
   "sourceRoot": "src",
@@ -15,7 +15,7 @@
       "options": {
         "browser": "src/main.ts",
         "tsConfig": "tsconfig.app.json",
-        "inlineStyleLanguage": "scss",
+        "inlineStyleLanguage": "css",
         "assets": [
           {
             "glob": "**/*",

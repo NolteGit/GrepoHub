@@ -1,6 +1,6 @@
 # Angular Setup
 
-This document describes the current Grepo Hub Angular setup and the commands most useful during development.
+This document describes the current Grepo Hub Angular/Nx setup and the commands most useful during development.
 
 ## Prerequisites
 
@@ -9,7 +9,7 @@ Install:
 - Node.js
 - npm
 
-The Angular CLI is available through the local project dependencies, so global installation is optional.
+The project uses local dependencies for Angular and Nx, so global CLI installation is optional.
 
 ## Install dependencies
 
@@ -17,6 +17,12 @@ From the project directory:
 
 ```bash
 npm install
+```
+
+For a clean reinstall from the lockfile:
+
+```bash
+npm run fresh
 ```
 
 ## Run the app
@@ -34,38 +40,45 @@ http://localhost:4200/
 ## Current routes
 
 ```txt
-/
-/city-planner
-/troops-planner
-/references
-/toolbox
+/           -> Planner V2
+/planner-v2 -> Planner V2
 ```
 
-The previous separate guide, time-tools, and battle-simulator route ideas are not active routes in the current implementation. Guide/reference content lives on References, timing utilities live on Toolbox, and the battle simulator is a gated Toolbox placeholder.
+## Nx workspace
+
+Nx was added as workspace tooling around the existing Angular application. The workspace stays a single-app setup for now; it has not been converted into an integrated `apps/` and `libs/` monorepo layout.
+
+Project configuration lives in:
+
+```txt
+project.json
+nx.json
+```
+
+`angular.json` is no longer used after the Nx migration.
 
 ## Current source layout
 
 Important folders:
 
 ```txt
-src/app/layout/app-shell/
-src/app/pages/home/
-src/app/pages/city-planner/
-src/app/pages/troops-planner/
-src/app/pages/references/
-src/app/pages/toolbox/
+src/app/pages/planner-v2/
 src/app/services/
 src/app/models/
 src/app/data/
+src/app/utils/
 src/app/pipes/
+src/app/testing/
 public/assets/data/
 public/assets/i18n/
 public/assets/images/
+public/library/documents/
 ```
 
 ## Useful scripts
 
 ```bash
+npm run start
 npm run typecheck
 npm run test:once
 npm run build
@@ -77,11 +90,11 @@ npm run clean
 npm run check
 ```
 
-`npm run verify` runs typecheck, tests, and build. `npm run check` additionally checks formatting and unused code/dependencies.
+`npm run verify` runs the core functional checks. `npm run check` additionally checks formatting and unused code/dependencies.
 
 ## Static assets
 
-Angular serves static assets from `public/assets/`.
+Angular serves static assets from `public/`.
 
 Current data files:
 
@@ -95,14 +108,32 @@ Current translation files:
 ```txt
 public/assets/i18n/en.json
 public/assets/i18n/de.json
+public/assets/i18n/es.json
+public/assets/i18n/fr.json
+public/assets/i18n/it.json
+public/assets/i18n/nl.json
 ```
+
+## Styling setup
+
+Planner V2 uses Tailwind v4 through `@tailwindcss/postcss`.
+
+Important files:
+
+```txt
+src/styles.css
+.postcssrc.json
+```
+
+The global stylesheet should contain only Tailwind import, Grepo Hub design tokens, base styles, and stable reusable primitives. Repeated UI patterns should become Angular components instead of long copied class strings.
 
 ## Development approach
 
 Recommended next steps:
 
-1. Keep the route set small and stable.
-2. Finish one planner workflow at a time.
-3. Keep local-first JSON import/export as the canonical sharing mechanism.
-4. Add tests around planner calculations, import validation, and translation fallback.
-5. Extract shared services only when the same state is truly needed by multiple pages.
+1. Add shared UI primitives under `src/app/shared/ui`.
+2. Split Planner V2 placeholders into City Setup, Troop Setup, and bottom summary components.
+3. Implement City Setup first and wire building levels through signal-first state.
+4. Add computed city summaries.
+5. Implement Troop Setup and troop summaries.
+6. Wire persistence/import/export once the V2 state shape is stable.

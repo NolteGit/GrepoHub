@@ -1,135 +1,100 @@
 # Layout and Navigation
 
-## Overall layout
+## Overall direction
 
-Grepo Hub should use a persistent app shell with a top bar and routed page content.
+Grepo Hub is moving toward a single Planner V2 workspace instead of several separate planning/tool pages.
 
-The layout should feel useful during active gameplay: quick navigation, visible current time, and fast access to running timers should always be available.
+The layout should feel like an active Grepolis planning desk: compact, dark, readable, and stable while the user switches between City Setup and Troop Setup.
 
-## Top bar
+## Main shell
 
-The top bar should contain:
-
-- Navigation burger on the top-left
-- Current page title
-- Current time
-- Quick add button for timers/alarms
-- Active timer indicator or dropdown
-- Link to the Time Tools page
-
-## Navigation burger
-
-The navigation burger should open a side menu or drawer with links to:
-
-- Home
-- City Planner
-- Troops Planner
-- References
-- Guides
-- Time Tools
-- Battle Simulator
-
-The menu can also later include Settings or About, but these do not need to be primary MVP pages.
-
-## Current page title
-
-The top bar should show the current page title, for example:
-
-- Home
-- City Planner
-- Troops Planner
-- References
-- Guides
-- Time Tools
-- Battle Simulator
-
-## Current time
-
-The top bar should show the current local time.
-
-This is especially useful because Grepolis planning often depends on timing and coordination.
-
-## Quick timer add button
-
-The top bar should include a quick add button for timing tools.
-
-Possible behavior:
-
-- Open a small modal
-- Add a quick countdown
-- Add a quick alarm
-- Link to the full Time Tools page for advanced setup
-
-## Active timer dropdown
-
-The top bar should provide access to running or active timers from anywhere in the app.
-
-Possible behavior:
-
-- Show number of active timers
-- Open dropdown with active alarms, countdowns, and stopwatches
-- Allow pause, resume, stop, or jump to Time Tools page
-
-## Home / Dashboard layout
-
-The home page should use a dashboard-like layout.
-
-### Main title
-
-A central top title:
+Planner V2 uses three main areas:
 
 ```txt
-Grepo Hub
+left toolbox | center planner workspace | right summary sidebar
 ```
 
-### Main feature cards
+The header spans the center and right columns so plan controls stay aligned with the whole planner area. The right summary sidebar begins below that header.
 
-Two large prominent cards:
+## Left toolbox
 
-- City Planning
-- Unit Planning
+The left column is a functional toolbox, not a normal navigation sidebar.
 
-These are the main workflows and should visually stand out.
+It should contain:
 
-### Secondary feature cards
+- Clock/logo area.
+- Compact action button grid.
+- Reminder / timer queue.
+- Calculator / time calculator area.
+- Quick links at the bottom.
 
-Smaller, less pronounced cards:
+The toolbox should stay visually stable when switching between City Setup and Troop Setup.
 
-- External Tools & Scripts
-- Guides
-- Time Tools
-- Simulator
+## Center planner workspace
 
-### About link
+The center area contains:
 
-An About link or button should be placed near the bottom-left or bottom-right of the page.
+- Planner mode switch.
+- City Setup or Troop Setup setup strip.
+- Main tile grid.
+- Bottom summary.
 
-It should open a popup with author notes, version, project status, and disclaimer information.
+The mode switch is a clear City Setup / Troop Setup switch. It is not a balance/focus slider; a city can have both building and troop planning data.
 
-## Planner page layout
+## Right summary sidebar
 
-City Planner and Troops Planner should have a similar structure.
+The right column contains:
 
-Recommended layout:
+- Shared population/BHP summary.
+- Context-specific summary content.
 
-- Left sidebar: saved/imported configurations
-- Main content: planner form/input fields
-- Page actions: export button, save/update button, clear/reset button
+The shared summary should stay visually consistent between City Setup and Troop Setup.
 
-The left sidebar should contain:
+## City Setup layout
 
-- Existing configurations
-- Default examples, if useful
-- Add/import button
-- Search/filter later if the list becomes long
+City Setup should contain only building planning UI.
 
-## No dedicated import/export page
+Recommended structure:
 
-Import and export should not be a central UI feature or separate page.
+```txt
+setup context strip
+building tile grid
+special building selectors
+bottom city summary
+```
 
-Instead:
+The city setup context strip contains city modifiers such as Aphrodite, Land Expansion, and Plow. Keeping this strip parallel to the troop setup strip makes mode switching feel calmer.
 
-- Import belongs in planner sidebars
-- Export belongs inside planner pages
-- Time configurations do not need import/export for the MVP
-- TXT should remain the main readable planner exchange format
+## Troop Setup layout
+
+Troop Setup should contain only unit planning UI.
+
+Recommended structure:
+
+```txt
+setup context strip
+unit tile grid
+bottom troop summary
+```
+
+The troop setup context strip contains:
+
+- Barracks level.
+- Harbour level.
+- Land / Sea / Mythical tabs.
+- Temple level.
+- God dropdown.
+
+There is intentionally no Favorites tab in the current V2 direction.
+
+## Styling approach
+
+Planner V2 uses Tailwind utilities, CSS design tokens, and reusable Angular UI primitives.
+
+Rules:
+
+- Use Tailwind for layout, spacing, grid/flex, typography, and state styling.
+- Use CSS variables in `src/styles.css` for Grepo Hub theme tokens.
+- Extract repeated panel/button/tile patterns into `src/app/shared/ui` components.
+- Keep component-specific SCSS rare.
+- Avoid large page-level style files and deep selectors.

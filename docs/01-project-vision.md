@@ -33,17 +33,14 @@ The first version should be kept small and understandable. Features should be im
 
 ## MVP scope summary
 
-The MVP should focus on:
+The current MVP direction is Planner V2:
 
-- Home dashboard
-- Top navigation layout
-- City Planner with academy planning as a secondary part
-- Troops Planner
-- Basic local configuration lists inside planner pages
-- TXT import/export inside planner pages, not as a dedicated page
-- Static JSON game data for units and buildings
-- Simple translation structure
-- Time Tools page
-- Running timers visible from the top bar
-- References and Guides pages as simple collections
-- Empty Battle Simulator placeholder
+- One main planner workspace instead of several old V1 pages.
+- City Setup and Troop Setup as modes inside the same workspace.
+- Left functional toolbox for clock, quick actions, timers, calculator, and links.
+- Right shared summary sidebar.
+- Static JSON game data for units and buildings.
+- Local JSON translations.
+- LocalStorage-backed plan persistence.
+- JSON import/export inside the planner flow, not as a dedicated page.
+- References, guides, academy planning, generated export formats, and battle simulation as later extensions.

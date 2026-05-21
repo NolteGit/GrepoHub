@@ -1,159 +1,83 @@
 # Feature List
 
-This document describes the current Grepo Hub feature set and the main ideas that are still planned for later iterations.
+This document describes the current Grepo Hub feature direction after the Planner V2 reset.
 
-## Current pages
+## Current routed surface
 
-Grepo Hub currently exposes these routed pages:
+Grepo Hub currently exposes the Planner V2 shell at:
 
-- Home / Dashboard
-- City Planner
-- Troops Planner
-- References
-- Toolbox
+```txt
+/
+/planner-v2
+```
 
-There is no dedicated import/export page. Import and export actions belong directly inside the planner pages where the user is already working with the data.
+The old Home, City Planner, Troops Planner, References, and Toolbox pages were intentionally removed as UI surfaces. Their reusable data, services, helpers, translations, and assets remain available for the V2 implementation.
 
-## Home / Dashboard
+## Planner V2
 
-The home page is the central entry point of the app.
+Planner V2 is the central app surface.
 
-It currently provides:
+The intended layout has three persistent areas:
 
-- A prominent **Grepo Hub** introduction.
-- Cards for the active feature areas.
-- Short explanations of the current local-first approach.
-- Navigation into the main planning, reference, and toolbox pages.
+- Left functional toolbox with clock, quick actions, reminders, calculator/time tools, and links.
+- Center planner workspace with plan controls, City Setup / Troop Setup switch, setup context strip, tile grid, and bottom summary.
+- Right summary sidebar with shared population/BHP information and context-specific summary content.
 
-Future additions may include a compact About dialog, project version information, and a clearer changelog/status area.
+## City Setup
 
-## City Planner
+City Setup will contain the building-planning workflow.
 
-The City Planner is one of the two core planning features.
+Planned V2 behavior:
 
-It currently focuses on:
+- Building tiles for all normal buildings.
+- Wider selectors for special buildings.
+- Compact setup context strip for city modifiers such as Aphrodite, Land Expansion, and Plow.
+- Building level edits through reusable number controls.
+- City summaries derived from the selected plan state.
+- JSON import/export and local persistence through the existing plan configuration services.
 
-- Building level planning.
-- City role/template presets.
-- Shared `PlanConfig` integration.
-- Local plan persistence.
-- JSON import/export through the planner UI.
+## Troop Setup
 
-Planned extensions include academy planning, better validation, optional note/BBCode export, and visual summaries.
+Troop Setup will contain the unit-planning workflow.
 
-## Academy planning
+Planned V2 behavior:
 
-Academy planning should remain part of the City Planner instead of becoming a separate MVP page.
-
-Good future UI shapes are:
-
-- Collapsible panel.
-- Modal / popup.
-- Tab inside the City Planner.
-
-Academy data can later become an optional section in the shared plan configuration model.
-
-## Troops Planner
-
-The Troops Planner is the second core planning feature.
-
-It currently focuses on:
-
-- Land and naval unit amounts.
-- OFF/DEF categorization.
-- Population and resource totals.
-- Preset troop configurations.
-- Shared `PlanConfig` integration.
-- Local plan persistence.
-- JSON import/export through the planner UI.
-
-Planned extensions include CSV export, BBCode/note export, stronger modifier support, and better composition summaries.
-
-## References
-
-The References page collects structured game-related links and helper material.
-
-It currently includes:
-
-- Categorized external resources.
-- Tool and script cards.
-- Installation/status labels for scripts.
-- Search and type filters.
-- English/German translations for all user-facing labels.
-- Localized quick-link URLs where supported.
-
-Future reference data may include building tables, research summaries, common abbreviations, and returning-player notes.
+- Land / Sea / Mythical category tabs.
+- God dropdown for mythical units.
+- Compact context values for Barracks, Harbour, and Temple levels.
+- Unit amount edits through reusable number controls.
+- Troop summaries for population, attack, defense, carry capacity, and march-time context.
+- JSON import/export and local persistence through the existing plan configuration services.
 
 ## Toolbox
 
-The Toolbox page consolidates utility tools that were previously described as separate Time Tools and Battle Simulator pages.
+The toolbox is no longer a separate route. It is part of the Planner V2 shell.
 
-It currently includes:
+Planned toolbox behavior:
 
-- Quick calculator.
-- Time calculator.
-- Reminder creation for countdowns, alarms, and stopwatches.
-- Active timer queue.
-- Battle simulator placeholder behind a feature flag.
+- Clock and current date.
+- Common planner actions.
+- Reminder/timer queue.
+- Calculator and time calculator.
+- Quick links.
 
-Running timers are currently scoped to the Toolbox implementation. A later extraction into a shared timer service would allow global top-bar timer access.
+Timer and calculator backend utilities already exist under `src/app/services` and `src/app/utils`; the V2 UI will wire them in later.
 
-See [`05-time-tools.md`](./05-time-tools.md) for details about timing behavior and future service extraction.
+## References and guides
+
+Reference content is not currently exposed as a separate page in V2. Existing reference documents and quick-link assets are retained so they can later be surfaced through the toolbox, a compact overlay, or a future dedicated route if needed.
 
 ## Translation support
 
-Grepo Hub uses local JSON translation files.
+Grepo Hub uses local JSON translation files under `public/assets/i18n/`.
 
-Current languages:
+Supported languages are currently:
 
-- English (`public/assets/i18n/en.json`)
-- German (`public/assets/i18n/de.json`)
+- English (`en`)
+- German (`de`)
+- Spanish (`es`)
+- French (`fr`)
+- Italian (`it`)
+- Dutch (`nl`)
 
-The translation system should cover:
-
-- Navigation labels.
-- Page titles.
-- Button labels.
-- Planner labels and helper text.
-- References resources, scripts, filters, and link labels.
-- Toolbox labels, actions, calculator text, and timer states.
-- Status and error messages.
-
-Fallback strings are supported for migration and data-driven labels, but new user-facing text should still receive explicit translation keys.
-
-## Static JSON game database
-
-Grepo Hub includes a small local JSON database for core game resources.
-
-Current files:
-
-```txt
-public/assets/data/units.json
-public/assets/data/buildings.json
-```
-
-Possible later files:
-
-```txt
-public/assets/data/research.json
-public/assets/data/world-settings.json
-```
-
-This data should remain readable and versionable. UI labels around the data should be translated through i18n files, while core game identifiers can stay stable.
-
-## Delayed features
-
-These are useful but should not distract from the current MVP stabilization work:
-
-- Full Battle Simulator.
-- Advanced Academy Planner.
-- PNG export.
-- CSV export.
-- BBCode export.
-- Browser notifications and sounds.
-- Global shared timer service.
-- Cloud sync.
-- Login/accounts.
-- Live Grepolis integration.
-- Browser extension features.
-- Alliance multiplayer planning.
+All visible UI labels should have translation keys. Fallback strings are acceptable during V2 migration for data-driven labels, but should not become the normal way to add stable UI text.

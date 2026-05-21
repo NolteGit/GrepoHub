@@ -2,9 +2,9 @@
 
 ## Current phase
 
-The project is now in MVP stabilization and vertical-slice development.
+The project is now in the Planner V2 implementation phase.
 
-The first routed Angular implementation exists. The current focus is to keep the local-first architecture stable, remove avoidable complexity, finish translation coverage, and improve one feature area at a time.
+The old V1 UI surfaces were removed to avoid carrying over layout hacks and duplicated SCSS. The reusable app brain remains: services, models, static data, translations, assets, import/export logic, local storage logic, and calculation helpers.
 
 ## Confirmed app name
 
@@ -15,62 +15,55 @@ Grepo Hub
 ## Confirmed project directory
 
 ```txt
-grepo-hub
+GrepoHub
 ```
 
 ## Confirmed routes
 
 ```txt
-home -> /
-city-planner -> /city-planner
-troops-planner -> /troops-planner
-references -> /references
-toolbox -> /toolbox
+planner-v2 -> /
+planner-v2 -> /planner-v2
 ```
 
 ## Important design decisions
 
-### No dedicated import/export page
+### Fresh Planner V2 UI, reused app brain
 
-Import and export stay inside City Planner and Troops Planner. The shared JSON `PlanConfig` bundle is the canonical exchange format.
+The planner UI should be rebuilt fresh while reusing existing core logic and assets.
 
-### Academy Planner belongs inside City Planner
+Reuse:
 
-Academy planning should be part of City Planner, not a major standalone route for the MVP.
+- Services.
+- Data/config models.
+- Assets/icons/images.
+- Translation files.
+- Calculation logic.
+- Storage/import/export logic.
 
-### Guides and references are consolidated for now
+Rebuild fresh:
 
-Long-form guide material can be added later, but the current implementation keeps external resources and practical helper links on the References page.
+- Planner HTML structure.
+- Planner layout.
+- Tile components.
+- Sidebar/toolbox layout.
+- Summary panels.
+- City/Troop setup UI.
 
-### Time tools are unified in Toolbox
+### Single planner workspace
 
-Timing features currently live inside Toolbox instead of a separate Time Tools route.
+Planner V2 is the main app surface. City Setup and Troop Setup are modes inside one planner workspace, not separate top-level pages.
 
-This includes:
+### Toolbox belongs to the planner shell
 
-- Time calculator.
-- Alarms.
-- Countdowns.
-- Stopwatches.
-- Runtime timer queue.
+The toolbox is a functional left column with clock, quick actions, timers, calculator/time tools, and links. It is not a traditional navigation sidebar.
 
-### Battle Simulator is delayed
+### Tailwind with discipline
 
-The battle simulator remains intentionally gated as a later Toolbox feature. Accurate simulation will require many game mechanics, modifiers, and world settings, so it should not distract from planner stabilization.
+Tailwind is used for layout and repeated visual styling, but repeated patterns should still become reusable Angular components. The goal is consistency, not long unstructured class strings everywhere.
 
-## UI direction
+### Signal-first for new V2 UI state
 
-The app should feel like a practical companion dashboard.
-
-Important UI pieces:
-
-- Responsive app shell.
-- Clear top navigation.
-- Feature cards on the dashboard.
-- Planner configuration sidebars.
-- Compact import/export controls inside planner pages.
-- References filters and cards.
-- Toolbox utility panels.
+New Planner V2 state should prefer Angular signals and computed values. Services and pure calculations should stay as plain TypeScript unless they need async or stream behavior.
 
 ## Storage direction
 
@@ -91,39 +84,33 @@ Current files:
 ```txt
 public/assets/i18n/en.json
 public/assets/i18n/de.json
+public/assets/i18n/es.json
+public/assets/i18n/fr.json
+public/assets/i18n/it.json
+public/assets/i18n/nl.json
 ```
 
-All visible UI labels should have translation keys. Fallback strings are allowed while migrating data-driven labels, but should not become the normal way to add UI text.
-
-## Game data direction
-
-Use small readable JSON files for core data.
-
-Current files:
-
-```txt
-public/assets/data/units.json
-public/assets/data/buildings.json
-```
-
-Before adding more planner logic, review whether these schemas are stable enough for calculations, validation, and future import/export support.
+All visible UI labels should have translation keys. Fallback strings are allowed while migrating data-driven labels, but should not become the normal way to add stable UI text.
 
 ## Recommended next coding tasks
 
-1. Add more focused tests for `PlanConfigService` import/export validation.
-2. Add tests for translation fallback and language switching.
-3. Review the unit/building JSON schemas before more features depend on them.
-4. Decide whether Toolbox timer state should move into a shared timer service.
-5. Improve planner validation and user-facing error messages.
-6. Add generated export formats only after the JSON plan format remains stable.
+1. Add shared UI primitives under `src/app/shared/ui`.
+2. Split Planner V2 placeholders into City Setup, Troop Setup, and bottom summary components.
+3. Implement City Setup with real building data and reusable tile/stepper components.
+4. Add computed city summaries.
+5. Implement Troop Setup with category/god filtering.
+6. Add computed troop summaries.
+7. Wire plan persistence, import, and export into the V2 controls.
+8. Wire toolbox timer/calculator utilities after the core planner workflow is stable.
 
 ## Open questions
 
 These can still be decided later:
 
-- Exact visual theme polish.
-- Whether to add a Settings page early or keep settings inside services/local storage.
+- Exact special-building selector interaction.
+- Exact city summary metrics to show in the bottom bar vs right sidebar.
+- Exact troop summary metric order.
+- Whether guide/reference content returns as a dedicated route or toolbox overlay.
 - Exact TXT/BBCode export syntax.
 - Exact research/academy JSON schema.
-- Whether guide content is stored locally or mostly linked externally.
-- Whether browser notifications should be included after the first timer MVP.
+- Whether browser notifications should be included after timer wiring.

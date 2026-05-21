@@ -83,12 +83,10 @@ Current files:
 ```txt
 public/assets/i18n/en.json
 public/assets/i18n/de.json
-```
-
-Possible later language files:
-
-```txt
-public/assets/i18n/<language>.json
+public/assets/i18n/es.json
+public/assets/i18n/fr.json
+public/assets/i18n/it.json
+public/assets/i18n/nl.json
 ```
 
 Translation files should cover UI text, not the canonical game data identifiers.
@@ -126,7 +124,7 @@ User-created data may include:
 
 ## Shared planner configuration model
 
-City Planner and Troops Planner work on the same underlying `PlanConfig` shape.
+City Setup and Troop Setup work on the same underlying `PlanConfig` shape.
 
 A plan represents one planning project, not one isolated planner tab. This allows the user to create a city plan first and then fill the corresponding troop plan, or start from troop needs and adjust the city plan later.
 
@@ -170,11 +168,11 @@ The canonical shape is JSON:
 
 The JSON bundle is the source of truth for import/export. It remains human-readable because it is formatted with indentation, but the app should validate and normalize imported data before using it.
 
-## Planner configuration sidebar
+## Planner configuration controls
 
-City Planner and Troops Planner can keep their own page UI, but the configuration selector should list shared plans.
+Planner V2 should keep one shared plan selector in the header. City Setup and Troop Setup both edit the active shared plan.
 
-The selector should allow users to:
+The controls should allow users to:
 
 - View existing plans.
 - Load a shared plan into the current planner view.
@@ -187,7 +185,7 @@ The selector should allow users to:
 
 Import and export should be useful but not intrusive.
 
-They should not have their own main page. They should be integrated into planner pages through compact buttons, panels, or dialogs.
+They should not have their own main page. They should be integrated into Planner V2 through compact header buttons, toolbox actions, panels, or dialogs.
 
 ## Validation expectations
 
