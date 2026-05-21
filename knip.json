@@ -1,0 +1,36 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreFiles": [
+    "src/app/data/asset-paths.ts",
+    "src/app/data/reference-documents.ts",
+    "src/app/utils/toolbox-calculator.util.ts"
+  ],
+  "ignoreIssues": {
+    "src/app/data/academy-research-presets.ts": [
+      "exports"
+    ],
+    "src/app/models/toolbox.models.ts": [
+      "types"
+    ],
+    "src/app/models/troop-configuration.model.ts": [
+      "types"
+    ],
+    "src/app/models/unit.model.ts": [
+      "types"
+    ],
+    "src/app/services/plan-config-normalization.ts": [
+      "exports"
+    ],
+    "src/app/services/supported-languages.ts": [
+      "exports",
+      "types"
+    ],
+    "src/app/utils/toolbox-time.util.ts": [
+      "exports",
+      "types"
+    ]
+  },
+  "ignoreDependencies": [
+    "@angular/forms"
+  ]
+}

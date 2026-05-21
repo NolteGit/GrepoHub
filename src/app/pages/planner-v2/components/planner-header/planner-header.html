@@ -1,12 +1,12 @@
 <header class="planner-header">
   <div class="planner-header__title-block">
     <h1>{{ title() }}</h1>
-    <p>{{ subtitle }}</p>
+    <p>{{ subtitleKey | translate: subtitleFallback }}</p>
   </div>
 
   <div class="planner-header__controls">
     <label class="planner-header__select">
-      <span>{{ planLabel }}</span>
+      <span>{{ planLabelKey | translate: planLabelFallback }}</span>
       <select [value]="activePlanId()" (change)="selectPlan($event)">
         @for (plan of plans(); track plan.id) {
           <option [value]="plan.id">{{ plan.name }}</option>
@@ -15,13 +15,13 @@
     </label>
 
     <div class="planner-header__actions">
-      @for (action of actions; track action.label) {
+      @for (action of actions; track action.labelKey) {
         <button
           type="button"
           [class.planner-header__button--primary]="action.variant === 'primary'"
         >
           <span>{{ action.icon }}</span>
-          {{ action.label }}
+          {{ action.labelKey | translate: action.fallback }}
         </button>
       }
     </div>

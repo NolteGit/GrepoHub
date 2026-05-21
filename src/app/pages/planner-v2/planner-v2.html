@@ -4,7 +4,6 @@
   <app-planner-header
     class="planner-shell__header"
     [activePlanId]="activePlan().id"
-    [activePlanName]="activePlan().name"
     [plans]="plans()"
     [title]="'plannerV2.title' | translate"
     (planSelected)="selectPlan($event)"
@@ -21,8 +20,11 @@
             [attr.aria-label]="'plannerV2.citySetupContextLabel' | translate: 'City setup context'"
           >
             <div class="planner-context-stack planner-context-stack--left">
-              @for (item of cityContextLeft; track item.label) {
-                <article class="planner-compact-context" [attr.title]="item.label">
+              @for (item of cityContextLeft; track item.labelKey) {
+                <article
+                  class="planner-compact-context"
+                  [attr.title]="item.labelKey | translate: item.fallback"
+                >
                   <span aria-hidden="true">{{ item.icon }}</span>
                   <strong>{{ item.value }}</strong>
                 </article>
@@ -33,24 +35,29 @@
               class="planner-modifier-tabs"
               [attr.aria-label]="'plannerV2.cityModifierLabel' | translate: 'City modifiers'"
             >
-              @for (modifier of cityModifiers; track modifier.label) {
+              @for (modifier of cityModifiers; track modifier.labelKey) {
                 <button
                   type="button"
                   [class.planner-modifier-tabs__button--active]="modifier.active"
                   [attr.aria-pressed]="modifier.active"
                 >
                   <span aria-hidden="true">{{ modifier.icon }}</span>
-                  <strong class="planner-modifier-tabs__label">{{ modifier.label }}</strong>
+                  <strong class="planner-modifier-tabs__label">{{
+                    modifier.labelKey | translate: modifier.fallback
+                  }}</strong>
                   <strong class="planner-modifier-tabs__label-short">{{
-                    modifier.shortLabel
+                    modifier.shortLabelKey | translate: modifier.shortFallback
                   }}</strong>
                 </button>
               }
             </nav>
 
             <div class="planner-context-stack planner-context-stack--right">
-              @for (item of cityContextRight; track item.label) {
-                <article class="planner-compact-context" [attr.title]="item.label">
+              @for (item of cityContextRight; track item.labelKey) {
+                <article
+                  class="planner-compact-context"
+                  [attr.title]="item.labelKey | translate: item.fallback"
+                >
                   <span aria-hidden="true">{{ item.icon }}</span>
                   <strong>{{ item.value }}</strong>
                 </article>
@@ -64,11 +71,11 @@
               'plannerV2.citySetupPlaceholderLabel' | translate: 'City setup placeholder'
             "
           >
-            @for (building of buildingPlaceholders; track building.name) {
+            @for (building of buildingPlaceholders; track building.labelKey) {
               <article class="planner-tile planner-tile--building">
                 <div class="planner-tile__image" aria-hidden="true">{{ building.icon }}</div>
                 <div class="planner-tile__body">
-                  <h2>{{ building.name }}</h2>
+                  <h2>{{ building.labelKey | translate: building.fallback }}</h2>
                   <span>{{ 'plannerV2.level' | translate: 'Level' }}</span>
                   <div class="planner-tile__controls">
                     <button type="button">−</button>
@@ -78,7 +85,10 @@
                     <button type="button">{{ 'plannerV2.max' | translate: 'MAX' }}</button>
                   </div>
                 </div>
-                <footer>{{ building.stat }}</footer>
+                <footer>
+                  {{ building.statLabelKey | translate: building.statFallback }}
+                  {{ building.statValue }}
+                </footer>
               </article>
             }
           </section>
@@ -90,9 +100,9 @@
                 | translate: 'Special building placeholders'
             "
           >
-            @for (slot of specialSlots; track slot) {
+            @for (slot of specialSlots; track slot.labelKey) {
               <article class="planner-special-card">
-                <h2>★ {{ slot }}</h2>
+                <h2>★ {{ slot.labelKey | translate: slot.fallback }}</h2>
                 <select>
                   <option>{{ 'plannerV2.none' | translate: 'None' }}</option>
                 </select>
@@ -107,8 +117,11 @@
             "
           >
             <div class="planner-context-stack planner-context-stack--left">
-              @for (item of troopContextLeft; track item.label) {
-                <article class="planner-compact-context" [attr.title]="item.label">
+              @for (item of troopContextLeft; track item.labelKey) {
+                <article
+                  class="planner-compact-context"
+                  [attr.title]="item.labelKey | translate: item.fallback"
+                >
                   <span aria-hidden="true">{{ item.icon }}</span>
                   <strong>{{ item.value }}</strong>
                 </article>
@@ -119,20 +132,25 @@
               class="planner-category-tabs"
               [attr.aria-label]="'plannerV2.troopCategoryLabel' | translate: 'Troop category'"
             >
-              @for (category of troopCategories; track category.label) {
+              @for (category of troopCategories; track category.labelKey) {
                 <button type="button" [class.planner-category-tabs__button--active]="$first">
                   <span aria-hidden="true">{{ category.icon }}</span>
-                  <strong class="planner-category-tabs__label">{{ category.label }}</strong>
+                  <strong class="planner-category-tabs__label">{{
+                    category.labelKey | translate: category.fallback
+                  }}</strong>
                   <strong class="planner-category-tabs__label-short">{{
-                    category.shortLabel
+                    category.shortLabelKey | translate: category.shortFallback
                   }}</strong>
                 </button>
               }
             </nav>
 
             <div class="planner-context-stack planner-context-stack--right">
-              @for (item of troopContextRight; track item.label) {
-                <article class="planner-compact-context" [attr.title]="item.label">
+              @for (item of troopContextRight; track item.labelKey) {
+                <article
+                  class="planner-compact-context"
+                  [attr.title]="item.labelKey | translate: item.fallback"
+                >
                   <span aria-hidden="true">{{ item.icon }}</span>
                   <strong>{{ item.value }}</strong>
                 </article>
@@ -141,8 +159,8 @@
               <label class="planner-god-select">
                 <span aria-hidden="true">☉</span>
                 <select [attr.aria-label]="'unitAttribute.god' | translate: 'God'">
-                  @for (god of gods; track god) {
-                    <option>{{ god }}</option>
+                  @for (god of gods; track god.labelKey) {
+                    <option>{{ god.labelKey | translate: god.fallback }}</option>
                   }
                 </select>
               </label>
@@ -155,18 +173,22 @@
               'plannerV2.troopSetupPlaceholderLabel' | translate: 'Troop setup placeholder'
             "
           >
-            @for (unit of unitPlaceholders; track unit.name) {
+            @for (unit of unitPlaceholders; track unit.labelKey) {
               <article class="planner-tile planner-tile--unit">
                 <div class="planner-tile__image" aria-hidden="true">{{ unit.icon }}</div>
                 <div class="planner-tile__body">
-                  <h2>{{ unit.name }}</h2>
+                  <h2>{{ unit.labelKey | translate: unit.fallback }}</h2>
                   <div class="planner-tile__controls">
                     <button type="button">−</button>
                     <strong>{{ unit.amount }}</strong>
                     <button type="button">+</button>
                   </div>
                 </div>
-                <footer>{{ unit.stat }}</footer>
+                <footer>
+                  {{ unit.attack }} {{ 'plannerV2.stat.attackShort' | translate: 'attack' }} ·
+                  {{ unit.population }} {{ 'plannerV2.stat.populationShort' | translate: 'pop' }} ·
+                  {{ unit.time }}
+                </footer>
               </article>
             }
           </section>
@@ -174,11 +196,11 @@
       </section>
 
       <section class="planner-bottom-summary">
-        @for (stat of bottomSummaryStats(); track stat.label) {
+        @for (stat of bottomSummaryStats(); track stat.labelKey) {
           <article class="planner-bottom-summary__card">
             <span>{{ stat.icon }}</span>
             <div>
-              <p>{{ stat.label }}</p>
+              <p>{{ stat.labelKey | translate: stat.fallback }}</p>
               <strong>{{ stat.value }}</strong>
             </div>
           </article>

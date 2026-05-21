@@ -1,16 +1,16 @@
 <aside class="planner-summary-sidebar">
   <section class="planner-summary-panel planner-summary-panel--primary">
     <header class="planner-summary-panel__header">
-      <h2>{{ populationTitle }}</h2>
-      <button type="button" [attr.aria-label]="infoLabel">
+      <h2>{{ populationTitleKey | translate: populationTitleFallback }}</h2>
+      <button type="button" [attr.aria-label]="infoLabelKey | translate: infoLabelFallback">
         <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
       </button>
     </header>
 
     <div class="planner-summary-panel__rows">
-      @for (stat of populationStats(); track stat.label) {
+      @for (stat of populationStats(); track stat.labelKey) {
         <div class="planner-summary-panel__row">
-          <span>{{ stat.label }}</span>
+          <span>{{ stat.labelKey | translate: stat.fallback }}</span>
           <strong>{{ stat.value }}</strong>
         </div>
       }
@@ -19,24 +19,24 @@
 
   <section class="planner-summary-panel">
     <header class="planner-summary-panel__header">
-      <h2>{{ contextTitle() }}</h2>
-      <button type="button" [attr.aria-label]="infoLabel">
+      <h2>{{ contextTitle().labelKey | translate: contextTitle().fallback }}</h2>
+      <button type="button" [attr.aria-label]="infoLabelKey | translate: infoLabelFallback">
         <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
       </button>
     </header>
 
     @if (activeMode() === 'city') {
       <ol class="planner-summary-list">
-        @for (unit of usedUnitsPreview; track unit.label) {
+        @for (unit of usedUnitsPreview; track unit.labelKey) {
           <li>
-            <span>{{ unit.label }}</span>
+            <span>{{ unit.labelKey | translate: unit.fallback }}</span>
             <strong>{{ unit.value }}</strong>
           </li>
         }
       </ol>
     } @else {
       <div class="planner-capacity-preview">
-        <span>{{ capacityLabel }}</span>
+        <span>{{ capacityLabelKey | translate: capacityLabelFallback }}</span>
         <strong>48,760 / 105,000</strong>
         <div><span></span></div>
         <small>46%</small>

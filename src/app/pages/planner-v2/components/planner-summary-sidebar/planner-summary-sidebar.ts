@@ -4,13 +4,16 @@ import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 import { PlannerMode } from '../planner-mode-switch/planner-mode-switch';
 
-type SidebarStat = {
-  readonly label: string;
+type TranslatableText = {
+  readonly labelKey: string;
+  readonly fallback: string;
+};
+
+type SidebarStat = TranslatableText & {
   readonly value: string;
 };
 
-type PreviewStat = {
-  readonly label: string;
+type PreviewStat = TranslatableText & {
   readonly value: string;
 };
 
@@ -26,23 +29,46 @@ export class PlannerSummarySidebar {
   readonly buildingCount = input.required<number>();
   readonly usedUnitCount = input.required<number>();
 
-  protected readonly populationTitle = 'Shared Population Summary';
-  protected readonly infoLabel = 'More information';
-  protected readonly capacityLabel = 'Current / Max Capacity';
+  protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
+  protected readonly populationTitleFallback = 'Shared Population Summary';
+  protected readonly infoLabelKey = 'plannerV2.summary.infoLabel';
+  protected readonly infoLabelFallback = 'More information';
+  protected readonly capacityLabelKey = 'plannerV2.summary.currentMaxCapacity';
+  protected readonly capacityLabelFallback = 'Current / Max Capacity';
   protected readonly usedUnitsPreview: readonly PreviewStat[] = [
-    { label: 'Swordsman', value: '7,420' },
-    { label: 'Archer', value: '5,210' },
-    { label: 'Hoplite', value: '3,860' },
-    { label: 'Catapult', value: '2,150' },
-    { label: 'Horseman', value: '1,980' },
+    { labelKey: 'unit.swordsman', fallback: 'Swordsman', value: '7,420' },
+    { labelKey: 'unit.archer', fallback: 'Archer', value: '5,210' },
+    { labelKey: 'unit.hoplite', fallback: 'Hoplite', value: '3,860' },
+    { labelKey: 'unit.catapult', fallback: 'Catapult', value: '2,150' },
+    { labelKey: 'unit.horseman', fallback: 'Horseman', value: '1,980' },
   ];
-  protected readonly contextTitle = computed(() =>
-    this.activeMode() === 'city' ? 'Most Used Units' : 'Boat Carrying Capacity',
+  protected readonly contextTitle = computed<TranslatableText>(() =>
+    this.activeMode() === 'city'
+      ? {
+          labelKey: 'plannerV2.summary.context.mostUsedUnits',
+          fallback: 'Most Used Units',
+        }
+      : {
+          labelKey: 'plannerV2.summary.context.boatCapacity',
+          fallback: 'Boat Carrying Capacity',
+        },
   );
   protected readonly populationStats = computed<readonly SidebarStat[]>(() => [
-    { label: 'Active plan', value: this.activePlanName() },
-    { label: 'Building entries', value: String(this.buildingCount()) },
-    { label: 'Used units', value: String(this.usedUnitCount()) },
-    { label: 'Free BHP', value: '0' },
+    {
+      labelKey: 'plannerV2.summary.activePlan',
+      fallback: 'Active plan',
+      value: this.activePlanName(),
+    },
+    {
+      labelKey: 'plannerV2.summary.buildingEntries',
+      fallback: 'Building entries',
+      value: String(this.buildingCount()),
+    },
+    {
+      labelKey: 'plannerV2.summary.usedUnits',
+      fallback: 'Used units',
+      value: String(this.usedUnitCount()),
+    },
+    { labelKey: 'plannerV2.summary.freeBhp', fallback: 'Free BHP', value: '0' },
   ]);
 }

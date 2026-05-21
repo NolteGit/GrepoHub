@@ -1,4 +1,4 @@
-<nav class="planner-mode-switch" [attr.aria-label]="ariaLabel">
+<nav class="planner-mode-switch" [attr.aria-label]="ariaLabelKey | translate: ariaLabelFallback">
   @for (option of options; track option.id) {
     <button
       type="button"
@@ -8,7 +8,7 @@
       (click)="selectMode(option.id)"
     >
       <span aria-hidden="true">{{ option.icon }}</span>
-      <strong>{{ option.title }}</strong>
+      <strong>{{ option.labelKey | translate: option.fallback }}</strong>
     </button>
   }
 </nav>

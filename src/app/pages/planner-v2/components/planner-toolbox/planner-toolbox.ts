@@ -1,17 +1,22 @@
 import { Component, computed, OnDestroy, signal } from '@angular/core';
 
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
+
 type ToolboxButton = {
-  readonly label: string;
+  readonly labelKey: string;
+  readonly fallback: string;
   readonly icon: string;
 };
 
 type ToolboxQueueItem = {
-  readonly label: string;
+  readonly labelKey: string;
+  readonly fallback: string;
   readonly time: string;
 };
 
 @Component({
   selector: 'app-planner-toolbox',
+  imports: [TranslatePipe],
   templateUrl: './planner-toolbox.html',
   styleUrl: './planner-toolbox.scss',
 })
@@ -33,11 +38,18 @@ export class PlannerToolbox implements OnDestroy {
     }).format(this.now()),
   );
   protected readonly brandInitial = 'G';
-  protected readonly actionTitle = 'Tools';
-  protected readonly queueTitle = 'Reminders / Queue';
-  protected readonly calculatorTitle = 'Calculator / TimeCalc';
-  protected readonly addReminderLabel = 'Add reminder';
-  protected readonly footerLinks = ['GitHub', 'Help'];
+  protected readonly actionTitleKey = 'plannerV2.toolbox.tools';
+  protected readonly actionTitleFallback = 'Tools';
+  protected readonly queueTitleKey = 'plannerV2.toolbox.queue';
+  protected readonly queueTitleFallback = 'Reminders / Queue';
+  protected readonly calculatorTitleKey = 'plannerV2.toolbox.calculator';
+  protected readonly calculatorTitleFallback = 'Calculator / TimeCalc';
+  protected readonly addReminderLabelKey = 'plannerV2.toolbox.addReminder';
+  protected readonly addReminderLabelFallback = 'Add reminder';
+  protected readonly footerLinks: readonly ToolboxButton[] = [
+    { labelKey: 'plannerV2.toolbox.footer.github', fallback: 'GitHub', icon: '' },
+    { labelKey: 'plannerV2.toolbox.footer.help', fallback: 'Help', icon: '' },
+  ];
   protected readonly calculatorKeys = [
     'C',
     '(',
@@ -60,19 +72,31 @@ export class PlannerToolbox implements OnDestroy {
     '=',
   ];
   protected readonly actionButtons: readonly ToolboxButton[] = [
-    { label: 'Save', icon: 'S' },
-    { label: 'Load', icon: 'L' },
-    { label: 'Share', icon: '↑' },
-    { label: 'Compare', icon: '◇' },
-    { label: 'Import', icon: 'I' },
-    { label: 'Copy', icon: 'C' },
-    { label: 'Clear', icon: '×' },
-    { label: 'Settings', icon: '⚙' },
+    { labelKey: 'plannerV2.toolbox.actions.save', fallback: 'Save', icon: 'S' },
+    { labelKey: 'plannerV2.toolbox.actions.load', fallback: 'Load', icon: 'L' },
+    { labelKey: 'plannerV2.toolbox.actions.share', fallback: 'Share', icon: '↑' },
+    { labelKey: 'plannerV2.toolbox.actions.compare', fallback: 'Compare', icon: '◇' },
+    { labelKey: 'plannerV2.toolbox.actions.import', fallback: 'Import', icon: 'I' },
+    { labelKey: 'plannerV2.toolbox.actions.copy', fallback: 'Copy', icon: 'C' },
+    { labelKey: 'plannerV2.toolbox.actions.clear', fallback: 'Clear', icon: '×' },
+    { labelKey: 'plannerV2.toolbox.actions.settings', fallback: 'Settings', icon: '⚙' },
   ];
   protected readonly queueItems: readonly ToolboxQueueItem[] = [
-    { label: 'Farm upgrade', time: '21:45' },
-    { label: 'Barracks upgrade', time: '01:12:30' },
-    { label: 'Marketplace upgrade', time: '03:30:00' },
+    {
+      labelKey: 'plannerV2.toolbox.demoQueue.farmUpgrade',
+      fallback: 'Farm upgrade',
+      time: '21:45',
+    },
+    {
+      labelKey: 'plannerV2.toolbox.demoQueue.barracksUpgrade',
+      fallback: 'Barracks upgrade',
+      time: '01:12:30',
+    },
+    {
+      labelKey: 'plannerV2.toolbox.demoQueue.marketplaceUpgrade',
+      fallback: 'Marketplace upgrade',
+      time: '03:30:00',
+    },
   ];
 
   ngOnDestroy(): void {
