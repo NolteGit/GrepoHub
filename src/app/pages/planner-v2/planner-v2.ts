@@ -1,17 +1,20 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
   cityBuildingPlanDefinitions,
   citySpecialBuildingSlotDefinitions,
 } from '../../data/city-planner-presets';
-import { getBuildingImagePath } from '../../data/asset-paths';
+import { getBuildingImagePath, getUnitIconPath } from '../../data/asset-paths';
 import type {
   CityModifierId,
   CitySpecialBuildingOptionId,
   CitySpecialBuildingSlotId,
 } from '../../models/city-configuration.model';
+import type { Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
+import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
 
 import { PlannerBottomSummary } from './components/planner-bottom-summary/planner-bottom-summary';
@@ -38,7 +41,8 @@ import type {
   SpecialBuildingSlotView,
   TroopCategory,
   TroopCategoryTab,
-  UnitTilePlaceholder,
+  UnitTileStat,
+  UnitTileView,
 } from './planner-v2.models';
 
 const cityBuildingOrder = [
@@ -97,80 +101,40 @@ const buildingFallbackIcons: Record<string, string> = {
   warehouse: '▤',
 };
 
-const unitPlaceholders: readonly UnitTilePlaceholder[] = [
-  {
-    labelKey: 'unit.swordsman',
-    fallback: 'Swordsman',
-    icon: '⚔',
-    amount: '7,420',
-    attack: 18,
-    population: 1,
-    time: '00:30',
-  },
-  {
-    labelKey: 'unit.archer',
-    fallback: 'Archer',
-    icon: '➶',
-    amount: '5,210',
-    attack: 24,
-    population: 1,
-    time: '00:35',
-  },
-  {
-    labelKey: 'unit.hoplite',
-    fallback: 'Hoplite',
-    icon: '◈',
-    amount: '3,860',
-    attack: 28,
-    population: 1,
-    time: '00:45',
-  },
-  {
-    labelKey: 'unit.horseman',
-    fallback: 'Horseman',
-    icon: '♞',
-    amount: '1,980',
-    attack: 32,
-    population: 2,
-    time: '00:50',
-  },
-  {
-    labelKey: 'unit.slinger',
-    fallback: 'Slinger',
-    icon: '◒',
-    amount: '2,450',
-    attack: 16,
-    population: 1,
-    time: '00:25',
-  },
-  {
-    labelKey: 'unit.chariot',
-    fallback: 'Chariot',
-    icon: '♘',
-    amount: '1,150',
-    attack: 36,
-    population: 2,
-    time: '00:55',
-  },
-  {
-    labelKey: 'unit.catapult',
-    fallback: 'Catapult',
-    icon: '⚙',
-    amount: '2,150',
-    attack: 120,
-    population: 5,
-    time: '02:00',
-  },
-  {
-    labelKey: 'unit.militia',
-    fallback: 'Militia',
-    icon: '◉',
-    amount: '4,300',
-    attack: 10,
-    population: 1,
-    time: '00:20',
-  },
-];
+const unitFallbackIcons: Record<string, string> = {
+  militia: '◉',
+  swordsman: '⚔',
+  slinger: '◒',
+  archer: '➶',
+  hoplite: '◈',
+  horseman: '♞',
+  chariot: '♘',
+  catapult: '⚙',
+  divine_envoy: '✦',
+  minotaur: '♉',
+  manticore: '◆',
+  cyclop: '◉',
+  hydra: '♒',
+  harpy: '⌁',
+  medusa: '☍',
+  centaur: '♐',
+  pegasus: '♞',
+  cerberus: '♆',
+  erinys: '☄',
+  griffin: '♜',
+  calydonian_boar: '♘',
+  siren: '♪',
+  satyr: '♬',
+  ladon: '☊',
+  spartoi: '♟',
+  transport_boat: '⚓',
+  bireme: '◁',
+  light_ship: '➤',
+  fire_ship: '♨',
+  fast_transport_ship: '⇥',
+  trireme: '△',
+  colony_ship: '⚑',
+};
 
 const troopCategories: readonly TroopCategoryTab[] = [
   {
@@ -234,6 +198,76 @@ const formatPopulationDelta = (value: number): string => {
 
 const formatRatio = (current: number, maximum: number): string => `${current}/${maximum}`;
 
+const formatUnitFallback = (unitId: string): string =>
+  unitId
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+
+const isVisibleForTroopCategory = (
+  unit: Unit,
+  category: TroopCategory,
+  selectedGod: string,
+): boolean => {
+  if (category === 'land') {
+    return unit.type === 'land' && !unit.isMythical;
+  }
+
+  if (category === 'sea') {
+    return unit.type === 'sea' && !unit.isMythical;
+  }
+
+  return unit.isMythical && (unit.god === selectedGod || unit.god === 'all');
+};
+
+const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
+  const attackValue = unit.type === 'sea' ? unit.attackSea : unit.attack;
+  const defenseValue =
+    unit.type === 'sea'
+      ? String(unit.defenseSea)
+      : `${unit.defenseBlunt}/${unit.defenseSharp}/${unit.defenseDistance}`;
+  const stats: UnitTileStat[] = [
+    {
+      labelKey: unit.type === 'sea' ? 'plannerV2.stat.navalAttack' : 'plannerV2.stat.attackShort',
+      fallback: unit.type === 'sea' ? 'Naval attack' : 'attack',
+      value: formatNumber(attackValue),
+      tone: attackValue > 0 ? 'gold' : 'muted',
+    },
+    {
+      labelKey: unit.type === 'sea' ? 'plannerV2.stat.defenseShort' : 'plannerV2.stat.defense',
+      fallback: unit.type === 'sea' ? 'def' : 'Defense',
+      value: defenseValue,
+      tone: defenseValue === '0' ? 'muted' : 'default',
+    },
+    {
+      labelKey: 'plannerV2.stat.populationShort',
+      fallback: 'pop',
+      value: formatNumber(unit.cost.population),
+      tone: unit.cost.population > 0 ? 'default' : 'muted',
+    },
+  ];
+
+  if (unit.cost.favor > 0) {
+    stats.push({
+      labelKey: 'plannerV2.stat.favorShort',
+      fallback: 'favor',
+      value: formatNumber(unit.cost.favor),
+      tone: 'gold',
+    });
+  }
+
+  if (unit.transportCapacity > 0) {
+    stats.push({
+      labelKey: 'plannerV2.stat.capacity',
+      fallback: 'Capacity',
+      value: formatNumber(unit.transportCapacity),
+      tone: 'gold',
+    });
+  }
+
+  return stats;
+};
+
 @Component({
   selector: 'app-planner-v2',
   imports: [
@@ -250,13 +284,16 @@ const formatRatio = (current: number, maximum: number): string => `${current}/${
 })
 export class PlannerV2 {
   private readonly planConfigService = inject(PlanConfigService);
+  private readonly gameDataService = inject(GameDataService);
 
   protected readonly plans = this.planConfigService.plans;
   protected readonly activePlan = this.planConfigService.activePlan;
+  protected readonly unitDefinitions = toSignal(this.gameDataService.getUnitDefinitions(), {
+    initialValue: [] as Unit[],
+  });
   protected readonly activeMode = signal<PlannerMode>('city');
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
   protected readonly selectedGod = signal('zeus');
-  protected readonly unitPlaceholders = unitPlaceholders;
   protected readonly troopCategories = troopCategories;
   protected readonly gods = gods;
   protected readonly cityPopulation = computed(() =>
@@ -461,10 +498,53 @@ export class PlannerV2 {
       value: String(this.activePlan().cityPlan.buildingLevels['temple'] ?? 0),
     },
   ]);
-  protected readonly usedUnitCount = computed(
-    () =>
-      Object.values(this.activePlan().troopPlan.unitAmounts).filter((amount) => amount > 0).length,
-  );
+  protected readonly visibleUnits = computed<readonly UnitTileView[]>(() => {
+    const unitAmounts = this.activePlan().troopPlan.unitAmounts;
+    const category = this.selectedTroopCategory();
+    const selectedGod = this.selectedGod();
+
+    return this.unitDefinitions()
+      .filter((unit) => isVisibleForTroopCategory(unit, category, selectedGod))
+      .map((unit) => ({
+        id: unit.id,
+        labelKey: unit.nameKey,
+        fallback: formatUnitFallback(unit.id),
+        imagePath: getUnitIconPath(unit.id),
+        icon: unitFallbackIcons[unit.id] ?? '⚔',
+        amount: unitAmounts[unit.id] ?? 0,
+        stats: createUnitTileStats(unit),
+      }));
+  });
+  protected readonly troopTotals = computed(() => {
+    const unitAmounts = this.activePlan().troopPlan.unitAmounts;
+
+    return this.unitDefinitions().reduce(
+      (totals, unit) => {
+        const amount = unitAmounts[unit.id] ?? 0;
+
+        if (amount <= 0) {
+          return totals;
+        }
+
+        return {
+          totalUnits: totals.totalUnits + amount,
+          usedPopulation: totals.usedPopulation + amount * unit.cost.population,
+          totalAttack:
+            totals.totalAttack + amount * (unit.type === 'sea' ? unit.attackSea : unit.attack),
+          carryingCapacity: totals.carryingCapacity + amount * unit.transportCapacity,
+          usedUnitTypes: totals.usedUnitTypes + 1,
+        };
+      },
+      {
+        totalUnits: 0,
+        usedPopulation: 0,
+        totalAttack: 0,
+        carryingCapacity: 0,
+        usedUnitTypes: 0,
+      },
+    );
+  });
+  protected readonly usedUnitCount = computed(() => this.troopTotals().usedUnitTypes);
   protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => ({
     activePlanName: this.activePlan().name,
     populationCapacity: this.cityPopulation().populationCapacity,
@@ -514,31 +594,31 @@ export class PlannerV2 {
           {
             labelKey: 'plannerV2.bottom.totalUnits',
             fallback: 'Total Units',
-            value: '28,520',
+            value: formatNumber(this.troopTotals().totalUnits),
             icon: '⚔',
           },
           {
             labelKey: 'plannerV2.bottom.usedPopulation',
             fallback: 'Used Population',
-            value: '28,520 / 114',
+            value: formatNumber(this.troopTotals().usedPopulation),
             icon: '♟',
           },
           {
             labelKey: 'plannerV2.bottom.totalAttack',
             fallback: 'Total Attack',
-            value: '620,260',
+            value: formatNumber(this.troopTotals().totalAttack),
             icon: '⚔',
           },
           {
             labelKey: 'plannerV2.bottom.carryingCapacity',
             fallback: 'Carrying Capacity',
-            value: '105,000',
+            value: formatNumber(this.troopTotals().carryingCapacity),
             icon: '⚓',
           },
           {
             labelKey: 'plannerV2.bottom.marchTime',
             fallback: 'March Time',
-            value: '01:42:30',
+            value: '—',
             icon: '◷',
           },
         ],
@@ -558,6 +638,17 @@ export class PlannerV2 {
 
   protected selectGod(god: string): void {
     this.selectedGod.set(god);
+  }
+
+  protected updateUnitAmount(unitId: string, amount: number): void {
+    const troopPlan = this.activePlan().troopPlan;
+
+    this.planConfigService.updateActiveTroopPlan({
+      unitAmounts: {
+        ...troopPlan.unitAmounts,
+        [unitId]: amount,
+      },
+    });
   }
 
   protected updateBuildingLevel(buildingId: string, level: number): void {

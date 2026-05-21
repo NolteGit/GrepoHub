@@ -37,9 +37,10 @@
             [activeCategory]="selectedTroopCategory()"
             [selectedGod]="selectedGod()"
             [gods]="gods"
-            [units]="unitPlaceholders"
+            [units]="visibleUnits()"
             (categorySelected)="selectTroopCategory($event)"
             (godSelected)="selectGod($event)"
+            (unitAmountChanged)="updateUnitAmount($event.unitId, $event.amount)"
           />
         }
       </section>

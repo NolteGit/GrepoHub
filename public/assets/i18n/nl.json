@@ -746,5 +746,11 @@
   "plannerV2.summary.modifierPopulationEffect": "Modifier-pop. effect",
   "plannerV2.summary.specialPopulationEffect": "Speciaal pop. effect",
   "plannerV2.bottom.buildingLevels": "Gebouwniveaus",
-  "plannerV2.bottom.activeModifiers": "Actieve modifiers"
+  "plannerV2.bottom.activeModifiers": "Actieve modifiers",
+    "plannerV2.amount": "Aantal",
+    "plannerV2.troopSetupLabel": "Troepensetup-eenheden",
+    "plannerV2.stat.navalAttack": "Zeeaanval",
+    "plannerV2.stat.defenseShort": "verd",
+    "plannerV2.stat.capacity": "Capaciteit",
+    "plannerV2.stat.favorShort": "gunst"
 }

@@ -746,5 +746,11 @@
   "plannerV2.summary.modifierPopulationEffect": "Effet pop. mod.",
   "plannerV2.summary.specialPopulationEffect": "Effet pop. spécial",
   "plannerV2.bottom.buildingLevels": "Niveaux bâtiments",
-  "plannerV2.bottom.activeModifiers": "Modificateurs actifs"
+  "plannerV2.bottom.activeModifiers": "Modificateurs actifs",
+  "plannerV2.amount": "Quantité",
+  "plannerV2.troopSetupLabel": "Unités de configuration des troupes",
+  "plannerV2.stat.navalAttack": "Attaque navale",
+  "plannerV2.stat.defenseShort": "déf",
+  "plannerV2.stat.capacity": "Capacité",
+  "plannerV2.stat.favorShort": "faveur"
 }

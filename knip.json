@@ -3,7 +3,8 @@
   "ignoreFiles": [
     "src/app/data/reference-documents.ts",
     "src/app/utils/toolbox-calculator.util.ts",
-    "src/styles.css"
+    "src/styles.css",
+    "src/app/shared/ui/gh-tile-shell/gh-tile-shell.ts"
   ],
   "ignoreIssues": {
     "src/app/data/asset-paths.ts": ["exports", "types"],

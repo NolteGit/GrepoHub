@@ -1,20 +1,20 @@
 import { Component, input, output } from '@angular/core';
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
-import { GhNumberStepper } from '../../../../shared/ui/gh-number-stepper/gh-number-stepper';
-import { GhTileShell } from '../../../../shared/ui/gh-tile-shell/gh-tile-shell';
+
+import { PlannerUnitTile } from '../planner-unit-tile/planner-unit-tile';
 
 import type {
   GodOption,
   SetupContextItem,
   TroopCategory,
   TroopCategoryTab,
-  UnitTilePlaceholder,
+  UnitTileView,
 } from '../../planner-v2.models';
 
 @Component({
   selector: 'app-planner-troop-setup',
-  imports: [TranslatePipe, GhNumberStepper, GhTileShell],
+  imports: [TranslatePipe, PlannerUnitTile],
   templateUrl: './planner-troop-setup.html',
 })
 export class PlannerTroopSetup {
@@ -24,9 +24,10 @@ export class PlannerTroopSetup {
   readonly activeCategory = input.required<TroopCategory>();
   readonly selectedGod = input.required<string>();
   readonly gods = input.required<readonly GodOption[]>();
-  readonly units = input.required<readonly UnitTilePlaceholder[]>();
+  readonly units = input.required<readonly UnitTileView[]>();
   readonly categorySelected = output<TroopCategory>();
   readonly godSelected = output<string>();
+  readonly unitAmountChanged = output<{ readonly unitId: string; readonly amount: number }>();
 
   protected selectGod(event: Event): void {
     this.godSelected.emit((event.target as HTMLSelectElement).value);

@@ -78,19 +78,12 @@
 
 <section
   class="grid grid-cols-4 gap-3 max-[88rem]:grid-cols-3 max-[58rem]:grid-cols-1"
-  [attr.aria-label]="'plannerV2.troopSetupPlaceholderLabel' | translate: 'Troop setup placeholder'"
+  [attr.aria-label]="'plannerV2.troopSetupLabel' | translate: 'Troop setup units'"
 >
-  @for (unit of units(); track unit.labelKey) {
-    <app-gh-tile-shell [icon]="unit.icon" [labelKey]="unit.labelKey" [fallback]="unit.fallback">
-      <div ghTileControls class="mt-1">
-        <app-gh-number-stepper [value]="unit.amount" />
-      </div>
-
-      <span ghTileFooter>
-        {{ unit.attack }} {{ 'plannerV2.stat.attackShort' | translate: 'attack' }} ·
-        {{ unit.population }} {{ 'plannerV2.stat.populationShort' | translate: 'pop' }} ·
-        {{ unit.time }}
-      </span>
-    </app-gh-tile-shell>
+  @for (unit of units(); track unit.id) {
+    <app-planner-unit-tile
+      [unit]="unit"
+      (amountChanged)="unitAmountChanged.emit({ unitId: unit.id, amount: $event })"
+    />
   }
 </section>

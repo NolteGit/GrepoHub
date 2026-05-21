@@ -746,5 +746,11 @@
   "plannerV2.summary.modifierPopulationEffect": "Modifier pop. effect",
   "plannerV2.summary.specialPopulationEffect": "Special pop. effect",
   "plannerV2.bottom.buildingLevels": "Building Levels",
-  "plannerV2.bottom.activeModifiers": "Active Modifiers"
+  "plannerV2.bottom.activeModifiers": "Active Modifiers",
+  "plannerV2.amount": "Amount",
+  "plannerV2.troopSetupLabel": "Troop setup units",
+  "plannerV2.stat.navalAttack": "Naval attack",
+  "plannerV2.stat.defenseShort": "def",
+  "plannerV2.stat.capacity": "Capacity",
+  "plannerV2.stat.favorShort": "favor"
 }

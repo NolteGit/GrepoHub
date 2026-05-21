@@ -23,12 +23,17 @@ export type BuildingTileView = TranslatableText & {
   readonly stats: readonly BuildingTileStat[];
 };
 
-export type UnitTilePlaceholder = TranslatableText & {
+export type UnitTileStat = TranslatableText & {
+  readonly value: string;
+  readonly tone?: 'default' | 'gold' | 'muted';
+};
+
+export type UnitTileView = TranslatableText & {
+  readonly id: string;
+  readonly imagePath: string;
   readonly icon: string;
-  readonly amount: string;
-  readonly attack: number;
-  readonly population: number;
-  readonly time: string;
+  readonly amount: number;
+  readonly stats: readonly UnitTileStat[];
 };
 
 type SetupBarTab = TranslatableText & {

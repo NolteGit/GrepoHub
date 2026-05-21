@@ -746,5 +746,11 @@
   "plannerV2.summary.modifierPopulationEffect": "Modifikator-BHP",
   "plannerV2.summary.specialPopulationEffect": "Spezialgebäude-BHP",
   "plannerV2.bottom.buildingLevels": "Gebäudestufen",
-  "plannerV2.bottom.activeModifiers": "Aktive Modifikatoren"
+  "plannerV2.bottom.activeModifiers": "Aktive Modifikatoren",
+  "plannerV2.amount": "Anzahl",
+  "plannerV2.troopSetupLabel": "Truppen-Setup-Einheiten",
+  "plannerV2.stat.navalAttack": "Seeangriff",
+  "plannerV2.stat.defenseShort": "Def",
+  "plannerV2.stat.capacity": "Kapazität",
+  "plannerV2.stat.favorShort": "Gunst"
 }
