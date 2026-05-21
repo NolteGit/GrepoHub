@@ -722,5 +722,13 @@
     "plannerV2.stat.research": "Onderzoek",
     "plannerV2.stat.defense": "Verdediging",
     "plannerV2.stat.attackShort": "aanval",
-    "plannerV2.stat.populationShort": "bev."
+    "plannerV2.stat.populationShort": "bev.",
+    "plannerV2.citySetupLabel": "City setup buildings",
+    "plannerV2.specialBuildingLabel": "Special buildings",
+    "plannerV2.context.populationCapacity": "Population cap",
+    "plannerV2.context.freePopulation": "Free pop",
+    "plannerV2.bottom.freePopulation": "Free Population",
+    "plannerV2.summary.populationCapacity": "Population capacity",
+    "plannerV2.summary.usedPopulation": "Used population",
+    "plannerV2.summary.freePopulation": "Free population"
 }

@@ -1,11 +1,20 @@
+import type {
+  CityModifierId,
+  CitySpecialBuildingOptionId,
+  CitySpecialBuildingSlotId,
+} from '../../models/city-configuration.model';
+
 export type TranslatableText = {
   readonly labelKey: string;
   readonly fallback: string;
 };
 
-export type BuildingTilePlaceholder = TranslatableText & {
+export type BuildingTileView = TranslatableText & {
+  readonly id: string;
+  readonly imagePath: string;
   readonly icon: string;
   readonly level: number;
+  readonly maxLevel: number;
   readonly statLabelKey: string;
   readonly statFallback: string;
   readonly statValue: string;
@@ -19,7 +28,7 @@ export type UnitTilePlaceholder = TranslatableText & {
   readonly time: string;
 };
 
-export type SetupBarTab = TranslatableText & {
+type SetupBarTab = TranslatableText & {
   readonly shortLabelKey: string;
   readonly shortFallback: string;
   readonly icon: string;
@@ -36,8 +45,21 @@ export type SetupContextItem = TranslatableText & {
   readonly value: string;
 };
 
+export type CityModifierToggleId = CityModifierId | 'landExpansion';
+
 export type CityModifierToggle = SetupBarTab & {
+  readonly id: CityModifierToggleId;
   readonly active: boolean;
+};
+
+export type SpecialBuildingSlotView = TranslatableText & {
+  readonly id: CitySpecialBuildingSlotId;
+  readonly value: CitySpecialBuildingOptionId;
+  readonly options: readonly SpecialBuildingOptionView[];
+};
+
+export type SpecialBuildingOptionView = TranslatableText & {
+  readonly value: CitySpecialBuildingOptionId;
 };
 
 export type GodOption = TranslatableText & {
@@ -47,4 +69,12 @@ export type GodOption = TranslatableText & {
 export type BottomSummaryStat = TranslatableText & {
   readonly value: string;
   readonly icon: string;
+};
+
+export type SidebarPopulationStats = {
+  readonly activePlanName: string;
+  readonly populationCapacity: number;
+  readonly usedPopulation: number;
+  readonly freePopulation: number;
+  readonly freeBhp: number;
 };

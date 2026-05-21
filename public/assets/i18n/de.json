@@ -722,5 +722,13 @@
   "plannerV2.stat.research": "Forschung",
   "plannerV2.stat.defense": "Verteidigung",
   "plannerV2.stat.attackShort": "Angriff",
-  "plannerV2.stat.populationShort": "Bev."
+  "plannerV2.stat.populationShort": "Bev.",
+  "plannerV2.citySetupLabel": "City setup buildings",
+  "plannerV2.specialBuildingLabel": "Special buildings",
+  "plannerV2.context.populationCapacity": "Population cap",
+  "plannerV2.context.freePopulation": "Free pop",
+  "plannerV2.bottom.freePopulation": "Free Population",
+  "plannerV2.summary.populationCapacity": "Population capacity",
+  "plannerV2.summary.usedPopulation": "Used population",
+  "plannerV2.summary.freePopulation": "Free population"
 }

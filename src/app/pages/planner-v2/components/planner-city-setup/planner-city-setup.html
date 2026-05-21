@@ -22,12 +22,13 @@
     class="grid min-w-0 grid-cols-3"
     [attr.aria-label]="'plannerV2.cityModifierLabel' | translate: 'City modifiers'"
   >
-    @for (modifier of modifiers(); track modifier.labelKey) {
+    @for (modifier of modifiers(); track modifier.id) {
       <button
         type="button"
         class="inline-flex min-h-[3.7rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)]"
         [class.gh-tab-active]="modifier.active"
         [attr.aria-pressed]="modifier.active"
+        (click)="modifierToggled.emit(modifier.id)"
       >
         <span class="text-base leading-none" aria-hidden="true">{{ modifier.icon }}</span>
         <strong class="truncate max-[70rem]:hidden">{{
@@ -59,41 +60,31 @@
 
 <section
   class="grid grid-cols-4 gap-3 max-[88rem]:grid-cols-3 max-[58rem]:grid-cols-1"
-  [attr.aria-label]="'plannerV2.citySetupPlaceholderLabel' | translate: 'City setup placeholder'"
+  [attr.aria-label]="'plannerV2.citySetupLabel' | translate: 'City setup buildings'"
 >
-  @for (building of buildings(); track building.labelKey) {
-    <app-gh-tile-shell
-      [icon]="building.icon"
-      [labelKey]="building.labelKey"
-      [fallback]="building.fallback"
-    >
-      <div ghTileControls class="grid min-w-0 gap-2">
-        <span class="text-xs text-[var(--gh-muted)]">{{
-          'plannerV2.level' | translate: 'Level'
-        }}</span>
-        <app-gh-number-stepper [value]="building.level" [min]="0" [max]="40" [showMinMax]="true" />
-      </div>
-
-      <span ghTileFooter>
-        {{ building.statLabelKey | translate: building.statFallback }}
-        {{ building.statValue }}
-      </span>
-    </app-gh-tile-shell>
+  @for (building of buildings(); track building.id) {
+    <app-planner-building-tile
+      [building]="building"
+      (levelChanged)="buildingLevelChanged.emit({ buildingId: building.id, level: $event })"
+    />
   }
 </section>
 
 <section
   class="mt-3 grid grid-cols-2 gap-3 max-[58rem]:grid-cols-1"
-  [attr.aria-label]="
-    'plannerV2.specialBuildingPlaceholderLabel' | translate: 'Special building placeholders'
-  "
+  [attr.aria-label]="'plannerV2.specialBuildingLabel' | translate: 'Special buildings'"
 >
-  @for (slot of specialSlots(); track slot.labelKey) {
+  @for (slot of specialSlots(); track slot.id) {
     <app-gh-panel class="grid gap-2" padding="sm">
       <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
         ★ {{ slot.labelKey | translate: slot.fallback }}
       </h2>
-      <app-gh-select-field [value]="'none'" [options]="specialBuildingOptions()" size="sm" />
+      <app-gh-select-field
+        [value]="slot.value"
+        [options]="slot.options"
+        size="sm"
+        (valueChange)="specialBuildingSelected.emit({ slotId: slot.id, optionId: $event })"
+      />
     </app-gh-panel>
   }
 </section>

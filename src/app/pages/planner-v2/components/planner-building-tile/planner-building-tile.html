@@ -1,0 +1,41 @@
+<article
+  class="gh-panel grid min-h-[9.4rem] grid-cols-[4.4rem_minmax(0,1fr)] grid-rows-[minmax(6.35rem,auto)_auto] gap-2 rounded-md p-3"
+>
+  <div class="gh-icon-box grid aspect-square w-16 place-items-center overflow-hidden rounded-md">
+    @if (building().imagePath) {
+      <img
+        class="h-full w-full object-contain p-1"
+        [src]="building().imagePath"
+        [alt]="building().labelKey | translate: building().fallback"
+        loading="lazy"
+      />
+    } @else {
+      <span class="text-2xl" aria-hidden="true">{{ building().icon }}</span>
+    }
+  </div>
+
+  <div class="grid min-w-0 content-start gap-2">
+    <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
+      {{ building().labelKey | translate: building().fallback }}
+    </h2>
+    <div class="grid min-w-0 gap-2">
+      <span class="text-xs text-[var(--gh-muted)]">{{
+        'plannerV2.level' | translate: 'Level'
+      }}</span>
+      <app-gh-number-stepper
+        [value]="building().level"
+        [min]="0"
+        [max]="building().maxLevel"
+        [showMinMax]="true"
+        (valueChange)="levelChanged.emit($event)"
+      />
+    </div>
+  </div>
+
+  <footer
+    class="col-span-full border-t border-[var(--gh-border-soft)] pt-2 text-xs text-[var(--gh-muted)]"
+  >
+    {{ building().statLabelKey | translate: building().statFallback }}
+    <strong class="text-[var(--gh-gold)]">{{ building().statValue }}</strong>
+  </footer>
+</article>

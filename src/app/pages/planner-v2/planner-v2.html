@@ -20,17 +20,19 @@
       <section class="gh-scroll-area min-h-0 overflow-auto p-3">
         @if (activeMode() === 'city') {
           <app-planner-city-setup
-            [contextLeft]="cityContextLeft"
-            [contextRight]="cityContextRight"
-            [modifiers]="cityModifiers"
-            [buildings]="buildingPlaceholders"
-            [specialSlots]="specialSlots"
-            [specialBuildingOptions]="noneOptions"
+            [contextLeft]="cityContextLeft()"
+            [contextRight]="cityContextRight()"
+            [modifiers]="cityModifiers()"
+            [buildings]="cityBuildings()"
+            [specialSlots]="specialSlots()"
+            (buildingLevelChanged)="updateBuildingLevel($event.buildingId, $event.level)"
+            (modifierToggled)="toggleCityModifier($event)"
+            (specialBuildingSelected)="selectSpecialBuilding($event.slotId, $event.optionId)"
           />
         } @else {
           <app-planner-troop-setup
-            [contextLeft]="troopContextLeft"
-            [contextRight]="troopContextRight"
+            [contextLeft]="troopContextLeft()"
+            [contextRight]="troopContextRight()"
             [categories]="troopCategories"
             [activeCategory]="selectedTroopCategory()"
             [selectedGod]="selectedGod()"
@@ -49,8 +51,7 @@
   <app-planner-summary-sidebar
     class="col-start-3 row-start-2 min-h-0 min-w-0 max-[76rem]:hidden"
     [activeMode]="activeMode()"
-    [activePlanName]="activePlan().name"
-    [buildingCount]="buildingCount()"
+    [population]="sidebarPopulation()"
     [usedUnitCount]="usedUnitCount()"
   />
 </main>

@@ -1,7 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import {
+  cityBuildingPlanDefinitions,
+  citySpecialBuildingSlotDefinitions,
+} from '../../data/city-planner-presets';
+import { getBuildingImagePath } from '../../data/asset-paths';
+import type {
+  CityModifierId,
+  CitySpecialBuildingOptionId,
+  CitySpecialBuildingSlotId,
+} from '../../models/city-configuration.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { type GhSelectOption } from '../../shared/ui/gh-select-field/gh-select-field';
+import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { PlanConfigService } from '../../services/plan-config.service';
 
 import { PlannerBottomSummary } from './components/planner-bottom-summary/planner-bottom-summary';
@@ -16,126 +26,74 @@ import { PlannerToolbox } from './components/planner-toolbox/planner-toolbox';
 import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
 import type {
   BottomSummaryStat,
-  BuildingTilePlaceholder,
+  BuildingTileView,
   CityModifierToggle,
+  CityModifierToggleId,
   GodOption,
   SetupContextItem,
-  TranslatableText,
+  SidebarPopulationStats,
+  SpecialBuildingOptionView,
+  SpecialBuildingSlotView,
   TroopCategory,
   TroopCategoryTab,
   UnitTilePlaceholder,
 } from './planner-v2.models';
 
-const buildingPlaceholders: readonly BuildingTilePlaceholder[] = [
-  {
-    labelKey: 'building.senate',
-    fallback: 'Senate',
-    icon: '▥',
-    level: 9,
-    statLabelKey: 'plannerV2.stat.population',
-    statFallback: 'Population',
-    statValue: '27',
-  },
-  {
-    labelKey: 'building.timber_camp',
-    fallback: 'Timber Camp',
-    icon: '♜',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.wood',
-    statFallback: 'Wood',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.farm',
-    fallback: 'Farm',
-    icon: '♨',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.population',
-    statFallback: 'Population',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.quarry',
-    fallback: 'Quarry',
-    icon: '◼',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.stone',
-    statFallback: 'Stone',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.warehouse',
-    fallback: 'Warehouse',
-    icon: '▤',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.storage',
-    statFallback: 'Storage',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.silver_mine',
-    fallback: 'Silver Mine',
-    icon: '●',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.silver',
-    statFallback: 'Silver',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.barracks',
-    fallback: 'Barracks',
-    icon: '⚔',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.units',
-    statFallback: 'Units',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.temple',
-    fallback: 'Temple',
-    icon: '♛',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.favor',
-    statFallback: 'Favor',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.marketplace',
-    fallback: 'Marketplace',
-    icon: '◎',
-    level: 1,
-    statLabelKey: 'plannerV2.stat.trade',
-    statFallback: 'Trade',
-    statValue: '1',
-  },
-  {
-    labelKey: 'building.harbour',
-    fallback: 'Harbour',
-    icon: '⚓',
-    level: 0,
-    statLabelKey: 'plannerV2.stat.ships',
-    statFallback: 'Ships',
-    statValue: '0',
-  },
-  {
-    labelKey: 'building.academy',
-    fallback: 'Academy',
-    icon: '⚗',
-    level: 0,
-    statLabelKey: 'plannerV2.stat.research',
-    statFallback: 'Research',
-    statValue: '0',
-  },
-  {
-    labelKey: 'building.city_wall',
-    fallback: 'City Wall',
-    icon: '▰',
-    level: 0,
-    statLabelKey: 'plannerV2.stat.defense',
-    statFallback: 'Defense',
-    statValue: '0',
-  },
-];
+const cityBuildingOrder = [
+  'senate',
+  'timber_camp',
+  'farm',
+  'quarry',
+  'warehouse',
+  'silver_mine',
+  'barracks',
+  'temple',
+  'marketplace',
+  'harbour',
+  'academy',
+  'city_wall',
+  'cave',
+] as const;
+
+const buildingFallbacks: Record<string, string> = {
+  academy: 'Academy',
+  barracks: 'Barracks',
+  cave: 'Cave',
+  city_wall: 'City Wall',
+  farm: 'Farm',
+  harbour: 'Harbour',
+  marketplace: 'Marketplace',
+  quarry: 'Quarry',
+  senate: 'Senate',
+  silver_mine: 'Silver Mine',
+  temple: 'Temple',
+  timber_camp: 'Timber Camp',
+  divine_statue: 'Divine Statue',
+  lighthouse: 'Lighthouse',
+  library: 'Library',
+  merchants_shop: "Merchants' Shop",
+  oracle: 'Oracle',
+  theatre: 'Theatre',
+  thermal_baths: 'Thermal Baths',
+  tower: 'Tower',
+  warehouse: 'Warehouse',
+};
+
+const buildingFallbackIcons: Record<string, string> = {
+  academy: '⚗',
+  barracks: '⚔',
+  cave: '●',
+  city_wall: '▰',
+  farm: '♨',
+  harbour: '⚓',
+  marketplace: '◎',
+  quarry: '◼',
+  senate: '▥',
+  silver_mine: '●',
+  temple: '♛',
+  timber_camp: '♜',
+  warehouse: '▤',
+};
 
 const unitPlaceholders: readonly UnitTilePlaceholder[] = [
   {
@@ -239,57 +197,6 @@ const troopCategories: readonly TroopCategoryTab[] = [
   },
 ];
 
-const troopContextLeft: readonly SetupContextItem[] = [
-  { labelKey: 'building.barracks', fallback: 'Barracks', icon: '⚔', value: '25' },
-  { labelKey: 'building.harbour', fallback: 'Harbour', icon: '⚓', value: '20' },
-];
-
-const troopContextRight: readonly SetupContextItem[] = [
-  { labelKey: 'building.temple', fallback: 'Temple', icon: '♛', value: '18' },
-];
-
-const cityContextLeft: readonly SetupContextItem[] = [
-  { labelKey: 'plannerV2.context.maxBhp', fallback: 'Max BHP', icon: '♟', value: '114' },
-  { labelKey: 'plannerV2.context.usedLand', fallback: 'Used Land', icon: '▦', value: '20/20' },
-];
-
-const cityContextRight: readonly SetupContextItem[] = [
-  {
-    labelKey: 'plannerV2.context.specialSlots',
-    fallback: 'Special slots',
-    icon: '★',
-    value: '0/2',
-  },
-  { labelKey: 'plannerV2.context.buildings', fallback: 'Buildings', icon: '▥', value: '14' },
-];
-
-const cityModifiers: readonly CityModifierToggle[] = [
-  {
-    labelKey: 'plannerV2.modifier.aphrodite',
-    fallback: 'Aphrodite',
-    shortLabelKey: 'plannerV2.modifier.aphroditeShort',
-    shortFallback: 'Aphro',
-    icon: '♡',
-    active: true,
-  },
-  {
-    labelKey: 'plannerV2.modifier.landExpansion',
-    fallback: 'Land Expansion',
-    shortLabelKey: 'plannerV2.modifier.landExpansionShort',
-    shortFallback: 'Land',
-    icon: '▦',
-    active: true,
-  },
-  {
-    labelKey: 'plannerV2.modifier.plow',
-    fallback: 'Plow',
-    shortLabelKey: 'plannerV2.modifier.plowShort',
-    shortFallback: 'Plow',
-    icon: '⚱',
-    active: true,
-  },
-];
-
 const gods: readonly GodOption[] = [
   { value: 'zeus', labelKey: 'god.zeus', fallback: 'Zeus' },
   { value: 'poseidon', labelKey: 'god.poseidon', fallback: 'Poseidon' },
@@ -301,14 +208,17 @@ const gods: readonly GodOption[] = [
   { value: 'ares', labelKey: 'god.ares', fallback: 'Ares' },
 ];
 
-const specialSlots: readonly TranslatableText[] = [
-  { labelKey: 'plannerV2.specialBuilding1', fallback: 'Special Building 1' },
-  { labelKey: 'plannerV2.specialBuilding2', fallback: 'Special Building 2' },
-];
+const getBuildingDefinition = (buildingId: string) => {
+  return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
+};
 
-const noneOptions: readonly GhSelectOption[] = [
-  { value: 'none', labelKey: 'plannerV2.none', fallback: 'None' },
-];
+const formatSignedNumber = (value: number): string => {
+  if (value > 0) {
+    return `+${value}`;
+  }
+
+  return String(value);
+};
 
 @Component({
   selector: 'app-planner-v2',
@@ -332,44 +242,178 @@ export class PlannerV2 {
   protected readonly activeMode = signal<PlannerMode>('city');
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
   protected readonly selectedGod = signal('zeus');
-  protected readonly buildingPlaceholders = buildingPlaceholders;
   protected readonly unitPlaceholders = unitPlaceholders;
   protected readonly troopCategories = troopCategories;
-  protected readonly troopContextLeft = troopContextLeft;
-  protected readonly troopContextRight = troopContextRight;
-  protected readonly cityContextLeft = cityContextLeft;
-  protected readonly cityContextRight = cityContextRight;
-  protected readonly cityModifiers = cityModifiers;
   protected readonly gods = gods;
-  protected readonly specialSlots = specialSlots;
-  protected readonly noneOptions = noneOptions;
-  protected readonly buildingCount = computed(
-    () => Object.keys(this.activePlan().cityPlan.buildingLevels).length,
+  protected readonly cityPopulation = computed(() =>
+    calculateCityPlannerPopulation(this.activePlan().cityPlan),
   );
+  protected readonly cityBuildings = computed<readonly BuildingTileView[]>(() => {
+    const cityPlan = this.activePlan().cityPlan;
+
+    return cityBuildingOrder.map((buildingId) => {
+      const definition = getBuildingDefinition(buildingId);
+      const level = cityPlan.buildingLevels[buildingId] ?? 0;
+      const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
+
+      return {
+        id: buildingId,
+        labelKey: `building.${buildingId}`,
+        fallback: buildingFallbacks[buildingId],
+        icon: buildingFallbackIcons[buildingId],
+        imagePath: getBuildingImagePath(buildingId),
+        level,
+        maxLevel: definition?.maxLevel ?? 40,
+        statLabelKey: 'plannerV2.stat.population',
+        statFallback: 'Population',
+        statValue: formatSignedNumber(population),
+      };
+    });
+  });
+  protected readonly cityContextLeft = computed<readonly SetupContextItem[]>(() => [
+    {
+      labelKey: 'plannerV2.context.populationCapacity',
+      fallback: 'Population cap',
+      icon: '♟',
+      value: String(this.cityPopulation().populationCapacity),
+    },
+    {
+      labelKey: 'plannerV2.context.freePopulation',
+      fallback: 'Free pop',
+      icon: '◇',
+      value: String(this.cityPopulation().freePopulation),
+    },
+  ]);
+  protected readonly cityContextRight = computed<readonly SetupContextItem[]>(() => {
+    const cityPlan = this.activePlan().cityPlan;
+    const selectedSpecialBuildings = Object.values(cityPlan.specialBuildings).filter(
+      (optionId) => optionId !== 'none',
+    ).length;
+    const activeBuildings = this.cityBuildings().filter((building) => building.level > 0).length;
+
+    return [
+      {
+        labelKey: 'plannerV2.context.specialSlots',
+        fallback: 'Special slots',
+        icon: '★',
+        value: `${selectedSpecialBuildings}/2`,
+      },
+      {
+        labelKey: 'plannerV2.context.buildings',
+        fallback: 'Buildings',
+        icon: '▥',
+        value: `${activeBuildings}/${this.cityBuildings().length}`,
+      },
+    ];
+  });
+  protected readonly cityModifiers = computed<readonly CityModifierToggle[]>(() => {
+    const cityPlan = this.activePlan().cityPlan;
+
+    return [
+      {
+        id: 'aphroditeActive',
+        labelKey: 'plannerV2.modifier.aphrodite',
+        fallback: 'Aphrodite',
+        shortLabelKey: 'plannerV2.modifier.aphroditeShort',
+        shortFallback: 'Aphro',
+        icon: '♡',
+        active: cityPlan.modifiers.aphroditeActive,
+      },
+      {
+        id: 'landExpansion',
+        labelKey: 'plannerV2.modifier.landExpansion',
+        fallback: 'Land Expansion',
+        shortLabelKey: 'plannerV2.modifier.landExpansionShort',
+        shortFallback: 'Land',
+        icon: '▦',
+        active: (cityPlan.buildingLevels['land_expansion'] ?? 0) > 0,
+      },
+      {
+        id: 'plowResearched',
+        labelKey: 'plannerV2.modifier.plow',
+        fallback: 'Plow',
+        shortLabelKey: 'plannerV2.modifier.plowShort',
+        shortFallback: 'Plow',
+        icon: '⚱',
+        active: cityPlan.modifiers.plowResearched,
+      },
+    ];
+  });
+  protected readonly specialSlots = computed<readonly SpecialBuildingSlotView[]>(() => {
+    const cityPlan = this.activePlan().cityPlan;
+
+    return citySpecialBuildingSlotDefinitions.map((slot, index) => ({
+      id: slot.id,
+      labelKey: index === 0 ? 'plannerV2.specialBuilding1' : 'plannerV2.specialBuilding2',
+      fallback: index === 0 ? 'Special Building 1' : 'Special Building 2',
+      value: cityPlan.specialBuildings[slot.id],
+      options: slot.optionIds.map((optionId) => this.createSpecialBuildingOption(optionId)),
+    }));
+  });
+  protected readonly troopContextLeft = computed<readonly SetupContextItem[]>(() => {
+    const buildingLevels = this.activePlan().cityPlan.buildingLevels;
+
+    return [
+      {
+        labelKey: 'building.barracks',
+        fallback: 'Barracks',
+        icon: '⚔',
+        value: String(buildingLevels['barracks'] ?? 0),
+      },
+      {
+        labelKey: 'building.harbour',
+        fallback: 'Harbour',
+        icon: '⚓',
+        value: String(buildingLevels['harbour'] ?? 0),
+      },
+    ];
+  });
+  protected readonly troopContextRight = computed<readonly SetupContextItem[]>(() => [
+    {
+      labelKey: 'building.temple',
+      fallback: 'Temple',
+      icon: '♛',
+      value: String(this.activePlan().cityPlan.buildingLevels['temple'] ?? 0),
+    },
+  ]);
+  protected readonly buildingCount = computed(() => this.cityBuildings().length);
   protected readonly usedUnitCount = computed(
     () =>
       Object.values(this.activePlan().troopPlan.unitAmounts).filter((amount) => amount > 0).length,
   );
+  protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => ({
+    activePlanName: this.activePlan().name,
+    populationCapacity: this.cityPopulation().populationCapacity,
+    usedPopulation: this.cityPopulation().usedPopulation,
+    freePopulation: this.cityPopulation().freePopulation,
+    freeBhp: 0,
+  }));
   protected readonly bottomSummaryStats = computed<readonly BottomSummaryStat[]>(() =>
     this.activeMode() === 'city'
       ? [
           {
             labelKey: 'plannerV2.bottom.totalPopulation',
             fallback: 'Total Population',
-            value: '114',
+            value: String(this.cityPopulation().populationCapacity),
             icon: '♟',
+          },
+          {
+            labelKey: 'plannerV2.bottom.usedPopulation',
+            fallback: 'Used Population',
+            value: String(this.cityPopulation().usedPopulation),
+            icon: '◉',
+          },
+          {
+            labelKey: 'plannerV2.bottom.freePopulation',
+            fallback: 'Free Population',
+            value: String(this.cityPopulation().freePopulation),
+            icon: '◇',
           },
           {
             labelKey: 'plannerV2.bottom.totalBuildings',
             fallback: 'Total Buildings',
             value: String(this.buildingCount()),
             icon: '▥',
-          },
-          {
-            labelKey: 'plannerV2.bottom.usedLand',
-            fallback: 'Used Land',
-            value: '20 / 20',
-            icon: '▦',
           },
           { labelKey: 'plannerV2.bottom.freeBhp', fallback: 'Free BHP', value: '0', icon: '◇' },
         ]
@@ -421,5 +465,62 @@ export class PlannerV2 {
 
   protected selectGod(god: string): void {
     this.selectedGod.set(god);
+  }
+
+  protected updateBuildingLevel(buildingId: string, level: number): void {
+    const cityPlan = this.activePlan().cityPlan;
+
+    this.planConfigService.updateActiveCityPlan({
+      buildingLevels: {
+        ...cityPlan.buildingLevels,
+        [buildingId]: level,
+      },
+    });
+  }
+
+  protected toggleCityModifier(modifierId: CityModifierToggleId): void {
+    const cityPlan = this.activePlan().cityPlan;
+
+    if (modifierId === 'landExpansion') {
+      this.updateBuildingLevel(
+        'land_expansion',
+        (cityPlan.buildingLevels['land_expansion'] ?? 0) > 0 ? 0 : 6,
+      );
+      return;
+    }
+
+    this.planConfigService.updateActiveCityPlan({
+      modifiers: {
+        ...cityPlan.modifiers,
+        [modifierId]: !cityPlan.modifiers[modifierId],
+      },
+    });
+  }
+
+  protected selectSpecialBuilding(slotId: string, optionId: string): void {
+    const cityPlan = this.activePlan().cityPlan;
+
+    this.planConfigService.updateActiveCityPlan({
+      specialBuildings: {
+        ...cityPlan.specialBuildings,
+        [slotId as CitySpecialBuildingSlotId]: optionId as CitySpecialBuildingOptionId,
+      },
+    });
+  }
+
+  private createSpecialBuildingOption(
+    optionId: CitySpecialBuildingOptionId,
+  ): SpecialBuildingOptionView {
+    return optionId === 'none'
+      ? {
+          value: optionId,
+          labelKey: 'plannerV2.none',
+          fallback: 'None',
+        }
+      : {
+          value: optionId,
+          labelKey: `building.${optionId}`,
+          fallback: buildingFallbacks[optionId] ?? optionId,
+        };
   }
 }

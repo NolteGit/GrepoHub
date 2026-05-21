@@ -7,13 +7,10 @@ import { GhStatRow } from '../../../../shared/ui/gh-stat-row/gh-stat-row';
 
 import { PlannerMode } from '../planner-mode-switch/planner-mode-switch';
 
-type TranslatableText = {
-  readonly labelKey: string;
-  readonly fallback: string;
-};
+import type { SidebarPopulationStats, TranslatableText } from '../../planner-v2.models';
 
 type SidebarStat = TranslatableText & {
-  readonly value: string;
+  readonly value: string | number;
 };
 
 type PreviewStat = TranslatableText & {
@@ -27,8 +24,7 @@ type PreviewStat = TranslatableText & {
 })
 export class PlannerSummarySidebar {
   readonly activeMode = input.required<PlannerMode>();
-  readonly activePlanName = input.required<string>();
-  readonly buildingCount = input.required<number>();
+  readonly population = input.required<SidebarPopulationStats>();
   readonly usedUnitCount = input.required<number>();
 
   protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
@@ -59,18 +55,32 @@ export class PlannerSummarySidebar {
     {
       labelKey: 'plannerV2.summary.activePlan',
       fallback: 'Active plan',
-      value: this.activePlanName(),
+      value: this.population().activePlanName,
     },
     {
-      labelKey: 'plannerV2.summary.buildingEntries',
-      fallback: 'Building entries',
-      value: String(this.buildingCount()),
+      labelKey: 'plannerV2.summary.populationCapacity',
+      fallback: 'Population capacity',
+      value: this.population().populationCapacity,
+    },
+    {
+      labelKey: 'plannerV2.summary.usedPopulation',
+      fallback: 'Used population',
+      value: this.population().usedPopulation,
+    },
+    {
+      labelKey: 'plannerV2.summary.freePopulation',
+      fallback: 'Free population',
+      value: this.population().freePopulation,
     },
     {
       labelKey: 'plannerV2.summary.usedUnits',
       fallback: 'Used units',
-      value: String(this.usedUnitCount()),
+      value: this.usedUnitCount(),
     },
-    { labelKey: 'plannerV2.summary.freeBhp', fallback: 'Free BHP', value: '0' },
+    {
+      labelKey: 'plannerV2.summary.freeBhp',
+      fallback: 'Free BHP',
+      value: this.population().freeBhp,
+    },
   ]);
 }
