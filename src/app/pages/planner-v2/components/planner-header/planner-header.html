@@ -1,29 +1,44 @@
-<header class="planner-header">
-  <div class="planner-header__title-block">
-    <h1>{{ title() }}</h1>
-    <p>{{ subtitleKey | translate: subtitleFallback }}</p>
+<header
+  class="grid items-end gap-6 px-4 py-3 min-[74rem]:grid-cols-[minmax(0,1fr)_minmax(25rem,auto)]"
+>
+  <div class="min-w-0">
+    <h1
+      class="m-0 text-[clamp(2rem,3vw,2.8rem)] leading-none font-extrabold tracking-[-0.055em] text-[var(--gh-text)]"
+    >
+      {{ title() }}
+    </h1>
+    <p class="mt-2 mb-0 max-w-xl text-sm leading-relaxed text-[var(--gh-muted)]">
+      {{ subtitleKey | translate: subtitleFallback }}
+    </p>
   </div>
 
-  <div class="planner-header__controls">
-    <label class="planner-header__select">
-      <span>{{ planLabelKey | translate: planLabelFallback }}</span>
-      <select [value]="activePlanId()" (change)="selectPlan($event)">
+  <div
+    class="grid items-end gap-3 min-[48rem]:grid-cols-[minmax(12rem,1fr)_repeat(3,auto)] min-[74rem]:grid-cols-[minmax(13rem,18rem)_repeat(3,auto)]"
+  >
+    <label class="grid min-w-0 gap-1">
+      <span class="text-xs text-[var(--gh-text)]">{{
+        planLabelKey | translate: planLabelFallback
+      }}</span>
+      <select
+        class="gh-control min-h-11 w-full rounded-md px-3"
+        [value]="activePlanId()"
+        (change)="selectPlan($event)"
+      >
         @for (plan of plans(); track plan.id) {
           <option [value]="plan.id">{{ plan.name }}</option>
         }
       </select>
     </label>
 
-    <div class="planner-header__actions">
-      @for (action of actions; track action.labelKey) {
-        <button
-          type="button"
-          [class.planner-header__button--primary]="action.variant === 'primary'"
-        >
-          <span>{{ action.icon }}</span>
-          {{ action.labelKey | translate: action.fallback }}
-        </button>
-      }
-    </div>
+    @for (action of actions; track action.labelKey) {
+      <button
+        type="button"
+        class="gh-button inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-4 font-bold max-[48rem]:w-full"
+        [class.gh-button-primary]="action.variant === 'primary'"
+      >
+        <span class="text-base leading-none text-[var(--gh-gold)]">{{ action.icon }}</span>
+        {{ action.labelKey | translate: action.fallback }}
+      </button>
+    }
   </div>
 </header>

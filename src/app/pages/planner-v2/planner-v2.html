@@ -1,91 +1,143 @@
-<main class="planner-shell">
-  <app-planner-toolbox class="planner-shell__toolbox" />
+<main
+  class="gh-app-bg grid min-h-dvh grid-cols-[minmax(14rem,15.5rem)_minmax(0,1fr)_minmax(19rem,22rem)] grid-rows-[auto_minmax(0,1fr)] max-[76rem]:grid-cols-[4.8rem_minmax(0,1fr)] max-[46rem]:grid-cols-1"
+>
+  <app-planner-toolbox class="col-start-1 row-span-full max-[46rem]:hidden" />
 
   <app-planner-header
-    class="planner-shell__header"
+    class="col-start-2 col-end-4 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[76rem]:col-end-3 max-[46rem]:col-start-1"
     [activePlanId]="activePlan().id"
     [plans]="plans()"
     [title]="'plannerV2.title' | translate"
     (planSelected)="selectPlan($event)"
   />
 
-  <section class="planner-shell__main">
-    <section class="planner-surface">
+  <section class="col-start-2 row-start-2 grid min-h-0 min-w-0 p-2 max-[46rem]:col-start-1">
+    <section
+      class="gh-surface grid min-h-0 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl"
+    >
       <app-planner-mode-switch [activeMode]="activeMode()" (modeSelected)="selectMode($event)" />
 
-      <section class="planner-content-frame">
+      <section class="gh-scroll-area min-h-0 overflow-auto p-3">
         @if (activeMode() === 'city') {
           <section
-            class="planner-setup-bar planner-setup-bar--city"
+            class="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
             [attr.aria-label]="'plannerV2.citySetupContextLabel' | translate: 'City setup context'"
           >
-            <div class="planner-context-stack planner-context-stack--left">
+            <div
+              class="grid min-w-[5.2rem] grid-rows-2 border-r border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-r-0 max-[58rem]:border-b"
+            >
               @for (item of cityContextLeft; track item.labelKey) {
                 <article
-                  class="planner-compact-context"
+                  class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
                   [attr.title]="item.labelKey | translate: item.fallback"
                 >
-                  <span aria-hidden="true">{{ item.icon }}</span>
-                  <strong>{{ item.value }}</strong>
+                  <span
+                    class="text-center text-sm leading-none text-[var(--gh-gold)]"
+                    aria-hidden="true"
+                    >{{ item.icon }}</span
+                  >
+                  <strong class="text-sm leading-none">{{ item.value }}</strong>
                 </article>
               }
             </div>
 
             <nav
-              class="planner-modifier-tabs"
+              class="grid min-w-0 grid-cols-3"
               [attr.aria-label]="'plannerV2.cityModifierLabel' | translate: 'City modifiers'"
             >
               @for (modifier of cityModifiers; track modifier.labelKey) {
                 <button
                   type="button"
-                  [class.planner-modifier-tabs__button--active]="modifier.active"
+                  class="inline-flex min-h-[3.7rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)]"
+                  [class.gh-tab-active]="modifier.active"
                   [attr.aria-pressed]="modifier.active"
                 >
-                  <span aria-hidden="true">{{ modifier.icon }}</span>
-                  <strong class="planner-modifier-tabs__label">{{
+                  <span class="text-base leading-none" aria-hidden="true">{{ modifier.icon }}</span>
+                  <strong class="truncate max-[70rem]:hidden">{{
                     modifier.labelKey | translate: modifier.fallback
                   }}</strong>
-                  <strong class="planner-modifier-tabs__label-short">{{
+                  <strong class="hidden truncate max-[70rem]:block">{{
                     modifier.shortLabelKey | translate: modifier.shortFallback
                   }}</strong>
                 </button>
               }
             </nav>
 
-            <div class="planner-context-stack planner-context-stack--right">
+            <div
+              class="grid min-w-[5.2rem] grid-rows-2 border-l border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-l-0 max-[58rem]:border-t"
+            >
               @for (item of cityContextRight; track item.labelKey) {
                 <article
-                  class="planner-compact-context"
+                  class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
                   [attr.title]="item.labelKey | translate: item.fallback"
                 >
-                  <span aria-hidden="true">{{ item.icon }}</span>
-                  <strong>{{ item.value }}</strong>
+                  <span
+                    class="text-center text-sm leading-none text-[var(--gh-gold)]"
+                    aria-hidden="true"
+                    >{{ item.icon }}</span
+                  >
+                  <strong class="text-sm leading-none">{{ item.value }}</strong>
                 </article>
               }
             </div>
           </section>
 
           <section
-            class="planner-city-grid"
+            class="grid grid-cols-4 gap-3 max-[88rem]:grid-cols-3 max-[58rem]:grid-cols-1"
             [attr.aria-label]="
               'plannerV2.citySetupPlaceholderLabel' | translate: 'City setup placeholder'
             "
           >
             @for (building of buildingPlaceholders; track building.labelKey) {
-              <article class="planner-tile planner-tile--building">
-                <div class="planner-tile__image" aria-hidden="true">{{ building.icon }}</div>
-                <div class="planner-tile__body">
-                  <h2>{{ building.labelKey | translate: building.fallback }}</h2>
-                  <span>{{ 'plannerV2.level' | translate: 'Level' }}</span>
-                  <div class="planner-tile__controls">
-                    <button type="button">−</button>
-                    <strong>{{ building.level }}</strong>
-                    <button type="button">+</button>
-                    <button type="button">{{ 'plannerV2.min' | translate: 'MIN' }}</button>
-                    <button type="button">{{ 'plannerV2.max' | translate: 'MAX' }}</button>
+              <article
+                class="gh-panel grid min-h-[9.4rem] grid-cols-[4.4rem_minmax(0,1fr)] grid-rows-[minmax(6.35rem,auto)_auto] gap-2 rounded-md p-3"
+              >
+                <div
+                  class="gh-icon-box grid aspect-square w-16 place-items-center rounded-md text-2xl"
+                  aria-hidden="true"
+                >
+                  {{ building.icon }}
+                </div>
+                <div class="grid min-w-0 content-start gap-2">
+                  <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
+                    {{ building.labelKey | translate: building.fallback }}
+                  </h2>
+                  <span class="text-xs text-[var(--gh-muted)]">{{
+                    'plannerV2.level' | translate: 'Level'
+                  }}</span>
+                  <div class="flex min-w-0 items-center gap-1">
+                    <button
+                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+                      type="button"
+                    >
+                      −
+                    </button>
+                    <strong class="min-w-7 text-center text-sm text-[var(--gh-text)]">{{
+                      building.level
+                    }}</strong>
+                    <button
+                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+                      type="button"
+                    >
+                      +
+                    </button>
+                    <button
+                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+                      type="button"
+                    >
+                      {{ 'plannerV2.min' | translate: 'MIN' }}
+                    </button>
+                    <button
+                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+                      type="button"
+                    >
+                      {{ 'plannerV2.max' | translate: 'MAX' }}
+                    </button>
                   </div>
                 </div>
-                <footer>
+                <footer
+                  class="col-span-full border-t border-[var(--gh-border-soft)] pt-2 text-xs text-[var(--gh-muted)]"
+                >
                   {{ building.statLabelKey | translate: building.statFallback }}
                   {{ building.statValue }}
                 </footer>
@@ -94,16 +146,18 @@
           </section>
 
           <section
-            class="planner-special-grid"
+            class="mt-3 grid grid-cols-2 gap-3 max-[58rem]:grid-cols-1"
             [attr.aria-label]="
               'plannerV2.specialBuildingPlaceholderLabel'
                 | translate: 'Special building placeholders'
             "
           >
             @for (slot of specialSlots; track slot.labelKey) {
-              <article class="planner-special-card">
-                <h2>★ {{ slot.labelKey | translate: slot.fallback }}</h2>
-                <select>
+              <article class="gh-panel grid gap-2 rounded-md p-3">
+                <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
+                  ★ {{ slot.labelKey | translate: slot.fallback }}
+                </h2>
+                <select class="gh-control min-h-9 rounded-md px-3">
                   <option>{{ 'plannerV2.none' | translate: 'None' }}</option>
                 </select>
               </article>
@@ -111,54 +165,79 @@
           </section>
         } @else {
           <section
-            class="planner-setup-bar planner-setup-bar--troop"
+            class="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
             [attr.aria-label]="
               'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'
             "
           >
-            <div class="planner-context-stack planner-context-stack--left">
+            <div
+              class="grid min-w-[5.2rem] grid-rows-2 border-r border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-r-0 max-[58rem]:border-b"
+            >
               @for (item of troopContextLeft; track item.labelKey) {
                 <article
-                  class="planner-compact-context"
+                  class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
                   [attr.title]="item.labelKey | translate: item.fallback"
                 >
-                  <span aria-hidden="true">{{ item.icon }}</span>
-                  <strong>{{ item.value }}</strong>
+                  <span
+                    class="text-center text-sm leading-none text-[var(--gh-gold)]"
+                    aria-hidden="true"
+                    >{{ item.icon }}</span
+                  >
+                  <strong class="text-sm leading-none">{{ item.value }}</strong>
                 </article>
               }
             </div>
 
             <nav
-              class="planner-category-tabs"
+              class="grid min-w-0 grid-cols-3"
               [attr.aria-label]="'plannerV2.troopCategoryLabel' | translate: 'Troop category'"
             >
               @for (category of troopCategories; track category.labelKey) {
-                <button type="button" [class.planner-category-tabs__button--active]="$first">
-                  <span aria-hidden="true">{{ category.icon }}</span>
-                  <strong class="planner-category-tabs__label">{{
+                <button
+                  type="button"
+                  class="inline-flex min-h-[3.7rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)]"
+                  [class.gh-tab-active]="$first"
+                >
+                  <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
+                  <strong class="truncate max-[70rem]:hidden">{{
                     category.labelKey | translate: category.fallback
                   }}</strong>
-                  <strong class="planner-category-tabs__label-short">{{
+                  <strong class="hidden truncate max-[70rem]:block">{{
                     category.shortLabelKey | translate: category.shortFallback
                   }}</strong>
                 </button>
               }
             </nav>
 
-            <div class="planner-context-stack planner-context-stack--right">
+            <div
+              class="grid min-w-[5.2rem] grid-rows-2 border-l border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-l-0 max-[58rem]:border-t"
+            >
               @for (item of troopContextRight; track item.labelKey) {
                 <article
-                  class="planner-compact-context"
+                  class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
                   [attr.title]="item.labelKey | translate: item.fallback"
                 >
-                  <span aria-hidden="true">{{ item.icon }}</span>
-                  <strong>{{ item.value }}</strong>
+                  <span
+                    class="text-center text-sm leading-none text-[var(--gh-gold)]"
+                    aria-hidden="true"
+                    >{{ item.icon }}</span
+                  >
+                  <strong class="text-sm leading-none">{{ item.value }}</strong>
                 </article>
               }
 
-              <label class="planner-god-select">
-                <span aria-hidden="true">☉</span>
-                <select [attr.aria-label]="'unitAttribute.god' | translate: 'God'">
+              <label
+                class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 border-t border-[var(--gh-border-soft)] px-2 py-1 text-[var(--gh-text)] max-[58rem]:border-t-0 max-[58rem]:border-l"
+              >
+                <span
+                  class="text-center text-sm leading-none text-[var(--gh-gold)]"
+                  aria-hidden="true"
+                  >☉</span
+                >
+                <select
+                  class="w-full min-w-[4.6rem] cursor-pointer border-0 bg-transparent text-sm font-bold text-[var(--gh-text)]"
+                  [attr.aria-label]="'unitAttribute.god' | translate: 'God'"
+                >
                   @for (god of gods; track god.labelKey) {
                     <option>{{ god.labelKey | translate: god.fallback }}</option>
                   }
@@ -168,23 +247,46 @@
           </section>
 
           <section
-            class="planner-unit-grid"
+            class="grid grid-cols-4 gap-3 max-[88rem]:grid-cols-3 max-[58rem]:grid-cols-1"
             [attr.aria-label]="
               'plannerV2.troopSetupPlaceholderLabel' | translate: 'Troop setup placeholder'
             "
           >
             @for (unit of unitPlaceholders; track unit.labelKey) {
-              <article class="planner-tile planner-tile--unit">
-                <div class="planner-tile__image" aria-hidden="true">{{ unit.icon }}</div>
-                <div class="planner-tile__body">
-                  <h2>{{ unit.labelKey | translate: unit.fallback }}</h2>
-                  <div class="planner-tile__controls">
-                    <button type="button">−</button>
-                    <strong>{{ unit.amount }}</strong>
-                    <button type="button">+</button>
+              <article
+                class="gh-panel grid min-h-[9.4rem] grid-cols-[4.4rem_minmax(0,1fr)] grid-rows-[minmax(6.35rem,auto)_auto] gap-2 rounded-md p-3"
+              >
+                <div
+                  class="gh-icon-box grid aspect-square w-16 place-items-center rounded-md text-2xl"
+                  aria-hidden="true"
+                >
+                  {{ unit.icon }}
+                </div>
+                <div class="grid min-w-0 content-start gap-2">
+                  <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
+                    {{ unit.labelKey | translate: unit.fallback }}
+                  </h2>
+                  <div class="mt-1 flex min-w-0 items-center gap-1">
+                    <button
+                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+                      type="button"
+                    >
+                      −
+                    </button>
+                    <strong class="min-w-10 text-center text-sm text-[var(--gh-text)]">{{
+                      unit.amount
+                    }}</strong>
+                    <button
+                      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+                      type="button"
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
-                <footer>
+                <footer
+                  class="col-span-full border-t border-[var(--gh-border-soft)] pt-2 text-xs text-[var(--gh-muted)]"
+                >
                   {{ unit.attack }} {{ 'plannerV2.stat.attackShort' | translate: 'attack' }} ·
                   {{ unit.population }} {{ 'plannerV2.stat.populationShort' | translate: 'pop' }} ·
                   {{ unit.time }}
@@ -195,13 +297,21 @@
         }
       </section>
 
-      <section class="planner-bottom-summary">
+      <section
+        class="gh-panel grid grid-cols-[repeat(auto-fit,minmax(9rem,1fr))] gap-0 border-x-0 border-b-0 p-3"
+      >
         @for (stat of bottomSummaryStats(); track stat.labelKey) {
-          <article class="planner-bottom-summary__card">
-            <span>{{ stat.icon }}</span>
-            <div>
-              <p>{{ stat.labelKey | translate: stat.fallback }}</p>
-              <strong>{{ stat.value }}</strong>
+          <article
+            class="gh-divider-right flex min-w-0 items-center justify-center gap-3 px-3 py-1 max-[58rem]:border-r-0 max-[58rem]:border-b"
+          >
+            <span class="text-lg text-[var(--gh-muted)]">{{ stat.icon }}</span>
+            <div class="min-w-0">
+              <p class="m-0 text-sm text-[var(--gh-text)]">
+                {{ stat.labelKey | translate: stat.fallback }}
+              </p>
+              <strong class="mt-1 block truncate text-lg font-bold text-[var(--gh-gold)]">{{
+                stat.value
+              }}</strong>
             </div>
           </article>
         }
@@ -210,7 +320,7 @@
   </section>
 
   <app-planner-summary-sidebar
-    class="planner-shell__summary"
+    class="col-start-3 row-start-2 min-h-0 min-w-0 max-[76rem]:hidden"
     [activeMode]="activeMode()"
     [activePlanName]="activePlan().name"
     [buildingCount]="buildingCount()"

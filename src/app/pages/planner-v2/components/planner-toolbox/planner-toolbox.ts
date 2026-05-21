@@ -18,7 +18,6 @@ type ToolboxQueueItem = {
   selector: 'app-planner-toolbox',
   imports: [TranslatePipe],
   templateUrl: './planner-toolbox.html',
-  styleUrl: './planner-toolbox.scss',
 })
 export class PlannerToolbox implements OnDestroy {
   private readonly now = signal(new Date());

@@ -15,7 +15,6 @@ type PlannerModeOption = {
   selector: 'app-planner-mode-switch',
   imports: [TranslatePipe],
   templateUrl: './planner-mode-switch.html',
-  styleUrl: './planner-mode-switch.scss',
 })
 export class PlannerModeSwitch {
   readonly activeMode = input.required<PlannerMode>();

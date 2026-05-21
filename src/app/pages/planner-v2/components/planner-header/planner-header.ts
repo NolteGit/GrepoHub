@@ -14,7 +14,6 @@ type HeaderAction = {
   selector: 'app-planner-header',
   imports: [TranslatePipe],
   templateUrl: './planner-header.html',
-  styleUrl: './planner-header.scss',
 })
 export class PlannerHeader {
   readonly title = input.required<string>();

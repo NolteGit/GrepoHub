@@ -1,14 +1,17 @@
-<nav class="planner-mode-switch" [attr.aria-label]="ariaLabelKey | translate: ariaLabelFallback">
+<nav
+  class="grid grid-cols-2 rounded-xl border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.66)] p-1"
+  [attr.aria-label]="ariaLabelKey | translate: ariaLabelFallback"
+>
   @for (option of options; track option.id) {
     <button
       type="button"
-      class="planner-mode-switch__option"
-      [class.planner-mode-switch__option--active]="activeMode() === option.id"
+      class="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-transparent text-[var(--gh-text)] hover:text-[var(--gh-gold)]"
+      [class.gh-gold-fill]="activeMode() === option.id"
       [attr.aria-pressed]="activeMode() === option.id"
       (click)="selectMode(option.id)"
     >
-      <span aria-hidden="true">{{ option.icon }}</span>
-      <strong>{{ option.labelKey | translate: option.fallback }}</strong>
+      <span class="text-base leading-none" aria-hidden="true">{{ option.icon }}</span>
+      <strong class="text-sm font-bold">{{ option.labelKey | translate: option.fallback }}</strong>
     </button>
   }
 </nav>

@@ -1,61 +1,101 @@
-<aside class="planner-toolbox">
-  <header class="planner-toolbox__brand">
-    <div class="planner-toolbox__clock" aria-hidden="true">
-      <strong>{{ brandInitial }}</strong>
-      <span>{{ clockTime() }}</span>
+<aside
+  class="grid min-h-dvh grid-rows-[auto_auto_minmax(10rem,1fr)_auto_auto] gap-3 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] p-3 max-[76rem]:grid-rows-[auto_auto] max-[76rem]:place-items-center max-[76rem]:px-2"
+>
+  <header
+    class="grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-4 text-center"
+  >
+    <div
+      class="grid aspect-square w-28 place-items-center rounded-full border border-[var(--gh-border)] bg-[radial-gradient(circle_at_50%_34%,rgba(246,195,67,0.36),transparent_2.4rem),radial-gradient(circle,rgba(8,35,58,0.95),rgba(2,13,23,0.96))] shadow-[inset_0_0_0_0.4rem_rgba(255,255,255,0.03),var(--gh-shadow-soft)] max-[76rem]:w-14"
+      aria-hidden="true"
+    >
+      <strong class="text-3xl leading-none text-[var(--gh-gold)] max-[76rem]:text-lg">{{
+        brandInitial
+      }}</strong>
+      <span class="text-xs font-extrabold tracking-wider text-[var(--gh-text)]">{{
+        clockTime()
+      }}</span>
     </div>
-    <time>{{ clockDate() }}</time>
+    <time class="text-xs text-[var(--gh-text)] max-[76rem]:hidden">{{ clockDate() }}</time>
   </header>
 
   <section
-    class="planner-toolbox__actions"
+    class="grid grid-cols-4 gap-2 max-[76rem]:grid-cols-1"
     [attr.aria-label]="actionTitleKey | translate: actionTitleFallback"
   >
     @for (action of actionButtons; track action.labelKey) {
       <button
-        class="planner-toolbox__button"
+        class="gh-button grid min-h-14 cursor-pointer place-items-center gap-1 rounded-md px-1 py-2"
         type="button"
         [attr.aria-label]="action.labelKey | translate: action.fallback"
       >
-        <span>{{ action.icon }}</span>
-        <small>{{ action.labelKey | translate: action.fallback }}</small>
+        <span
+          class="grid aspect-square w-6 place-items-center rounded-full bg-[rgba(246,195,67,0.12)] font-black text-[var(--gh-gold)]"
+          >{{ action.icon }}</span
+        >
+        <small
+          class="max-w-full truncate text-[0.62rem] font-bold text-[var(--gh-muted)] max-[76rem]:hidden"
+          >{{ action.labelKey | translate: action.fallback }}</small
+        >
       </button>
     }
   </section>
 
-  <section class="planner-toolbox__panel planner-toolbox__panel--queue">
-    <header>
-      <h2>{{ queueTitleKey | translate: queueTitleFallback }}</h2>
+  <section class="gh-panel grid content-start gap-3 rounded-md p-3 max-[76rem]:hidden">
+    <header class="flex items-center justify-between gap-3">
+      <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
+        {{ queueTitleKey | translate: queueTitleFallback }}
+      </h2>
       <button
+        class="gh-button grid aspect-square w-7 cursor-pointer place-items-center rounded-md text-[var(--gh-gold)]"
         type="button"
         [attr.aria-label]="addReminderLabelKey | translate: addReminderLabelFallback"
       >
         +
       </button>
     </header>
-    <div class="planner-toolbox__queue">
+    <div class="grid gap-2">
       @for (item of queueItems; track item.labelKey) {
-        <div class="planner-toolbox__queue-item">
-          <span>{{ item.labelKey | translate: item.fallback }}</span>
-          <strong>{{ item.time }}</strong>
+        <div
+          class="flex items-center justify-between gap-3 border-b border-[var(--gh-border-soft)] pb-2"
+        >
+          <span class="truncate text-xs text-[var(--gh-muted)]">{{
+            item.labelKey | translate: item.fallback
+          }}</span>
+          <strong class="shrink-0 text-xs text-[var(--gh-text)]">{{ item.time }}</strong>
         </div>
       }
     </div>
   </section>
 
-  <section class="planner-toolbox__panel planner-toolbox__panel--calculator">
-    <h2>{{ calculatorTitleKey | translate: calculatorTitleFallback }}</h2>
-    <div class="planner-toolbox__calculator-display">0</div>
-    <div class="planner-toolbox__calculator-grid">
+  <section class="gh-panel grid content-start gap-3 rounded-md p-3 max-[76rem]:hidden">
+    <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
+      {{ calculatorTitleKey | translate: calculatorTitleFallback }}
+    </h2>
+    <div
+      class="border-b border-[var(--gh-border-soft)] px-1 py-2 text-right text-2xl font-extrabold text-[var(--gh-text)]"
+    >
+      0
+    </div>
+    <div class="grid grid-cols-4 gap-1">
       @for (key of calculatorKeys; track key) {
-        <button type="button">{{ key }}</button>
+        <button
+          class="gh-button min-h-8 cursor-pointer rounded-md"
+          [class.gh-gold-fill]="$last"
+          type="button"
+        >
+          {{ key }}
+        </button>
       }
     </div>
   </section>
 
-  <footer class="planner-toolbox__footer">
+  <footer
+    class="grid grid-cols-2 gap-2 border-t border-[var(--gh-border-soft)] pt-3 max-[76rem]:hidden"
+  >
     @for (link of footerLinks; track link.labelKey) {
-      <button type="button">{{ link.labelKey | translate: link.fallback }}</button>
+      <button class="gh-button min-h-10 cursor-pointer rounded-md text-sm" type="button">
+        {{ link.labelKey | translate: link.fallback }}
+      </button>
     }
   </footer>
 </aside>

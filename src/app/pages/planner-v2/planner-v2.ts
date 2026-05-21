@@ -333,7 +333,6 @@ const specialSlots: readonly TranslatableText[] = [
   selector: 'app-planner-v2',
   imports: [TranslatePipe, PlannerToolbox, PlannerHeader, PlannerModeSwitch, PlannerSummarySidebar],
   templateUrl: './planner-v2.html',
-  styleUrl: './planner-v2.scss',
 })
 export class PlannerV2 {
   private readonly planConfigService = inject(PlanConfigService);

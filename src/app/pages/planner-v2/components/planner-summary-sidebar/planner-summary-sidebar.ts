@@ -21,7 +21,6 @@ type PreviewStat = TranslatableText & {
   selector: 'app-planner-summary-sidebar',
   imports: [TranslatePipe],
   templateUrl: './planner-summary-sidebar.html',
-  styleUrl: './planner-summary-sidebar.scss',
 })
 export class PlannerSummarySidebar {
   readonly activeMode = input.required<PlannerMode>();

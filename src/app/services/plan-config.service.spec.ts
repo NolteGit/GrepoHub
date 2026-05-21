@@ -102,7 +102,6 @@ describe('PlanConfigService import validation', () => {
     expect(importedPlans[1].troopPlan.unitAmounts['swordsman']).toBe(2);
   });
 
-
   it('renames preset plans and saves a bounded city-plan note', () => {
     service.selectPlan('preset-hybrid-plan');
 

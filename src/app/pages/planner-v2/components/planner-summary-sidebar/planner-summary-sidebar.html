@@ -1,45 +1,74 @@
-<aside class="planner-summary-sidebar">
-  <section class="planner-summary-panel planner-summary-panel--primary">
-    <header class="planner-summary-panel__header">
-      <h2>{{ populationTitleKey | translate: populationTitleFallback }}</h2>
-      <button type="button" [attr.aria-label]="infoLabelKey | translate: infoLabelFallback">
+<aside
+  class="gh-scroll-area grid h-full min-h-0 content-start gap-3 overflow-auto border-l border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.74)] p-3"
+>
+  <section class="gh-panel gh-panel-primary grid gap-4 rounded-xl p-4">
+    <header class="flex items-center justify-between gap-3">
+      <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
+        {{ populationTitleKey | translate: populationTitleFallback }}
+      </h2>
+      <button
+        class="grid aspect-square w-6 cursor-pointer place-items-center rounded-full border border-[var(--gh-border-soft)] bg-transparent text-xs text-[var(--gh-text)]"
+        type="button"
+        [attr.aria-label]="infoLabelKey | translate: infoLabelFallback"
+      >
         <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
       </button>
     </header>
 
-    <div class="planner-summary-panel__rows">
+    <div class="grid gap-4">
       @for (stat of populationStats(); track stat.labelKey) {
-        <div class="planner-summary-panel__row">
-          <span>{{ stat.labelKey | translate: stat.fallback }}</span>
-          <strong>{{ stat.value }}</strong>
+        <div
+          class="flex items-center justify-between gap-4 border-b border-[rgba(212,160,55,0.22)] pb-4 last:border-b-0 last:pb-0"
+        >
+          <span class="text-sm text-[var(--gh-text)]">{{
+            stat.labelKey | translate: stat.fallback
+          }}</span>
+          <strong class="text-right text-sm text-[var(--gh-gold)]">{{ stat.value }}</strong>
         </div>
       }
     </div>
   </section>
 
-  <section class="planner-summary-panel">
-    <header class="planner-summary-panel__header">
-      <h2>{{ contextTitle().labelKey | translate: contextTitle().fallback }}</h2>
-      <button type="button" [attr.aria-label]="infoLabelKey | translate: infoLabelFallback">
+  <section class="gh-panel grid gap-4 rounded-xl p-4">
+    <header class="flex items-center justify-between gap-3">
+      <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
+        {{ contextTitle().labelKey | translate: contextTitle().fallback }}
+      </h2>
+      <button
+        class="grid aspect-square w-6 cursor-pointer place-items-center rounded-full border border-[var(--gh-border-soft)] bg-transparent text-xs text-[var(--gh-text)]"
+        type="button"
+        [attr.aria-label]="infoLabelKey | translate: infoLabelFallback"
+      >
         <span aria-hidden="true">{{ 'plannerV2.infoGlyph' | translate: 'i' }}</span>
       </button>
     </header>
 
     @if (activeMode() === 'city') {
-      <ol class="planner-summary-list">
-        @for (unit of usedUnitsPreview; track unit.labelKey) {
-          <li>
-            <span>{{ unit.labelKey | translate: unit.fallback }}</span>
-            <strong>{{ unit.value }}</strong>
+      <ol class="m-0 grid list-none gap-3 p-0">
+        @for (unit of usedUnitsPreview; track unit.labelKey; let index = $index) {
+          <li
+            class="grid grid-cols-[1.4rem_minmax(0,1fr)_auto] items-center gap-2 text-[var(--gh-text)]"
+          >
+            <span class="text-[var(--gh-muted)]">{{ index + 1 }}.</span>
+            <span class="truncate">{{ unit.labelKey | translate: unit.fallback }}</span>
+            <strong class="text-sm text-[var(--gh-text)]">{{ unit.value }}</strong>
           </li>
         }
       </ol>
     } @else {
-      <div class="planner-capacity-preview">
-        <span>{{ capacityLabelKey | translate: capacityLabelFallback }}</span>
-        <strong>48,760 / 105,000</strong>
-        <div><span></span></div>
-        <small>46%</small>
+      <div class="grid gap-3">
+        <span class="text-sm text-[var(--gh-text)]">{{
+          capacityLabelKey | translate: capacityLabelFallback
+        }}</span>
+        <strong class="text-2xl font-medium text-[var(--gh-gold)]">48,760 / 105,000</strong>
+        <div
+          class="h-2 overflow-hidden rounded-full border border-[var(--gh-border-soft)] bg-white/5"
+        >
+          <span
+            class="block h-full w-[46%] bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.5))]"
+          ></span>
+        </div>
+        <small class="text-center text-base text-[var(--gh-text)]">46%</small>
       </div>
     }
   </section>

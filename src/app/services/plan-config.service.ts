@@ -149,7 +149,6 @@ export class PlanConfigService {
     return duplicatedPlan;
   }
 
-
   renameActivePlan(name: string): PlanConfig | null {
     const requestedName = normalizeDisplayPlanName(name, 'Configuration');
 
@@ -454,7 +453,6 @@ export class PlanConfigService {
 
     return `${Date.now()}-${this.customPlanIdCounter}`;
   }
-
 
   private normalizeExistingPlanNames(plans: readonly PlanConfig[]): PlanConfig[] {
     const usedNames: string[] = [];
