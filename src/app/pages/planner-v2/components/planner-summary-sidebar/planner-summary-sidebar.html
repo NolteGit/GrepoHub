@@ -1,7 +1,7 @@
 <aside
   class="gh-scroll-area grid h-full min-h-0 content-start gap-3 overflow-auto border-l border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.74)] p-3"
 >
-  <app-gh-panel class="grid gap-4" variant="primary">
+  <app-gh-panel class="grid gap-2.5" variant="primary">
     <header class="flex items-center justify-between gap-3">
       <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
         {{ populationTitleKey | translate: populationTitleFallback }}
@@ -13,16 +13,79 @@
       />
     </header>
 
-    <div class="grid gap-4">
-      @for (stat of populationStats(); track stat.labelKey) {
-        <app-gh-stat-row
-          class="border-b border-[rgba(212,160,55,0.22)] pb-4 last:border-b-0 last:pb-0"
-          [labelKey]="stat.labelKey"
-          [fallback]="stat.fallback"
-          [value]="stat.value"
-        />
-      }
-    </div>
+    <section
+      class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2.5"
+      [attr.aria-label]="
+        'plannerV2.summary.populationChartAria' | translate: 'Population usage chart'
+      "
+    >
+      <div class="relative size-32" aria-hidden="true">
+        <svg class="block size-full overflow-visible" viewBox="0 0 100 100">
+          <circle
+            class="stroke-[rgba(255,255,255,0.06)]"
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke-width="12"
+          />
+
+          <g transform="rotate(-90 50 50)">
+            @for (segment of populationSegments(); track segment.id) {
+              @if (segment.rawValue > 0) {
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke-width="12"
+                  stroke-linecap="butt"
+                  [attr.stroke]="segment.color"
+                  [attr.stroke-dasharray]="segment.strokeDasharray"
+                  [attr.stroke-dashoffset]="segment.strokeDashoffset"
+                />
+              }
+            }
+          </g>
+        </svg>
+
+        <div
+          class="pointer-events-none absolute inset-[1rem] grid place-items-center rounded-full border border-[rgba(255,255,255,0.05)] bg-[rgba(2,13,23,0.94)] text-center shadow-[0_0_16px_rgba(2,13,23,0.7)]"
+        >
+          <div class="grid justify-items-center gap-1">
+            <strong class="text-xl leading-none text-[var(--gh-gold)]">
+              {{ populationBreakdown().freeCapacity }}
+            </strong>
+            <span class="text-[0.66rem] leading-tight text-[var(--gh-muted)]">
+              / {{ populationBreakdown().capacity }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ml-auto grid w-fit min-w-[8.25rem] justify-self-end gap-1.5">
+        @for (segment of populationSegments(); track segment.id) {
+          <div
+            class="grid grid-cols-[auto_auto_auto] items-center gap-x-2 border-b border-[rgba(212,160,55,0.14)] pb-1.5 last:border-b-0 last:pb-0"
+          >
+            <span
+              class="size-2.5 rounded-full opacity-90 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+              [style.background]="segment.color"
+              aria-hidden="true"
+            ></span>
+            <span class="whitespace-nowrap text-sm text-[var(--gh-text)]">
+              {{ segment.labelKey | translate: segment.fallback }}
+            </span>
+            <strong
+              class="text-sm font-semibold leading-none tabular-nums"
+              [style.color]="segment.valueColor"
+            >
+              {{ segment.value }}
+            </strong>
+          </div>
+        }
+      </div>
+    </section>
   </app-gh-panel>
 
   <app-gh-panel class="grid gap-4">

@@ -19,6 +19,29 @@ type SidebarStat = TranslatableText & {
   readonly value: string | number;
 };
 
+type PopulationBreakdown = {
+  readonly capacity: string;
+  readonly freeCapacity: string;
+};
+
+type PopulationSegment = TranslatableText & {
+  readonly id: 'buildings' | 'troops' | 'free';
+  readonly rawValue: number;
+  readonly value: string;
+  readonly color: string;
+  readonly valueColor: string;
+  readonly strokeDasharray: string;
+  readonly strokeDashoffset: number;
+};
+
+const buildingsColor = '#f0bf45';
+const troopsColor = '#cf453e';
+const freeColor = '#236fca';
+const donutRadius = 40;
+const donutCircumference = 2 * Math.PI * donutRadius;
+
+const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
+
 @Component({
   selector: 'app-planner-summary-sidebar',
   imports: [TranslatePipe, GhIconButton, GhPanel, GhStatRow],
@@ -49,69 +72,56 @@ export class PlannerSummarySidebar {
           fallback: 'Troop Plan Preview',
         },
   );
-  protected readonly populationStats = computed<readonly SidebarStat[]>(() => {
-    const sharedStats: SidebarStat[] = [
+  protected readonly populationBreakdown = computed<PopulationBreakdown>(() => ({
+    capacity: formatNumber(this.population().populationCapacity),
+    freeCapacity: formatNumber(this.population().freePopulationAfterTroops),
+  }));
+  protected readonly populationSegments = computed<readonly PopulationSegment[]>(() => {
+    const values = [
       {
-        labelKey: 'plannerV2.summary.activePlan',
-        fallback: 'Active plan',
-        value: this.population().activePlanName,
+        id: 'buildings' as const,
+        labelKey: 'plannerV2.summary.chart.buildings',
+        fallback: 'Buildings',
+        rawValue: Math.max(0, this.population().usedPopulation),
+        color: buildingsColor,
+        valueColor: 'var(--gh-text)',
       },
       {
-        labelKey: 'plannerV2.summary.populationCapacity',
-        fallback: 'Population capacity',
-        value: this.population().populationCapacity,
-      },
-    ];
-
-    if (this.activeMode() === 'troops') {
-      return [
-        ...sharedStats,
-        {
-          labelKey: 'plannerV2.summary.usedByBuildings',
-          fallback: 'Used by buildings',
-          value: this.population().usedPopulation,
-        },
-        {
-          labelKey: 'plannerV2.summary.usedByTroops',
-          fallback: 'Used by troops',
-          value: this.population().troopPopulation,
-        },
-        {
-          labelKey: 'plannerV2.summary.freePopulationAfterTroops',
-          fallback: 'Free population',
-          value: this.population().freePopulationAfterTroops,
-        },
-        {
-          labelKey: 'plannerV2.summary.usedUnits',
-          fallback: 'Used units',
-          value: this.usedUnitCount(),
-        },
-      ];
-    }
-
-    return [
-      ...sharedStats,
-      {
-        labelKey: 'plannerV2.summary.usedPopulation',
-        fallback: 'Used population',
-        value: this.population().usedPopulation,
+        id: 'troops' as const,
+        labelKey: 'plannerV2.summary.chart.troops',
+        fallback: 'Troops',
+        rawValue: Math.max(0, this.population().troopPopulation),
+        color: troopsColor,
+        valueColor: 'var(--gh-text)',
       },
       {
-        labelKey: 'plannerV2.summary.freeBhp',
-        fallback: 'Free BHP',
-        value: this.population().freeBhp,
-      },
-      {
-        labelKey: 'plannerV2.summary.buildingLevels',
-        fallback: 'Building levels',
-        value: this.population().usedBuildingLevels,
-      },
-      {
-        labelKey: 'plannerV2.summary.activeModifiers',
-        fallback: 'Active modifiers',
-        value: this.population().activeModifierCount,
+        id: 'free' as const,
+        labelKey: 'plannerV2.summary.chart.free',
+        fallback: 'Free',
+        rawValue: Math.max(0, this.population().freePopulationAfterTroops),
+        color: freeColor,
+        valueColor: 'var(--gh-text)',
       },
     ];
+    const total = values.reduce((sum, segment) => sum + segment.rawValue, 0);
+    const capacity = Math.max(this.population().populationCapacity, total, 1);
+    let offset = 0;
+
+    return values.map((segment) => {
+      const length = (segment.rawValue / capacity) * donutCircumference;
+      const strokeDasharray = `${length} ${donutCircumference - length}`;
+      const strokeDashoffset = -offset;
+
+      offset += length;
+
+      return {
+        ...segment,
+        value: formatNumber(segment.rawValue),
+        valueColor: segment.rawValue > 0 ? segment.valueColor : 'var(--gh-muted)',
+        strokeDasharray,
+        strokeDashoffset,
+      };
+    });
   });
   protected readonly transportRows = computed<readonly SidebarStat[]>(() => [
     {
