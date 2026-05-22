@@ -97,6 +97,11 @@
     border-color: var(--gh-border);
   }
 
+  .gh-toolbox-action-active {
+    border-color: var(--gh-border) !important;
+    background: rgba(246, 195, 67, 0.14) !important;
+  }
+
   .gh-gold-fill {
     background: linear-gradient(
       180deg,

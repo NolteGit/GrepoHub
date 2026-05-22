@@ -1,7 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignoreFiles": [
-    "src/app/data/reference-documents.ts",
     "src/app/utils/toolbox-calculator.util.ts",
     "src/styles.css",
     "src/app/shared/ui/gh-tile-shell/gh-tile-shell.ts"

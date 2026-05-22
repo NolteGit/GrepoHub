@@ -31,7 +31,10 @@ import {
   PlannerModeSwitch,
 } from './components/planner-mode-switch/planner-mode-switch';
 import { PlannerSummarySidebar } from './components/planner-summary-sidebar/planner-summary-sidebar';
-import { PlannerToolbox } from './components/planner-toolbox/planner-toolbox';
+import {
+  PlannerToolbox,
+  type PlannerToolboxActionId,
+} from './components/planner-toolbox/planner-toolbox';
 import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
 import { GhButton } from '../../shared/ui/gh-button/gh-button';
 import type {
@@ -849,6 +852,28 @@ export class PlannerV2 {
     }
 
     this.deleteActivePlanWithConfirmation();
+  }
+
+  protected handleToolboxAction(
+    actionId: PlannerToolboxActionId,
+    planImportInput: HTMLInputElement,
+  ): void {
+    if (actionId === 'city') {
+      this.selectMode('city');
+      return;
+    }
+
+    if (actionId === 'troops') {
+      this.selectMode('troops');
+      return;
+    }
+
+    if (actionId === 'language') {
+      this.translationService.toggleLanguage();
+      return;
+    }
+
+    this.handlePlanAction(actionId, planImportInput);
   }
 
   protected async importPlanFromFile(event: Event): Promise<void> {

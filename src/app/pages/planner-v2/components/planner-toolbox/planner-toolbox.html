@@ -1,5 +1,5 @@
 <aside
-  class="grid min-h-dvh grid-rows-[auto_auto_minmax(10rem,1fr)_auto_auto] gap-3 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] p-3 max-[76rem]:grid-rows-[auto_auto] max-[76rem]:place-items-center max-[76rem]:px-2"
+  class="grid min-h-dvh grid-rows-[auto_auto_minmax(10rem,1fr)_auto] gap-3 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] p-3 max-[76rem]:grid-rows-[auto_auto] max-[76rem]:place-items-center max-[76rem]:px-2"
 >
   <header
     class="grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-4 text-center"
@@ -18,26 +18,35 @@
     <time class="text-xs text-[var(--gh-text)] max-[76rem]:hidden">{{ clockDate() }}</time>
   </header>
 
-  <section
-    class="grid grid-cols-4 gap-2 max-[76rem]:grid-cols-1"
-    [attr.aria-label]="actionTitleKey | translate: actionTitleFallback"
-  >
-    @for (action of actionButtons; track action.labelKey) {
-      <button
-        class="gh-button grid min-h-14 cursor-pointer place-items-center gap-1 rounded-md px-1 py-2"
-        type="button"
-        [attr.aria-label]="action.labelKey | translate: action.fallback"
-      >
-        <span
-          class="grid aspect-square w-6 place-items-center rounded-full bg-[rgba(246,195,67,0.12)] font-black text-[var(--gh-gold)]"
-          >{{ action.icon }}</span
-        >
-        <small
-          class="max-w-full truncate text-[0.62rem] font-bold text-[var(--gh-muted)] max-[76rem]:hidden"
-          >{{ action.labelKey | translate: action.fallback }}</small
-        >
-      </button>
-    }
+  <section class="grid gap-2 border-b border-[var(--gh-border-soft)] pb-3 max-[76rem]:hidden">
+    <nav
+      class="grid grid-cols-4 gap-2"
+      [attr.aria-label]="quickLinksAriaKey | translate: quickLinksAriaFallback"
+    >
+      @for (link of quickLinks(); track link.id) {
+        @if (
+          link.id === 'grepodata' ||
+          link.id === 'grepolife' ||
+          link.id === 'wiki' ||
+          link.id === 'support'
+        ) {
+          <a
+            class="grid min-h-14 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gh-gold)]"
+            target="_blank"
+            rel="noopener noreferrer"
+            [href]="link.href"
+            [title]="link.title"
+            [attr.aria-label]="link.title"
+          >
+            <img
+              class="max-h-10 max-w-full object-contain"
+              [src]="link.iconPath"
+              [alt]="link.title"
+            />
+          </a>
+        }
+      }
+    </nav>
   </section>
 
   <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
@@ -67,28 +76,80 @@
   </app-gh-panel>
 
   <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
-    <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
-      {{ calculatorTitleKey | translate: calculatorTitleFallback }}
-    </h2>
     <div
-      class="border-b border-[var(--gh-border-soft)] px-1 py-2 text-right text-2xl font-extrabold text-[var(--gh-text)]"
+      class="grid grid-cols-2 gap-1 rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] p-1"
+      role="tablist"
+      [attr.aria-label]="calculatorTitleKey | translate: calculatorTitleFallback"
     >
-      0
+      @for (tab of calculatorTabs; track tab.id) {
+        <button
+          type="button"
+          role="tab"
+          [attr.aria-selected]="calculatorMode() === tab.id"
+          [class]="
+            calculatorMode() === tab.id
+              ? 'rounded-md border border-[var(--gh-border)] bg-[rgba(246,195,67,0.08)] px-2 py-1.5 text-xs font-extrabold text-[var(--gh-gold)] transition'
+              : 'rounded-md px-2 py-1.5 text-xs font-extrabold text-[var(--gh-muted)] transition hover:text-[var(--gh-text)]'
+          "
+          (click)="selectCalculatorMode(tab.id)"
+        >
+          {{ tab.labelKey | translate: tab.fallback }}
+        </button>
+      }
     </div>
-    <div class="grid grid-cols-4 gap-1">
-      @for (key of calculatorKeys; track key) {
-        <app-gh-button size="sm" [variant]="$last ? 'gold' : 'default'" [wide]="true">
-          {{ key }}
-        </app-gh-button>
+
+    <div class="grid h-[14.75rem] overflow-hidden">
+      @if (calculatorMode() === 'calculator') {
+        <div class="grid h-full grid-rows-[auto_1fr] gap-3">
+          <div
+            class="border-b border-[var(--gh-border-soft)] px-1 py-2 text-right text-2xl font-extrabold text-[var(--gh-text)]"
+          >
+            0
+          </div>
+
+          <div class="grid grid-cols-4 content-start gap-1">
+            @for (key of calculatorKeys; track key) {
+              <app-gh-button size="sm" [variant]="$last ? 'gold' : 'default'" [wide]="true">
+                {{ key }}
+              </app-gh-button>
+            }
+          </div>
+        </div>
+      } @else {
+        <div
+          class="grid h-full place-items-center rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(255,255,255,0.03)] p-3 text-center"
+        >
+          <p class="m-0 text-xs font-bold text-[var(--gh-muted)]">
+            {{
+              'plannerV2.toolbox.calculator.timePlaceholder'
+                | translate: 'Time calculator coming soon'
+            }}
+          </p>
+        </div>
       }
     </div>
   </app-gh-panel>
 
   <footer
-    class="grid grid-cols-2 gap-2 border-t border-[var(--gh-border-soft)] pt-3 max-[76rem]:hidden"
+    class="border-t border-[var(--gh-border-soft)] pt-3 text-center text-[0.65rem] leading-relaxed text-[var(--gh-muted)] max-[76rem]:hidden"
   >
-    @for (link of footerLinks; track link.labelKey) {
-      <app-gh-button [wide]="true">{{ link.labelKey | translate: link.fallback }}</app-gh-button>
-    }
+    <span>created by </span>
+    <a
+      class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gh-gold)]"
+      target="_blank"
+      rel="noopener noreferrer"
+      [href]="createdByHref"
+    >
+      {{ createdByName }}
+    </a>
+    <span> · </span>
+    <a
+      class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gh-gold)]"
+      target="_blank"
+      rel="noopener noreferrer"
+      [href]="githubHref"
+    >
+      GitHub
+    </a>
   </footer>
 </aside>

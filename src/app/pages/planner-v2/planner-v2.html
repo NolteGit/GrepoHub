@@ -9,7 +9,12 @@
     (change)="importPlanFromFile($event)"
   />
 
-  <app-planner-toolbox class="col-start-1 row-span-full max-[46rem]:hidden" />
+  <app-planner-toolbox
+    class="col-start-1 row-span-full max-[46rem]:hidden"
+    [activeMode]="activeMode()"
+    [canDeletePlan]="canDeleteActivePlan()"
+    (actionSelected)="handleToolboxAction($event, planImportInput)"
+  />
 
   <app-planner-header
     class="col-start-2 col-end-4 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[76rem]:col-end-3 max-[46rem]:col-start-1"
