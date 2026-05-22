@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
@@ -10,7 +10,6 @@ import type {
   BuildingTileView,
   CityModifierToggle,
   CityModifierToggleId,
-  SetupContextItem,
   SpecialBuildingSlotView,
 } from '../../planner-v2.models';
 
@@ -20,9 +19,8 @@ import type {
   templateUrl: './planner-city-setup.html',
 })
 export class PlannerCitySetup {
-  readonly contextLeft = input.required<readonly SetupContextItem[]>();
-  readonly contextRight = input.required<readonly SetupContextItem[]>();
   readonly modifiers = input.required<readonly CityModifierToggle[]>();
+  readonly heroBuilding = input<BuildingTileView | null>(null);
   readonly buildings = input.required<readonly BuildingTileView[]>();
   readonly specialSlots = input.required<readonly SpecialBuildingSlotView[]>();
   readonly buildingLevelChanged = output<{ readonly buildingId: string; readonly level: number }>();
@@ -31,4 +29,14 @@ export class PlannerCitySetup {
     readonly slotId: string;
     readonly optionId: string;
   }>();
+
+  protected readonly heroLeftModifiers = computed<readonly CityModifierToggle[]>(() => {
+    return this.modifiers().filter((modifier) => modifier.id === 'landExpansion');
+  });
+
+  protected readonly heroRightModifiers = computed<readonly CityModifierToggle[]>(() => {
+    return this.modifiers().filter(
+      (modifier) => modifier.id === 'aphroditeActive' || modifier.id === 'plowResearched',
+    );
+  });
 }

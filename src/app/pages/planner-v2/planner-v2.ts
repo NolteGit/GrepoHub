@@ -20,7 +20,6 @@ import { PlanConfigService } from '../../services/plan-config.service';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { TranslationService } from '../../services/translation.service';
 
-import { PlannerBottomSummary } from './components/planner-bottom-summary/planner-bottom-summary';
 import { PlannerCitySetup } from './components/planner-city-setup/planner-city-setup';
 import {
   PlannerHeader,
@@ -38,7 +37,6 @@ import {
 import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
 import { GhButton } from '../../shared/ui/gh-button/gh-button';
 import type {
-  BottomSummaryStat,
   BuildingTileStat,
   BuildingTileView,
   CityModifierToggle,
@@ -348,7 +346,6 @@ type PlannerNotice = {
     PlannerModeSwitch,
     PlannerCitySetup,
     PlannerTroopSetup,
-    PlannerBottomSummary,
     PlannerSummarySidebar,
     GhButton,
   ],
@@ -466,41 +463,11 @@ export class PlannerV2 {
       };
     });
   });
-  protected readonly cityContextLeft = computed<readonly SetupContextItem[]>(() => {
-    const summary = this.citySummary();
-
-    return [
-      {
-        labelKey: 'plannerV2.context.populationCapacity',
-        fallback: 'Population cap',
-        icon: '♟',
-        value: formatNumber(summary.populationCapacity),
-      },
-      {
-        labelKey: 'plannerV2.context.freeBhp',
-        fallback: 'Free BHP',
-        icon: '◇',
-        value: formatNumber(summary.freeBhp),
-      },
-    ];
+  protected readonly cityHeroBuilding = computed<BuildingTileView | null>(() => {
+    return this.cityBuildings().find((building) => building.id === 'senate') ?? null;
   });
-  protected readonly cityContextRight = computed<readonly SetupContextItem[]>(() => {
-    const summary = this.citySummary();
-
-    return [
-      {
-        labelKey: 'plannerV2.context.specialSlots',
-        fallback: 'Special slots',
-        icon: '★',
-        value: formatRatio(summary.selectedSpecialBuildingCount, 2),
-      },
-      {
-        labelKey: 'plannerV2.context.buildingLevels',
-        fallback: 'Building levels',
-        icon: '▥',
-        value: formatNumber(summary.buildingLevels),
-      },
-    ];
+  protected readonly cityGridBuildings = computed<readonly BuildingTileView[]>(() => {
+    return this.cityBuildings().filter((building) => building.id !== 'senate');
   });
   protected readonly cityModifiers = computed<readonly CityModifierToggle[]>(() => {
     const cityPlan = this.activeCityPlan();
@@ -751,85 +718,6 @@ export class PlannerV2 {
       activeModifierCount: citySummary.activeModifierCount,
       selectedSpecialBuildingCount: citySummary.selectedSpecialBuildingCount,
     };
-  });
-  protected readonly bottomSummaryStats = computed<readonly BottomSummaryStat[]>(() => {
-    if (this.activeMode() === 'city') {
-      const summary = this.citySummary();
-
-      return [
-        {
-          labelKey: 'plannerV2.bottom.totalPopulation',
-          fallback: 'Total Population',
-          value: formatNumber(summary.populationCapacity),
-          icon: '♟',
-        },
-        {
-          labelKey: 'plannerV2.bottom.usedPopulation',
-          fallback: 'Used Population',
-          value: formatNumber(summary.usedPopulation),
-          icon: '◉',
-        },
-        {
-          labelKey: 'plannerV2.bottom.freeBhp',
-          fallback: 'Free BHP',
-          value: formatNumber(summary.freeBhp),
-          icon: '◇',
-        },
-        {
-          labelKey: 'plannerV2.bottom.buildingLevels',
-          fallback: 'Building Levels',
-          value: formatNumber(summary.buildingLevels),
-          icon: '▥',
-        },
-        {
-          labelKey: 'plannerV2.bottom.activeModifiers',
-          fallback: 'Active Modifiers',
-          value: String(summary.activeModifierCount),
-          icon: '✦',
-        },
-      ];
-    }
-
-    const summary = this.troopSummary();
-
-    return [
-      {
-        labelKey: 'plannerV2.bottom.totalUnits',
-        fallback: 'Total Units',
-        value: formatNumber(summary.totalUnits),
-        icon: '⚔',
-      },
-      {
-        labelKey: 'plannerV2.bottom.usedPopulation',
-        fallback: 'Used Population',
-        value: formatNumber(summary.usedPopulation),
-        icon: '♟',
-      },
-      {
-        labelKey: 'plannerV2.bottom.totalAttack',
-        fallback: 'Total Attack',
-        value: formatNumber(summary.totalAttack),
-        icon: '⚔',
-      },
-      {
-        labelKey: 'plannerV2.bottom.totalDefense',
-        fallback: 'Total Defense',
-        value: formatNumber(summary.totalDefense),
-        icon: '◈',
-      },
-      {
-        labelKey: 'plannerV2.bottom.carryingCapacity',
-        fallback: 'Carrying Capacity',
-        value: formatNumber(summary.transportCapacity),
-        icon: '⚓',
-      },
-      {
-        labelKey: 'plannerV2.bottom.transportSpace',
-        fallback: 'Transport Space',
-        value: formatNumber(summary.transportSpace),
-        icon: '▣',
-      },
-    ];
   });
 
   protected handlePlanAction(

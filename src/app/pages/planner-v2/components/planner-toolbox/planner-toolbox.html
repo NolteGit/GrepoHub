@@ -133,7 +133,7 @@
   <footer
     class="border-t border-[var(--gh-border-soft)] pt-3 text-center text-[0.65rem] leading-relaxed text-[var(--gh-muted)] max-[76rem]:hidden"
   >
-    <span>created by </span>
+    <span>{{ 'plannerV2.toolbox.footer.createdBy' | translate: 'created by' }} </span>
     <a
       class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--gh-gold)]"
       target="_blank"
@@ -149,7 +149,7 @@
       rel="noopener noreferrer"
       [href]="githubHref"
     >
-      GitHub
+      {{ 'plannerV2.toolbox.footer.github' | translate: 'GitHub' }}
     </a>
   </footer>
 </aside>

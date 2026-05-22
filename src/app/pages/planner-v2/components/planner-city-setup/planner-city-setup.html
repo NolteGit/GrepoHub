@@ -1,72 +1,77 @@
 <section
-  class="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
+  class="mb-3 rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.52)] p-3"
   [attr.aria-label]="'plannerV2.citySetupContextLabel' | translate: 'City setup context'"
 >
   <div
-    class="grid min-w-[5.2rem] grid-rows-2 border-r border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-r-0 max-[58rem]:border-b"
+    class="grid grid-cols-[minmax(11rem,1fr)_minmax(18rem,22rem)_minmax(11rem,1fr)] items-stretch gap-3 max-[86rem]:grid-cols-1"
   >
-    @for (item of contextLeft(); track item.labelKey) {
-      <article
-        class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
-        [attr.title]="item.labelKey | translate: item.fallback"
-      >
-        <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
-          item.icon
-        }}</span>
-        <strong class="text-sm leading-none">{{ item.value }}</strong>
-      </article>
-    }
-  </div>
-
-  <nav
-    class="grid min-w-0 grid-cols-3"
-    [attr.aria-label]="'plannerV2.cityModifierLabel' | translate: 'City modifiers'"
-  >
-    @for (modifier of modifiers(); track modifier.id) {
-      <button
-        type="button"
-        class="grid min-h-[3.7rem] min-w-0 cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-center justify-center gap-x-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)] transition hover:bg-white/5"
-        [class.gh-tab-active]="modifier.active"
-        [class.opacity-60]="!modifier.active"
-        [attr.aria-pressed]="modifier.active"
-        (click)="modifierToggled.emit(modifier.id)"
-      >
-        <span class="row-span-2 text-base leading-none" aria-hidden="true">{{
-          modifier.icon
-        }}</span>
-        <strong class="truncate text-left max-[70rem]:hidden">{{
-          modifier.labelKey | translate: modifier.fallback
-        }}</strong>
-        <strong class="hidden truncate text-left max-[70rem]:block">{{
-          modifier.shortLabelKey | translate: modifier.shortFallback
-        }}</strong>
-        <small
-          class="truncate text-left text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+    <aside
+      class="grid min-w-0 content-center gap-2 rounded-md border border-[var(--gh-border-soft)] bg-white/[0.02] p-3"
+    >
+      @for (modifier of heroLeftModifiers(); track modifier.id) {
+        <button
+          type="button"
+          class="grid min-h-[3.2rem] min-w-0 cursor-pointer grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-x-2 rounded-md border border-b-[0.18rem] border-[var(--gh-border-soft)] border-b-transparent bg-[rgba(8,35,58,0.42)] px-3 py-2 text-left font-bold text-[var(--gh-text)] transition hover:bg-white/5"
+          [class.gh-tab-active]="modifier.active"
+          [class.opacity-60]="!modifier.active"
+          [attr.aria-pressed]="modifier.active"
+          (click)="modifierToggled.emit(modifier.id)"
         >
-          @if (modifier.active) {
-            {{ 'plannerV2.modifier.active' | translate: 'Active' }}
-          } @else {
-            {{ 'plannerV2.modifier.inactive' | translate: 'Inactive' }}
-          }
-        </small>
-      </button>
-    }
-  </nav>
+          <span class="row-span-2 text-center text-base leading-none" aria-hidden="true">{{
+            modifier.icon
+          }}</span>
+          <strong class="truncate">{{ modifier.labelKey | translate: modifier.fallback }}</strong>
+          <small
+            class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+          >
+            @if (modifier.active) {
+              {{ 'plannerV2.modifier.active' | translate: 'Active' }}
+            } @else {
+              {{ 'plannerV2.modifier.inactive' | translate: 'Inactive' }}
+            }
+          </small>
+        </button>
+      }
+    </aside>
 
-  <div
-    class="grid min-w-[5.2rem] grid-rows-2 border-l border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-l-0 max-[58rem]:border-t"
-  >
-    @for (item of contextRight(); track item.labelKey) {
-      <article
-        class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
-        [attr.title]="item.labelKey | translate: item.fallback"
-      >
-        <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
-          item.icon
-        }}</span>
-        <strong class="text-sm leading-none">{{ item.value }}</strong>
-      </article>
-    }
+    <div class="grid min-w-0 place-items-center">
+      @if (heroBuilding(); as building) {
+        <app-planner-building-tile
+          class="w-full max-w-[22rem]"
+          [building]="building"
+          (levelChanged)="buildingLevelChanged.emit({ buildingId: building.id, level: $event })"
+        />
+      }
+    </div>
+
+    <aside
+      class="grid min-w-0 content-center gap-2 rounded-md border border-[var(--gh-border-soft)] bg-white/[0.02] p-3"
+    >
+      @for (modifier of heroRightModifiers(); track modifier.id) {
+        <button
+          type="button"
+          class="grid min-h-[3.2rem] min-w-0 cursor-pointer grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-x-2 rounded-md border border-b-[0.18rem] border-[var(--gh-border-soft)] border-b-transparent bg-[rgba(8,35,58,0.42)] px-3 py-2 text-left font-bold text-[var(--gh-text)] transition hover:bg-white/5"
+          [class.gh-tab-active]="modifier.active"
+          [class.opacity-60]="!modifier.active"
+          [attr.aria-pressed]="modifier.active"
+          (click)="modifierToggled.emit(modifier.id)"
+        >
+          <span class="row-span-2 text-center text-base leading-none" aria-hidden="true">{{
+            modifier.icon
+          }}</span>
+          <strong class="truncate">{{ modifier.labelKey | translate: modifier.fallback }}</strong>
+          <small
+            class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+          >
+            @if (modifier.active) {
+              {{ 'plannerV2.modifier.active' | translate: 'Active' }}
+            } @else {
+              {{ 'plannerV2.modifier.inactive' | translate: 'Inactive' }}
+            }
+          </small>
+        </button>
+      }
+    </aside>
   </div>
 </section>
 
