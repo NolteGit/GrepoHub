@@ -1,19 +1,19 @@
 <section
-  class="mb-3 grid grid-cols-[auto_minmax(0,1fr)_auto] items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
+  class="mb-3 grid grid-cols-[minmax(6.8rem,7.6rem)_minmax(0,1fr)_minmax(7.2rem,8.4rem)] items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
   [attr.aria-label]="'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'"
 >
   <div
-    class="grid min-w-[5.2rem] grid-rows-2 border-r border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-r-0 max-[58rem]:border-b"
+    class="grid min-w-0 grid-rows-2 border-r border-[var(--gh-border-soft)] max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-r-0 max-[58rem]:border-b"
   >
     @for (item of contextLeft(); track item.labelKey) {
       <article
-        class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
+        class="grid min-h-[1.95rem] grid-cols-[1.4rem_minmax(0,1fr)] items-center gap-1.5 px-3 py-1 text-[var(--gh-text)] transition hover:bg-white/5 [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
         [attr.title]="item.labelKey | translate: item.fallback"
       >
         <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
           item.icon
         }}</span>
-        <strong class="text-sm leading-none">{{ item.value }}</strong>
+        <strong class="truncate text-sm leading-none">{{ item.value }}</strong>
       </article>
     }
   </div>
@@ -25,7 +25,7 @@
     @for (category of categories(); track category.id) {
       <button
         type="button"
-        class="inline-flex min-h-[3.7rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-2 font-bold text-[var(--gh-text)]"
+        class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 font-bold text-[var(--gh-text)] transition hover:bg-white/5"
         [class.gh-tab-active]="activeCategory() === category.id"
         [attr.aria-pressed]="activeCategory() === category.id"
         (click)="categorySelected.emit(category.id)"
@@ -42,28 +42,29 @@
   </nav>
 
   <div
-    class="grid min-w-[5.2rem] grid-rows-2 border-l border-[var(--gh-border-soft)] max-[58rem]:min-w-0 max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-l-0 max-[58rem]:border-t"
+    class="grid min-w-0 grid-rows-2 border-l border-[var(--gh-border-soft)] max-[58rem]:grid-cols-2 max-[58rem]:grid-rows-none max-[58rem]:border-l-0 max-[58rem]:border-t"
   >
     @for (item of contextRight(); track item.labelKey) {
       <article
-        class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 px-2 py-1 text-[var(--gh-text)] [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
+        class="grid min-h-[1.95rem] grid-cols-[1.4rem_minmax(0,1fr)] items-center gap-1.5 px-3 py-1 text-[var(--gh-text)] transition hover:bg-white/5 [&+&]:border-t [&+&]:border-[var(--gh-border-soft)] max-[58rem]:[&+&]:border-t-0 max-[58rem]:[&+&]:border-l"
         [attr.title]="item.labelKey | translate: item.fallback"
       >
         <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
           item.icon
         }}</span>
-        <strong class="text-sm leading-none">{{ item.value }}</strong>
+        <strong class="truncate text-sm leading-none">{{ item.value }}</strong>
       </article>
     }
 
     <label
-      class="grid min-h-[1.85rem] grid-cols-[1.25rem_minmax(0,1fr)] items-center gap-1 border-t border-[var(--gh-border-soft)] px-2 py-1 text-[var(--gh-text)] max-[58rem]:border-t-0 max-[58rem]:border-l"
+      class="grid min-h-[1.95rem] cursor-pointer grid-cols-[1.4rem_minmax(0,1fr)] items-center gap-1.5 border-t border-[var(--gh-border-soft)] px-3 py-1 text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:border-t-0 max-[58rem]:border-l"
+      [attr.title]="'unitAttribute.god' | translate: 'God'"
     >
       <span class="text-center text-sm leading-none text-[var(--gh-gold)]" aria-hidden="true"
         >☉</span
       >
       <select
-        class="w-full min-w-[4.6rem] cursor-pointer border-0 bg-transparent text-sm font-bold text-[var(--gh-text)]"
+        class="w-full min-w-0 cursor-pointer border-0 bg-transparent text-sm font-bold text-[var(--gh-text)]"
         [value]="selectedGod()"
         [attr.aria-label]="'unitAttribute.god' | translate: 'God'"
         (change)="selectGod($event)"

@@ -30,13 +30,16 @@ export class PlannerCitySetup {
     readonly optionId: string;
   }>();
 
-  protected readonly heroLeftModifiers = computed<readonly CityModifierToggle[]>(() => {
-    return this.modifiers().filter((modifier) => modifier.id === 'landExpansion');
-  });
+  protected readonly compactModifiers = computed<readonly CityModifierToggle[]>(() => {
+    const modifierOrder: readonly CityModifierToggleId[] = [
+      'landExpansion',
+      'aphroditeActive',
+      'plowResearched',
+    ];
+    const modifiers = this.modifiers();
 
-  protected readonly heroRightModifiers = computed<readonly CityModifierToggle[]>(() => {
-    return this.modifiers().filter(
-      (modifier) => modifier.id === 'aphroditeActive' || modifier.id === 'plowResearched',
-    );
+    return modifierOrder
+      .map((modifierId) => modifiers.find((modifier) => modifier.id === modifierId))
+      .filter((modifier): modifier is CityModifierToggle => modifier !== undefined);
   });
 }

@@ -74,11 +74,6 @@ export type GodOption = TranslatableText & {
   readonly value: string;
 };
 
-export type BottomSummaryStat = TranslatableText & {
-  readonly value: string;
-  readonly icon: string;
-};
-
 export type SidebarPreviewStat = TranslatableText & {
   readonly value: string | number;
 };
