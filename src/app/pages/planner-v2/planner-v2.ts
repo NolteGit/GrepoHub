@@ -421,13 +421,134 @@ const formatPositiveBuildingEffect = (value: number): string => {
   return value > 0 ? `+${formatNumber(value)}` : formatNumber(value);
 };
 
-const getBuildingEffectValue = (buildingId: string, level: number, population: number): string => {
+type BuildingEffectValueContext = {
+  readonly buildingId: string;
+  readonly level: number;
+  readonly population: number;
+  readonly divineStatueCount: number;
+};
+
+const senateConstructionTimePercentByLevel = [
+  100, 100, 98.6, 97, 95.3, 93.5, 91.5, 89.5, 87.4, 85.3, 83, 80.8, 78.4, 76.1, 73.7, 71.2, 68.7,
+  66.1, 63.6, 60.9, 58.3, 55.6, 52.9, 50.1, 47.4, 44.5,
+] as const;
+
+const recruitmentDurationPercentByLevel = [
+  100, 100, 99, 97.9, 96.7, 95.4, 94.1, 92.8, 91.5, 90.2, 88.8, 87.4, 86, 84.6, 83.2, 81.8, 80.3,
+  78.9, 77.4, 76, 74.5, 73, 71.5, 70, 68.5, 67, 65.5, 64, 62.5, 60.9, 59.4,
+] as const;
+
+const resourceProductionByLevel = [
+  0, 8, 12, 18, 24, 30, 37, 43, 51, 58, 66, 73, 81, 89, 98, 106, 114, 123, 132, 141, 150, 159, 168,
+  178, 187, 197, 206, 216, 226, 236, 246, 256, 266, 276, 286, 297, 307, 318, 328, 339, 350,
+] as const;
+
+const warehouseStorageWithoutCeramicsByLevel = [
+  0, 300, 711, 1185, 1706, 2267, 2862, 3487, 4140, 4818, 5518, 6241, 6984, 7746, 8526, 9324, 10138,
+  10969, 11815, 12675, 13550, 14439, 15341, 16257, 17185, 18125, 19077, 20041, 21016, 22003, 23000,
+  24008, 25026, 26055, 27093, 28142,
+] as const;
+
+const cityWallDefenseBonusPercentByLevel = [
+  0, 3.7, 7.5, 11.4, 15.5, 19.7, 24.1, 28.5, 33.3, 38, 43, 48.1, 53.5, 59, 64.7, 70.5, 76.7, 82.9,
+  89.5, 96.2, 103.3, 110.4, 117.9, 125.6, 133.6, 141.9,
+] as const;
+
+const getIndexedBuildingValue = (values: readonly number[], level: number): number => {
+  const index = Math.max(0, Math.min(values.length - 1, level));
+
+  return values[index] ?? 0;
+};
+
+const getCityWallBaseDefense = (level: number): number => {
+  return (Math.max(0, level) + 1) * 10;
+};
+
+const formatPercent = (value: number): string => {
+  return `${value.toLocaleString('en-US', {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 1,
+  })}%`;
+};
+
+const formatDecimal = (value: number): string => {
+  return value.toLocaleString('en-US', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 1,
+  });
+};
+
+const getBuildingEffectValue = (context: BuildingEffectValueContext): string => {
+  const { buildingId, divineStatueCount, level, population } = context;
+
+  if (buildingId === 'senate') {
+    return formatPercent(getIndexedBuildingValue(senateConstructionTimePercentByLevel, level));
+  }
+
+  if (buildingId === 'timber_camp' || buildingId === 'quarry' || buildingId === 'silver_mine') {
+    return formatNumber(getIndexedBuildingValue(resourceProductionByLevel, level));
+  }
+
   if (buildingId === 'farm') {
     return formatPositiveBuildingEffect(population);
   }
 
+  if (buildingId === 'warehouse') {
+    return formatNumber(getIndexedBuildingValue(warehouseStorageWithoutCeramicsByLevel, level));
+  }
+
+  if (buildingId === 'cave') {
+    return level >= getBuildingMaxLevel('cave') ? '∞' : formatNumber(level * 1000);
+  }
+
+  if (buildingId === 'temple') {
+    return formatDecimal(Math.sqrt(level + divineStatueCount * 5));
+  }
+
+  if (buildingId === 'marketplace') {
+    return formatNumber(level * 500);
+  }
+
+  if (buildingId === 'barracks' || buildingId === 'harbour') {
+    return formatPercent(getIndexedBuildingValue(recruitmentDurationPercentByLevel, level));
+  }
+
+  if (buildingId === 'academy') {
+    return formatNumber(level * 4);
+  }
+
+  if (buildingId === 'city_wall') {
+    return formatPercent(getIndexedBuildingValue(cityWallDefenseBonusPercentByLevel, level));
+  }
+
   return formatNumber(level);
 };
+
+const createBuildingEffectTooltipItems = (
+  effect: BuildingEffectChip,
+  context: BuildingEffectValueContext,
+  value: string,
+): NonNullable<BuildingTileStat['tooltipItems']> => [
+  {
+    icon: effect.icon,
+    iconPath: effect.iconPath,
+    labelKey: effect.labelKey,
+    fallback: effect.fallback,
+    value,
+    tone: value === '0' ? ('muted' as const) : ('default' as const),
+  },
+  ...(context.buildingId === 'city_wall'
+    ? [
+        {
+          iconPath: getBattleIconPath('defenseBlunt'),
+          labelKey: 'plannerV2.buildingEffect.baseDefense',
+          fallback: 'Base defense',
+          value: formatNumber(getCityWallBaseDefense(context.level)),
+          tone: 'default' as const,
+        },
+      ]
+    : []),
+];
 
 const getLandAttackIconPath = (attackType: Unit['attackType']): string => {
   if (attackType === 'sharp') {
@@ -507,13 +628,15 @@ const createBuildingEffectStat = (
   buildingId: string,
   level: number,
   population: number,
+  divineStatueCount: number,
 ): BuildingTileStat => {
   const effect = buildingEffectChips[buildingId] ?? {
     icon: 'ℹ',
     labelKey: 'plannerV2.tile.info',
     fallback: 'Info',
   };
-  const value = getBuildingEffectValue(buildingId, level, population);
+  const context = { buildingId, divineStatueCount, level, population };
+  const value = getBuildingEffectValue(context);
 
   return {
     icon: effect.icon,
@@ -522,16 +645,7 @@ const createBuildingEffectStat = (
     fallback: `${effect.fallback}: ${value}`,
     value,
     tone: value === '0' ? 'muted' : 'default',
-    tooltipItems: [
-      {
-        icon: effect.icon,
-        iconPath: effect.iconPath,
-        labelKey: effect.labelKey,
-        fallback: effect.fallback,
-        value,
-        tone: value === '0' ? 'muted' : 'default',
-      },
-    ],
+    tooltipItems: createBuildingEffectTooltipItems(effect, context, value),
   };
 };
 
@@ -623,9 +737,9 @@ const createBuildingTileStats = (
   buildingId: string,
   level: number,
   population: number,
+  divineStatueCount: number,
 ): readonly BuildingTileStat[] => [
-  createBuildingEffectStat(buildingId, level, population),
-  createCostStat() as BuildingTileStat,
+  createBuildingEffectStat(buildingId, level, population, divineStatueCount),
 ];
 
 type CityPopulationSummary = ReturnType<typeof calculateCityPlannerPopulation>;
@@ -772,13 +886,16 @@ export class PlannerV2 {
   });
   protected readonly cityBuildings = computed<readonly BuildingTileView[]>(() => {
     const buildingLevels = this.buildingLevels();
+    const divineStatueCount = Object.values(this.activeCityPlan().specialBuildings).filter(
+      (optionId) => optionId === 'divine_statue',
+    ).length;
 
     return cityBuildingOrder.map((buildingId) => {
       const definition = getBuildingDefinition(buildingId);
       const level = buildingLevels[buildingId] ?? 0;
       const maxLevel = getBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
-      const stats = createBuildingTileStats(buildingId, level, population);
+      const stats = createBuildingTileStats(buildingId, level, population, divineStatueCount);
 
       return {
         id: buildingId,
