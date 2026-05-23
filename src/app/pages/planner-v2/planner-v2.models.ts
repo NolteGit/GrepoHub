@@ -9,10 +9,13 @@ export type TranslatableText = {
   readonly fallback: string;
 };
 
-export type BuildingTileStat = TranslatableText & {
+type TileInfoChip = TranslatableText & {
+  readonly icon?: string;
   readonly value: string;
   readonly tone?: 'default' | 'gold' | 'muted';
 };
+
+export type BuildingTileStat = TileInfoChip;
 
 export type TilePopulationBadge = TranslatableText & {
   readonly value: string;
@@ -29,10 +32,7 @@ export type BuildingTileView = TranslatableText & {
   readonly stats: readonly BuildingTileStat[];
 };
 
-export type UnitTileStat = TranslatableText & {
-  readonly value: string;
-  readonly tone?: 'default' | 'gold' | 'muted';
-};
+export type UnitTileStat = TileInfoChip;
 
 export type UnitTileView = TranslatableText & {
   readonly id: string;

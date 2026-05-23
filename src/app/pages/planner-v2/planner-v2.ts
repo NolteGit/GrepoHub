@@ -147,6 +147,115 @@ const unitFallbackIcons: Record<string, string> = {
   colony_ship: '⚑',
 };
 
+const unitSpeedById: Record<string, number> = {
+  militia: 0,
+  swordsman: 8,
+  slinger: 14,
+  archer: 12,
+  hoplite: 6,
+  horseman: 22,
+  chariot: 18,
+  catapult: 2,
+  divine_envoy: 16,
+  minotaur: 10,
+  manticore: 22,
+  cyclop: 8,
+  hydra: 8,
+  harpy: 28,
+  medusa: 6,
+  centaur: 18,
+  pegasus: 35,
+  cerberus: 4,
+  erinys: 10,
+  griffin: 18,
+  calydonian_boar: 16,
+  siren: 22,
+  satyr: 136,
+  ladon: 40,
+  spartoi: 16,
+  transport_boat: 8,
+  bireme: 15,
+  light_ship: 15,
+  fire_ship: 5,
+  fast_transport_ship: 15,
+  trireme: 15,
+  colony_ship: 3,
+};
+
+type BuildingEffectChip = {
+  readonly icon: string;
+  readonly labelKey: string;
+  readonly fallback: string;
+};
+
+const buildingEffectChips: Record<string, BuildingEffectChip> = {
+  senate: {
+    icon: '⏱',
+    labelKey: 'plannerV2.buildingEffect.buildSpeed',
+    fallback: 'Build speed',
+  },
+  timber_camp: {
+    icon: '🪵',
+    labelKey: 'plannerV2.buildingEffect.woodProduction',
+    fallback: 'Wood/h',
+  },
+  farm: {
+    icon: '👥',
+    labelKey: 'plannerV2.buildingEffect.maxPopulation',
+    fallback: 'Max pop',
+  },
+  quarry: {
+    icon: '🪨',
+    labelKey: 'plannerV2.buildingEffect.stoneProduction',
+    fallback: 'Stone/h',
+  },
+  warehouse: {
+    icon: '📦',
+    labelKey: 'plannerV2.buildingEffect.capacity',
+    fallback: 'Capacity',
+  },
+  silver_mine: {
+    icon: '🪙',
+    labelKey: 'plannerV2.buildingEffect.silverProduction',
+    fallback: 'Silver/h',
+  },
+  barracks: {
+    icon: '⏱',
+    labelKey: 'plannerV2.buildingEffect.recruitSpeed',
+    fallback: 'Recruit speed',
+  },
+  temple: {
+    icon: '✨',
+    labelKey: 'plannerV2.buildingEffect.favorProduction',
+    fallback: 'Favor/h',
+  },
+  marketplace: {
+    icon: '🔁',
+    labelKey: 'plannerV2.buildingEffect.trade',
+    fallback: 'Trade',
+  },
+  harbour: {
+    icon: '⏱',
+    labelKey: 'plannerV2.buildingEffect.recruitSpeed',
+    fallback: 'Recruit speed',
+  },
+  academy: {
+    icon: '🔬',
+    labelKey: 'plannerV2.buildingEffect.researchPoints',
+    fallback: 'Research pts',
+  },
+  city_wall: {
+    icon: '🛡',
+    labelKey: 'plannerV2.buildingEffect.defensePercent',
+    fallback: 'Defense %',
+  },
+  cave: {
+    icon: '🪙',
+    labelKey: 'plannerV2.buildingEffect.silverCap',
+    fallback: 'Silver cap',
+  },
+};
+
 const maxUsedUnitPreviewCount = 5;
 
 const troopCategories: readonly TroopCategoryTab[] = [
@@ -205,22 +314,6 @@ const clampBuildingLevel = (buildingId: string, level: number): number => {
 
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
 
-const formatSignedNumber = (value: number): string => {
-  if (value > 0) {
-    return `+${formatNumber(value)}`;
-  }
-
-  return formatNumber(value);
-};
-
-const formatPopulationDelta = (value: number): string => {
-  if (value === 0) {
-    return '0';
-  }
-
-  return formatSignedNumber(value);
-};
-
 const createTilePopulationBadge = (
   value: number,
   fallback: string,
@@ -237,7 +330,77 @@ const createTilePopulationBadge = (
   };
 };
 
-const formatRatio = (current: number, maximum: number): string => `${current}/${maximum}`;
+type CostSummary = {
+  readonly wood: number | null;
+  readonly stone: number | null;
+  readonly silver: number | null;
+  readonly favor?: number | null;
+};
+
+const hasKnownCost = (cost: CostSummary): boolean => {
+  return [cost.wood, cost.stone, cost.silver, cost.favor ?? null].some((value) => value !== null);
+};
+
+const formatCostSummary = (cost?: CostSummary): string => {
+  if (!cost || !hasKnownCost(cost)) {
+    return 'Costs';
+  }
+
+  const parts = [
+    cost.wood !== null ? `W ${formatNumber(cost.wood)}` : null,
+    cost.stone !== null ? `S ${formatNumber(cost.stone)}` : null,
+    cost.silver !== null ? `Ag ${formatNumber(cost.silver)}` : null,
+    cost.favor !== undefined && cost.favor !== null && cost.favor > 0
+      ? `F ${formatNumber(cost.favor)}`
+      : null,
+  ].filter((part): part is string => part !== null);
+
+  return parts.length > 0 ? parts.join(' · ') : 'Costs';
+};
+
+const createCostStat = (cost?: CostSummary): BuildingTileStat | UnitTileStat => ({
+  labelKey: 'troopsPlanner.costsShort',
+  fallback: `Costs: ${formatCostSummary(cost)}`,
+  value: '',
+  tone: 'gold',
+});
+
+const createInfoStat = (): BuildingTileStat | UnitTileStat => ({
+  labelKey: 'plannerV2.tile.info',
+  fallback: 'Info',
+  value: '',
+  tone: 'default',
+});
+
+const createIconValueStat = (
+  icon: string,
+  labelKey: string,
+  fallback: string,
+  value: string | number,
+  tone: UnitTileStat['tone'] = 'default',
+): UnitTileStat => ({
+  icon,
+  labelKey,
+  fallback,
+  value: typeof value === 'number' ? formatNumber(value) : value,
+  tone,
+});
+
+const createBuildingEffectStat = (buildingId: string): BuildingTileStat => {
+  const effect = buildingEffectChips[buildingId] ?? {
+    icon: 'ℹ',
+    labelKey: 'plannerV2.tile.info',
+    fallback: 'Info',
+  };
+
+  return {
+    icon: effect.icon,
+    labelKey: effect.labelKey,
+    fallback: effect.fallback,
+    value: '',
+    tone: 'default',
+  };
+};
 
 const clampPercentage = (value: number): number => Math.max(0, Math.min(100, Math.round(value)));
 
@@ -264,52 +427,59 @@ const isVisibleForTroopCategory = (
 };
 
 const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
-  const attackValue = unit.type === 'sea' ? unit.attackSea : unit.attack;
-  const defenseValue =
-    unit.type === 'sea'
-      ? String(unit.defenseSea)
-      : `${unit.defenseBlunt}/${unit.defenseSharp}/${unit.defenseDistance}`;
-  const stats: UnitTileStat[] = [
-    {
-      labelKey: unit.type === 'sea' ? 'plannerV2.stat.navalAttack' : 'plannerV2.stat.attackShort',
-      fallback: unit.type === 'sea' ? 'Naval attack' : 'attack',
-      value: formatNumber(attackValue),
-      tone: attackValue > 0 ? 'gold' : 'muted',
-    },
-    {
-      labelKey: unit.type === 'sea' ? 'plannerV2.stat.defenseShort' : 'plannerV2.stat.defense',
-      fallback: unit.type === 'sea' ? 'def' : 'Defense',
-      value: defenseValue,
-      tone: defenseValue === '0' ? 'muted' : 'default',
-    },
-    {
-      labelKey: 'plannerV2.stat.populationShort',
-      fallback: 'pop',
-      value: formatNumber(unit.cost.population),
-      tone: unit.cost.population > 0 ? 'default' : 'muted',
-    },
-  ];
+  const speed = unitSpeedById[unit.id] ?? 0;
+  const isTransportShip = unit.type === 'sea' && unit.transportCapacity > 0 && unit.attackSea === 0;
+  const stats: UnitTileStat[] = [];
 
-  if (unit.cost.favor > 0) {
-    stats.push({
-      labelKey: 'plannerV2.stat.favorShort',
-      fallback: 'favor',
-      value: formatNumber(unit.cost.favor),
-      tone: 'gold',
-    });
+  if (unit.type === 'sea') {
+    if (!isTransportShip) {
+      stats.push(
+        createIconValueStat('⚔', 'unitAttribute.attackSea', 'Naval Attack', unit.attackSea, 'gold'),
+        createIconValueStat('🛡', 'unitAttribute.defenseSea', 'Naval Defense', unit.defenseSea),
+      );
+    }
+
+    stats.push(
+      createIconValueStat(
+        '⛵',
+        'unitAttribute.transportCapacity',
+        'Transport Capacity',
+        unit.transportCapacity,
+        unit.transportCapacity > 0 ? 'gold' : 'muted',
+      ),
+    );
+  } else {
+    stats.push(
+      createIconValueStat('⚔', 'unitAttribute.attack', 'Attack', unit.attack, 'gold'),
+      createIconValueStat(
+        '🛡',
+        'plannerV2.stat.defense',
+        'Defense',
+        `${unit.defenseBlunt}/${unit.defenseSharp}/${unit.defenseDistance}`,
+      ),
+    );
   }
 
-  if (unit.transportCapacity > 0) {
-    stats.push({
-      labelKey: 'plannerV2.stat.capacity',
-      fallback: 'Capacity',
-      value: formatNumber(unit.transportCapacity),
-      tone: 'gold',
-    });
-  }
+  stats.push(
+    createIconValueStat(
+      '🪽',
+      'unitAttribute.speed',
+      'Speed',
+      speed,
+      speed > 0 ? 'default' : 'muted',
+    ),
+    createCostStat(unit.cost) as UnitTileStat,
+    createInfoStat() as UnitTileStat,
+  );
 
   return stats;
 };
+
+const createBuildingTileStats = (buildingId: string): readonly BuildingTileStat[] => [
+  createBuildingEffectStat(buildingId),
+  createCostStat() as BuildingTileStat,
+  createInfoStat() as BuildingTileStat,
+];
 
 type CityPopulationSummary = ReturnType<typeof calculateCityPlannerPopulation>;
 
@@ -461,20 +631,7 @@ export class PlannerV2 {
       const level = buildingLevels[buildingId] ?? 0;
       const maxLevel = getBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
-      const stats: readonly BuildingTileStat[] = [
-        {
-          labelKey: 'plannerV2.stat.populationEffect',
-          fallback: 'Pop. effect',
-          value: formatPopulationDelta(population),
-          tone: population === 0 ? 'muted' : 'gold',
-        },
-        {
-          labelKey: 'plannerV2.stat.levelCap',
-          fallback: 'Level cap',
-          value: formatRatio(level, maxLevel),
-          tone: 'muted',
-        },
-      ];
+      const stats = createBuildingTileStats(buildingId);
 
       return {
         id: buildingId,
