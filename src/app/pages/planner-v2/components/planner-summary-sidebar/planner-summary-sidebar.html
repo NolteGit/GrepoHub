@@ -153,7 +153,10 @@
       [attr.aria-label]="battleTitleKey | translate: battleTitleFallback"
     >
       @for (row of battleRows(); track row.id; let rowIndex = $index) {
-        <div class="grid grid-cols-4 border-[rgba(212,160,55,0.11)]" [class.border-b]="rowIndex === 0">
+        <div
+          class="grid grid-cols-4 border-[rgba(212,160,55,0.11)]"
+          [class.border-b]="rowIndex === 0"
+        >
           @for (stat of row.stats; track stat.id; let statIndex = $index) {
             <span
               class="grid min-h-9 min-w-0 grid-cols-[1rem_minmax(0,1fr)] items-center gap-1 border-[rgba(212,160,55,0.1)] px-1.5 py-1.5"
