@@ -44,7 +44,7 @@ import type {
   GodOption,
   SetupContextItem,
   SidebarPopulationStats,
-  SidebarPreviewStat,
+  SidebarTroopBattleStats,
   SidebarTroopTransportStats,
   SidebarUsedUnit,
   SpecialBuildingOptionView,
@@ -317,6 +317,14 @@ type TroopPlannerSummary = {
   readonly seaPopulation: number;
   readonly totalAttack: number;
   readonly totalDefense: number;
+  readonly attackBlunt: number;
+  readonly attackSharp: number;
+  readonly attackDistance: number;
+  readonly attackSea: number;
+  readonly defenseBlunt: number;
+  readonly defenseSharp: number;
+  readonly defenseDistance: number;
+  readonly defenseSea: number;
   readonly transportCapacity: number;
   readonly transportSpace: number;
   readonly transportBalance: number;
@@ -514,42 +522,6 @@ export class PlannerV2 {
       options: slot.optionIds.map((optionId) => this.createSpecialBuildingOption(optionId)),
     }));
   });
-  protected readonly cityPreviewStats = computed<readonly SidebarPreviewStat[]>(() => {
-    const summary = this.citySummary();
-
-    return [
-      {
-        labelKey: 'plannerV2.summary.activeBuildings',
-        fallback: 'Active buildings',
-        value: `${summary.activeBuildingCount}/${cityBuildingOrder.length}`,
-      },
-      {
-        labelKey: 'plannerV2.summary.buildingLevels',
-        fallback: 'Building levels',
-        value: formatNumber(summary.buildingLevels),
-      },
-      {
-        labelKey: 'plannerV2.summary.activeModifiers',
-        fallback: 'Active modifiers',
-        value: summary.activeModifierCount,
-      },
-      {
-        labelKey: 'plannerV2.summary.specialBuildings',
-        fallback: 'Special buildings',
-        value: formatRatio(summary.selectedSpecialBuildingCount, 2),
-      },
-      {
-        labelKey: 'plannerV2.summary.modifierPopulationEffect',
-        fallback: 'Modifier pop. effect',
-        value: formatSignedNumber(summary.modifierPopulationBonus),
-      },
-      {
-        labelKey: 'plannerV2.summary.specialPopulationEffect',
-        fallback: 'Special pop. effect',
-        value: formatSignedNumber(summary.specialBuildingPopulationEffect),
-      },
-    ];
-  });
   protected readonly troopContextLeft = computed<readonly SetupContextItem[]>(() => {
     const buildingLevels = this.buildingLevels();
 
@@ -605,11 +577,12 @@ export class PlannerV2 {
           return sum;
         }
 
-        const unitAttack = unit.type === 'sea' ? unit.attackSea : unit.attack;
-        const unitDefense =
-          unit.type === 'sea'
-            ? unit.defenseSea
-            : unit.defenseBlunt + unit.defenseSharp + unit.defenseDistance;
+        const landAttack = unit.type === 'sea' ? 0 : unit.attack * amount;
+        const navalAttack = unit.attackSea * amount;
+        const bluntDefense = unit.defenseBlunt * amount;
+        const sharpDefense = unit.defenseSharp * amount;
+        const distanceDefense = unit.defenseDistance * amount;
+        const navalDefense = unit.defenseSea * amount;
         const unitPopulation = unit.cost.population * amount;
         const transportCapacity = unit.transportCapacity * amount;
         const transportSpace = unit.transportSpace * amount;
@@ -619,8 +592,17 @@ export class PlannerV2 {
           usedPopulation: sum.usedPopulation + unitPopulation,
           landPopulation: sum.landPopulation + (unit.type === 'land' ? unitPopulation : 0),
           seaPopulation: sum.seaPopulation + (unit.type === 'sea' ? unitPopulation : 0),
-          totalAttack: sum.totalAttack + amount * unitAttack,
-          totalDefense: sum.totalDefense + amount * unitDefense,
+          totalAttack: sum.totalAttack + landAttack + navalAttack,
+          totalDefense:
+            sum.totalDefense + bluntDefense + sharpDefense + distanceDefense + navalDefense,
+          attackBlunt: sum.attackBlunt + (unit.attackType === 'blunt' ? landAttack : 0),
+          attackSharp: sum.attackSharp + (unit.attackType === 'sharp' ? landAttack : 0),
+          attackDistance: sum.attackDistance + (unit.attackType === 'distance' ? landAttack : 0),
+          attackSea: sum.attackSea + navalAttack,
+          defenseBlunt: sum.defenseBlunt + bluntDefense,
+          defenseSharp: sum.defenseSharp + sharpDefense,
+          defenseDistance: sum.defenseDistance + distanceDefense,
+          defenseSea: sum.defenseSea + navalDefense,
           transportCapacity: sum.transportCapacity + transportCapacity,
           transportSpace: sum.transportSpace + transportSpace,
           usedUnitTypes: sum.usedUnitTypes + 1,
@@ -640,6 +622,14 @@ export class PlannerV2 {
         seaPopulation: 0,
         totalAttack: 0,
         totalDefense: 0,
+        attackBlunt: 0,
+        attackSharp: 0,
+        attackDistance: 0,
+        attackSea: 0,
+        defenseBlunt: 0,
+        defenseSharp: 0,
+        defenseDistance: 0,
+        defenseSea: 0,
         transportCapacity: 0,
         transportSpace: 0,
         usedUnitTypes: 0,
@@ -677,6 +667,8 @@ export class PlannerV2 {
       .map((unit) => ({
         labelKey: unit.nameKey,
         fallback: formatUnitFallback(unit.id),
+        imagePath: getUnitIconPath(unit.id),
+        icon: unitFallbackIcons[unit.id] ?? '⚔',
         amount: unitAmounts[unit.id] ?? 0,
       }))
       .filter((unit) => unit.amount > 0)
@@ -686,8 +678,23 @@ export class PlannerV2 {
       .slice(0, maxUsedUnitPreviewCount)
       .map((unit) => ({
         ...unit,
+        displayAmount: formatNumber(unit.amount),
         sharePercent: clampPercentage((unit.amount / highestAmount) * 100),
       }));
+  });
+  protected readonly troopBattleStats = computed<SidebarTroopBattleStats>(() => {
+    const summary = this.troopSummary();
+
+    return {
+      attackBlunt: summary.attackBlunt,
+      attackSharp: summary.attackSharp,
+      attackDistance: summary.attackDistance,
+      attackSea: summary.attackSea,
+      defenseBlunt: summary.defenseBlunt,
+      defenseSharp: summary.defenseSharp,
+      defenseDistance: summary.defenseDistance,
+      defenseSea: summary.defenseSea,
+    };
   });
   protected readonly troopTransportStats = computed<SidebarTroopTransportStats>(() => {
     const summary = this.troopSummary();
@@ -700,7 +707,6 @@ export class PlannerV2 {
       bunksBonus: summary.bunksBonus,
     };
   });
-  protected readonly usedUnitCount = computed(() => this.troopSummary().usedUnitTypes);
   protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => {
     const citySummary = this.citySummary();
     const troopSummary = this.troopSummary();

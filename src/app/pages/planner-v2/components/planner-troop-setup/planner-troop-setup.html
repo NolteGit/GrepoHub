@@ -88,3 +88,52 @@
     />
   }
 </section>
+
+<app-gh-panel class="mt-3 grid gap-3" padding="sm">
+  <header class="flex items-center justify-between gap-3">
+    <h2 class="m-0 text-sm font-black tracking-wide text-[var(--gh-text)] uppercase">
+      {{ 'plannerV2.summary.context.transportCapacity' | translate: 'Transport Capacity' }}
+    </h2>
+    <strong
+      class="text-xs font-bold tabular-nums"
+      [style.color]="missingTransportCapacity() > 0 ? '#cf453e' : 'var(--gh-gold)'"
+    >
+      {{ transportUsageLabel() }}
+    </strong>
+  </header>
+
+  <div class="grid grid-cols-4 gap-2 max-[70rem]:grid-cols-2 max-[46rem]:grid-cols-1">
+    @for (row of transportRows(); track row.id) {
+      <article
+        class="grid gap-1 rounded-lg border border-[rgba(212,160,55,0.14)] bg-[rgba(3,19,35,0.42)] px-3 py-2"
+      >
+        <span class="truncate text-xs font-bold uppercase tracking-[0.12em] text-[var(--gh-muted)]">
+          {{ row.labelKey | translate: row.fallback }}
+        </span>
+        <strong
+          class="text-lg leading-none tabular-nums"
+          [style.color]="
+            row.tone === 'danger'
+              ? '#cf453e'
+              : row.tone === 'gold'
+                ? 'var(--gh-gold)'
+                : row.tone === 'muted'
+                  ? 'var(--gh-muted)'
+                  : 'var(--gh-text)'
+          "
+        >
+          {{ row.value }}
+        </strong>
+      </article>
+    }
+  </div>
+
+  @if (missingTransportCapacity() > 0) {
+    <p
+      class="m-0 rounded-lg border border-[rgba(207,69,62,0.34)] bg-[rgba(207,69,62,0.1)] p-2 text-center text-xs text-[var(--gh-text)]"
+    >
+      {{ 'plannerV2.summary.transportOverflowHint' | translate: 'Add more transport ships.' }}
+      <strong class="text-[#cf453e] tabular-nums">+{{ missingTransportCapacityLabel() }}</strong>
+    </p>
+  }
+</app-gh-panel>

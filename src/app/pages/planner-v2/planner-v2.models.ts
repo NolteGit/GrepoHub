@@ -74,13 +74,23 @@ export type GodOption = TranslatableText & {
   readonly value: string;
 };
 
-export type SidebarPreviewStat = TranslatableText & {
-  readonly value: string | number;
+export type SidebarUsedUnit = TranslatableText & {
+  readonly imagePath: string;
+  readonly icon: string;
+  readonly amount: number;
+  readonly displayAmount: string;
+  readonly sharePercent: number;
 };
 
-export type SidebarUsedUnit = TranslatableText & {
-  readonly amount: number;
-  readonly sharePercent: number;
+export type SidebarTroopBattleStats = {
+  readonly attackBlunt: number;
+  readonly attackSharp: number;
+  readonly attackDistance: number;
+  readonly attackSea: number;
+  readonly defenseBlunt: number;
+  readonly defenseSharp: number;
+  readonly defenseDistance: number;
+  readonly defenseSea: number;
 };
 
 export type SidebarTroopTransportStats = {

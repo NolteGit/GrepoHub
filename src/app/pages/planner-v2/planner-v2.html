@@ -75,6 +75,7 @@
             [selectedGod]="selectedGod()"
             [gods]="gods"
             [units]="visibleUnits()"
+            [transportStats]="troopTransportStats()"
             (categorySelected)="selectTroopCategory($event)"
             (godSelected)="selectGod($event)"
             (unitAmountChanged)="updateUnitAmount($event.unitId, $event.amount)"
@@ -86,11 +87,8 @@
 
   <app-planner-summary-sidebar
     class="col-start-3 row-start-2 min-h-0 min-w-0 max-[76rem]:hidden"
-    [activeMode]="activeMode()"
     [population]="sidebarPopulation()"
-    [usedUnitCount]="usedUnitCount()"
-    [cityPreviewStats]="cityPreviewStats()"
     [topUsedUnits]="topUsedUnits()"
-    [troopTransport]="troopTransportStats()"
+    [troopBattleStats]="troopBattleStats()"
   />
 </main>
