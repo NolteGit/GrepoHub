@@ -149,36 +149,29 @@
     </header>
 
     <section
-      class="grid gap-2.5"
+      class="overflow-hidden rounded-lg border border-[rgba(212,160,55,0.16)] bg-[rgba(3,19,35,0.52)]"
       [attr.aria-label]="battleTitleKey | translate: battleTitleFallback"
     >
-      @for (row of battleRows(); track row.id) {
-        <div
-          class="grid gap-2 rounded-xl border border-[rgba(212,160,55,0.16)] bg-[rgba(3,19,35,0.52)] p-2.5"
-        >
-          <strong class="text-xs font-black uppercase tracking-[0.12em] text-[var(--gh-muted)]">
-            {{ row.labelKey | translate: row.fallback }}
-          </strong>
-
-          <div class="grid grid-cols-2 gap-2">
-            @for (stat of row.stats; track stat.id) {
-              <span
-                class="grid min-h-10 min-w-0 grid-cols-[1.35rem_minmax(0,1fr)] items-center gap-2 rounded-lg border border-[rgba(212,160,55,0.13)] bg-[rgba(255,255,255,0.035)] px-2 py-1.5"
-                [title]="stat.labelKey | translate: stat.fallback"
+      @for (row of battleRows(); track row.id; let rowIndex = $index) {
+        <div class="grid grid-cols-4 border-[rgba(212,160,55,0.11)]" [class.border-b]="rowIndex === 0">
+          @for (stat of row.stats; track stat.id; let statIndex = $index) {
+            <span
+              class="grid min-h-9 min-w-0 grid-cols-[1rem_minmax(0,1fr)] items-center gap-1 border-[rgba(212,160,55,0.1)] px-1.5 py-1.5"
+              [class.border-r]="statIndex < 3"
+              [title]="stat.labelKey | translate: stat.fallback"
+            >
+              <img
+                class="size-4 shrink-0 object-contain"
+                [src]="stat.iconPath"
+                [alt]="stat.fallback"
+              />
+              <strong
+                class="min-w-0 justify-self-end truncate text-[0.8rem] font-bold text-[var(--gh-text)] tabular-nums"
               >
-                <img
-                  class="size-5 shrink-0 object-contain"
-                  [src]="stat.iconPath"
-                  [alt]="stat.fallback"
-                />
-                <strong
-                  class="min-w-0 justify-self-end whitespace-nowrap text-sm font-bold text-[var(--gh-text)] tabular-nums"
-                >
-                  {{ stat.value }}
-                </strong>
-              </span>
-            }
-          </div>
+                {{ stat.value }}
+              </strong>
+            </span>
+          }
         </div>
       }
     </section>
