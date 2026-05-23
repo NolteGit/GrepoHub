@@ -53,7 +53,16 @@
           class="pointer-events-none absolute inset-[1rem] grid place-items-center rounded-full border border-[rgba(255,255,255,0.05)] bg-[rgba(2,13,23,0.94)] text-center shadow-[0_0_16px_rgba(2,13,23,0.7)]"
         >
           <div class="grid justify-items-center gap-1">
-            <strong class="text-xl leading-none text-[var(--gh-gold)]">
+            <strong
+              class="text-xl leading-none"
+              [style.color]="
+                population().freePopulationAfterTroops < 0
+                  ? '#cf453e'
+                  : population().freePopulationAfterTroops > 0
+                    ? '#3fa36b'
+                    : 'var(--gh-muted)'
+              "
+            >
               {{ populationBreakdown().freeCapacity }}
             </strong>
             <span class="text-[0.66rem] leading-tight text-[var(--gh-muted)]">
@@ -63,21 +72,21 @@
         </div>
       </div>
 
-      <div class="ml-auto grid w-fit min-w-[8.25rem] justify-self-end gap-1.5">
+      <div class="ml-auto grid w-full max-w-[8.75rem] justify-self-end gap-1.5">
         @for (segment of populationSegments(); track segment.id) {
           <div
-            class="grid grid-cols-[auto_auto_auto] items-center gap-x-2 border-b border-[rgba(212,160,55,0.14)] pb-1.5 last:border-b-0 last:pb-0"
+            class="grid grid-cols-[auto_minmax(0,1fr)_4rem] items-center gap-x-2 border-b border-[rgba(212,160,55,0.14)] pb-1.5 last:border-b-0 last:pb-0"
           >
             <span
               class="size-2.5 rounded-full opacity-90 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
               [style.background]="segment.color"
               aria-hidden="true"
             ></span>
-            <span class="whitespace-nowrap text-sm text-[var(--gh-text)]">
+            <span class="min-w-0 text-left text-sm text-[var(--gh-text)]">
               {{ segment.labelKey | translate: segment.fallback }}
             </span>
             <strong
-              class="text-sm font-semibold leading-none tabular-nums"
+              class="justify-self-end text-right text-sm font-semibold leading-none tabular-nums"
               [style.color]="segment.valueColor"
             >
               {{ segment.value }}
@@ -93,9 +102,6 @@
       <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
         {{ topUnitsTitleKey | translate: topUnitsTitleFallback }}
       </h2>
-      <span class="text-xs font-bold text-[var(--gh-muted)] tabular-nums">
-        {{ topUsedUnits().length }}/5
-      </span>
     </header>
 
     @if (topUsedUnits().length > 0) {
@@ -117,12 +123,19 @@
             <span class="min-w-0 truncate text-[var(--gh-text)]">
               {{ unit.labelKey | translate: unit.fallback }}
             </span>
-            <strong class="text-sm leading-none text-[var(--gh-gold)] tabular-nums">
-              {{ unit.displayAmount }}
-            </strong>
+            <span class="flex items-baseline gap-1 whitespace-nowrap tabular-nums">
+              <strong class="text-sm leading-none text-[var(--gh-gold)]">
+                {{ unit.displayAmount }}
+              </strong>
+              <span class="text-xs font-medium leading-none text-[var(--gh-muted)]">
+                ({{ unit.displayBhp }} {{ 'plannerV2.summary.bhpShort' | translate: 'BHP' }})
+              </span>
+            </span>
             <span
               class="col-span-2 col-start-2 h-1.5 overflow-hidden rounded-full bg-white/5"
-              aria-hidden="true"
+              [attr.aria-label]="
+                unit.displayBhp + ' ' + ('plannerV2.summary.bhpShort' | translate: 'BHP')
+              "
             >
               <span
                 class="block h-full bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.38))]"

@@ -42,7 +42,7 @@ type BattleStatRow = {
 
 const buildingsColor = '#f0bf45';
 const troopsColor = '#cf453e';
-const freeColor = '#236fca';
+const freeColor = '#3fa36b';
 const donutRadius = 40;
 const donutCircumference = 2 * Math.PI * donutRadius;
 
@@ -84,11 +84,11 @@ export class PlannerSummarySidebar {
   readonly troopBattleStats = input.required<SidebarTroopBattleStats>();
 
   protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
-  protected readonly populationTitleFallback = 'Shared Population Summary';
+  protected readonly populationTitleFallback = 'Population Overview';
   protected readonly infoLabelKey = 'plannerV2.summary.infoLabel';
   protected readonly infoLabelFallback = 'More information';
   protected readonly battleTitleKey = 'plannerV2.summary.context.battleStats';
-  protected readonly battleTitleFallback = 'Battle Stats';
+  protected readonly battleTitleFallback = 'Troop Stats';
   protected readonly topUnitsTitleKey = 'plannerV2.summary.context.mostUsedUnits';
   protected readonly topUnitsTitleFallback = 'Most Used Units';
   protected readonly populationBreakdown = computed<PopulationBreakdown>(() => ({

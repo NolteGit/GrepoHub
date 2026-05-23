@@ -79,6 +79,7 @@ export type SidebarUsedUnit = TranslatableText & {
   readonly icon: string;
   readonly amount: number;
   readonly displayAmount: string;
+  readonly displayBhp: string;
   readonly sharePercent: number;
 };
 

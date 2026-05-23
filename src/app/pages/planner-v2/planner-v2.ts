@@ -657,30 +657,36 @@ export class PlannerV2 {
   });
   protected readonly topUsedUnits = computed<readonly SidebarUsedUnit[]>(() => {
     const unitAmounts = this.unitAmounts();
-    const highestAmount = Math.max(0, ...Object.values(unitAmounts).filter((amount) => amount > 0));
-
-    if (highestAmount <= 0) {
-      return [];
-    }
-
-    return this.unitDefinitions()
+    const usedUnits = this.unitDefinitions()
       .map((unit) => ({
         labelKey: unit.nameKey,
         fallback: formatUnitFallback(unit.id),
         imagePath: getUnitIconPath(unit.id),
         icon: unitFallbackIcons[unit.id] ?? '⚔',
         amount: unitAmounts[unit.id] ?? 0,
+        bhp: (unitAmounts[unit.id] ?? 0) * unit.cost.population,
       }))
       .filter((unit) => unit.amount > 0)
       .sort(
-        (left, right) => right.amount - left.amount || left.fallback.localeCompare(right.fallback),
+        (left, right) =>
+          right.bhp - left.bhp ||
+          right.amount - left.amount ||
+          left.fallback.localeCompare(right.fallback),
       )
-      .slice(0, maxUsedUnitPreviewCount)
-      .map((unit) => ({
-        ...unit,
-        displayAmount: formatNumber(unit.amount),
-        sharePercent: clampPercentage((unit.amount / highestAmount) * 100),
-      }));
+      .slice(0, maxUsedUnitPreviewCount);
+
+    if (usedUnits.length === 0) {
+      return [];
+    }
+
+    const highestBhp = Math.max(...usedUnits.map((unit) => unit.bhp), 1);
+
+    return usedUnits.map((unit) => ({
+      ...unit,
+      displayAmount: formatNumber(unit.amount),
+      displayBhp: formatNumber(unit.bhp),
+      sharePercent: clampPercentage((unit.bhp / highestBhp) * 100),
+    }));
   });
   protected readonly troopBattleStats = computed<SidebarTroopBattleStats>(() => {
     const summary = this.troopSummary();
