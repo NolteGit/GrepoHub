@@ -20,9 +20,19 @@
         {{ building().labelKey | translate: building().fallback }}
       </h2>
       <span
-        class="shrink-0 rounded border border-[var(--gh-border-soft)] bg-white/5 px-1.5 py-0.5 text-xs font-bold text-[var(--gh-muted)]"
+        class="shrink-0 text-xs font-bold tabular-nums"
+        [style.color]="
+          building().populationBadge.tone === 'gain'
+            ? '#3fa36b'
+            : building().populationBadge.tone === 'used'
+              ? 'var(--gh-gold)'
+              : 'var(--gh-muted)'
+        "
+        [title]="
+          building().populationBadge.labelKey | translate: building().populationBadge.fallback
+        "
       >
-        {{ building().level }}/{{ building().maxLevel }}
+        {{ building().populationBadge.value }}
       </span>
     </div>
 

@@ -48,6 +48,7 @@ import type {
   SidebarTroopTransportStats,
   SidebarUsedUnit,
   SpecialBuildingOptionView,
+  TilePopulationBadge,
   SpecialBuildingSlotView,
   TroopCategory,
   TroopCategoryTab,
@@ -218,6 +219,22 @@ const formatPopulationDelta = (value: number): string => {
   }
 
   return formatSignedNumber(value);
+};
+
+const createTilePopulationBadge = (
+  value: number,
+  fallback: string,
+  useSignedGain = false,
+): TilePopulationBadge => {
+  const tone = value > 0 ? 'gain' : value < 0 ? 'used' : 'muted';
+  const displayValue = value > 0 && useSignedGain ? `+${formatNumber(value)}` : formatNumber(value);
+
+  return {
+    labelKey: 'plannerV2.stat.populationShort',
+    fallback,
+    value: displayValue,
+    tone,
+  };
 };
 
 const formatRatio = (current: number, maximum: number): string => `${current}/${maximum}`;
@@ -467,6 +484,7 @@ export class PlannerV2 {
         imagePath: getBuildingImagePath(buildingId),
         level,
         maxLevel,
+        populationBadge: createTilePopulationBadge(population, 'Population effect', true),
         stats,
       };
     });
@@ -555,15 +573,20 @@ export class PlannerV2 {
 
     return this.unitDefinitions()
       .filter((unit) => isVisibleForTroopCategory(unit, category, selectedGod))
-      .map((unit) => ({
-        id: unit.id,
-        labelKey: unit.nameKey,
-        fallback: formatUnitFallback(unit.id),
-        imagePath: getUnitIconPath(unit.id),
-        icon: unitFallbackIcons[unit.id] ?? '⚔',
-        amount: unitAmounts[unit.id] ?? 0,
-        stats: createUnitTileStats(unit),
-      }));
+      .map((unit) => {
+        const amount = unitAmounts[unit.id] ?? 0;
+
+        return {
+          id: unit.id,
+          labelKey: unit.nameKey,
+          fallback: formatUnitFallback(unit.id),
+          imagePath: getUnitIconPath(unit.id),
+          icon: unitFallbackIcons[unit.id] ?? '⚔',
+          amount,
+          populationBadge: createTilePopulationBadge(-(amount * unit.cost.population), 'BHP used'),
+          stats: createUnitTileStats(unit),
+        };
+      });
   });
   protected readonly troopSummary = computed<TroopPlannerSummary>(() => {
     const troopPlan = this.activeTroopPlan();

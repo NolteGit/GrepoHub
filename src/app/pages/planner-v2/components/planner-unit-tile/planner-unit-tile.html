@@ -20,9 +20,17 @@
         {{ unit().labelKey | translate: unit().fallback }}
       </h2>
       <span
-        class="shrink-0 rounded border border-[var(--gh-border-soft)] bg-white/5 px-1.5 py-0.5 text-xs font-bold text-[var(--gh-muted)]"
+        class="shrink-0 text-xs font-bold tabular-nums"
+        [style.color]="
+          unit().populationBadge.tone === 'gain'
+            ? '#3fa36b'
+            : unit().populationBadge.tone === 'used'
+              ? '#cf453e'
+              : 'var(--gh-muted)'
+        "
+        [title]="unit().populationBadge.labelKey | translate: unit().populationBadge.fallback"
       >
-        {{ unit().amount }}
+        {{ unit().populationBadge.value }}
       </span>
     </div>
 

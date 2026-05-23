@@ -14,12 +14,18 @@ export type BuildingTileStat = TranslatableText & {
   readonly tone?: 'default' | 'gold' | 'muted';
 };
 
+export type TilePopulationBadge = TranslatableText & {
+  readonly value: string;
+  readonly tone: 'gain' | 'used' | 'muted';
+};
+
 export type BuildingTileView = TranslatableText & {
   readonly id: string;
   readonly imagePath: string;
   readonly icon: string;
   readonly level: number;
   readonly maxLevel: number;
+  readonly populationBadge: TilePopulationBadge;
   readonly stats: readonly BuildingTileStat[];
 };
 
@@ -33,6 +39,7 @@ export type UnitTileView = TranslatableText & {
   readonly imagePath: string;
   readonly icon: string;
   readonly amount: number;
+  readonly populationBadge: TilePopulationBadge;
   readonly stats: readonly UnitTileStat[];
 };
 
