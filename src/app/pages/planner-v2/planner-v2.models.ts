@@ -9,10 +9,19 @@ export type TranslatableText = {
   readonly fallback: string;
 };
 
-type TileInfoChip = TranslatableText & {
+type TileInfoChipTooltipItem = TranslatableText & {
   readonly icon?: string;
+  readonly iconPath?: string;
   readonly value: string;
   readonly tone?: 'default' | 'gold' | 'muted';
+};
+
+type TileInfoChip = TranslatableText & {
+  readonly icon?: string;
+  readonly iconPath?: string;
+  readonly value: string;
+  readonly tone?: 'default' | 'gold' | 'muted';
+  readonly tooltipItems?: readonly TileInfoChipTooltipItem[];
 };
 
 export type BuildingTileStat = TileInfoChip;

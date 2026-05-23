@@ -1,4 +1,4 @@
-<article class="gh-panel grid min-h-[10rem] content-start gap-2 rounded-md p-3">
+<article class="gh-panel grid content-start gap-2 rounded-md p-3">
   <div class="grid min-w-0 grid-cols-[4.4rem_minmax(0,1fr)] gap-x-3 gap-y-2">
     <div
       class="gh-icon-box row-span-2 grid aspect-square w-16 place-items-center overflow-hidden rounded-md"
@@ -47,13 +47,22 @@
   </div>
 
   <footer
-    class="flex min-w-0 flex-wrap gap-1.5 border-t border-[var(--gh-border-soft)] pt-2 text-xs"
+    class="flex min-w-0 gap-1.5 overflow-visible border-t border-[var(--gh-border-soft)] pt-2 text-xs"
   >
     @for (stat of unit().stats; track stat.labelKey) {
       <span
-        class="inline-flex min-w-0 items-center gap-1 rounded-full border border-[rgba(212,160,55,0.16)] bg-[rgba(255,255,255,0.035)] px-2 py-1"
-        [title]="stat.labelKey | translate: stat.fallback"
+        class="group relative inline-flex h-7 min-w-0 shrink-0 items-center gap-1 rounded-full border border-[rgba(212,160,55,0.16)] bg-[rgba(255,255,255,0.035)] px-2 py-1 outline-none"
+        tabindex="0"
+        [attr.aria-label]="stat.labelKey | translate: stat.fallback"
       >
+        @if (stat.iconPath) {
+          <img
+            class="size-4 shrink-0 object-contain"
+            [src]="stat.iconPath"
+            [alt]="stat.labelKey | translate: stat.fallback"
+            loading="lazy"
+          />
+        }
         @if (stat.icon) {
           <span class="shrink-0 text-[0.72rem] leading-none" aria-hidden="true">{{
             stat.icon
@@ -76,6 +85,43 @@
             [class.text-[var(--gh-text)]]="stat.tone !== 'gold' && stat.tone !== 'muted'"
           >
             {{ stat.labelKey | translate: stat.fallback }}
+          </span>
+        }
+        @if (stat.tooltipItems?.length) {
+          <span
+            class="pointer-events-none absolute bottom-[calc(100%+0.35rem)] left-1/2 z-50 hidden min-w-max -translate-x-1/2 rounded-lg border border-[rgba(212,160,55,0.28)] bg-[rgba(2,13,23,0.98)] p-2 shadow-[0_10px_30px_rgba(0,0,0,0.35)] group-hover:grid group-focus:grid"
+          >
+            <span class="grid gap-1">
+              @for (item of stat.tooltipItems ?? []; track $index) {
+                <span class="grid grid-cols-[1rem_minmax(0,1fr)_auto] items-center gap-2 text-xs">
+                  @if (item.iconPath) {
+                    <img
+                      class="size-4 shrink-0 object-contain"
+                      [src]="item.iconPath"
+                      [alt]="item.labelKey | translate: item.fallback"
+                      loading="lazy"
+                    />
+                  } @else if (item.icon) {
+                    <span class="shrink-0 text-[0.72rem] leading-none" aria-hidden="true">{{
+                      item.icon
+                    }}</span>
+                  } @else {
+                    <span aria-hidden="true"></span>
+                  }
+                  <span class="min-w-0 whitespace-nowrap text-[var(--gh-muted)]">
+                    {{ item.labelKey | translate: item.fallback }}
+                  </span>
+                  <strong
+                    class="justify-self-end whitespace-nowrap tabular-nums"
+                    [class.text-[var(--gh-gold)]]="item.tone === 'gold'"
+                    [class.text-[var(--gh-muted)]]="item.tone === 'muted'"
+                    [class.text-[var(--gh-text)]]="item.tone !== 'gold' && item.tone !== 'muted'"
+                  >
+                    {{ item.value }}
+                  </strong>
+                </span>
+              }
+            </span>
           </span>
         }
       </span>

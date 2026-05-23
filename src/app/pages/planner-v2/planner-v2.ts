@@ -5,7 +5,12 @@ import {
   cityBuildingPlanDefinitions,
   citySpecialBuildingSlotDefinitions,
 } from '../../data/city-planner-presets';
-import { getBuildingImagePath, getUnitIconPath } from '../../data/asset-paths';
+import {
+  getBattleIconPath,
+  getBuildingImagePath,
+  getResourceIconPath,
+  getUnitIconPath,
+} from '../../data/asset-paths';
 import type {
   CityConfiguration,
   CitySpecialBuildingOptionId,
@@ -183,49 +188,50 @@ const unitSpeedById: Record<string, number> = {
 };
 
 type BuildingEffectChip = {
-  readonly icon: string;
+  readonly icon?: string;
+  readonly iconPath?: string;
   readonly labelKey: string;
   readonly fallback: string;
 };
 
 const buildingEffectChips: Record<string, BuildingEffectChip> = {
   senate: {
-    icon: '⏱',
+    iconPath: getResourceIconPath('buildtime'),
     labelKey: 'plannerV2.buildingEffect.buildSpeed',
     fallback: 'Build speed',
   },
   timber_camp: {
-    icon: '🪵',
+    iconPath: getResourceIconPath('wood'),
     labelKey: 'plannerV2.buildingEffect.woodProduction',
     fallback: 'Wood/h',
   },
   farm: {
-    icon: '👥',
+    iconPath: getResourceIconPath('population'),
     labelKey: 'plannerV2.buildingEffect.maxPopulation',
     fallback: 'Max pop',
   },
   quarry: {
-    icon: '🪨',
+    iconPath: getResourceIconPath('stone'),
     labelKey: 'plannerV2.buildingEffect.stoneProduction',
     fallback: 'Stone/h',
   },
   warehouse: {
-    icon: '📦',
+    iconPath: getBattleIconPath('capacity'),
     labelKey: 'plannerV2.buildingEffect.capacity',
     fallback: 'Capacity',
   },
   silver_mine: {
-    icon: '🪙',
+    iconPath: getResourceIconPath('silver'),
     labelKey: 'plannerV2.buildingEffect.silverProduction',
     fallback: 'Silver/h',
   },
   barracks: {
-    icon: '⏱',
+    iconPath: getBattleIconPath('speed'),
     labelKey: 'plannerV2.buildingEffect.recruitSpeed',
     fallback: 'Recruit speed',
   },
   temple: {
-    icon: '✨',
+    iconPath: getResourceIconPath('favor'),
     labelKey: 'plannerV2.buildingEffect.favorProduction',
     fallback: 'Favor/h',
   },
@@ -235,7 +241,7 @@ const buildingEffectChips: Record<string, BuildingEffectChip> = {
     fallback: 'Trade',
   },
   harbour: {
-    icon: '⏱',
+    iconPath: getBattleIconPath('speed'),
     labelKey: 'plannerV2.buildingEffect.recruitSpeed',
     fallback: 'Recruit speed',
   },
@@ -245,12 +251,12 @@ const buildingEffectChips: Record<string, BuildingEffectChip> = {
     fallback: 'Research pts',
   },
   city_wall: {
-    icon: '🛡',
+    iconPath: getBattleIconPath('defenseBlunt'),
     labelKey: 'plannerV2.buildingEffect.defensePercent',
     fallback: 'Defense %',
   },
   cave: {
-    icon: '🪙',
+    iconPath: getResourceIconPath('silver'),
     labelKey: 'plannerV2.buildingEffect.silverCap',
     fallback: 'Silver cap',
   },
@@ -358,47 +364,174 @@ const formatCostSummary = (cost?: CostSummary): string => {
   return parts.length > 0 ? parts.join(' · ') : 'Costs';
 };
 
+const createCostTooltipItems = (cost?: CostSummary) => {
+  if (!cost || !hasKnownCost(cost)) {
+    return [];
+  }
+
+  return [
+    cost.wood !== null
+      ? {
+          iconPath: getResourceIconPath('wood'),
+          labelKey: 'resource.wood',
+          fallback: 'Wood',
+          value: formatNumber(cost.wood),
+          tone: cost.wood > 0 ? ('gold' as const) : ('muted' as const),
+        }
+      : null,
+    cost.stone !== null
+      ? {
+          iconPath: getResourceIconPath('stone'),
+          labelKey: 'resource.stone',
+          fallback: 'Stone',
+          value: formatNumber(cost.stone),
+          tone: cost.stone > 0 ? ('gold' as const) : ('muted' as const),
+        }
+      : null,
+    cost.silver !== null
+      ? {
+          iconPath: getResourceIconPath('silver'),
+          labelKey: 'resource.silver',
+          fallback: 'Silver',
+          value: formatNumber(cost.silver),
+          tone: cost.silver > 0 ? ('gold' as const) : ('muted' as const),
+        }
+      : null,
+    cost.favor !== undefined && cost.favor !== null && cost.favor > 0
+      ? {
+          iconPath: getResourceIconPath('favor'),
+          labelKey: 'resource.favor',
+          fallback: 'Favor',
+          value: formatNumber(cost.favor),
+          tone: 'gold' as const,
+        }
+      : null,
+  ].filter((item): item is NonNullable<typeof item> => item !== null);
+};
+
 const createCostStat = (cost?: CostSummary): BuildingTileStat | UnitTileStat => ({
   labelKey: 'troopsPlanner.costsShort',
   fallback: `Costs: ${formatCostSummary(cost)}`,
   value: '',
   tone: 'gold',
+  tooltipItems: createCostTooltipItems(cost),
 });
 
-const createInfoStat = (): BuildingTileStat | UnitTileStat => ({
-  labelKey: 'plannerV2.tile.info',
-  fallback: 'Info',
-  value: '',
-  tone: 'default',
-});
+const formatPositiveBuildingEffect = (value: number): string => {
+  return value > 0 ? `+${formatNumber(value)}` : formatNumber(value);
+};
+
+const getBuildingEffectValue = (buildingId: string, level: number, population: number): string => {
+  if (buildingId === 'farm') {
+    return formatPositiveBuildingEffect(population);
+  }
+
+  return formatNumber(level);
+};
+
+const getLandAttackIconPath = (attackType: Unit['attackType']): string => {
+  if (attackType === 'sharp') {
+    return getBattleIconPath('attackSharp');
+  }
+
+  if (attackType === 'distance') {
+    return getBattleIconPath('attackDistance');
+  }
+
+  return getBattleIconPath('attackBlunt');
+};
 
 const createIconValueStat = (
-  icon: string,
+  iconPath: string,
   labelKey: string,
   fallback: string,
   value: string | number,
   tone: UnitTileStat['tone'] = 'default',
-): UnitTileStat => ({
-  icon,
-  labelKey,
-  fallback,
-  value: typeof value === 'number' ? formatNumber(value) : value,
-  tone,
-});
+): UnitTileStat => {
+  const formattedValue = typeof value === 'number' ? formatNumber(value) : value;
 
-const createBuildingEffectStat = (buildingId: string): BuildingTileStat => {
+  return {
+    iconPath,
+    labelKey,
+    fallback,
+    value: formattedValue,
+    tone,
+    tooltipItems: [
+      {
+        iconPath,
+        labelKey,
+        fallback,
+        value: formattedValue,
+        tone,
+      },
+    ],
+  };
+};
+
+const createLandDefenseStat = (unit: Unit): UnitTileStat => {
+  const defenseTotal = unit.defenseBlunt + unit.defenseSharp + unit.defenseDistance;
+
+  return {
+    iconPath: getBattleIconPath('defenseBlunt'),
+    labelKey: 'plannerV2.stat.defense',
+    fallback: 'Defense',
+    value: formatNumber(defenseTotal),
+    tone: defenseTotal > 0 ? 'default' : 'muted',
+    tooltipItems: [
+      {
+        iconPath: getBattleIconPath('defenseBlunt'),
+        labelKey: 'plannerV2.summary.defenseBlunt',
+        fallback: 'Blunt defense',
+        value: formatNumber(unit.defenseBlunt),
+        tone: unit.defenseBlunt > 0 ? 'default' : 'muted',
+      },
+      {
+        iconPath: getBattleIconPath('defenseSharp'),
+        labelKey: 'plannerV2.summary.defenseSharp',
+        fallback: 'Sharp defense',
+        value: formatNumber(unit.defenseSharp),
+        tone: unit.defenseSharp > 0 ? 'default' : 'muted',
+      },
+      {
+        iconPath: getBattleIconPath('defenseDistance'),
+        labelKey: 'plannerV2.summary.defenseDistance',
+        fallback: 'Distance defense',
+        value: formatNumber(unit.defenseDistance),
+        tone: unit.defenseDistance > 0 ? 'default' : 'muted',
+      },
+    ],
+  };
+};
+
+const createBuildingEffectStat = (
+  buildingId: string,
+  level: number,
+  population: number,
+): BuildingTileStat => {
   const effect = buildingEffectChips[buildingId] ?? {
     icon: 'ℹ',
     labelKey: 'plannerV2.tile.info',
     fallback: 'Info',
   };
+  const value = getBuildingEffectValue(buildingId, level, population);
 
   return {
     icon: effect.icon,
+    iconPath: effect.iconPath,
     labelKey: effect.labelKey,
-    fallback: effect.fallback,
-    value: '',
-    tone: 'default',
+    fallback: `${effect.fallback}: ${value}`,
+    value,
+    tone: value === '0' ? 'muted' : 'default',
+    tooltipItems: [
+      {
+        icon: effect.icon,
+        iconPath: effect.iconPath,
+        labelKey: effect.labelKey,
+        fallback: effect.fallback,
+        value,
+        tone: value === '0' ? 'muted' : 'default',
+      },
+    ],
   };
 };
 
@@ -434,14 +567,25 @@ const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
   if (unit.type === 'sea') {
     if (!isTransportShip) {
       stats.push(
-        createIconValueStat('⚔', 'unitAttribute.attackSea', 'Naval Attack', unit.attackSea, 'gold'),
-        createIconValueStat('🛡', 'unitAttribute.defenseSea', 'Naval Defense', unit.defenseSea),
+        createIconValueStat(
+          getBattleIconPath('attackSea'),
+          'unitAttribute.attackSea',
+          'Naval Attack',
+          unit.attackSea,
+          'gold',
+        ),
+        createIconValueStat(
+          getBattleIconPath('defenseSea'),
+          'unitAttribute.defenseSea',
+          'Naval Defense',
+          unit.defenseSea,
+        ),
       );
     }
 
     stats.push(
       createIconValueStat(
-        '⛵',
+        getBattleIconPath('capacity'),
         'unitAttribute.transportCapacity',
         'Transport Capacity',
         unit.transportCapacity,
@@ -450,35 +594,38 @@ const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
     );
   } else {
     stats.push(
-      createIconValueStat('⚔', 'unitAttribute.attack', 'Attack', unit.attack, 'gold'),
       createIconValueStat(
-        '🛡',
-        'plannerV2.stat.defense',
-        'Defense',
-        `${unit.defenseBlunt}/${unit.defenseSharp}/${unit.defenseDistance}`,
+        getLandAttackIconPath(unit.attackType),
+        'unitAttribute.attack',
+        'Attack',
+        unit.attack,
+        'gold',
       ),
+      createLandDefenseStat(unit),
     );
   }
 
   stats.push(
     createIconValueStat(
-      '🪽',
+      getBattleIconPath('speed'),
       'unitAttribute.speed',
       'Speed',
       speed,
       speed > 0 ? 'default' : 'muted',
     ),
     createCostStat(unit.cost) as UnitTileStat,
-    createInfoStat() as UnitTileStat,
   );
 
   return stats;
 };
 
-const createBuildingTileStats = (buildingId: string): readonly BuildingTileStat[] => [
-  createBuildingEffectStat(buildingId),
+const createBuildingTileStats = (
+  buildingId: string,
+  level: number,
+  population: number,
+): readonly BuildingTileStat[] => [
+  createBuildingEffectStat(buildingId, level, population),
   createCostStat() as BuildingTileStat,
-  createInfoStat() as BuildingTileStat,
 ];
 
 type CityPopulationSummary = ReturnType<typeof calculateCityPlannerPopulation>;
@@ -631,7 +778,7 @@ export class PlannerV2 {
       const level = buildingLevels[buildingId] ?? 0;
       const maxLevel = getBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
-      const stats = createBuildingTileStats(buildingId);
+      const stats = createBuildingTileStats(buildingId, level, population);
 
       return {
         id: buildingId,
