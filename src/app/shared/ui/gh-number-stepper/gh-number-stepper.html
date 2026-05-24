@@ -1,36 +1,130 @@
-<div class="flex min-w-0 items-center gap-1">
-  <button
-    class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-    type="button"
-    (click)="decrease()"
-  >
-    −
-  </button>
-  <strong class="min-w-7 text-center text-sm text-[var(--gh-text)]">{{ displayValue() }}</strong>
-  <button
-    class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
-    type="button"
-    (click)="increase()"
-  >
-    +
-  </button>
-
-  @if (showMinMax()) {
+@if (variant() === 'amount') {
+  <div class="grid min-w-0 grid-cols-[2rem_minmax(4.6rem,5.6rem)_2rem] items-center gap-2">
     <button
-      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)] disabled:cursor-not-allowed disabled:opacity-40"
+      class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
-      [disabled]="min() === null"
-      (click)="setMinimum()"
+      [attr.title]="
+        ('plannerV2.amount' | translate: 'Amount') + ': ±1 · Shift: ±10 · Ctrl/Cmd: ±100'
+      "
+      (click)="decrease($event)"
     >
-      {{ 'plannerV2.min' | translate: 'MIN' }}
+      −
     </button>
+    <span class="relative block min-w-0">
+      <input
+        class="gh-control min-h-8 w-full min-w-0 rounded px-2 pr-7 text-center text-sm font-extrabold text-[var(--gh-text)] tabular-nums outline-none transition focus:border-[var(--gh-gold)] focus:bg-white/5"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        [value]="displayValue()"
+        [attr.aria-label]="'plannerV2.amount' | translate: 'Amount'"
+        (blur)="setFromInput($event)"
+        (keydown)="handleAmountInputKeydown($event)"
+      />
+      <button
+        class="absolute top-1/2 right-1 grid size-5 -translate-y-1/2 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
+        type="button"
+        [attr.aria-label]="('plannerV2.min' | translate: 'MIN') + ': 0'"
+        [attr.title]="('plannerV2.min' | translate: 'MIN') + ': 0'"
+        [disabled]="!canReset()"
+        (click)="resetToMinimum()"
+      >
+        <svg class="size-3.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-.7 11H7.7L7 9Zm3 2v7h1.5v-7H10Zm2.5 0v7H14v-7h-1.5Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+    </span>
     <button
-      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)] disabled:cursor-not-allowed disabled:opacity-40"
+      class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
-      [disabled]="max() === null"
-      (click)="setMaximum()"
+      [attr.title]="
+        ('plannerV2.amount' | translate: 'Amount') + ': ±1 · Shift: ±10 · Ctrl/Cmd: ±100'
+      "
+      (click)="increase($event)"
     >
-      {{ 'plannerV2.max' | translate: 'MAX' }}
+      +
     </button>
-  }
-</div>
+  </div>
+} @else if (showMinMax()) {
+  <div class="grid min-w-0 grid-cols-[1.75rem_minmax(4.5rem,5.4rem)_1.75rem] items-center gap-1">
+    <button
+      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+      type="button"
+      (click)="decrease()"
+    >
+      −
+    </button>
+    <span class="relative block min-w-0">
+      <input
+        class="gh-control min-h-7 w-full min-w-0 rounded px-6 text-center text-sm font-extrabold text-[var(--gh-text)] tabular-nums outline-none transition focus:border-[var(--gh-gold)] focus:bg-white/5"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        [attr.aria-label]="'plannerV2.amount' | translate: 'Amount'"
+        [value]="displayValue()"
+        (blur)="setFromInput($event)"
+        (keydown)="handleAmountInputKeydown($event)"
+      />
+      <button
+        class="absolute top-1/2 left-1 grid size-5 -translate-y-1/2 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
+        type="button"
+        [attr.aria-label]="'plannerV2.min' | translate: 'MIN'"
+        [attr.title]="'plannerV2.min' | translate: 'MIN'"
+        [disabled]="!canReset()"
+        (click)="resetToMinimum()"
+      >
+        <svg class="size-3.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-.7 11H7.7L7 9Zm3 2v7h1.5v-7H10Zm2.5 0v7H14v-7h-1.5Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <button
+        class="absolute top-1/2 right-1 grid size-5 -translate-y-1/2 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
+        type="button"
+        [attr.aria-label]="'plannerV2.max' | translate: 'MAX'"
+        [attr.title]="'plannerV2.max' | translate: 'MAX'"
+        [disabled]="!canSetMaximum()"
+        (click)="setMaximum()"
+      >
+        <svg class="size-3.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M5 5h2v14H5V5Zm4.2 2.2L14 12l-4.8 4.8 1.4 1.4 6.2-6.2-6.2-6.2-1.4 1.4ZM18 5h2v14h-2V5Z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+    </span>
+    <button
+      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+      type="button"
+      (click)="increase()"
+    >
+      +
+    </button>
+  </div>
+} @else {
+  <div class="grid min-w-0 grid-cols-[1.75rem_minmax(3.2rem,1fr)_1.75rem] items-center gap-1">
+    <button
+      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+      type="button"
+      (click)="decrease()"
+    >
+      −
+    </button>
+    <strong class="min-w-0 text-center text-sm text-[var(--gh-text)] tabular-nums">{{
+      displayValue()
+    }}</strong>
+    <button
+      class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+      type="button"
+      (click)="increase()"
+    >
+      +
+    </button>
+  </div>
+}

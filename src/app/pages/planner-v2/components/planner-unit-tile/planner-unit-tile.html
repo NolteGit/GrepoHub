@@ -37,11 +37,13 @@
     <div class="grid min-w-0 content-start gap-1">
       <span class="sr-only">{{ 'plannerV2.amount' | translate: 'Amount' }}</span>
       <app-gh-number-stepper
+        variant="amount"
         [value]="unit().amount"
         [min]="0"
         [max]="unit().maxAmount"
         [step]="1"
-        [showMinMax]="true"
+        [quickStep]="10"
+        [largeStep]="100"
         (valueChange)="amountChanged.emit($event)"
       />
     </div>
