@@ -3,30 +3,56 @@
   [attr.aria-label]="'plannerV2.troopSetupContextLabel' | translate: 'Troop setup context'"
 >
   @for (category of categoryTabs(); track category.id) {
-    <button
-      type="button"
-      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:justify-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)]"
-      [class.gh-tab-active]="activeCategory() === category.id"
-      [class.opacity-65]="activeCategory() !== category.id"
-      [attr.aria-pressed]="activeCategory() === category.id"
-      (click)="categorySelected.emit(category.id)"
-    >
-      <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
-      <span class="grid min-w-0 gap-0.5 text-left">
-        <strong class="truncate">{{ category.labelKey | translate: category.fallback }}</strong>
-        <small
-          class="inline-flex min-w-0 items-center gap-1 truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
-          [attr.title]="category.context.labelKey | translate: category.context.fallback"
+    <div class="relative grid min-w-0">
+      <button
+        type="button"
+        class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:justify-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)] max-[58rem]:pr-3"
+        [class.gh-tab-active]="activeCategory() === category.id"
+        [class.opacity-65]="activeCategory() !== category.id"
+        [class.pr-28]="category.id === 'mythical'"
+        [attr.aria-pressed]="activeCategory() === category.id"
+        (click)="categorySelected.emit(category.id)"
+      >
+        <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
+        <span class="grid min-w-0 gap-0.5 text-left">
+          <strong class="truncate">{{ category.labelKey | translate: category.fallback }}</strong>
+          <small
+            class="inline-flex min-w-0 items-center gap-1 truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+            [attr.title]="category.context.labelKey | translate: category.context.fallback"
+          >
+            <span class="min-w-0 truncate">{{
+              category.context.labelKey | translate: category.context.fallback
+            }}</span>
+            <strong class="shrink-0 text-[var(--gh-text)] tabular-nums">{{
+              category.context.value
+            }}</strong>
+          </small>
+        </span>
+      </button>
+
+      @if (category.id === 'mythical') {
+        <label
+          class="absolute right-2 top-1/2 grid w-24 -translate-y-1/2 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[var(--gh-muted)] max-[58rem]:static max-[58rem]:w-auto max-[58rem]:translate-y-0 max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)] max-[58rem]:px-3 max-[58rem]:pb-2"
+          [attr.title]="'unitAttribute.god' | translate: 'God'"
         >
-          <span class="min-w-0 truncate">{{
-            category.context.labelKey | translate: category.context.fallback
-          }}</span>
-          <strong class="shrink-0 text-[var(--gh-text)] tabular-nums">{{
-            category.context.value
-          }}</strong>
-        </small>
-      </span>
-    </button>
+          <span class="sr-only">{{ 'unitAttribute.god' | translate: 'God' }}</span>
+          <select
+            class="gh-control w-full min-w-0 cursor-pointer rounded px-2 py-1 text-xs font-bold normal-case tracking-normal text-[var(--gh-text)]"
+            [value]="selectedGod()"
+            [attr.aria-label]="'unitAttribute.god' | translate: 'God'"
+            (click)="$event.stopPropagation()"
+            (pointerdown)="$event.stopPropagation()"
+            (change)="selectGod($event)"
+          >
+            @for (god of gods(); track god.value) {
+              <option [value]="god.value" [selected]="god.value === selectedGod()">
+                {{ god.labelKey | translate: god.fallback }}
+              </option>
+            }
+          </select>
+        </label>
+      }
+    </div>
   }
 </section>
 

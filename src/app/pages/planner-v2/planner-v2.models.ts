@@ -77,6 +77,7 @@ export type CityModifierToggle = SetupBarTab & {
   readonly active: boolean;
   readonly detail?: string;
   readonly progressSteps?: readonly boolean[];
+  readonly disabled?: boolean;
 };
 
 export type SpecialBuildingSlotView = TranslatableText & {

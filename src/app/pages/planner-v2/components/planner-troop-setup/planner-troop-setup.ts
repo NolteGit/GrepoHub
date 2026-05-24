@@ -6,6 +6,7 @@ import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
 import { PlannerUnitTile } from '../planner-unit-tile/planner-unit-tile';
 
 import type {
+  GodOption,
   SetupContextItem,
   SidebarTroopTransportStats,
   TranslatableText,
@@ -35,9 +36,12 @@ export class PlannerTroopSetup {
   readonly categoryContexts = input.required<Record<TroopCategory, SetupContextItem>>();
   readonly categories = input.required<readonly TroopCategoryTab[]>();
   readonly activeCategory = input.required<TroopCategory>();
+  readonly selectedGod = input.required<string>();
+  readonly gods = input.required<readonly GodOption[]>();
   readonly units = input.required<readonly UnitTileView[]>();
   readonly transportStats = input.required<SidebarTroopTransportStats>();
   readonly categorySelected = output<TroopCategory>();
+  readonly godSelected = output<string>();
   readonly unitAmountChanged = output<{ readonly unitId: string; readonly amount: number }>();
 
   protected readonly categoryTabs = computed<readonly TroopCategoryTabWithContext[]>(() => {
@@ -98,4 +102,9 @@ export class PlannerTroopSetup {
 
     return `${formatNumber(stats.transportSpace)}/${formatNumber(stats.transportCapacity)}`;
   });
+
+  protected selectGod(event: Event): void {
+    event.stopPropagation();
+    this.godSelected.emit((event.target as HTMLSelectElement).value);
+  }
 }

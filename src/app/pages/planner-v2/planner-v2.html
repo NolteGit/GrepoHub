@@ -71,9 +71,12 @@
             [categoryContexts]="troopCategoryContexts()"
             [categories]="troopCategories"
             [activeCategory]="selectedTroopCategory()"
+            [selectedGod]="selectedGod()"
+            [gods]="gods"
             [units]="visibleUnits()"
             [transportStats]="troopTransportStats()"
             (categorySelected)="selectTroopCategory($event)"
+            (godSelected)="selectGod($event)"
             (unitAmountChanged)="updateUnitAmount($event.unitId, $event.amount)"
           />
         }

@@ -46,6 +46,7 @@ import type {
   BuildingTileView,
   CityModifierToggle,
   CityModifierToggleId,
+  GodOption,
   SetupContextItem,
   SidebarPopulationStats,
   SidebarTroopBattleStats,
@@ -290,6 +291,45 @@ const troopCategories: readonly TroopCategoryTab[] = [
   },
 ];
 
+const gods: readonly GodOption[] = [
+  { value: 'aphrodite', labelKey: 'god.aphrodite', fallback: 'Aphrodite' },
+  { value: 'ares', labelKey: 'god.ares', fallback: 'Ares' },
+  { value: 'artemis', labelKey: 'god.artemis', fallback: 'Artemis' },
+  { value: 'athena', labelKey: 'god.athena', fallback: 'Athena' },
+  { value: 'hades', labelKey: 'god.hades', fallback: 'Hades' },
+  { value: 'hera', labelKey: 'god.hera', fallback: 'Hera' },
+  { value: 'poseidon', labelKey: 'god.poseidon', fallback: 'Poseidon' },
+  { value: 'zeus', labelKey: 'god.zeus', fallback: 'Zeus' },
+];
+
+const defaultSelectedGod = 'aphrodite';
+const fallbackSelectedGod = 'zeus';
+const selectedGodStorageKey = 'grepo-hub.planner-v2.selectedGod';
+
+const normalizeGod = (god: string | null): string => {
+  if (god === null) {
+    return defaultSelectedGod;
+  }
+
+  return gods.some((option) => option.value === god) ? god : defaultSelectedGod;
+};
+
+const getInitialSelectedGod = (): string => {
+  if (typeof window === 'undefined') {
+    return defaultSelectedGod;
+  }
+
+  return normalizeGod(window.localStorage.getItem(selectedGodStorageKey));
+};
+
+const storeSelectedGod = (god: string): void => {
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(selectedGodStorageKey, god);
+  }
+};
+
+const isDefaultSelectedGod = (god: string): boolean => god === defaultSelectedGod;
+
 const landExpansionMaxLevel = 6;
 const landExpansionPopulationPerLevel = 50;
 
@@ -330,6 +370,17 @@ const clampBuildingLevel = (buildingId: string, level: number): number => {
 };
 
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
+
+const getEffectiveCityPlanForGod = (
+  cityPlan: CityConfiguration,
+  selectedGod: string,
+): CityConfiguration => ({
+  ...cityPlan,
+  modifiers: {
+    ...cityPlan.modifiers,
+    aphroditeActive: isDefaultSelectedGod(selectedGod),
+  },
+});
 
 const getLandExpansionPopulationBonus = (level: number): number => {
   return clampLandExpansionLevel(level) * landExpansionPopulationPerLevel;
@@ -690,7 +741,11 @@ const formatUnitFallback = (unitId: string): string =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 
-const isVisibleForTroopCategory = (unit: Unit, category: TroopCategory): boolean => {
+const isVisibleForTroopCategory = (
+  unit: Unit,
+  category: TroopCategory,
+  selectedGod: string,
+): boolean => {
   if (category === 'land') {
     return unit.type === 'land' && !unit.isMythical;
   }
@@ -699,7 +754,7 @@ const isVisibleForTroopCategory = (unit: Unit, category: TroopCategory): boolean
     return unit.type === 'sea' && !unit.isMythical;
   }
 
-  return unit.isMythical;
+  return unit.isMythical && (unit.god === selectedGod || unit.god === 'all');
 };
 
 const createUnitTileStats = (unit: Unit, hasLighthouse: boolean): readonly UnitTileStat[] => {
@@ -850,7 +905,11 @@ export class PlannerV2 {
   protected readonly activePlan = this.planConfigService.activePlan;
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
   private readonly localPlanNotice = signal<PlannerNotice | null>(null);
+  protected readonly selectedGod = signal(getInitialSelectedGod());
   protected readonly activeCityPlan = computed(() => this.activePlan().cityPlan);
+  protected readonly effectiveCityPlan = computed(() =>
+    getEffectiveCityPlanForGod(this.activeCityPlan(), this.selectedGod()),
+  );
   protected readonly activeTroopPlan = computed(() => this.activePlan().troopPlan);
   protected readonly buildingLevels = computed(() => this.activeCityPlan().buildingLevels);
   protected readonly unitAmounts = computed(() => this.activeTroopPlan().unitAmounts);
@@ -859,6 +918,7 @@ export class PlannerV2 {
   });
   protected readonly activeMode = signal<PlannerMode>('city');
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
+  protected readonly gods = gods;
   protected readonly troopCategories = troopCategories;
   protected readonly planNotice = computed<PlannerNotice | null>(() => {
     const importDialog = this.planImportExportUiService.planImportDialog();
@@ -878,10 +938,10 @@ export class PlannerV2 {
   });
 
   protected readonly cityPopulation = computed(() =>
-    calculateCityPlannerPopulation(this.activeCityPlan()),
+    calculateCityPlannerPopulation(this.effectiveCityPlan()),
   );
   protected readonly citySummary = computed<CityPlannerSummary>(() => {
-    const cityPlan = this.activeCityPlan();
+    const cityPlan = this.effectiveCityPlan();
     const buildingLevels = this.buildingLevels();
     const population = this.cityPopulation();
     const activeBuildingCount = cityBuildingOrder.filter((buildingId) => {
@@ -950,6 +1010,7 @@ export class PlannerV2 {
     const cityPlan = this.activeCityPlan();
     const buildingLevels = this.buildingLevels();
     const landExpansionLevel = clampLandExpansionLevel(buildingLevels['land_expansion'] ?? 0);
+    const isAphroditeGodSelected = isDefaultSelectedGod(this.selectedGod());
 
     return [
       {
@@ -959,7 +1020,8 @@ export class PlannerV2 {
         shortLabelKey: 'plannerV2.modifier.aphroditeShort',
         shortFallback: 'Aphro',
         icon: '♡',
-        active: cityPlan.modifiers.aphroditeActive,
+        active: isAphroditeGodSelected,
+        disabled: false,
       },
       {
         id: 'landExpansion',
@@ -1023,12 +1085,13 @@ export class PlannerV2 {
   protected readonly visibleUnits = computed<readonly UnitTileView[]>(() => {
     const unitAmounts = this.unitAmounts();
     const category = this.selectedTroopCategory();
+    const selectedGod = this.selectedGod();
     const hasLighthouse = Object.values(this.activeCityPlan().specialBuildings).includes(
       'lighthouse',
     );
 
     return this.unitDefinitions()
-      .filter((unit) => isVisibleForTroopCategory(unit, category))
+      .filter((unit) => isVisibleForTroopCategory(unit, category, selectedGod))
       .map((unit) => {
         const amount = unitAmounts[unit.id] ?? 0;
 
@@ -1278,6 +1341,10 @@ export class PlannerV2 {
     this.selectedTroopCategory.set(category);
   }
 
+  protected selectGod(god: string): void {
+    this.setSelectedGod(god);
+  }
+
   protected updateUnitAmount(unitId: string, amount: number): void {
     this.updateTroopPlan((troopPlan) => ({
       unitAmounts: {
@@ -1297,6 +1364,13 @@ export class PlannerV2 {
   }
 
   protected toggleCityModifier(modifierId: CityModifierToggleId): void {
+    if (modifierId === 'aphroditeActive') {
+      this.setSelectedGod(
+        isDefaultSelectedGod(this.selectedGod()) ? fallbackSelectedGod : defaultSelectedGod,
+      );
+      return;
+    }
+
     if (modifierId === 'landExpansion') {
       const currentLevel = clampLandExpansionLevel(this.buildingLevels()['land_expansion'] ?? 0);
 
@@ -1322,6 +1396,23 @@ export class PlannerV2 {
         [slotId as CitySpecialBuildingSlotId]: optionId as CitySpecialBuildingOptionId,
       },
     }));
+  }
+
+  private setSelectedGod(god: string): void {
+    const selectedGod = normalizeGod(god);
+    const aphroditeActive = isDefaultSelectedGod(selectedGod);
+
+    this.selectedGod.set(selectedGod);
+    storeSelectedGod(selectedGod);
+
+    if (this.activeCityPlan().modifiers.aphroditeActive !== aphroditeActive) {
+      this.updateCityPlan((cityPlan) => ({
+        modifiers: {
+          ...cityPlan.modifiers,
+          aphroditeActive,
+        },
+      }));
+    }
   }
 
   private updateCityPlan(
