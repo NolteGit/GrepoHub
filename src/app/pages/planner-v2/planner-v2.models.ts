@@ -48,6 +48,7 @@ export type UnitTileView = TranslatableText & {
   readonly imagePath: string;
   readonly icon: string;
   readonly amount: number;
+  readonly maxAmount: number;
   readonly populationBadge: TilePopulationBadge;
   readonly stats: readonly UnitTileStat[];
 };
@@ -74,6 +75,8 @@ export type CityModifierToggleId = CityModifierId | 'landExpansion';
 export type CityModifierToggle = SetupBarTab & {
   readonly id: CityModifierToggleId;
   readonly active: boolean;
+  readonly detail?: string;
+  readonly progressSteps?: readonly boolean[];
 };
 
 export type SpecialBuildingSlotView = TranslatableText & {
@@ -84,6 +87,12 @@ export type SpecialBuildingSlotView = TranslatableText & {
 
 export type SpecialBuildingOptionView = TranslatableText & {
   readonly value: CitySpecialBuildingOptionId;
+  readonly icon: string;
+  readonly imagePath: string;
+  readonly effectLabelKey: string;
+  readonly effectFallback: string;
+  readonly populationBadgeValue: string;
+  readonly populationBadgeTone: TilePopulationBadge['tone'];
 };
 
 export type GodOption = TranslatableText & {

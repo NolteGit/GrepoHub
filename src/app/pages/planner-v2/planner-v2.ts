@@ -46,7 +46,6 @@ import type {
   BuildingTileView,
   CityModifierToggle,
   CityModifierToggleId,
-  GodOption,
   SetupContextItem,
   SidebarPopulationStats,
   SidebarTroopBattleStats,
@@ -291,16 +290,20 @@ const troopCategories: readonly TroopCategoryTab[] = [
   },
 ];
 
-const gods: readonly GodOption[] = [
-  { value: 'zeus', labelKey: 'god.zeus', fallback: 'Zeus' },
-  { value: 'poseidon', labelKey: 'god.poseidon', fallback: 'Poseidon' },
-  { value: 'hera', labelKey: 'god.hera', fallback: 'Hera' },
-  { value: 'athena', labelKey: 'god.athena', fallback: 'Athena' },
-  { value: 'hades', labelKey: 'god.hades', fallback: 'Hades' },
-  { value: 'artemis', labelKey: 'god.artemis', fallback: 'Artemis' },
-  { value: 'aphrodite', labelKey: 'god.aphrodite', fallback: 'Aphrodite' },
-  { value: 'ares', labelKey: 'god.ares', fallback: 'Ares' },
-];
+const landExpansionMaxLevel = 6;
+const landExpansionPopulationPerLevel = 50;
+
+const specialBuildingEffectFallbacks: Record<string, string> = {
+  none: 'None selected',
+  theatre: 'Extra slow culture points possible',
+  thermal_baths: '+10% maximum population',
+  library: '+12 research points',
+  lighthouse: '+15% naval movement',
+  tower: '+10% defense buff',
+  divine_statue: 'Counts as +5 temple levels for favor production',
+  oracle: 'Shows information when you are being spied on',
+  merchants_shop: '+50% trade, BD trade and Phoenician trade',
+};
 
 const getBuildingDefinition = (buildingId: string) => {
   return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
@@ -314,11 +317,36 @@ const normalizeNonNegativeInteger = (value: number): number => {
   return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
 };
 
+const clampLandExpansionLevel = (level: number): number => {
+  return Math.min(landExpansionMaxLevel, normalizeNonNegativeInteger(level));
+};
+
 const clampBuildingLevel = (buildingId: string, level: number): number => {
+  if (buildingId === 'land_expansion') {
+    return clampLandExpansionLevel(level);
+  }
+
   return Math.min(getBuildingMaxLevel(buildingId), normalizeNonNegativeInteger(level));
 };
 
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
+
+const getLandExpansionPopulationBonus = (level: number): number => {
+  return clampLandExpansionLevel(level) * landExpansionPopulationPerLevel;
+};
+
+const formatLandExpansionDetail = (level: number): string => {
+  const normalizedLevel = clampLandExpansionLevel(level);
+  const populationBonus = getLandExpansionPopulationBonus(normalizedLevel);
+
+  return `Level ${normalizedLevel}/${landExpansionMaxLevel} · +${formatNumber(populationBonus)} BHP`;
+};
+
+const createLandExpansionProgressSteps = (level: number): readonly boolean[] => {
+  const normalizedLevel = clampLandExpansionLevel(level);
+
+  return Array.from({ length: landExpansionMaxLevel }, (_, index) => index < normalizedLevel);
+};
 
 const createTilePopulationBadge = (
   value: number,
@@ -334,6 +362,11 @@ const createTilePopulationBadge = (
     value: displayValue,
     tone,
   };
+};
+
+const getUnitAmountMax = (unit: Unit): number => {
+  const populationCost = Math.max(1, unit.cost.population);
+  return Math.ceil(5000 / populationCost);
 };
 
 type CostSummary = {
@@ -657,11 +690,7 @@ const formatUnitFallback = (unitId: string): string =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 
-const isVisibleForTroopCategory = (
-  unit: Unit,
-  category: TroopCategory,
-  selectedGod: string,
-): boolean => {
+const isVisibleForTroopCategory = (unit: Unit, category: TroopCategory): boolean => {
   if (category === 'land') {
     return unit.type === 'land' && !unit.isMythical;
   }
@@ -670,11 +699,12 @@ const isVisibleForTroopCategory = (
     return unit.type === 'sea' && !unit.isMythical;
   }
 
-  return unit.isMythical && (unit.god === selectedGod || unit.god === 'all');
+  return unit.isMythical;
 };
 
-const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
-  const speed = unitSpeedById[unit.id] ?? 0;
+const createUnitTileStats = (unit: Unit, hasLighthouse: boolean): readonly UnitTileStat[] => {
+  const baseSpeed = unitSpeedById[unit.id] ?? 0;
+  const speed = hasLighthouse && unit.type === 'sea' ? Math.round(baseSpeed * 1.15) : baseSpeed;
   const isTransportShip = unit.type === 'sea' && unit.transportCapacity > 0 && unit.attackSea === 0;
   const stats: UnitTileStat[] = [];
 
@@ -697,15 +727,17 @@ const createUnitTileStats = (unit: Unit): readonly UnitTileStat[] => {
       );
     }
 
-    stats.push(
-      createIconValueStat(
-        getBattleIconPath('capacity'),
-        'unitAttribute.transportCapacity',
-        'Transport Capacity',
-        unit.transportCapacity,
-        unit.transportCapacity > 0 ? 'gold' : 'muted',
-      ),
-    );
+    if (isTransportShip) {
+      stats.push(
+        createIconValueStat(
+          getBattleIconPath('capacity'),
+          'unitAttribute.transportCapacity',
+          'Transport Capacity',
+          unit.transportCapacity,
+          unit.transportCapacity > 0 ? 'gold' : 'muted',
+        ),
+      );
+    }
   } else {
     stats.push(
       createIconValueStat(
@@ -827,9 +859,7 @@ export class PlannerV2 {
   });
   protected readonly activeMode = signal<PlannerMode>('city');
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
-  protected readonly selectedGod = signal('zeus');
   protected readonly troopCategories = troopCategories;
-  protected readonly gods = gods;
   protected readonly planNotice = computed<PlannerNotice | null>(() => {
     const importDialog = this.planImportExportUiService.planImportDialog();
 
@@ -919,6 +949,7 @@ export class PlannerV2 {
   protected readonly cityModifiers = computed<readonly CityModifierToggle[]>(() => {
     const cityPlan = this.activeCityPlan();
     const buildingLevels = this.buildingLevels();
+    const landExpansionLevel = clampLandExpansionLevel(buildingLevels['land_expansion'] ?? 0);
 
     return [
       {
@@ -937,7 +968,9 @@ export class PlannerV2 {
         shortLabelKey: 'plannerV2.modifier.landExpansionShort',
         shortFallback: 'Land',
         icon: '▦',
-        active: (buildingLevels['land_expansion'] ?? 0) > 0,
+        active: landExpansionLevel > 0,
+        detail: formatLandExpansionDetail(landExpansionLevel),
+        progressSteps: createLandExpansionProgressSteps(landExpansionLevel),
       },
       {
         id: 'plowResearched',
@@ -961,39 +994,41 @@ export class PlannerV2 {
       options: slot.optionIds.map((optionId) => this.createSpecialBuildingOption(optionId)),
     }));
   });
-  protected readonly troopContextLeft = computed<readonly SetupContextItem[]>(() => {
-    const buildingLevels = this.buildingLevels();
+  protected readonly troopCategoryContexts = computed<Record<TroopCategory, SetupContextItem>>(
+    () => {
+      const buildingLevels = this.buildingLevels();
 
-    return [
-      {
-        labelKey: 'building.barracks',
-        fallback: 'Barracks',
-        icon: '⚔',
-        value: String(buildingLevels['barracks'] ?? 0),
-      },
-      {
-        labelKey: 'building.harbour',
-        fallback: 'Harbour',
-        icon: '⚓',
-        value: String(buildingLevels['harbour'] ?? 0),
-      },
-    ];
-  });
-  protected readonly troopContextRight = computed<readonly SetupContextItem[]>(() => [
-    {
-      labelKey: 'building.temple',
-      fallback: 'Temple',
-      icon: '♛',
-      value: String(this.buildingLevels()['temple'] ?? 0),
+      return {
+        land: {
+          labelKey: 'building.barracks',
+          fallback: 'Barracks',
+          icon: '⚔',
+          value: String(buildingLevels['barracks'] ?? 0),
+        },
+        sea: {
+          labelKey: 'building.harbour',
+          fallback: 'Harbour',
+          icon: '⚓',
+          value: String(buildingLevels['harbour'] ?? 0),
+        },
+        mythical: {
+          labelKey: 'building.temple',
+          fallback: 'Temple',
+          icon: '♛',
+          value: String(buildingLevels['temple'] ?? 0),
+        },
+      };
     },
-  ]);
+  );
   protected readonly visibleUnits = computed<readonly UnitTileView[]>(() => {
     const unitAmounts = this.unitAmounts();
     const category = this.selectedTroopCategory();
-    const selectedGod = this.selectedGod();
+    const hasLighthouse = Object.values(this.activeCityPlan().specialBuildings).includes(
+      'lighthouse',
+    );
 
     return this.unitDefinitions()
-      .filter((unit) => isVisibleForTroopCategory(unit, category, selectedGod))
+      .filter((unit) => isVisibleForTroopCategory(unit, category))
       .map((unit) => {
         const amount = unitAmounts[unit.id] ?? 0;
 
@@ -1004,8 +1039,9 @@ export class PlannerV2 {
           imagePath: getUnitIconPath(unit.id),
           icon: unitFallbackIcons[unit.id] ?? '⚔',
           amount,
+          maxAmount: getUnitAmountMax(unit),
           populationBadge: createTilePopulationBadge(-(amount * unit.cost.population), 'BHP used'),
-          stats: createUnitTileStats(unit),
+          stats: createUnitTileStats(unit, hasLighthouse),
         };
       });
   });
@@ -1242,10 +1278,6 @@ export class PlannerV2 {
     this.selectedTroopCategory.set(category);
   }
 
-  protected selectGod(god: string): void {
-    this.selectedGod.set(god);
-  }
-
   protected updateUnitAmount(unitId: string, amount: number): void {
     this.updateTroopPlan((troopPlan) => ({
       unitAmounts: {
@@ -1266,11 +1298,11 @@ export class PlannerV2 {
 
   protected toggleCityModifier(modifierId: CityModifierToggleId): void {
     if (modifierId === 'landExpansion') {
+      const currentLevel = clampLandExpansionLevel(this.buildingLevels()['land_expansion'] ?? 0);
+
       this.updateBuildingLevel(
         'land_expansion',
-        (this.buildingLevels()['land_expansion'] ?? 0) > 0
-          ? 0
-          : getBuildingMaxLevel('land_expansion'),
+        currentLevel >= landExpansionMaxLevel ? 0 : currentLevel + 1,
       );
       return;
     }
@@ -1405,16 +1437,19 @@ export class PlannerV2 {
   private createSpecialBuildingOption(
     optionId: CitySpecialBuildingOptionId,
   ): SpecialBuildingOptionView {
-    return optionId === 'none'
-      ? {
-          value: optionId,
-          labelKey: 'plannerV2.none',
-          fallback: 'None',
-        }
-      : {
-          value: optionId,
-          labelKey: `building.${optionId}`,
-          fallback: buildingFallbacks[optionId] ?? optionId,
-        };
+    const isNone = optionId === 'none';
+    const isThermalBaths = optionId === 'thermal_baths';
+
+    return {
+      value: optionId,
+      labelKey: isNone ? 'plannerV2.none' : `building.${optionId}`,
+      fallback: isNone ? 'None' : (buildingFallbacks[optionId] ?? optionId),
+      icon: isNone ? '—' : (buildingFallbackIcons[optionId] ?? '★'),
+      imagePath: isNone ? '' : getBuildingImagePath(optionId),
+      effectLabelKey: `plannerV2.specialBuildingEffect.${optionId}`,
+      effectFallback: specialBuildingEffectFallbacks[optionId] ?? 'Special building effect',
+      populationBadgeValue: isNone ? '0' : isThermalBaths ? '+10%' : '-60',
+      populationBadgeTone: isNone ? 'muted' : isThermalBaths ? 'gain' : 'used',
+    };
   }
 }

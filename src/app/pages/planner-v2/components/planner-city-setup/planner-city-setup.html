@@ -5,24 +5,43 @@
   @for (modifier of compactModifiers(); track modifier.id) {
     <button
       type="button"
-      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:justify-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)]"
+      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer flex-col items-center justify-center gap-0.5 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 py-1.5 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:items-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)]"
       [class.gh-tab-active]="modifier.active"
       [class.opacity-65]="!modifier.active"
       [attr.aria-pressed]="modifier.active"
       (click)="modifierToggled.emit(modifier.id)"
     >
-      <span class="text-base leading-none" aria-hidden="true">{{ modifier.icon }}</span>
-      <span class="grid min-w-0 gap-0.5 text-left">
+      <span class="inline-flex min-w-0 items-center justify-center gap-2 max-[58rem]:justify-start">
+        <span class="text-base leading-none" aria-hidden="true">{{ modifier.icon }}</span>
         <strong class="truncate">{{ modifier.labelKey | translate: modifier.fallback }}</strong>
-        <small
-          class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
-        >
-          @if (modifier.active) {
-            {{ 'plannerV2.modifier.active' | translate: 'Active' }}
-          } @else {
-            {{ 'plannerV2.modifier.inactive' | translate: 'Inactive' }}
-          }
-        </small>
+      </span>
+
+      <span class="grid min-w-0 justify-items-center gap-1 max-[58rem]:justify-items-start">
+        @if (!modifier.progressSteps?.length) {
+          <small
+            class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+          >
+            @if (modifier.active) {
+              {{ 'plannerV2.modifier.active' | translate: 'Active' }}
+            } @else {
+              {{ 'plannerV2.modifier.inactive' | translate: 'Inactive' }}
+            }
+          </small>
+        }
+
+        @if (modifier.progressSteps?.length) {
+          <span class="flex items-center justify-center gap-1" aria-hidden="true">
+            @for (stepActive of modifier.progressSteps ?? []; track $index) {
+              <span
+                class="size-1.5 rounded-full border"
+                [class.border-[var(--gh-gold)]]="stepActive"
+                [class.bg-[var(--gh-gold)]]="stepActive"
+                [class.border-[rgba(148,163,184,0.34)]]="!stepActive"
+                [class.bg-transparent]="!stepActive"
+              ></span>
+            }
+          </span>
+        }
       </span>
     </button>
   }
@@ -33,16 +52,78 @@
   [attr.aria-label]="'plannerV2.specialBuildingLabel' | translate: 'Special buildings'"
 >
   @if (specialSlots()[0]; as slot) {
-    <app-gh-panel class="grid min-w-0 content-center gap-3" padding="sm">
-      <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
-        ★ {{ slot.labelKey | translate: slot.fallback }}
-      </h2>
-      <app-gh-select-field
-        [value]="slot.value"
-        [options]="slot.options"
-        size="sm"
-        (valueChange)="specialBuildingSelected.emit({ slotId: slot.id, optionId: $event })"
-      />
+    <app-gh-panel class="grid min-w-0 content-start gap-1.5" padding="sm">
+      @if (selectedSpecialBuildingOption(slot); as selectedOption) {
+        <header class="flex min-w-0 items-start justify-between gap-2">
+          <h2 class="m-0 truncate text-sm font-bold text-[var(--gh-text)]">
+            ★ {{ slot.labelKey | translate: slot.fallback }}
+          </h2>
+          <span
+            class="shrink-0 text-xs font-bold tabular-nums"
+            [style.color]="
+              selectedOption.populationBadgeTone === 'gain'
+                ? '#3fa36b'
+                : selectedOption.populationBadgeTone === 'used'
+                  ? '#cf453e'
+                  : 'var(--gh-muted)'
+            "
+          >
+            {{ selectedOption.populationBadgeValue }}
+          </span>
+        </header>
+      }
+
+      <div class="grid grid-cols-4 items-start gap-1">
+        @for (option of specialBuildingOptions(slot); track option.value) {
+          <button
+            type="button"
+            class="group grid min-w-0 cursor-pointer content-start justify-items-center gap-0.5 rounded-md border border-transparent bg-transparent p-0.5 text-[var(--gh-text)] transition hover:bg-white/5"
+            [class.ring-1]="optionIsSelected(slot, option)"
+            [class.ring-[var(--gh-gold)]]="optionIsSelected(slot, option)"
+            [style.opacity]="optionIsSelected(slot, option) ? '1' : '0.48'"
+            [attr.aria-pressed]="optionIsSelected(slot, option)"
+            [attr.title]="option.labelKey | translate: option.fallback"
+            (click)="selectSpecialBuildingOption(slot, option)"
+          >
+            <span
+              class="mx-auto grid size-8 max-w-full place-items-center overflow-hidden rounded-sm"
+            >
+              @if (option.imagePath) {
+                <img
+                  class="h-full w-full object-contain"
+                  [class.grayscale]="!optionIsSelected(slot, option)"
+                  [src]="option.imagePath"
+                  [alt]="option.labelKey | translate: option.fallback"
+                  loading="lazy"
+                />
+              } @else {
+                <span class="text-lg" aria-hidden="true">{{ option.icon }}</span>
+              }
+            </span>
+            <strong
+              class="truncate text-center text-[0.55rem] leading-tight text-[var(--gh-muted)]"
+            >
+              {{ option.labelKey | translate: option.fallback }}
+            </strong>
+          </button>
+        }
+      </div>
+
+      @if (selectedSpecialBuildingOption(slot); as selectedOption) {
+        <footer
+          class="grid min-h-[1.4rem] content-center border-t border-dashed border-[var(--gh-border-soft)] pt-1 text-[0.68rem]"
+        >
+          @if (selectedOption.value === 'none') {
+            <strong class="truncate text-[var(--gh-muted)]">
+              {{ selectedOption.effectFallback }}
+            </strong>
+          } @else {
+            <span class="truncate text-[var(--gh-muted)]">
+              {{ selectedOption.effectLabelKey | translate: selectedOption.effectFallback }}
+            </span>
+          }
+        </footer>
+      }
     </app-gh-panel>
   }
 
@@ -57,16 +138,78 @@
   </div>
 
   @if (specialSlots()[1]; as slot) {
-    <app-gh-panel class="grid min-w-0 content-center gap-3" padding="sm">
-      <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
-        ★ {{ slot.labelKey | translate: slot.fallback }}
-      </h2>
-      <app-gh-select-field
-        [value]="slot.value"
-        [options]="slot.options"
-        size="sm"
-        (valueChange)="specialBuildingSelected.emit({ slotId: slot.id, optionId: $event })"
-      />
+    <app-gh-panel class="grid min-w-0 content-start gap-1.5" padding="sm">
+      @if (selectedSpecialBuildingOption(slot); as selectedOption) {
+        <header class="flex min-w-0 items-start justify-between gap-2">
+          <h2 class="m-0 truncate text-sm font-bold text-[var(--gh-text)]">
+            ★ {{ slot.labelKey | translate: slot.fallback }}
+          </h2>
+          <span
+            class="shrink-0 text-xs font-bold tabular-nums"
+            [style.color]="
+              selectedOption.populationBadgeTone === 'gain'
+                ? '#3fa36b'
+                : selectedOption.populationBadgeTone === 'used'
+                  ? '#cf453e'
+                  : 'var(--gh-muted)'
+            "
+          >
+            {{ selectedOption.populationBadgeValue }}
+          </span>
+        </header>
+      }
+
+      <div class="grid grid-cols-4 items-start gap-1">
+        @for (option of specialBuildingOptions(slot); track option.value) {
+          <button
+            type="button"
+            class="group grid min-w-0 cursor-pointer content-start justify-items-center gap-0.5 rounded-md border border-transparent bg-transparent p-0.5 text-[var(--gh-text)] transition hover:bg-white/5"
+            [class.ring-1]="optionIsSelected(slot, option)"
+            [class.ring-[var(--gh-gold)]]="optionIsSelected(slot, option)"
+            [style.opacity]="optionIsSelected(slot, option) ? '1' : '0.48'"
+            [attr.aria-pressed]="optionIsSelected(slot, option)"
+            [attr.title]="option.labelKey | translate: option.fallback"
+            (click)="selectSpecialBuildingOption(slot, option)"
+          >
+            <span
+              class="mx-auto grid size-8 max-w-full place-items-center overflow-hidden rounded-sm"
+            >
+              @if (option.imagePath) {
+                <img
+                  class="h-full w-full object-contain"
+                  [class.grayscale]="!optionIsSelected(slot, option)"
+                  [src]="option.imagePath"
+                  [alt]="option.labelKey | translate: option.fallback"
+                  loading="lazy"
+                />
+              } @else {
+                <span class="text-lg" aria-hidden="true">{{ option.icon }}</span>
+              }
+            </span>
+            <strong
+              class="truncate text-center text-[0.55rem] leading-tight text-[var(--gh-muted)]"
+            >
+              {{ option.labelKey | translate: option.fallback }}
+            </strong>
+          </button>
+        }
+      </div>
+
+      @if (selectedSpecialBuildingOption(slot); as selectedOption) {
+        <footer
+          class="grid min-h-[1.4rem] content-center border-t border-dashed border-[var(--gh-border-soft)] pt-1 text-[0.68rem]"
+        >
+          @if (selectedOption.value === 'none') {
+            <strong class="truncate text-[var(--gh-muted)]">
+              {{ selectedOption.effectFallback }}
+            </strong>
+          } @else {
+            <span class="truncate text-[var(--gh-muted)]">
+              {{ selectedOption.effectLabelKey | translate: selectedOption.effectFallback }}
+            </span>
+          }
+        </footer>
+      }
     </app-gh-panel>
   }
 </section>

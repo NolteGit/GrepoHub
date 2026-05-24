@@ -92,8 +92,8 @@ export const cityBuildingPlanDefinitions: CityBuildingPlanDefinition[] = [
   },
   {
     id: 'temple',
-    maxLevel: 25,
-    populationByLevel: createLinearPopulationTable(25, -5),
+    maxLevel: 30,
+    populationByLevel: createLinearPopulationTable(30, -5),
   },
   {
     id: 'marketplace',

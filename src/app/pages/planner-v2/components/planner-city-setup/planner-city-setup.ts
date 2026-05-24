@@ -2,20 +2,19 @@ import { Component, computed, input, output } from '@angular/core';
 
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
-import { GhSelectField } from '../../../../shared/ui/gh-select-field/gh-select-field';
-
 import { PlannerBuildingTile } from '../planner-building-tile/planner-building-tile';
 
 import type {
   BuildingTileView,
   CityModifierToggle,
   CityModifierToggleId,
+  SpecialBuildingOptionView,
   SpecialBuildingSlotView,
 } from '../../planner-v2.models';
 
 @Component({
   selector: 'app-planner-city-setup',
-  imports: [TranslatePipe, GhPanel, GhSelectField, PlannerBuildingTile],
+  imports: [TranslatePipe, GhPanel, PlannerBuildingTile],
   templateUrl: './planner-city-setup.html',
 })
 export class PlannerCitySetup {
@@ -42,4 +41,33 @@ export class PlannerCitySetup {
       .map((modifierId) => modifiers.find((modifier) => modifier.id === modifierId))
       .filter((modifier): modifier is CityModifierToggle => modifier !== undefined);
   });
+
+  protected specialBuildingOptions(
+    slot: SpecialBuildingSlotView,
+  ): readonly SpecialBuildingOptionView[] {
+    return slot.options.filter((option) => option.value !== 'none');
+  }
+
+  protected selectedSpecialBuildingOption(
+    slot: SpecialBuildingSlotView,
+  ): SpecialBuildingOptionView | null {
+    return slot.options.find((option) => option.value === slot.value) ?? null;
+  }
+
+  protected optionIsSelected(
+    slot: SpecialBuildingSlotView,
+    option: SpecialBuildingOptionView,
+  ): boolean {
+    return slot.value === option.value;
+  }
+
+  protected selectSpecialBuildingOption(
+    slot: SpecialBuildingSlotView,
+    option: SpecialBuildingOptionView,
+  ): void {
+    this.specialBuildingSelected.emit({
+      slotId: slot.id,
+      optionId: this.optionIsSelected(slot, option) ? 'none' : option.value,
+    });
+  }
 }

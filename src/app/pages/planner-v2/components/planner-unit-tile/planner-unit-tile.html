@@ -39,7 +39,8 @@
       <app-gh-number-stepper
         [value]="unit().amount"
         [min]="0"
-        [step]="10"
+        [max]="unit().maxAmount"
+        [step]="1"
         [showMinMax]="true"
         (valueChange)="amountChanged.emit($event)"
       />

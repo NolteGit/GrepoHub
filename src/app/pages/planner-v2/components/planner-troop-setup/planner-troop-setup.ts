@@ -6,7 +6,6 @@ import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
 import { PlannerUnitTile } from '../planner-unit-tile/planner-unit-tile';
 
 import type {
-  GodOption,
   SetupContextItem,
   SidebarTroopTransportStats,
   TranslatableText,
@@ -21,6 +20,10 @@ type TransportStatRow = TranslatableText & {
   readonly tone: 'default' | 'gold' | 'danger' | 'muted';
 };
 
+type TroopCategoryTabWithContext = TroopCategoryTab & {
+  readonly context: SetupContextItem;
+};
+
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
 
 @Component({
@@ -29,17 +32,22 @@ const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').f
   templateUrl: './planner-troop-setup.html',
 })
 export class PlannerTroopSetup {
-  readonly contextLeft = input.required<readonly SetupContextItem[]>();
-  readonly contextRight = input.required<readonly SetupContextItem[]>();
+  readonly categoryContexts = input.required<Record<TroopCategory, SetupContextItem>>();
   readonly categories = input.required<readonly TroopCategoryTab[]>();
   readonly activeCategory = input.required<TroopCategory>();
-  readonly selectedGod = input.required<string>();
-  readonly gods = input.required<readonly GodOption[]>();
   readonly units = input.required<readonly UnitTileView[]>();
   readonly transportStats = input.required<SidebarTroopTransportStats>();
   readonly categorySelected = output<TroopCategory>();
-  readonly godSelected = output<string>();
   readonly unitAmountChanged = output<{ readonly unitId: string; readonly amount: number }>();
+
+  protected readonly categoryTabs = computed<readonly TroopCategoryTabWithContext[]>(() => {
+    const contexts = this.categoryContexts();
+
+    return this.categories().map((category) => ({
+      ...category,
+      context: contexts[category.id],
+    }));
+  });
 
   protected readonly transportRows = computed<readonly TransportStatRow[]>(() => {
     const stats = this.transportStats();
@@ -90,8 +98,4 @@ export class PlannerTroopSetup {
 
     return `${formatNumber(stats.transportSpace)}/${formatNumber(stats.transportCapacity)}`;
   });
-
-  protected selectGod(event: Event): void {
-    this.godSelected.emit((event.target as HTMLSelectElement).value);
-  }
 }
