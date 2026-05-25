@@ -126,6 +126,15 @@ export type SidebarTroopTransportStats = {
   readonly transportBalance: number;
   readonly transportUsagePercent: number;
   readonly bunksBonus: number;
+  readonly bunksEnabled: boolean;
+  readonly slowTransportCapacity: number;
+  readonly fastTransportCapacity: number;
+  readonly slowTransportShipCount: number;
+  readonly fastTransportShipCount: number;
+  readonly requiredSlowTransportShips: number;
+  readonly requiredFastTransportShips: number;
+  readonly additionalSlowTransportShips: number;
+  readonly additionalFastTransportShips: number;
 };
 
 export type SidebarPopulationStats = {

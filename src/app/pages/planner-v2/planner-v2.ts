@@ -734,6 +734,22 @@ const createBuildingEffectStat = (
 };
 
 const clampPercentage = (value: number): number => Math.max(0, Math.min(100, Math.round(value)));
+const slowTransportShipId = 'transport_boat';
+const fastTransportShipId = 'fast_transport_ship';
+const bunksCapacityBonusPerShip = 6;
+
+const getTransportShipCapacity = (
+  units: readonly Unit[],
+  unitId: string,
+  bunksEnabled: boolean,
+): number => {
+  const baseCapacity = units.find((unit) => unit.id === unitId)?.transportCapacity ?? 0;
+
+  return baseCapacity > 0 && bunksEnabled ? baseCapacity + bunksCapacityBonusPerShip : baseCapacity;
+};
+
+const getRequiredTransportShipCount = (transportSpace: number, shipCapacity: number): number =>
+  transportSpace > 0 && shipCapacity > 0 ? Math.ceil(transportSpace / shipCapacity) : 0;
 
 const formatUnitFallback = (unitId: string): string =>
   unitId
@@ -871,6 +887,15 @@ type TroopPlannerSummary = {
   readonly favor: number;
   readonly transportShipCount: number;
   readonly bunksBonus: number;
+  readonly bunksEnabled: boolean;
+  readonly slowTransportCapacity: number;
+  readonly fastTransportCapacity: number;
+  readonly slowTransportShipCount: number;
+  readonly fastTransportShipCount: number;
+  readonly requiredSlowTransportShips: number;
+  readonly requiredFastTransportShips: number;
+  readonly additionalSlowTransportShips: number;
+  readonly additionalFastTransportShips: number;
 };
 
 type PlannerNotice = {
@@ -1155,7 +1180,11 @@ export class PlannerV2 {
           favor: sum.favor + amount * unit.cost.favor,
           transportShipCount:
             sum.transportShipCount +
-            (unit.id === 'transport_boat' || unit.id === 'fast_transport_ship' ? amount : 0),
+            (unit.id === slowTransportShipId || unit.id === fastTransportShipId ? amount : 0),
+          slowTransportShipCount:
+            (sum.slowTransportShipCount ?? 0) + (unit.id === slowTransportShipId ? amount : 0),
+          fastTransportShipCount:
+            (sum.fastTransportShipCount ?? 0) + (unit.id === fastTransportShipId ? amount : 0),
         };
       },
       {
@@ -1181,20 +1210,56 @@ export class PlannerV2 {
         silver: 0,
         favor: 0,
         transportShipCount: 0,
+        slowTransportShipCount: 0,
+        fastTransportShipCount: 0,
       },
     );
-    const bunksBonus = troopPlan.modifiers.bunks ? totals.transportShipCount * 6 : 0;
+    const bunksEnabled = troopPlan.modifiers.bunks;
+    const bunksBonus = bunksEnabled ? totals.transportShipCount * bunksCapacityBonusPerShip : 0;
     const transportCapacity = totals.transportCapacity + bunksBonus;
     const transportBalance = transportCapacity - totals.transportSpace;
+    const unitDefinitions = this.unitDefinitions();
+    const slowTransportCapacity = getTransportShipCapacity(
+      unitDefinitions,
+      slowTransportShipId,
+      bunksEnabled,
+    );
+    const fastTransportCapacity = getTransportShipCapacity(
+      unitDefinitions,
+      fastTransportShipId,
+      bunksEnabled,
+    );
+    const missingTransportCapacity = Math.max(0, -transportBalance);
 
     return {
       ...totals,
       bunksBonus,
+      bunksEnabled,
+      slowTransportCapacity,
+      fastTransportCapacity,
       transportCapacity,
       transportBalance,
+      slowTransportShipCount: totals.slowTransportShipCount,
+      fastTransportShipCount: totals.fastTransportShipCount,
+      requiredSlowTransportShips: getRequiredTransportShipCount(
+        totals.transportSpace,
+        slowTransportCapacity,
+      ),
+      requiredFastTransportShips: getRequiredTransportShipCount(
+        totals.transportSpace,
+        fastTransportCapacity,
+      ),
+      additionalSlowTransportShips: getRequiredTransportShipCount(
+        missingTransportCapacity,
+        slowTransportCapacity,
+      ),
+      additionalFastTransportShips: getRequiredTransportShipCount(
+        missingTransportCapacity,
+        fastTransportCapacity,
+      ),
       transportUsagePercent:
-        transportCapacity > 0
-          ? clampPercentage((totals.transportSpace / transportCapacity) * 100)
+        totals.transportSpace > 0
+          ? clampPercentage((transportCapacity / totals.transportSpace) * 100)
           : 0,
     };
   });
@@ -1254,6 +1319,15 @@ export class PlannerV2 {
       transportBalance: summary.transportBalance,
       transportUsagePercent: summary.transportUsagePercent,
       bunksBonus: summary.bunksBonus,
+      bunksEnabled: summary.bunksEnabled,
+      slowTransportCapacity: summary.slowTransportCapacity,
+      fastTransportCapacity: summary.fastTransportCapacity,
+      slowTransportShipCount: summary.slowTransportShipCount,
+      fastTransportShipCount: summary.fastTransportShipCount,
+      requiredSlowTransportShips: summary.requiredSlowTransportShips,
+      requiredFastTransportShips: summary.requiredFastTransportShips,
+      additionalSlowTransportShips: summary.additionalSlowTransportShips,
+      additionalFastTransportShips: summary.additionalFastTransportShips,
     };
   });
   protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => {
@@ -1350,6 +1424,15 @@ export class PlannerV2 {
       unitAmounts: {
         ...troopPlan.unitAmounts,
         [unitId]: normalizeNonNegativeInteger(amount),
+      },
+    }));
+  }
+
+  protected updateBunksModifier(enabled: boolean): void {
+    this.updateTroopPlan((troopPlan) => ({
+      modifiers: {
+        ...troopPlan.modifiers,
+        bunks: enabled,
       },
     }));
   }
