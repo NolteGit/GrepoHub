@@ -50,6 +50,22 @@ type CalculatorHistoryItem = {
   readonly result: string;
 };
 
+type TimeCalculatorOperation = 'add' | 'subtract';
+
+type TimeCalculatorInputKind = 'base' | 'duration';
+
+type TimeCalculatorUnit = 'hours' | 'minutes' | 'seconds';
+
+type TimeCalculatorParts = {
+  readonly hours: number;
+  readonly minutes: number;
+  readonly seconds: number;
+};
+
+type TimeCalculatorResult = TimeCalculatorParts & {
+  readonly dayOffset: number;
+};
+
 type ToolboxQuickLink = ReferenceQuickLink & {
   readonly href: string;
 };
@@ -72,16 +88,70 @@ export class PlannerToolbox implements OnDestroy {
   private readonly translationService = inject(TranslationService);
   private readonly now = signal(new Date());
   private readonly intervalId = window.setInterval(() => this.now.set(new Date()), 30_000);
+  private readonly secondsPerDay = 86_400;
 
   protected readonly calculatorMode = signal<ToolboxCalculatorMode>('calculator');
   private readonly calculatorExpression = signal('');
   private readonly calculatorWasEvaluated = signal(false);
   protected readonly calculatorHistory = signal<readonly CalculatorHistoryItem[]>([]);
+  protected readonly timeCalculatorBase = signal<TimeCalculatorParts>(
+    this.createCurrentTimeParts(),
+  );
+  protected readonly timeCalculatorDuration = signal<TimeCalculatorParts>({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+  protected readonly timeCalculatorOperation = signal<TimeCalculatorOperation>('add');
 
   protected readonly calculatorDisplay = computed(() => this.calculatorExpression() || '0');
   protected readonly calculatorDisplaySize = computed(() =>
     this.calculatorDisplay().length > 12 ? 'text-base' : 'text-lg',
   );
+  protected readonly timeCalculatorResult = computed<TimeCalculatorResult>(() => {
+    const baseSeconds = this.getTimePartsTotalSeconds(this.timeCalculatorBase());
+    const durationSeconds = this.getTimePartsTotalSeconds(this.timeCalculatorDuration());
+    const rawResultSeconds =
+      this.timeCalculatorOperation() === 'add'
+        ? baseSeconds + durationSeconds
+        : baseSeconds - durationSeconds;
+    const dayOffset = Math.floor(rawResultSeconds / this.secondsPerDay);
+    const normalizedSeconds = this.normalizeDaySeconds(rawResultSeconds);
+
+    return {
+      ...this.getTimePartsFromSeconds(normalizedSeconds),
+      dayOffset,
+    };
+  });
+  protected readonly timeCalculatorOperationSymbol = computed(() =>
+    this.timeCalculatorOperation() === 'add' ? '+' : '−',
+  );
+  protected readonly timeCalculatorDayOffsetKey = computed(() => {
+    const dayOffset = this.timeCalculatorResult().dayOffset;
+
+    if (dayOffset > 0) {
+      return 'plannerV2.toolbox.timeCalculator.nextDay';
+    }
+
+    if (dayOffset < 0) {
+      return 'plannerV2.toolbox.timeCalculator.previousDay';
+    }
+
+    return 'plannerV2.toolbox.timeCalculator.sameDay';
+  });
+  protected readonly timeCalculatorDayOffsetFallback = computed(() => {
+    const dayOffset = this.timeCalculatorResult().dayOffset;
+
+    if (dayOffset > 0) {
+      return dayOffset === 1 ? '+1 day' : `+${dayOffset.toString()} days`;
+    }
+
+    if (dayOffset < 0) {
+      return dayOffset === -1 ? '-1 day' : `${dayOffset.toString()} days`;
+    }
+
+    return 'same day';
+  });
 
   protected readonly clockTime = computed(() =>
     new Intl.DateTimeFormat(undefined, {
@@ -144,6 +214,22 @@ export class PlannerToolbox implements OnDestroy {
     '.',
     '=',
   ];
+
+  protected readonly timeCalculatorUnits: readonly TimeCalculatorUnit[] = [
+    'hours',
+    'minutes',
+    'seconds',
+  ];
+  protected readonly timeCalculatorUnitLabels: Record<TimeCalculatorUnit, string> = {
+    hours: 'plannerV2.toolbox.timeCalculator.hours',
+    minutes: 'plannerV2.toolbox.timeCalculator.minutes',
+    seconds: 'plannerV2.toolbox.timeCalculator.seconds',
+  };
+  protected readonly timeCalculatorUnitFallbacks: Record<TimeCalculatorUnit, string> = {
+    hours: 'Hours',
+    minutes: 'Minutes',
+    seconds: 'Seconds',
+  };
 
   protected readonly actionButtons = computed<readonly ToolboxActionButton[]>(() => [
     {
@@ -285,8 +371,138 @@ export class PlannerToolbox implements OnDestroy {
     this.calculatorMode.set(mode);
   }
 
+  protected setTimeCalculatorNow(): void {
+    this.timeCalculatorBase.set(this.createCurrentTimeParts());
+  }
+
+  protected toggleTimeCalculatorOperation(): void {
+    this.timeCalculatorOperation.update((operation) => (operation === 'add' ? 'subtract' : 'add'));
+  }
+
+  protected resetTimeCalculatorDuration(): void {
+    this.timeCalculatorDuration.set({ hours: 0, minutes: 0, seconds: 0 });
+  }
+
+  protected selectTimeCalculatorInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    input.dataset['timeCalculatorBuffer'] = '';
+    window.setTimeout(() => input.select());
+  }
+
+  protected handleTimeCalculatorInputKeydown(
+    kind: TimeCalculatorInputKind,
+    unit: TimeCalculatorUnit,
+    event: KeyboardEvent,
+  ): void {
+    const input = event.target as HTMLInputElement;
+
+    if (/^\d$/.test(event.key)) {
+      event.preventDefault();
+      const buffer = input.dataset['timeCalculatorBuffer'] ?? '';
+      const nextBuffer = `${buffer}${event.key}`.slice(-2);
+
+      input.dataset['timeCalculatorBuffer'] = nextBuffer;
+      this.setTimeCalculatorPart(kind, unit, Number.parseInt(nextBuffer, 10));
+      window.setTimeout(() => input.select());
+      return;
+    }
+
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.preventDefault();
+      input.dataset['timeCalculatorBuffer'] = '';
+      this.setTimeCalculatorPart(kind, unit, 0);
+      window.setTimeout(() => input.select());
+      return;
+    }
+
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      input.dataset['timeCalculatorBuffer'] = '';
+      const currentParts =
+        kind === 'base' ? this.timeCalculatorBase() : this.timeCalculatorDuration();
+      const delta = event.key === 'ArrowUp' ? 1 : -1;
+
+      this.setTimeCalculatorPart(kind, unit, currentParts[unit] + delta);
+      window.setTimeout(() => input.select());
+    }
+  }
+
+  protected updateTimeCalculatorPart(
+    kind: TimeCalculatorInputKind,
+    unit: TimeCalculatorUnit,
+    event: Event,
+  ): void {
+    const input = event.target as HTMLInputElement;
+
+    input.dataset['timeCalculatorBuffer'] = '';
+    this.setTimeCalculatorPart(kind, unit, this.parseTimeCalculatorInput(input.value));
+  }
+
+  protected formatTimeCalculatorPart(value: number): string {
+    return value.toString().padStart(2, '0');
+  }
+
   ngOnDestroy(): void {
     window.clearInterval(this.intervalId);
+  }
+
+  private createCurrentTimeParts(): TimeCalculatorParts {
+    const current = new Date();
+
+    return {
+      hours: current.getHours(),
+      minutes: current.getMinutes(),
+      seconds: current.getSeconds(),
+    };
+  }
+
+  private parseTimeCalculatorInput(value: string): number {
+    const parsedValue = Number.parseInt(value.replace(/\D/g, ''), 10);
+
+    return Number.isFinite(parsedValue) ? parsedValue : 0;
+  }
+
+  private setTimeCalculatorPart(
+    kind: TimeCalculatorInputKind,
+    unit: TimeCalculatorUnit,
+    value: number,
+  ): void {
+    const maximum = this.getTimeCalculatorMaximum(kind, unit);
+    const nextValue = Math.max(0, Math.min(maximum, value));
+    const targetSignal = kind === 'base' ? this.timeCalculatorBase : this.timeCalculatorDuration;
+
+    targetSignal.update((parts) => ({
+      ...parts,
+      [unit]: nextValue,
+    }));
+  }
+
+  private getTimeCalculatorMaximum(
+    kind: TimeCalculatorInputKind,
+    unit: TimeCalculatorUnit,
+  ): number {
+    if (unit !== 'hours') {
+      return 59;
+    }
+
+    return kind === 'base' ? 23 : 99;
+  }
+
+  private getTimePartsTotalSeconds(parts: TimeCalculatorParts): number {
+    return parts.hours * 3_600 + parts.minutes * 60 + parts.seconds;
+  }
+
+  private getTimePartsFromSeconds(totalSeconds: number): TimeCalculatorParts {
+    const hours = Math.floor(totalSeconds / 3_600);
+    const minutes = Math.floor((totalSeconds % 3_600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return { hours, minutes, seconds };
+  }
+
+  private normalizeDaySeconds(totalSeconds: number): number {
+    return ((totalSeconds % this.secondsPerDay) + this.secondsPerDay) % this.secondsPerDay;
   }
 
   private mapCalculatorKeyboardKey(key: string): string | null {
