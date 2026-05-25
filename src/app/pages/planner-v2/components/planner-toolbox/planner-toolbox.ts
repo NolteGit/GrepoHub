@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  HostListener,
   computed,
   inject,
   input,
@@ -10,6 +11,7 @@ import {
 } from '@angular/core';
 
 import { referenceQuickLinks, type ReferenceQuickLink } from '../../../../data/reference-documents';
+import { formatNumber as formatCalculatorNumber } from '../../../../utils/toolbox-calculator.util';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { TranslationService } from '../../../../services/translation.service';
 import { GhButton } from '../../../../shared/ui/gh-button/gh-button';
@@ -43,6 +45,11 @@ type ToolboxQueueItem = {
   readonly time: string;
 };
 
+type CalculatorHistoryItem = {
+  readonly expression: string;
+  readonly result: string;
+};
+
 type ToolboxQuickLink = ReferenceQuickLink & {
   readonly href: string;
 };
@@ -67,6 +74,14 @@ export class PlannerToolbox implements OnDestroy {
   private readonly intervalId = window.setInterval(() => this.now.set(new Date()), 30_000);
 
   protected readonly calculatorMode = signal<ToolboxCalculatorMode>('calculator');
+  private readonly calculatorExpression = signal('');
+  private readonly calculatorWasEvaluated = signal(false);
+  protected readonly calculatorHistory = signal<readonly CalculatorHistoryItem[]>([]);
+
+  protected readonly calculatorDisplay = computed(() => this.calculatorExpression() || '0');
+  protected readonly calculatorDisplaySize = computed(() =>
+    this.calculatorDisplay().length > 12 ? 'text-base' : 'text-lg',
+  );
 
   protected readonly clockTime = computed(() =>
     new Intl.DateTimeFormat(undefined, {
@@ -213,12 +228,402 @@ export class PlannerToolbox implements OnDestroy {
     this.actionSelected.emit(action.id);
   }
 
+  @HostListener('document:keydown', ['$event'])
+  protected handleCalculatorKeyboard(event: KeyboardEvent): void {
+    if (this.calculatorMode() !== 'calculator' || this.isEditableKeyboardTarget(event.target)) {
+      return;
+    }
+
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      this.deleteCalculatorLastCharacter();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.clearCalculator();
+      return;
+    }
+
+    const calculatorKey = this.mapCalculatorKeyboardKey(event.key);
+
+    if (!calculatorKey) {
+      return;
+    }
+
+    event.preventDefault();
+    this.blurFocusedCalculatorButton();
+    this.pressCalculatorKey(calculatorKey);
+  }
+
+  protected pressCalculatorKey(key: string): void {
+    if (key === 'C') {
+      this.clearCalculator();
+      return;
+    }
+
+    if (key === '=') {
+      this.resolveCalculator();
+      return;
+    }
+
+    if (key === '(' || key === ')') {
+      this.enterCalculatorParenthesis(key);
+      return;
+    }
+
+    if (this.isCalculatorOperator(key)) {
+      this.enterCalculatorOperator(key);
+      return;
+    }
+
+    this.enterCalculatorValue(key);
+  }
+
   protected selectCalculatorMode(mode: ToolboxCalculatorMode): void {
     this.calculatorMode.set(mode);
   }
 
   ngOnDestroy(): void {
     window.clearInterval(this.intervalId);
+  }
+
+  private mapCalculatorKeyboardKey(key: string): string | null {
+    if (/^\d$/.test(key)) {
+      return key;
+    }
+
+    if (key === '.' || key === ',') {
+      return '.';
+    }
+
+    if (key === '+') {
+      return '+';
+    }
+
+    if (key === '-' || key === '−') {
+      return '−';
+    }
+
+    if (key === '*') {
+      return '×';
+    }
+
+    if (key === '/') {
+      return '÷';
+    }
+
+    if (key === '(' || key === ')') {
+      return key;
+    }
+
+    if (key === '=' || key === 'Enter') {
+      return '=';
+    }
+
+    return null;
+  }
+
+  private isEditableKeyboardTarget(target: EventTarget | null): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    const tagName = target.tagName.toLowerCase();
+
+    return (
+      tagName === 'input' ||
+      tagName === 'textarea' ||
+      tagName === 'select' ||
+      target.isContentEditable ||
+      target.closest('[contenteditable="true"]') !== null
+    );
+  }
+
+  private blurFocusedCalculatorButton(): void {
+    const activeElement = document.activeElement;
+
+    if (activeElement instanceof HTMLElement && activeElement.closest('app-gh-button')) {
+      activeElement.blur();
+    }
+  }
+
+  private clearCalculator(): void {
+    this.calculatorExpression.set('');
+    this.calculatorWasEvaluated.set(false);
+  }
+
+  private deleteCalculatorLastCharacter(): void {
+    if (this.calculatorWasEvaluated()) {
+      this.clearCalculator();
+      return;
+    }
+
+    const expression = this.calculatorExpression();
+
+    if (!expression) {
+      return;
+    }
+
+    const trimmedExpression = expression.trimEnd();
+
+    if (this.endsWithOperator(trimmedExpression)) {
+      this.calculatorExpression.set(trimmedExpression.slice(0, -1).trimEnd());
+      return;
+    }
+
+    this.calculatorExpression.set(trimmedExpression.slice(0, -1));
+  }
+
+  private addCalculatorHistory(expression: string, result: string): void {
+    this.calculatorHistory.update((history) => [{ expression, result }, ...history].slice(0, 2));
+  }
+
+  private enterCalculatorValue(value: string): void {
+    const expression = this.calculatorWasEvaluated() ? '' : this.calculatorExpression();
+    const lastNumber = this.getLastNumberSegment(expression);
+
+    if (value === '.' && lastNumber.includes('.')) {
+      return;
+    }
+
+    if (
+      value === '.' &&
+      (!lastNumber || this.endsWithOperator(expression) || expression.endsWith('('))
+    ) {
+      this.calculatorExpression.set(`${expression}0.`);
+      this.calculatorWasEvaluated.set(false);
+      return;
+    }
+
+    if (lastNumber === '0' && value !== '.' && !expression.endsWith('.')) {
+      this.calculatorExpression.set(`${expression.slice(0, -1)}${value}`);
+      this.calculatorWasEvaluated.set(false);
+      return;
+    }
+
+    if (expression.endsWith(')')) {
+      this.calculatorExpression.set(`${expression} × ${value}`);
+      this.calculatorWasEvaluated.set(false);
+      return;
+    }
+
+    this.calculatorExpression.set(`${expression}${value}`);
+    this.calculatorWasEvaluated.set(false);
+  }
+
+  private enterCalculatorOperator(operator: string): void {
+    const expression = this.calculatorExpression();
+
+    if (!expression) {
+      if (operator === '−') {
+        this.calculatorExpression.set('-');
+      }
+      return;
+    }
+
+    if (expression === '-') {
+      return;
+    }
+
+    if (this.endsWithOperator(expression)) {
+      this.calculatorExpression.set(`${expression.trimEnd().slice(0, -1)}${operator} `);
+      this.calculatorWasEvaluated.set(false);
+      return;
+    }
+
+    if (expression.endsWith('(')) {
+      if (operator === '−') {
+        this.calculatorExpression.set(`${expression}-`);
+      }
+      return;
+    }
+
+    this.calculatorExpression.set(`${expression} ${operator} `);
+    this.calculatorWasEvaluated.set(false);
+  }
+
+  private enterCalculatorParenthesis(parenthesis: string): void {
+    const expression = this.calculatorWasEvaluated() ? '' : this.calculatorExpression();
+
+    if (parenthesis === '(') {
+      if (!expression || this.endsWithOperator(expression) || expression.endsWith('(')) {
+        this.calculatorExpression.set(`${expression}(`);
+      } else {
+        this.calculatorExpression.set(`${expression} × (`);
+      }
+      this.calculatorWasEvaluated.set(false);
+      return;
+    }
+
+    if (
+      this.getOpenParenthesisCount(expression) <= 0 ||
+      this.endsWithOperator(expression) ||
+      expression.endsWith('(')
+    ) {
+      return;
+    }
+
+    this.calculatorExpression.set(`${expression})`);
+    this.calculatorWasEvaluated.set(false);
+  }
+
+  private resolveCalculator(): void {
+    const expression = this.calculatorExpression();
+
+    if (!expression || this.endsWithOperator(expression) || expression.endsWith('(')) {
+      return;
+    }
+
+    const result = this.evaluateCalculatorExpression(expression);
+
+    if (result === null) {
+      this.calculatorExpression.set('0');
+      this.calculatorWasEvaluated.set(true);
+      return;
+    }
+
+    const formattedResult = formatCalculatorNumber(result);
+
+    this.addCalculatorHistory(expression, formattedResult);
+    this.calculatorExpression.set(formattedResult);
+    this.calculatorWasEvaluated.set(true);
+  }
+
+  private evaluateCalculatorExpression(expression: string): number | null {
+    const tokens = this.tokenizeCalculatorExpression(expression);
+    let index = 0;
+
+    const parseExpression = (): number | null => {
+      let value = parseTerm();
+
+      while (value !== null && (tokens[index] === '+' || tokens[index] === '−')) {
+        const operator = tokens[index];
+        index += 1;
+        const right = parseTerm();
+
+        if (right === null) {
+          return null;
+        }
+
+        value = operator === '+' ? value + right : value - right;
+      }
+
+      return value;
+    };
+
+    const parseTerm = (): number | null => {
+      let value = parseFactor();
+
+      while (value !== null && (tokens[index] === '×' || tokens[index] === '÷')) {
+        const operator = tokens[index];
+        index += 1;
+        const right = parseFactor();
+
+        if (right === null) {
+          return null;
+        }
+
+        value = operator === '×' ? value * right : right === 0 ? 0 : value / right;
+      }
+
+      return value;
+    };
+
+    const parseFactor = (): number | null => {
+      const token = tokens[index];
+
+      if (!token) {
+        return null;
+      }
+
+      if (token === '(') {
+        index += 1;
+        const value = parseExpression();
+
+        if (tokens[index] !== ')') {
+          return null;
+        }
+
+        index += 1;
+        return value;
+      }
+
+      const value = Number(token);
+
+      if (!Number.isFinite(value)) {
+        return null;
+      }
+
+      index += 1;
+      return value;
+    };
+
+    const result = parseExpression();
+
+    return result !== null && index === tokens.length ? result : null;
+  }
+
+  private tokenizeCalculatorExpression(expression: string): readonly string[] {
+    const tokens: string[] = [];
+    const compactExpression = expression.replace(/\s+/g, '').replace(/-/g, '−');
+    let index = 0;
+
+    while (index < compactExpression.length) {
+      const character = compactExpression[index];
+      const previousToken = tokens[tokens.length - 1];
+      const isUnaryMinus =
+        character === '−' &&
+        (!previousToken || previousToken === '(' || this.isCalculatorOperator(previousToken));
+
+      if (/[0-9.]/.test(character) || isUnaryMinus) {
+        let numberText = isUnaryMinus ? '-' : '';
+        index += isUnaryMinus ? 1 : 0;
+
+        while (index < compactExpression.length && /[0-9.]/.test(compactExpression[index])) {
+          numberText += compactExpression[index];
+          index += 1;
+        }
+
+        tokens.push(numberText);
+        continue;
+      }
+
+      if (this.isCalculatorOperator(character) || character === '(' || character === ')') {
+        tokens.push(character);
+      }
+
+      index += 1;
+    }
+
+    return tokens;
+  }
+
+  private getLastNumberSegment(expression: string): string {
+    return expression.match(/-?\d*\.?\d*$/)?.[0] ?? '';
+  }
+
+  private endsWithOperator(expression: string): boolean {
+    return this.isCalculatorOperator(expression.trimEnd().slice(-1));
+  }
+
+  private isCalculatorOperator(value: string): boolean {
+    return value === '+' || value === '−' || value === '×' || value === '÷';
+  }
+
+  private getOpenParenthesisCount(expression: string): number {
+    return [...expression].reduce((balance, character) => {
+      if (character === '(') {
+        return balance + 1;
+      }
+
+      if (character === ')') {
+        return balance - 1;
+      }
+
+      return balance;
+    }, 0);
   }
 
   private getQuickLinkHref(link: ReferenceQuickLink, language: string): string {

@@ -100,16 +100,33 @@
 
     <div class="grid h-[14.75rem] overflow-hidden">
       @if (calculatorMode() === 'calculator') {
-        <div class="grid h-full grid-rows-[auto_1fr] gap-3">
+        <div class="grid h-full grid-rows-[auto_1fr] gap-2">
           <div
-            class="border-b border-[var(--gh-border-soft)] px-1 py-2 text-right text-2xl font-extrabold text-[var(--gh-text)]"
+            class="grid h-[3.25rem] content-end gap-0.5 overflow-hidden border-b border-[var(--gh-border-soft)] px-1 py-0.5 text-right"
           >
-            0
+            <div
+              class="grid gap-0.5 text-[0.55rem] font-semibold leading-none text-[var(--gh-muted)]"
+            >
+              @for (entry of calculatorHistory(); track entry.expression + entry.result) {
+                <span class="truncate">{{ entry.expression }} = {{ entry.result }}</span>
+              }
+            </div>
+            <strong
+              class="truncate font-extrabold leading-tight text-[var(--gh-text)]"
+              [class]="calculatorDisplaySize()"
+            >
+              {{ calculatorDisplay() }}
+            </strong>
           </div>
 
           <div class="grid grid-cols-4 content-start gap-1">
             @for (key of calculatorKeys; track key) {
-              <app-gh-button size="sm" [variant]="$last ? 'gold' : 'default'" [wide]="true">
+              <app-gh-button
+                size="sm"
+                [variant]="$last ? 'gold' : 'default'"
+                [wide]="true"
+                (click)="pressCalculatorKey(key)"
+              >
                 {{ key }}
               </app-gh-button>
             }

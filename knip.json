@@ -1,10 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignoreFiles": [
-    "src/app/utils/toolbox-calculator.util.ts",
-    "src/styles.css",
-    "src/app/shared/ui/gh-tile-shell/gh-tile-shell.ts"
-  ],
+  "ignoreFiles": ["src/styles.css", "src/app/shared/ui/gh-tile-shell/gh-tile-shell.ts"],
   "ignoreIssues": {
     "src/app/data/asset-paths.ts": ["exports", "types"],
     "src/app/data/academy-research-presets.ts": ["exports"],
