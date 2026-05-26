@@ -48,7 +48,7 @@
 </section>
 
 <section
-  class="mb-3 grid grid-cols-[minmax(11rem,1fr)_minmax(18rem,22rem)_minmax(11rem,1fr)] items-stretch gap-3 max-[86rem]:grid-cols-1"
+  class="mb-3 grid grid-cols-4 items-stretch gap-3 max-[86rem]:grid-cols-1"
   [attr.aria-label]="'plannerV2.specialBuildingLabel' | translate: 'Special buildings'"
 >
   @if (specialSlots()[0]; as slot) {
@@ -127,7 +127,7 @@
     </app-gh-panel>
   }
 
-  <div class="grid min-w-0 place-items-center">
+  <div class="col-span-2 grid min-w-0 place-items-center max-[86rem]:col-span-1">
     @if (heroBuilding(); as building) {
       <app-planner-building-tile
         class="w-full max-w-[22rem]"
