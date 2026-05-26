@@ -49,6 +49,7 @@ export type CalculatorButton = {
 export type QueuedStopwatch = {
   id: string;
   label: string;
+  createdAt?: number;
   elapsedMs: number;
   startedAt: number;
   running: boolean;
@@ -57,6 +58,7 @@ export type QueuedStopwatch = {
 export type QueuedCountdown = {
   id: string;
   label: string;
+  createdAt?: number;
   remainingMs: number;
   deadline: number;
   running: boolean;
@@ -65,6 +67,7 @@ export type QueuedCountdown = {
 export type QueuedAlarm = {
   id: string;
   label: string;
+  createdAt?: number;
   time: string;
   deadline: number;
   running: boolean;

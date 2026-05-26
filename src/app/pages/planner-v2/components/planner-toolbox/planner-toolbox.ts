@@ -14,9 +14,11 @@ import { referenceQuickLinks, type ReferenceQuickLink } from '../../../../data/r
 import { formatNumber as formatCalculatorNumber } from '../../../../utils/toolbox-calculator.util';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { TranslationService } from '../../../../services/translation.service';
+import { ToolboxTimerService } from '../../../../services/toolbox-timer.service';
 import { GhButton } from '../../../../shared/ui/gh-button/gh-button';
 import { GhIconButton } from '../../../../shared/ui/gh-icon-button/gh-icon-button';
 import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
+import type { ActiveTimerItem } from '../../../../models/toolbox.models';
 import type { PlannerHeaderActionId } from '../planner-header/planner-header';
 import type { PlannerMode } from '../planner-mode-switch/planner-mode-switch';
 
@@ -39,10 +41,24 @@ type ToolboxCalculatorTab = {
   readonly fallback: string;
 };
 
-type ToolboxQueueItem = {
+type ToolboxReminderMode = 'alarm' | 'timer' | 'stopwatch';
+
+type ToolboxReminderModeTab = {
+  readonly id: ToolboxReminderMode;
   readonly labelKey: string;
   readonly fallback: string;
+};
+
+type ToolboxReminderTimerPreset = {
+  readonly id: string;
+  readonly labelKey: string;
+  readonly fallback: string;
+  readonly seconds: number;
+};
+
+type ToolboxReminderAlarmPreset = {
   readonly time: string;
+  readonly label: string;
 };
 
 type CalculatorHistoryItem = {
@@ -86,6 +102,7 @@ export class PlannerToolbox implements OnDestroy {
   protected readonly githubHref = 'https://github.com/Noltenius/GrepoHub';
 
   private readonly translationService = inject(TranslationService);
+  private readonly timerService = inject(ToolboxTimerService);
   private readonly now = signal(new Date());
   private readonly intervalId = window.setInterval(() => this.now.set(new Date()), 30_000);
   private readonly secondsPerDay = 86_400;
@@ -103,6 +120,15 @@ export class PlannerToolbox implements OnDestroy {
     seconds: 0,
   });
   protected readonly timeCalculatorOperation = signal<TimeCalculatorOperation>('add');
+  protected readonly reminderDialogOpen = signal(false);
+  protected readonly reminderMode = signal<ToolboxReminderMode>('timer');
+  protected readonly reminderName = signal('');
+  protected readonly reminderTimerDuration = signal<TimeCalculatorParts>({
+    hours: 0,
+    minutes: 5,
+    seconds: 0,
+  });
+  protected readonly reminderAlarmTime = signal<TimeCalculatorParts>(this.createCurrentAlarmParts());
 
   protected readonly calculatorDisplay = computed(() => this.calculatorExpression() || '0');
   protected readonly calculatorDisplaySize = computed(() =>
@@ -153,6 +179,37 @@ export class PlannerToolbox implements OnDestroy {
     return 'same day';
   });
 
+  protected readonly queueItems = this.timerService.overviewItems;
+  protected readonly reminderTimerDurationDisplay = computed(() =>
+    this.formatReminderTimeParts(this.reminderTimerDuration()),
+  );
+  protected readonly reminderAlarmTimeValue = computed(() => {
+    const time = this.reminderAlarmTime();
+
+    return `${this.formatTimeCalculatorPart(time.hours)}:${this.formatTimeCalculatorPart(time.minutes)}`;
+  });
+  protected readonly reminderDefaultNameKey = computed(() =>
+    this.getReminderDefaultNameKey(this.reminderMode()),
+  );
+  protected readonly reminderDefaultNameFallback = computed(() =>
+    this.getReminderDefaultNameFallback(this.reminderMode()),
+  );
+  protected readonly reminderModeTitleKey = computed(() =>
+    this.getReminderModeTitleKey(this.reminderMode()),
+  );
+  protected readonly reminderModeTitleFallback = computed(() =>
+    this.getReminderModeTitleFallback(this.reminderMode()),
+  );
+  protected readonly reminderPrimaryActionKey = computed(() =>
+    this.reminderMode() === 'alarm' ? 'toolbox.reminder.activate' : 'toolbox.queue.start',
+  );
+  protected readonly reminderPrimaryActionFallback = computed(() =>
+    this.reminderMode() === 'alarm' ? 'Activate' : 'Start',
+  );
+  protected readonly reminderCanSubmit = computed(() =>
+    this.reminderMode() === 'timer' ? this.getReminderDurationMs() > 0 : true,
+  );
+
   protected readonly clockTime = computed(() =>
     new Intl.DateTimeFormat(undefined, {
       hour: '2-digit',
@@ -191,6 +248,64 @@ export class PlannerToolbox implements OnDestroy {
       labelKey: 'plannerV2.toolbox.calculator.tab.time',
       fallback: 'TimeCalc',
     },
+  ];
+
+  protected readonly reminderModeTabs: readonly ToolboxReminderModeTab[] = [
+    {
+      id: 'alarm',
+      labelKey: 'toolbox.reminder.mode.alarm',
+      fallback: 'Alarm',
+    },
+    {
+      id: 'timer',
+      labelKey: 'toolbox.reminder.mode.timer',
+      fallback: 'Timer',
+    },
+    {
+      id: 'stopwatch',
+      labelKey: 'toolbox.reminder.mode.stopwatch',
+      fallback: 'Stopwatch',
+    },
+  ];
+
+  protected readonly reminderTimerPresets: readonly ToolboxReminderTimerPreset[] = [
+    {
+      id: 'oneMinute',
+      labelKey: 'toolbox.reminder.preset.oneMinute',
+      fallback: '1 min',
+      seconds: 60,
+    },
+    {
+      id: 'fiveMinutes',
+      labelKey: 'toolbox.reminder.preset.fiveMinutes',
+      fallback: '5 min',
+      seconds: 300,
+    },
+    {
+      id: 'tenMinutes',
+      labelKey: 'toolbox.reminder.preset.tenMinutes',
+      fallback: '10 min',
+      seconds: 600,
+    },
+    {
+      id: 'thirtyMinutes',
+      labelKey: 'toolbox.reminder.preset.thirtyMinutes',
+      fallback: '30 min',
+      seconds: 1_800,
+    },
+    {
+      id: 'oneHour',
+      labelKey: 'toolbox.reminder.preset.oneHour',
+      fallback: '1 hour',
+      seconds: 3_600,
+    },
+  ];
+
+  protected readonly reminderAlarmPresets: readonly ToolboxReminderAlarmPreset[] = [
+    { time: '07:00', label: '07:00' },
+    { time: '11:00', label: '11:00' },
+    { time: '21:59', label: '21:59' },
+    { time: '23:00', label: '23:00' },
   ];
 
   protected readonly calculatorKeys = [
@@ -288,23 +403,6 @@ export class PlannerToolbox implements OnDestroy {
     }));
   });
 
-  protected readonly queueItems: readonly ToolboxQueueItem[] = [
-    {
-      labelKey: 'plannerV2.toolbox.demoQueue.farmUpgrade',
-      fallback: 'Farm upgrade',
-      time: '21:45',
-    },
-    {
-      labelKey: 'plannerV2.toolbox.demoQueue.barracksUpgrade',
-      fallback: 'Barracks upgrade',
-      time: '01:12:30',
-    },
-    {
-      labelKey: 'plannerV2.toolbox.demoQueue.marketplaceUpgrade',
-      fallback: 'Marketplace upgrade',
-      time: '03:30:00',
-    },
-  ];
 
   protected selectAction(action: ToolboxActionButton): void {
     if (action.disabled) {
@@ -316,6 +414,15 @@ export class PlannerToolbox implements OnDestroy {
 
   @HostListener('document:keydown', ['$event'])
   protected handleCalculatorKeyboard(event: KeyboardEvent): void {
+    if (this.reminderDialogOpen()) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        this.closeReminderDialog();
+      }
+
+      return;
+    }
+
     if (this.calculatorMode() !== 'calculator' || this.isEditableKeyboardTarget(event.target)) {
       return;
     }
@@ -341,6 +448,165 @@ export class PlannerToolbox implements OnDestroy {
     event.preventDefault();
     this.blurFocusedCalculatorButton();
     this.pressCalculatorKey(calculatorKey);
+  }
+
+  protected openReminderDialog(): void {
+    this.reminderMode.set('timer');
+    this.reminderName.set('');
+    this.reminderTimerDuration.set({ hours: 0, minutes: 5, seconds: 0 });
+    this.reminderAlarmTime.set(this.createCurrentAlarmParts());
+    this.reminderDialogOpen.set(true);
+  }
+
+  protected closeReminderDialog(): void {
+    this.reminderDialogOpen.set(false);
+  }
+
+  protected selectReminderMode(mode: ToolboxReminderMode): void {
+    this.reminderMode.set(mode);
+  }
+
+  protected getReminderModeTitleKey(mode: ToolboxReminderMode): string {
+    return (
+      this.reminderModeTabs.find((tab) => tab.id === mode)?.labelKey ??
+      'toolbox.reminder.mode.timer'
+    );
+  }
+
+  protected getReminderModeTitleFallback(mode: ToolboxReminderMode): string {
+    return this.reminderModeTabs.find((tab) => tab.id === mode)?.fallback ?? 'Timer';
+  }
+
+  protected updateReminderName(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    this.reminderName.set(input.value);
+  }
+
+  protected handleReminderTimerInputKeydown(
+    unit: TimeCalculatorUnit,
+    event: KeyboardEvent,
+  ): void {
+    const input = event.target as HTMLInputElement;
+
+    if (/^\d$/.test(event.key)) {
+      event.preventDefault();
+      const buffer = input.dataset['timeCalculatorBuffer'] ?? '';
+      const nextBuffer = `${buffer}${event.key}`.slice(-2);
+
+      input.dataset['timeCalculatorBuffer'] = nextBuffer;
+      this.setReminderDurationPart(unit, Number.parseInt(nextBuffer, 10));
+      window.setTimeout(() => input.select());
+      return;
+    }
+
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.preventDefault();
+      input.dataset['timeCalculatorBuffer'] = '';
+      this.setReminderDurationPart(unit, 0);
+      window.setTimeout(() => input.select());
+      return;
+    }
+
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      input.dataset['timeCalculatorBuffer'] = '';
+      const delta = event.key === 'ArrowUp' ? 1 : -1;
+
+      this.setReminderDurationPart(unit, this.reminderTimerDuration()[unit] + delta);
+      window.setTimeout(() => input.select());
+    }
+  }
+
+  protected updateReminderTimerPart(unit: TimeCalculatorUnit, event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    input.dataset['timeCalculatorBuffer'] = '';
+    this.setReminderDurationPart(unit, this.parseTimeCalculatorInput(input.value));
+  }
+
+  protected updateReminderAlarmTime(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const [hours = '0', minutes = '0'] = input.value.split(':');
+
+    this.reminderAlarmTime.set({
+      hours: Math.max(0, Math.min(23, this.parseTimeCalculatorInput(hours))),
+      minutes: Math.max(0, Math.min(59, this.parseTimeCalculatorInput(minutes))),
+      seconds: 0,
+    });
+  }
+
+  protected setReminderTimerPreset(seconds: number): void {
+    this.reminderTimerDuration.set(this.getTimePartsFromSeconds(seconds));
+  }
+
+  protected resetReminderTimer(): void {
+    this.reminderTimerDuration.set({ hours: 0, minutes: 5, seconds: 0 });
+  }
+
+  protected setReminderAlarmPreset(time: string): void {
+    const [hours = '0', minutes = '0'] = time.split(':');
+
+    this.reminderAlarmTime.set({
+      hours: Math.max(0, Math.min(23, this.parseTimeCalculatorInput(hours))),
+      minutes: Math.max(0, Math.min(59, this.parseTimeCalculatorInput(minutes))),
+      seconds: 0,
+    });
+  }
+
+  protected setReminderAlarmNow(): void {
+    this.reminderAlarmTime.set(this.createCurrentAlarmParts());
+  }
+
+  protected submitReminder(): void {
+    if (!this.reminderCanSubmit()) {
+      return;
+    }
+
+    const label = this.getReminderLabel();
+
+    if (this.reminderMode() === 'timer') {
+      this.timerService.addQueuedCountdown(this.getReminderDurationMs(), label);
+      this.closeReminderDialog();
+      return;
+    }
+
+    if (this.reminderMode() === 'alarm') {
+      this.timerService.armAlarm(
+        label,
+        this.reminderAlarmTimeValue(),
+        this.getNextAlarmDeadline(this.reminderAlarmTime()),
+      );
+      this.closeReminderDialog();
+      return;
+    }
+
+    this.timerService.addQueuedStopwatch(label);
+    this.closeReminderDialog();
+  }
+
+  protected toggleQueueItem(item: ActiveTimerItem): void {
+    this.timerService.toggleOverviewItem(item);
+  }
+
+  protected removeQueueItem(item: ActiveTimerItem): void {
+    this.timerService.removeOverviewItem(item);
+  }
+
+  protected queueStateFallback(tone: ActiveTimerItem['tone']): string {
+    if (tone === 'running') {
+      return 'Running';
+    }
+
+    if (tone === 'paused') {
+      return 'Paused';
+    }
+
+    if (tone === 'armed') {
+      return 'Armed';
+    }
+
+    return 'Done';
   }
 
   protected pressCalculatorKey(key: string): void {
@@ -445,6 +711,86 @@ export class PlannerToolbox implements OnDestroy {
 
   ngOnDestroy(): void {
     window.clearInterval(this.intervalId);
+  }
+
+  private createCurrentAlarmParts(): TimeCalculatorParts {
+    const current = new Date();
+
+    return {
+      hours: current.getHours(),
+      minutes: current.getMinutes(),
+      seconds: 0,
+    };
+  }
+
+  private getReminderDurationMs(): number {
+    return this.getTimePartsTotalSeconds(this.reminderTimerDuration()) * 1000;
+  }
+
+  private getReminderLabel(): string {
+    const label = this.reminderName().trim();
+
+    return label || this.getTranslatedReminderDefaultName(this.reminderMode());
+  }
+
+  private getTranslatedReminderDefaultName(mode: ToolboxReminderMode): string {
+    return this.translationService.translate(
+      this.getReminderDefaultNameKey(mode),
+      this.getReminderDefaultNameFallback(mode),
+    );
+  }
+
+  private getReminderDefaultNameKey(mode: ToolboxReminderMode): string {
+    if (mode === 'alarm') {
+      return 'toolbox.queue.defaultAlarm';
+    }
+
+    if (mode === 'stopwatch') {
+      return 'toolbox.queue.defaultStopwatch';
+    }
+
+    return 'toolbox.queue.defaultTimer';
+  }
+
+  private getReminderDefaultNameFallback(mode: ToolboxReminderMode): string {
+    if (mode === 'alarm') {
+      return 'Alarm';
+    }
+
+    if (mode === 'stopwatch') {
+      return 'Stopwatch';
+    }
+
+    return 'Timer';
+  }
+
+  private formatReminderTimeParts(parts: TimeCalculatorParts): string {
+    return `${this.formatTimeCalculatorPart(parts.hours)}:${this.formatTimeCalculatorPart(
+      parts.minutes,
+    )}:${this.formatTimeCalculatorPart(parts.seconds)}`;
+  }
+
+  private setReminderDurationPart(unit: TimeCalculatorUnit, value: number): void {
+    const maximum = unit === 'hours' ? 99 : 59;
+    const nextValue = Math.max(0, Math.min(maximum, value));
+
+    this.reminderTimerDuration.update((parts) => ({
+      ...parts,
+      [unit]: nextValue,
+    }));
+  }
+
+  private getNextAlarmDeadline(parts: TimeCalculatorParts): number {
+    const now = new Date();
+    const deadline = new Date(now);
+
+    deadline.setHours(parts.hours, parts.minutes, 0, 0);
+
+    if (deadline.getTime() <= now.getTime()) {
+      deadline.setDate(deadline.getDate() + 1);
+    }
+
+    return deadline.getTime();
   }
 
   private createCurrentTimeParts(): TimeCalculatorParts {

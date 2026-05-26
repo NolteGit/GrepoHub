@@ -8,6 +8,12 @@ import type {
 } from '../models/toolbox.models';
 import { formatDurationMs } from '../utils/toolbox-time.util';
 
+type StoredTimerQueueState = {
+  readonly queuedCountdowns?: readonly QueuedCountdown[];
+  readonly queuedStopwatches?: readonly QueuedStopwatch[];
+  readonly queuedAlarms?: readonly QueuedAlarm[];
+};
+
 @Injectable({ providedIn: 'root' })
 export class ToolboxTimerService {
   readonly countdownRemainingMs = signal<number | null>(null);
@@ -24,10 +30,26 @@ export class ToolboxTimerService {
     this.queueDisplayTick();
 
     return [
-      ...this.queuedCountdowns().map((countdown) => this.queuedCountdownItem(countdown)),
-      ...this.queuedAlarms().map((alarm) => this.queuedAlarmItem(alarm)),
-      ...this.queuedStopwatches().map((stopwatch) => this.queuedStopwatchItem(stopwatch)),
-    ];
+      ...this.queuedCountdowns().map((countdown) => ({
+        createdAt: countdown.createdAt ?? 0,
+        item: this.queuedCountdownItem(countdown),
+      })),
+      ...this.queuedAlarms().map((alarm) => ({
+        createdAt: alarm.createdAt ?? 0,
+        item: this.queuedAlarmItem(alarm),
+      })),
+      ...this.queuedStopwatches().map((stopwatch) => ({
+        createdAt: stopwatch.createdAt ?? 0,
+        item: this.queuedStopwatchItem(stopwatch),
+      })),
+    ]
+      .sort((left, right) => {
+        const leftRank = left.item.tone === 'done' ? 0 : 1;
+        const rightRank = right.item.tone === 'done' ? 0 : 1;
+
+        return leftRank - rightRank || right.createdAt - left.createdAt;
+      })
+      .map((entry) => entry.item);
   });
 
   private countdownIntervalId: number | null = null;
@@ -36,6 +58,16 @@ export class ToolboxTimerService {
   private stopwatchStartedAt = 0;
   private lastQueueDisplaySecond = 0;
   private readonly alarmTimeoutIds = new Map<string, number>();
+  private readonly storageKey = 'grepo-hub.toolbox.timer-queue.v1';
+  private readonly persistStateOnUnload = (): void => this.persistState();
+
+  constructor() {
+    this.restoreState();
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', this.persistStateOnUnload);
+    }
+  }
 
   toggleCountdown(durationMs: number): void {
     if (this.countdownRunning()) {
@@ -87,7 +119,7 @@ export class ToolboxTimerService {
       return false;
     }
 
-    const id = `countdown-${Date.now()}`;
+    const id = this.createQueueId('countdown');
     const running = this.countdownRunning();
 
     this.queuedCountdowns.update((items) => [
@@ -95,6 +127,7 @@ export class ToolboxTimerService {
       {
         id,
         label,
+        createdAt: Date.now(),
         remainingMs,
         deadline: running ? Date.now() + remainingMs : 0,
         running,
@@ -104,6 +137,34 @@ export class ToolboxTimerService {
     this.resetCountdown();
     this.markQueueItemFresh(id);
     this.syncStopwatchInterval();
+    this.persistState();
+
+    return true;
+  }
+
+  addQueuedCountdown(durationMs: number, label: string, running = true): boolean {
+    if (durationMs <= 0) {
+      return false;
+    }
+
+    const now = Date.now();
+    const id = this.createQueueId('countdown');
+
+    this.queuedCountdowns.update((items) => [
+      ...items,
+      {
+        id,
+        label,
+        createdAt: now,
+        remainingMs: durationMs,
+        deadline: running ? now + durationMs : 0,
+        running,
+      },
+    ]);
+
+    this.markQueueItemFresh(id);
+    this.syncStopwatchInterval();
+    this.persistState();
 
     return true;
   }
@@ -149,7 +210,7 @@ export class ToolboxTimerService {
       return false;
     }
 
-    const id = `stopwatch-${Date.now()}`;
+    const id = this.createQueueId('stopwatch');
     const running = this.stopwatchRunning();
 
     this.queuedStopwatches.update((items) => [
@@ -157,6 +218,7 @@ export class ToolboxTimerService {
       {
         id,
         label,
+        createdAt: Date.now(),
         elapsedMs,
         startedAt: Date.now(),
         running,
@@ -167,6 +229,30 @@ export class ToolboxTimerService {
     this.stopwatchElapsedMs.set(0);
     this.markQueueItemFresh(id);
     this.syncStopwatchInterval();
+    this.persistState();
+
+    return true;
+  }
+
+  addQueuedStopwatch(label: string, running = true): boolean {
+    const now = Date.now();
+    const id = this.createQueueId('stopwatch');
+
+    this.queuedStopwatches.update((items) => [
+      ...items,
+      {
+        id,
+        label,
+        createdAt: now,
+        elapsedMs: 0,
+        startedAt: now,
+        running,
+      },
+    ]);
+
+    this.markQueueItemFresh(id);
+    this.syncStopwatchInterval();
+    this.persistState();
 
     return true;
   }
@@ -193,6 +279,7 @@ export class ToolboxTimerService {
     );
 
     this.syncStopwatchInterval();
+    this.persistState();
   }
 
   toggleQueuedCountdown(itemId: string): void {
@@ -215,23 +302,28 @@ export class ToolboxTimerService {
     );
 
     this.syncStopwatchInterval();
+    this.persistState();
   }
 
   removeQueuedCountdown(itemId: string): void {
     this.queuedCountdowns.update((items) => items.filter((countdown) => countdown.id !== itemId));
     this.syncStopwatchInterval();
+    this.persistState();
   }
 
   removeQueuedStopwatch(itemId: string): void {
     this.queuedStopwatches.update((items) => items.filter((stopwatch) => stopwatch.id !== itemId));
     this.syncStopwatchInterval();
+    this.persistState();
   }
 
   armAlarm(label: string, time: string, deadline: number): void {
-    const id = `alarm-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const now = Date.now();
+    const id = this.createQueueId('alarm');
     const alarm: QueuedAlarm = {
       id,
       label,
+      createdAt: now,
       time,
       deadline,
       running: true,
@@ -241,16 +333,19 @@ export class ToolboxTimerService {
     this.queuedAlarms.update((items) => [...items, alarm]);
     this.scheduleQueuedAlarm(alarm);
     this.markQueueItemFresh(id);
+    this.persistState();
   }
 
   clearAlarm(): void {
     this.clearAlarmTimeouts();
     this.queuedAlarms.set([]);
+    this.persistState();
   }
 
   removeQueuedAlarm(itemId: string): void {
     this.clearAlarmTimeout(itemId);
     this.queuedAlarms.update((items) => items.filter((alarm) => alarm.id !== itemId));
+    this.persistState();
   }
 
   removeOverviewItem(item: ActiveTimerItem): void {
@@ -287,11 +382,13 @@ export class ToolboxTimerService {
   resetQueuedCountdowns(): void {
     this.queuedCountdowns.set([]);
     this.syncStopwatchInterval();
+    this.persistState();
   }
 
   resetQueuedStopwatches(): void {
     this.queuedStopwatches.set([]);
     this.syncStopwatchInterval();
+    this.persistState();
   }
 
   currentMainStopwatchElapsedMs(): number {
@@ -364,6 +461,15 @@ export class ToolboxTimerService {
   private scheduleQueuedAlarm(alarm: QueuedAlarm): void {
     this.clearAlarmTimeout(alarm.id);
 
+    if (alarm.triggered || alarm.deadline <= Date.now()) {
+      this.queuedAlarms.update((items) =>
+        items.map((item) =>
+          item.id === alarm.id ? { ...item, running: false, triggered: true } : item,
+        ),
+      );
+      return;
+    }
+
     const timeoutId = window.setTimeout(
       () => {
         this.queuedAlarms.update((items) =>
@@ -373,6 +479,7 @@ export class ToolboxTimerService {
         );
         this.alarmTimeoutIds.delete(alarm.id);
         this.markQueueItemFresh(alarm.id);
+        this.persistState();
       },
       Math.max(0, alarm.deadline - Date.now()),
     );
@@ -436,17 +543,21 @@ export class ToolboxTimerService {
 
   private settleQueuedCountdowns(): void {
     const now = Date.now();
-    const runningCountdowns = this.queuedCountdowns();
+    const finishedIds = this.queuedCountdowns()
+      .filter((countdown) => countdown.running && countdown.deadline <= now)
+      .map((countdown) => countdown.id);
 
-    if (!runningCountdowns.some((countdown) => countdown.running && countdown.deadline <= now)) {
+    if (finishedIds.length === 0) {
       return;
     }
 
     this.queuedCountdowns.update((items) =>
       items.map((item) =>
-        item.running && item.deadline <= now ? { ...item, remainingMs: 0, running: false } : item,
+        finishedIds.includes(item.id) ? { ...item, remainingMs: 0, running: false } : item,
       ),
     );
+    finishedIds.forEach((itemId) => this.markQueueItemFresh(itemId));
+    this.persistState();
   }
 
   private updateQueueDisplayTick(): void {
@@ -489,5 +600,116 @@ export class ToolboxTimerService {
     window.setTimeout(() => {
       this.freshQueueItemIds.update((ids) => ids.filter((currentId) => currentId !== itemId));
     }, 1200);
+  }
+
+  private restoreState(): void {
+    const storedState = this.readStoredState();
+
+    if (!storedState) {
+      return;
+    }
+
+    const now = Date.now();
+
+    this.queuedCountdowns.set(
+      [...(storedState.queuedCountdowns ?? [])]
+        .filter((countdown) => countdown.id && countdown.label)
+        .map((countdown) => {
+          const remainingMs = countdown.running
+            ? Math.max(0, countdown.deadline - now)
+            : Math.max(0, countdown.remainingMs);
+          const running = Boolean(countdown.running) && remainingMs > 0;
+
+          return {
+            ...countdown,
+            createdAt: countdown.createdAt ?? now,
+            remainingMs,
+            deadline: running ? now + remainingMs : 0,
+            running,
+          };
+        }),
+    );
+
+    this.queuedStopwatches.set(
+      [...(storedState.queuedStopwatches ?? [])]
+        .filter((stopwatch) => stopwatch.id && stopwatch.label)
+        .map((stopwatch) => ({
+          ...stopwatch,
+          createdAt: stopwatch.createdAt ?? now,
+          elapsedMs: Math.max(0, stopwatch.elapsedMs),
+          startedAt: stopwatch.running ? stopwatch.startedAt || now : 0,
+          running: Boolean(stopwatch.running),
+        })),
+    );
+
+    this.queuedAlarms.set(
+      [...(storedState.queuedAlarms ?? [])]
+        .filter((alarm) => alarm.id && alarm.label)
+        .map((alarm) => {
+          const triggered = Boolean(alarm.triggered) || alarm.deadline <= now;
+
+          return {
+            ...alarm,
+            createdAt: alarm.createdAt ?? now,
+            running: !triggered && Boolean(alarm.running),
+            triggered,
+          };
+        }),
+    );
+
+    this.queuedAlarms()
+      .filter((alarm) => alarm.running)
+      .forEach((alarm) => this.scheduleQueuedAlarm(alarm));
+    this.syncStopwatchInterval();
+  }
+
+  private readStoredState(): StoredTimerQueueState | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    const rawState = localStorage.getItem(this.storageKey);
+
+    if (!rawState) {
+      return null;
+    }
+
+    try {
+      const parsedState: unknown = JSON.parse(rawState);
+
+      if (!parsedState || typeof parsedState !== 'object') {
+        return null;
+      }
+
+      return parsedState as StoredTimerQueueState;
+    } catch {
+      return null;
+    }
+  }
+
+  private persistState(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    const now = Date.now();
+    const state: StoredTimerQueueState = {
+      queuedCountdowns: this.queuedCountdowns().map((countdown) => ({
+        ...countdown,
+        remainingMs: this.queuedCountdownRemainingMs(countdown),
+      })),
+      queuedStopwatches: this.queuedStopwatches().map((stopwatch) => ({
+        ...stopwatch,
+        elapsedMs: this.queuedStopwatchElapsedMs(stopwatch),
+        startedAt: stopwatch.running ? now : stopwatch.startedAt,
+      })),
+      queuedAlarms: this.queuedAlarms(),
+    };
+
+    localStorage.setItem(this.storageKey, JSON.stringify(state));
+  }
+
+  private createQueueId(prefix: string): string {
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   }
 }
