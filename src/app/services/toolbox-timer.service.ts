@@ -234,9 +234,10 @@ export class ToolboxTimerService {
     return true;
   }
 
-  addQueuedStopwatch(label: string, running = true): boolean {
+  addQueuedStopwatch(label: string, running = true, elapsedMs = 0): boolean {
     const now = Date.now();
     const id = this.createQueueId('stopwatch');
+    const safeElapsedMs = Math.max(0, elapsedMs);
 
     this.queuedStopwatches.update((items) => [
       ...items,
@@ -244,7 +245,7 @@ export class ToolboxTimerService {
         id,
         label,
         createdAt: now,
-        elapsedMs: 0,
+        elapsedMs: safeElapsedMs,
         startedAt: now,
         running,
       },

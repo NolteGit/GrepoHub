@@ -363,7 +363,9 @@
         </div>
 
         <label class="grid min-w-0 gap-1">
-          <span class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[var(--gh-muted)]">
+          <span
+            class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+          >
             {{ 'toolbox.common.name' | translate: 'Name' }}
           </span>
           <input
@@ -376,104 +378,44 @@
           />
         </label>
 
-        <section class="grid gap-3 rounded-xl border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.32)] p-3">
-          @if (reminderMode() === 'timer') {
-            <label class="grid gap-1">
-              <span class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[var(--gh-muted)]">
-                {{ 'toolbox.reminder.timerDuration' | translate: 'Timer duration' }}
-              </span>
-              <div
-                class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1 rounded-xl border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] px-2 py-2"
-              >
-                @for (unit of timeCalculatorUnits; track unit) {
-                  <input
-                    class="min-w-0 rounded-lg border border-transparent bg-transparent px-1 py-1 text-center text-2xl font-black tabular-nums text-[var(--gh-text)] outline-none transition focus:border-[rgba(246,195,67,0.5)] focus:bg-[rgba(246,195,67,0.08)]"
-                    inputmode="numeric"
-                    maxlength="2"
-                    [attr.aria-label]="
-                      timeCalculatorUnitLabels[unit] | translate: timeCalculatorUnitFallbacks[unit]
-                    "
-                    [value]="formatTimeCalculatorPart(reminderTimerDuration()[unit])"
-                    (focus)="selectTimeCalculatorInput($event)"
-                    (click)="selectTimeCalculatorInput($event)"
-                    (keydown)="handleReminderTimerInputKeydown(unit, $event)"
-                    (input)="updateReminderTimerPart(unit, $event)"
-                  />
-                  @if (!$last) {
-                    <span class="text-sm font-black text-[var(--gh-muted)]">:</span>
-                  }
-                }
-              </div>
-            </label>
-            <div class="grid grid-cols-5 gap-1.5">
-              @for (preset of reminderTimerPresets; track preset.id) {
-                <button
-                  type="button"
-                  class="rounded-lg border border-[var(--gh-border-soft)] px-1.5 py-2 text-[0.7rem] font-black text-[var(--gh-text)] transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-                  (click)="setReminderTimerPreset(preset.seconds)"
-                >
-                  {{ preset.labelKey | translate: preset.fallback }}
-                </button>
-              }
-            </div>
-          } @else if (reminderMode() === 'alarm') {
-            <label class="grid gap-1">
-              <span class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[var(--gh-muted)]">
-                {{ 'toolbox.reminder.alarmTime' | translate: 'Alarm time' }}
-              </span>
+        <label class="grid min-w-0 gap-1">
+          <span
+            class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+          >
+            {{ reminderTimeLabelKey() | translate: reminderTimeLabelFallback() }}
+          </span>
+          <div
+            class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1 rounded-xl border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] px-2 py-3"
+          >
+            @for (unit of timeCalculatorUnits; track unit) {
               <input
-                class="gh-control h-12 w-full rounded-xl px-3 text-center text-xl font-black tabular-nums outline-none transition focus:border-[var(--gh-border)]"
-                type="time"
-                [attr.aria-label]="'toolbox.reminder.alarmTime' | translate: 'Alarm time'"
-                [value]="reminderAlarmTimeValue()"
-                (input)="updateReminderAlarmTime($event)"
+                class="min-w-0 rounded-lg border border-transparent bg-transparent px-1 py-1 text-center text-3xl font-black tabular-nums text-[var(--gh-text)] outline-none transition focus:border-[rgba(246,195,67,0.5)] focus:bg-[rgba(246,195,67,0.08)]"
+                inputmode="numeric"
+                maxlength="2"
+                [attr.aria-label]="
+                  timeCalculatorUnitLabels[unit] | translate: timeCalculatorUnitFallbacks[unit]
+                "
+                [value]="formatTimeCalculatorPart(reminderTimeParts()[unit])"
+                (focus)="selectReminderTimeInput($event)"
+                (click)="selectReminderTimeInput($event)"
+                (keydown)="handleReminderTimeInputKeydown(unit, $event)"
+                (input)="updateReminderTimePart(unit, $event)"
               />
-            </label>
-            <div class="grid grid-cols-5 gap-1.5">
-              @for (preset of reminderAlarmPresets; track preset.time) {
-                <button
-                  type="button"
-                  class="rounded-lg border border-[var(--gh-border-soft)] px-1.5 py-2 text-[0.7rem] font-black tabular-nums text-[var(--gh-text)] transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-                  (click)="setReminderAlarmPreset(preset.time)"
-                >
-                  {{ preset.label }}
-                </button>
+              @if (!$last) {
+                <span class="text-base font-black text-[var(--gh-muted)]">:</span>
               }
-              <button
-                type="button"
-                class="rounded-lg border border-[var(--gh-border-soft)] px-1.5 py-2 text-[0.7rem] font-black text-[var(--gh-gold)] transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-                (click)="setReminderAlarmNow()"
-              >
-                {{ 'plannerV2.toolbox.timeCalculator.now' | translate: 'Now' }}
-              </button>
-            </div>
-          } @else {
-            <div class="grid gap-1 text-center">
-              <span class="text-[0.65rem] font-black uppercase tracking-[0.16em] text-[var(--gh-muted)]">
-                {{ 'toolbox.reminder.stopwatchTime' | translate: 'Stopwatch time' }}
-              </span>
-              <strong class="text-4xl font-black tabular-nums text-[var(--gh-text)]">00:00:00</strong>
-            </div>
-          }
-        </section>
+            }
+          </div>
+        </label>
 
-        <div class="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            class="h-11 rounded-xl border border-[var(--gh-border)] bg-[rgba(246,195,67,0.1)] px-4 text-sm font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.16)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)] disabled:cursor-not-allowed disabled:opacity-50"
-            [disabled]="!reminderCanSubmit()"
-            (click)="submitReminder()"
-          >
-            {{ reminderPrimaryActionKey() | translate: reminderPrimaryActionFallback() }}
-          </button>
-          <button
-            type="button"
-            class="h-11 rounded-xl border border-[var(--gh-border-soft)] px-4 text-xs font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-            (click)="closeReminderDialog()"
-          >
-            {{ 'planConfig.newPlanDialog.cancel' | translate: 'Cancel' }}
-          </button>
-        </div>
+        <button
+          type="button"
+          class="h-11 rounded-xl border border-[var(--gh-border)] bg-[rgba(246,195,67,0.1)] px-4 text-sm font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.16)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)] disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="!reminderCanSubmit()"
+          (click)="submitReminder()"
+        >
+          {{ reminderPrimaryActionKey() | translate: reminderPrimaryActionFallback() }}
+        </button>
       </section>
     </div>
   }
