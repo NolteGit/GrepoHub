@@ -62,6 +62,8 @@ export class PlannerTroopSetup {
   readonly gods = input.required<readonly GodOption[]>();
   readonly units = input.required<readonly UnitTileView[]>();
   readonly transportStats = input.required<SidebarTroopTransportStats>();
+  readonly detailsVisible = input(false);
+  readonly detailsToggled = output<boolean>();
   readonly categorySelected = output<TroopCategory>();
   readonly godSelected = output<string>();
   readonly unitAmountChanged = output<{ readonly unitId: string; readonly amount: number }>();
@@ -264,6 +266,10 @@ export class PlannerTroopSetup {
   protected selectGod(event: Event): void {
     event.stopPropagation();
     this.godSelected.emit((event.target as HTMLSelectElement).value);
+  }
+
+  protected toggleDetails(event: Event): void {
+    this.detailsToggled.emit((event.target as HTMLInputElement).checked);
   }
 
   protected toggleBunks(event: Event): void {

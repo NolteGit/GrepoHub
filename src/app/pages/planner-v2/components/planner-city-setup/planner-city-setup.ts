@@ -22,6 +22,8 @@ export class PlannerCitySetup {
   readonly heroBuilding = input<BuildingTileView | null>(null);
   readonly buildings = input.required<readonly BuildingTileView[]>();
   readonly specialSlots = input.required<readonly SpecialBuildingSlotView[]>();
+  readonly detailsVisible = input(false);
+  readonly detailsToggled = output<boolean>();
   readonly buildingLevelChanged = output<{ readonly buildingId: string; readonly level: number }>();
   readonly modifierToggled = output<CityModifierToggleId>();
   readonly specialBuildingSelected = output<{
@@ -41,6 +43,10 @@ export class PlannerCitySetup {
       .map((modifierId) => modifiers.find((modifier) => modifier.id === modifierId))
       .filter((modifier): modifier is CityModifierToggle => modifier !== undefined);
   });
+
+  protected toggleDetails(event: Event): void {
+    this.detailsToggled.emit((event.target as HTMLInputElement).checked);
+  }
 
   protected specialBuildingOptions(
     slot: SpecialBuildingSlotView,

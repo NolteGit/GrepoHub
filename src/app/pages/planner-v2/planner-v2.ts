@@ -942,6 +942,8 @@ export class PlannerV2 {
     initialValue: [] as Unit[],
   });
   protected readonly activeMode = signal<PlannerMode>('city');
+  protected readonly buildingTileDetailsVisible = signal(false);
+  protected readonly unitTileDetailsVisible = signal(false);
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
   protected readonly gods = gods;
   protected readonly troopCategories = troopCategories;
@@ -1405,6 +1407,15 @@ export class PlannerV2 {
 
   protected selectMode(mode: PlannerMode): void {
     this.activeMode.set(mode);
+  }
+
+  protected setTileDetailsVisible(mode: PlannerMode, visible: boolean): void {
+    if (mode === 'city') {
+      this.buildingTileDetailsVisible.set(visible);
+      return;
+    }
+
+    this.unitTileDetailsVisible.set(visible);
   }
 
   protected selectPlan(planId: string): void {

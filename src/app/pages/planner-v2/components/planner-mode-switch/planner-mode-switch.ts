@@ -4,6 +4,11 @@ import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 export type PlannerMode = 'city' | 'troops';
 
+export type PlannerDetailsToggle = {
+  readonly mode: PlannerMode;
+  readonly visible: boolean;
+};
+
 type PlannerModeOption = {
   readonly id: PlannerMode;
   readonly labelKey: string;
@@ -18,7 +23,10 @@ type PlannerModeOption = {
 })
 export class PlannerModeSwitch {
   readonly activeMode = input.required<PlannerMode>();
+  readonly cityDetailsVisible = input(false);
+  readonly troopDetailsVisible = input(false);
   readonly modeSelected = output<PlannerMode>();
+  readonly detailsToggled = output<PlannerDetailsToggle>();
 
   protected readonly ariaLabelKey = 'plannerV2.mode.ariaLabel';
   protected readonly ariaLabelFallback = 'Planner mode';
@@ -29,5 +37,14 @@ export class PlannerModeSwitch {
 
   protected selectMode(mode: PlannerMode): void {
     this.modeSelected.emit(mode);
+  }
+
+  protected detailsVisibleForMode(mode: PlannerMode): boolean {
+    return mode === 'city' ? this.cityDetailsVisible() : this.troopDetailsVisible();
+  }
+
+  protected toggleDetails(mode: PlannerMode, event: Event): void {
+    event.stopPropagation();
+    this.detailsToggled.emit({ mode, visible: !this.detailsVisibleForMode(mode) });
   }
 }

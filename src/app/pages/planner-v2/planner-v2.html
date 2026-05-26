@@ -53,7 +53,13 @@
     <section
       class="gh-surface grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-xl"
     >
-      <app-planner-mode-switch [activeMode]="activeMode()" (modeSelected)="selectMode($event)" />
+      <app-planner-mode-switch
+        [activeMode]="activeMode()"
+        [cityDetailsVisible]="buildingTileDetailsVisible()"
+        [troopDetailsVisible]="unitTileDetailsVisible()"
+        (detailsToggled)="setTileDetailsVisible($event.mode, $event.visible)"
+        (modeSelected)="selectMode($event)"
+      />
 
       <section class="gh-scroll-area min-h-0 overflow-auto p-3">
         @if (activeMode() === 'city') {
@@ -62,6 +68,7 @@
             [heroBuilding]="cityHeroBuilding()"
             [buildings]="cityGridBuildings()"
             [specialSlots]="specialSlots()"
+            [detailsVisible]="buildingTileDetailsVisible()"
             (buildingLevelChanged)="updateBuildingLevel($event.buildingId, $event.level)"
             (modifierToggled)="toggleCityModifier($event)"
             (specialBuildingSelected)="selectSpecialBuilding($event.slotId, $event.optionId)"
@@ -75,6 +82,7 @@
             [gods]="gods"
             [units]="visibleUnits()"
             [transportStats]="troopTransportStats()"
+            [detailsVisible]="unitTileDetailsVisible()"
             (categorySelected)="selectTroopCategory($event)"
             (godSelected)="selectGod($event)"
             (unitAmountChanged)="updateUnitAmount($event.unitId, $event.amount)"

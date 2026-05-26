@@ -12,5 +12,6 @@ import type { BuildingTileView } from '../../planner-v2.models';
 })
 export class PlannerBuildingTile {
   readonly building = input.required<BuildingTileView>();
+  readonly detailsVisible = input(false);
   readonly levelChanged = output<number>();
 }

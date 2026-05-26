@@ -109,20 +109,22 @@
         }
       </div>
 
-      @if (selectedSpecialBuildingOption(slot); as selectedOption) {
-        <footer
-          class="grid min-h-[1.4rem] content-center border-t border-dashed border-[var(--gh-border-soft)] pt-1 text-[0.68rem]"
-        >
-          @if (selectedOption.value === 'none') {
-            <strong class="truncate text-[var(--gh-muted)]">
-              {{ selectedOption.effectFallback }}
-            </strong>
-          } @else {
-            <span class="truncate text-[var(--gh-muted)]">
-              {{ selectedOption.effectLabelKey | translate: selectedOption.effectFallback }}
-            </span>
-          }
-        </footer>
+      @if (detailsVisible()) {
+        @if (selectedSpecialBuildingOption(slot); as selectedOption) {
+          <footer
+            class="grid min-h-[1.4rem] content-center border-t border-dashed border-[var(--gh-border-soft)] pt-1 text-[0.68rem]"
+          >
+            @if (selectedOption.value === 'none') {
+              <strong class="truncate text-[var(--gh-muted)]">
+                {{ selectedOption.effectFallback }}
+              </strong>
+            } @else {
+              <span class="truncate text-[var(--gh-muted)]">
+                {{ selectedOption.effectLabelKey | translate: selectedOption.effectFallback }}
+              </span>
+            }
+          </footer>
+        }
       }
     </app-gh-panel>
   }
@@ -132,6 +134,7 @@
       <app-planner-building-tile
         class="w-full max-w-[22rem]"
         [building]="building"
+        [detailsVisible]="detailsVisible()"
         (levelChanged)="buildingLevelChanged.emit({ buildingId: building.id, level: $event })"
       />
     }
@@ -195,20 +198,22 @@
         }
       </div>
 
-      @if (selectedSpecialBuildingOption(slot); as selectedOption) {
-        <footer
-          class="grid min-h-[1.4rem] content-center border-t border-dashed border-[var(--gh-border-soft)] pt-1 text-[0.68rem]"
-        >
-          @if (selectedOption.value === 'none') {
-            <strong class="truncate text-[var(--gh-muted)]">
-              {{ selectedOption.effectFallback }}
-            </strong>
-          } @else {
-            <span class="truncate text-[var(--gh-muted)]">
-              {{ selectedOption.effectLabelKey | translate: selectedOption.effectFallback }}
-            </span>
-          }
-        </footer>
+      @if (detailsVisible()) {
+        @if (selectedSpecialBuildingOption(slot); as selectedOption) {
+          <footer
+            class="grid min-h-[1.4rem] content-center border-t border-dashed border-[var(--gh-border-soft)] pt-1 text-[0.68rem]"
+          >
+            @if (selectedOption.value === 'none') {
+              <strong class="truncate text-[var(--gh-muted)]">
+                {{ selectedOption.effectFallback }}
+              </strong>
+            } @else {
+              <span class="truncate text-[var(--gh-muted)]">
+                {{ selectedOption.effectLabelKey | translate: selectedOption.effectFallback }}
+              </span>
+            }
+          </footer>
+        }
       }
     </app-gh-panel>
   }
@@ -221,6 +226,7 @@
   @for (building of buildings(); track building.id) {
     <app-planner-building-tile
       [building]="building"
+      [detailsVisible]="detailsVisible()"
       (levelChanged)="buildingLevelChanged.emit({ buildingId: building.id, level: $event })"
     />
   }

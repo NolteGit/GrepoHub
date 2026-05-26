@@ -766,6 +766,8 @@
   "plannerV2.bottom.buildingLevels": "Building Levels",
   "plannerV2.bottom.activeModifiers": "Active Modifiers",
   "plannerV2.amount": "Amount",
+  "plannerV2.tile.showDetails": "Show details",
+  "plannerV2.tile.hideDetails": "Hide details",
   "plannerV2.troopSetupLabel": "Troop setup units",
   "plannerV2.stat.navalAttack": "Naval attack",
   "plannerV2.stat.defenseShort": "def",
@@ -838,5 +840,8 @@
   "plannerV2.planControls.newPrompt": "Enter a name for the new empty plan.",
   "plannerV2.planControls.createdTitle": "Plan created",
   "plannerV2.planControls.createdDetail": "Now editing: {name}.",
-  "plannerV2.planControls.deleteConfirm": "Delete \"{name}\" from this browser? Export it first if you want a backup."
+  "plannerV2.planControls.deleteConfirm": "Delete \"{name}\" from this browser? Export it first if you want a backup.",
+  "plannerV2.mode.details": "Details",
+  "plannerV2.tileDetails.header": "Tile Details",
+  "plannerV2.tileDetails.hint": "Stats / info"
 }

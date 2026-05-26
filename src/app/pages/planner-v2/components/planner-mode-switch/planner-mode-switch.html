@@ -3,15 +3,51 @@
   [attr.aria-label]="ariaLabelKey | translate: ariaLabelFallback"
 >
   @for (option of options; track option.id) {
-    <button
-      type="button"
-      class="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-transparent text-[var(--gh-text)] hover:text-[var(--gh-gold)]"
-      [class.gh-gold-fill]="activeMode() === option.id"
-      [attr.aria-pressed]="activeMode() === option.id"
-      (click)="selectMode(option.id)"
-    >
-      <span class="text-base leading-none" aria-hidden="true">{{ option.icon }}</span>
-      <strong class="text-sm font-bold">{{ option.labelKey | translate: option.fallback }}</strong>
-    </button>
+    <div class="relative grid min-w-0 rounded-lg">
+      <button
+        type="button"
+        class="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-transparent px-16 text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] max-[42rem]:px-12"
+        [class.gh-gold-fill]="activeMode() === option.id"
+        [attr.aria-pressed]="activeMode() === option.id"
+        (click)="selectMode(option.id)"
+      >
+        <span class="text-base leading-none opacity-95" aria-hidden="true">{{ option.icon }}</span>
+        <strong class="truncate text-sm font-black tracking-wide">{{
+          option.labelKey | translate: option.fallback
+        }}</strong>
+      </button>
+
+      <label
+        class="absolute left-4 top-1/2 z-10 inline-flex -translate-y-1/2 cursor-pointer items-center gap-1.5 text-[0.58rem] font-black uppercase tracking-[0.12em] opacity-70 transition hover:opacity-100 focus-within:opacity-100 max-[42rem]:left-2 max-[42rem]:gap-1"
+        [attr.title]="
+          detailsVisibleForMode(option.id)
+            ? ('plannerV2.tile.hideDetails' | translate: 'Hide details')
+            : ('plannerV2.tile.showDetails' | translate: 'Show details')
+        "
+        (click)="$event.stopPropagation()"
+      >
+        <input
+          class="peer sr-only"
+          type="checkbox"
+          [checked]="detailsVisibleForMode(option.id)"
+          [attr.aria-label]="
+            detailsVisibleForMode(option.id)
+              ? ('plannerV2.tile.hideDetails' | translate: 'Hide details')
+              : ('plannerV2.tile.showDetails' | translate: 'Show details')
+          "
+          (change)="toggleDetails(option.id, $event)"
+        />
+        <span
+          class="relative h-4 w-8 rounded-full border border-[var(--gh-border-soft)] bg-black/25 transition peer-checked:border-[rgba(212,160,55,0.45)] peer-checked:bg-[rgba(212,160,55,0.16)] after:absolute after:top-[0.1875rem] after:left-[0.1875rem] after:h-2.5 after:w-2.5 after:rounded-full after:bg-[var(--gh-muted)] after:transition after:content-[''] peer-checked:after:translate-x-4 peer-checked:after:bg-[var(--gh-gold)]"
+          aria-hidden="true"
+        ></span>
+        <span
+          class="max-[34rem]:sr-only"
+          [style.color]="activeMode() === option.id ? 'rgba(2,13,23,0.72)' : 'var(--gh-muted)'"
+        >
+          {{ 'plannerV2.mode.details' | translate: 'Details' }}
+        </span>
+      </label>
+    </div>
   }
 </nav>

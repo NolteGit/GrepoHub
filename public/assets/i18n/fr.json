@@ -766,6 +766,8 @@
   "plannerV2.bottom.buildingLevels": "Niveaux bâtiments",
   "plannerV2.bottom.activeModifiers": "Modificateurs actifs",
   "plannerV2.amount": "Quantité",
+  "plannerV2.tile.showDetails": "Afficher les détails",
+  "plannerV2.tile.hideDetails": "Masquer les détails",
   "plannerV2.troopSetupLabel": "Unités de configuration des troupes",
   "plannerV2.stat.navalAttack": "Attaque navale",
   "plannerV2.stat.defenseShort": "déf",
@@ -838,5 +840,8 @@
   "plannerV2.planControls.newPrompt": "Saisis un nom pour le nouveau plan vide.",
   "plannerV2.planControls.createdTitle": "Plan créé",
   "plannerV2.planControls.createdDetail": "Modification en cours : {name}.",
-  "plannerV2.planControls.deleteConfirm": "Supprimer \"{name}\" de ce navigateur ? Exporte-le d’abord si tu veux une sauvegarde."
+  "plannerV2.planControls.deleteConfirm": "Supprimer \"{name}\" de ce navigateur ? Exporte-le d’abord si tu veux une sauvegarde.",
+  "plannerV2.mode.details": "Détails",
+  "plannerV2.tileDetails.header": "Détails de tuile",
+  "plannerV2.tileDetails.hint": "Stats / infos"
 }

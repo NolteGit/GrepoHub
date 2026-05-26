@@ -766,6 +766,8 @@
   "plannerV2.bottom.buildingLevels": "Gebäudestufen",
   "plannerV2.bottom.activeModifiers": "Aktive Modifikatoren",
   "plannerV2.amount": "Anzahl",
+  "plannerV2.tile.showDetails": "Details anzeigen",
+  "plannerV2.tile.hideDetails": "Details ausblenden",
   "plannerV2.troopSetupLabel": "Truppen-Setup-Einheiten",
   "plannerV2.stat.navalAttack": "Seeangriff",
   "plannerV2.stat.defenseShort": "Def",
@@ -838,5 +840,8 @@
   "plannerV2.planControls.newPrompt": "Gib einen Namen für den neuen leeren Plan ein.",
   "plannerV2.planControls.createdTitle": "Plan erstellt",
   "plannerV2.planControls.createdDetail": "Jetzt in Bearbeitung: {name}.",
-  "plannerV2.planControls.deleteConfirm": "„{name}“ aus diesem Browser löschen? Exportiere den Plan vorher, wenn du ein Backup möchtest."
+  "plannerV2.planControls.deleteConfirm": "„{name}“ aus diesem Browser löschen? Exportiere den Plan vorher, wenn du ein Backup möchtest.",
+  "plannerV2.mode.details": "Details",
+  "plannerV2.tileDetails.header": "Kachel-Details",
+  "plannerV2.tileDetails.hint": "Werte / Infos"
 }

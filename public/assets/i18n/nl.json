@@ -766,6 +766,8 @@
   "plannerV2.bottom.buildingLevels": "Gebouwniveaus",
   "plannerV2.bottom.activeModifiers": "Actieve modifiers",
   "plannerV2.amount": "Aantal",
+  "plannerV2.tile.showDetails": "Details tonen",
+  "plannerV2.tile.hideDetails": "Details verbergen",
   "plannerV2.troopSetupLabel": "Troepensetup-eenheden",
   "plannerV2.stat.navalAttack": "Zeeaanval",
   "plannerV2.stat.defenseShort": "verd",
@@ -838,5 +840,8 @@
   "plannerV2.planControls.newPrompt": "Voer een naam in voor het nieuwe lege plan.",
   "plannerV2.planControls.createdTitle": "Plan aangemaakt",
   "plannerV2.planControls.createdDetail": "Nu bewerken: {name}.",
-  "plannerV2.planControls.deleteConfirm": "\"{name}\" uit deze browser verwijderen? Exporteer het eerst als je een back-up wilt."
+  "plannerV2.planControls.deleteConfirm": "\"{name}\" uit deze browser verwijderen? Exporteer het eerst als je een back-up wilt.",
+  "plannerV2.mode.details": "Details",
+  "plannerV2.tileDetails.header": "Tegeldetails",
+  "plannerV2.tileDetails.hint": "Stats / info"
 }

@@ -63,6 +63,7 @@
   @for (unit of units(); track unit.id) {
     <app-planner-unit-tile
       [unit]="unit"
+      [detailsVisible]="detailsVisible()"
       (amountChanged)="unitAmountChanged.emit({ unitId: unit.id, amount: $event })"
     />
   }

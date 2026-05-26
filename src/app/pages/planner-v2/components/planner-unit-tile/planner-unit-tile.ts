@@ -12,5 +12,6 @@ import type { UnitTileView } from '../../planner-v2.models';
 })
 export class PlannerUnitTile {
   readonly unit = input.required<UnitTileView>();
+  readonly detailsVisible = input(false);
   readonly amountChanged = output<number>();
 }
