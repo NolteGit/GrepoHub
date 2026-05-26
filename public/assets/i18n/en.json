@@ -843,5 +843,7 @@
   "plannerV2.planControls.deleteConfirm": "Delete \"{name}\" from this browser? Export it first if you want a backup.",
   "plannerV2.mode.details": "Details",
   "plannerV2.tileDetails.header": "Tile Details",
-  "plannerV2.tileDetails.hint": "Stats / info"
+  "plannerV2.tileDetails.hint": "Stats / info",
+  "plannerV2.toolbox.collapse": "Collapse toolbox",
+  "plannerV2.toolbox.expand": "Expand toolbox"
 }

@@ -843,5 +843,7 @@
   "plannerV2.planControls.deleteConfirm": "\"{name}\" uit deze browser verwijderen? Exporteer het eerst als je een back-up wilt.",
   "plannerV2.mode.details": "Details",
   "plannerV2.tileDetails.header": "Tegeldetails",
-  "plannerV2.tileDetails.hint": "Stats / info"
+  "plannerV2.tileDetails.hint": "Stats / info",
+  "plannerV2.toolbox.collapse": "Toolbox inklappen",
+  "plannerV2.toolbox.expand": "Toolbox uitklappen"
 }

@@ -1,318 +1,413 @@
 <aside
-  class="grid min-h-dvh grid-rows-[auto_auto_minmax(10rem,1fr)_auto] gap-3 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] p-3 max-[76rem]:grid-rows-[auto_auto] max-[76rem]:place-items-center max-[76rem]:px-2"
+  class="grid min-h-dvh gap-3 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] max-[76rem]:place-items-center max-[76rem]:px-2 max-[46rem]:hidden"
+  [class.p-2]="toolboxCollapsed()"
+  [class.p-3]="!toolboxCollapsed()"
+  [style.grid-template-rows]="
+    toolboxCollapsed() ? 'auto auto 1fr' : 'auto auto minmax(10rem, 1fr) auto'
+  "
 >
-  <header
-    class="grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-4 text-center"
-  >
-    <div
-      class="grid aspect-square w-28 place-items-center rounded-full border border-[var(--gh-border)] bg-[radial-gradient(circle_at_50%_34%,rgba(246,195,67,0.36),transparent_2.4rem),radial-gradient(circle,rgba(8,35,58,0.95),rgba(2,13,23,0.96))] shadow-[inset_0_0_0_0.4rem_rgba(255,255,255,0.03),var(--gh-shadow-soft)] max-[76rem]:w-14"
-      aria-hidden="true"
-    >
-      <strong class="text-3xl leading-none text-[var(--gh-gold)] max-[76rem]:text-lg">{{
-        brandInitial
-      }}</strong>
-      <span class="text-xs font-extrabold tracking-wider text-[var(--gh-text)]">{{
-        clockTime()
-      }}</span>
-    </div>
-    <time class="text-xs text-[var(--gh-text)] max-[76rem]:hidden">{{ clockDate() }}</time>
-  </header>
-
-  <section class="grid gap-2 border-b border-[var(--gh-border-soft)] pb-3 max-[76rem]:hidden">
-    <nav
-      class="grid grid-cols-4 gap-2"
-      [attr.aria-label]="quickLinksAriaKey | translate: quickLinksAriaFallback"
-    >
-      @for (link of quickLinks(); track link.id) {
-        @if (
-          link.id === 'grepodata' ||
-          link.id === 'grepolife' ||
-          link.id === 'wiki' ||
-          link.id === 'support'
-        ) {
-          <a
-            class="grid min-h-14 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-            target="_blank"
-            rel="noopener noreferrer"
-            [href]="link.href"
-            [title]="link.title"
-            [attr.aria-label]="link.title"
-          >
-            <img
-              class="max-h-10 max-w-full object-contain"
-              [src]="link.iconPath"
-              [alt]="link.title"
-            />
-          </a>
-        }
-      }
-    </nav>
-  </section>
-
-  <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
-    <header class="flex items-center justify-between gap-3">
-      <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
-        {{ queueTitleKey | translate: queueTitleFallback }}
-      </h2>
-      <app-gh-icon-button
-        size="sm"
-        variant="primary"
-        icon="+"
-        [ariaLabel]="addReminderLabelKey | translate: addReminderLabelFallback"
-        (click)="openReminderDialog()"
-      />
+  @if (toolboxCollapsed()) {
+    <header class="grid justify-items-center border-b border-[var(--gh-border-soft)] pb-3">
+      <button
+        type="button"
+        class="grid size-10 place-items-center rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] text-lg font-black text-[var(--gh-gold)] transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        [attr.aria-label]="'plannerV2.toolbox.expand' | translate: 'Expand toolbox'"
+        [attr.title]="'plannerV2.toolbox.expand' | translate: 'Expand toolbox'"
+        (click)="expandToolbox()"
+      >
+        <span aria-hidden="true">›</span>
+      </button>
     </header>
-    <div class="grid max-h-[12.25rem] gap-2 overflow-y-auto pr-1 [scrollbar-width:thin]">
-      @if (queueItems().length > 0) {
-        @for (item of queueItems(); track item.id) {
-          <article
-            [class]="
-              item.tone === 'done'
-                ? 'grid min-h-[2.4rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[var(--gh-border)] bg-[rgba(246,195,67,0.12)] px-2 py-1.5 shadow-[inset_0_0_0_1px_rgba(246,195,67,0.16),0_0_0.75rem_rgba(246,195,67,0.1)]'
-                : 'grid min-h-[2.4rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[rgba(212,160,55,0.14)] bg-[rgba(2,13,23,0.36)] px-2 py-1.5'
-            "
-          >
-            <div class="grid min-w-0 gap-0.5">
-              <div class="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5">
-                <span
+
+    <section class="grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-3">
+      <nav
+        class="grid gap-2"
+        [attr.aria-label]="quickLinksAriaKey | translate: quickLinksAriaFallback"
+      >
+        @for (link of quickLinks(); track link.id) {
+          @if (
+            link.id === 'grepodata' ||
+            link.id === 'grepolife' ||
+            link.id === 'wiki' ||
+            link.id === 'support'
+          ) {
+            <a
+              class="grid size-10 place-items-center overflow-hidden rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.38)] p-1 transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+              target="_blank"
+              rel="noopener noreferrer"
+              [href]="link.href"
+              [title]="link.title"
+              [attr.aria-label]="link.title"
+            >
+              <img
+                class="max-h-7 max-w-full object-contain"
+                [src]="link.iconPath"
+                [alt]="link.title"
+              />
+            </a>
+          }
+        }
+      </nav>
+    </section>
+
+    <section class="grid justify-items-center content-start">
+      <button
+        type="button"
+        class="grid size-10 place-items-center rounded-lg border border-[rgba(246,195,67,0.36)] bg-[rgba(246,195,67,0.06)] text-base font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.12)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        [attr.aria-label]="addReminderLabelKey | translate: addReminderLabelFallback"
+        [attr.title]="addReminderLabelKey | translate: addReminderLabelFallback"
+        (click)="openReminderDialog()"
+      >
+        <span aria-hidden="true">🕒</span>
+      </button>
+    </section>
+  } @else {
+    <header
+      class="relative grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-4 text-center"
+    >
+      <button
+        type="button"
+        class="absolute right-0 top-0 grid size-8 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        [attr.aria-label]="'plannerV2.toolbox.collapse' | translate: 'Collapse toolbox'"
+        [attr.title]="'plannerV2.toolbox.collapse' | translate: 'Collapse toolbox'"
+        (click)="collapseToolbox()"
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+
+      <div
+        class="grid aspect-square w-28 place-items-center rounded-full border border-[var(--gh-border)] bg-[radial-gradient(circle_at_50%_34%,rgba(246,195,67,0.36),transparent_2.4rem),radial-gradient(circle,rgba(8,35,58,0.95),rgba(2,13,23,0.96))] shadow-[inset_0_0_0_0.4rem_rgba(255,255,255,0.03),var(--gh-shadow-soft)] max-[76rem]:w-14"
+        aria-hidden="true"
+      >
+        <strong class="text-3xl leading-none text-[var(--gh-gold)] max-[76rem]:text-lg">{{
+          brandInitial
+        }}</strong>
+        <span class="text-xs font-extrabold tracking-wider text-[var(--gh-text)]">{{
+          clockTime()
+        }}</span>
+      </div>
+      <time class="text-xs text-[var(--gh-text)] max-[76rem]:hidden">{{ clockDate() }}</time>
+    </header>
+
+    <section class="grid gap-2 border-b border-[var(--gh-border-soft)] pb-3 max-[76rem]:hidden">
+      <nav
+        class="grid grid-cols-4 gap-2"
+        [attr.aria-label]="quickLinksAriaKey | translate: quickLinksAriaFallback"
+      >
+        @for (link of quickLinks(); track link.id) {
+          @if (
+            link.id === 'grepodata' ||
+            link.id === 'grepolife' ||
+            link.id === 'wiki' ||
+            link.id === 'support'
+          ) {
+            <a
+              class="grid min-h-14 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+              target="_blank"
+              rel="noopener noreferrer"
+              [href]="link.href"
+              [title]="link.title"
+              [attr.aria-label]="link.title"
+            >
+              <img
+                class="max-h-10 max-w-full object-contain"
+                [src]="link.iconPath"
+                [alt]="link.title"
+              />
+            </a>
+          }
+        }
+      </nav>
+    </section>
+
+    <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
+      <header class="flex items-center justify-between gap-3">
+        <h2 class="m-0 text-sm font-bold text-[var(--gh-text)]">
+          {{ queueTitleKey | translate: queueTitleFallback }}
+        </h2>
+        <app-gh-icon-button
+          size="sm"
+          variant="primary"
+          icon="+"
+          [ariaLabel]="addReminderLabelKey | translate: addReminderLabelFallback"
+          (click)="openReminderDialog()"
+        />
+      </header>
+      <div class="grid max-h-[12.25rem] gap-2 overflow-y-auto pr-1 [scrollbar-width:thin]">
+        @if (queueItems().length > 0) {
+          @for (item of queueItems(); track item.id) {
+            <article
+              [class]="
+                item.tone === 'done'
+                  ? 'grid min-h-[2.4rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[var(--gh-border)] bg-[rgba(246,195,67,0.12)] px-2 py-1.5 shadow-[inset_0_0_0_1px_rgba(246,195,67,0.16),0_0_0.75rem_rgba(246,195,67,0.1)]'
+                  : 'grid min-h-[2.4rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[rgba(212,160,55,0.14)] bg-[rgba(2,13,23,0.36)] px-2 py-1.5'
+              "
+            >
+              <div class="grid min-w-0 gap-0.5">
+                <div class="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5">
+                  <span
+                    [class]="
+                      item.tone === 'done'
+                        ? 'shrink-0 text-[0.62rem] font-black leading-none text-[var(--gh-gold)]'
+                        : 'shrink-0 text-[0.55rem] font-black leading-none text-[var(--gh-gold)]'
+                    "
+                    [attr.title]="item.stateKey | translate: queueStateFallback(item.tone)"
+                    aria-hidden="true"
+                  >
+                    {{ item.tone === 'done' ? '◆' : item.running ? '●' : '○' }}
+                  </span>
+                  <strong class="min-w-0 truncate text-xs font-bold text-[var(--gh-text)]">
+                    {{ item.label }}
+                  </strong>
+                  @if (item.tone === 'done') {
+                    <span
+                      class="shrink-0 rounded border border-[rgba(246,195,67,0.28)] bg-[rgba(246,195,67,0.08)] px-1.5 py-0.5 text-[0.5rem] font-black uppercase tracking-[0.1em] text-[var(--gh-gold)]"
+                    >
+                      {{ 'toolbox.status.finished' | translate: 'Done' }}
+                    </span>
+                  }
+                </div>
+                <strong
                   [class]="
                     item.tone === 'done'
-                      ? 'shrink-0 text-[0.62rem] font-black leading-none text-[var(--gh-gold)]'
-                      : 'shrink-0 text-[0.55rem] font-black leading-none text-[var(--gh-gold)]'
+                      ? 'truncate pl-4 text-[0.7rem] font-black tabular-nums text-[var(--gh-gold)]'
+                      : 'truncate pl-4 text-[0.7rem] font-black tabular-nums text-[var(--gh-text)]'
                   "
-                  [attr.title]="item.stateKey | translate: queueStateFallback(item.tone)"
-                  aria-hidden="true"
                 >
-                  {{ item.tone === 'done' ? '◆' : item.running ? '●' : '○' }}
-                </span>
-                <strong class="min-w-0 truncate text-xs font-bold text-[var(--gh-text)]">
-                  {{ item.label }}
+                  {{ item.value }}
                 </strong>
-                @if (item.tone === 'done') {
-                  <span
-                    class="shrink-0 rounded border border-[rgba(246,195,67,0.28)] bg-[rgba(246,195,67,0.08)] px-1.5 py-0.5 text-[0.5rem] font-black uppercase tracking-[0.1em] text-[var(--gh-gold)]"
+              </div>
+              <div class="flex shrink-0 items-center gap-1">
+                @if (item.type !== 'alarm' && item.tone !== 'done') {
+                  <button
+                    type="button"
+                    class="grid size-7 place-items-center rounded-md border border-[rgba(246,195,67,0.28)] text-xs font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                    [attr.aria-label]="
+                      (item.running ? 'toolbox.queue.pause' : 'toolbox.queue.start')
+                        | translate: (item.running ? 'Pause' : 'Start')
+                    "
+                    (click)="toggleQueueItem(item)"
                   >
-                    {{ 'toolbox.status.finished' | translate: 'Done' }}
-                  </span>
+                    <span aria-hidden="true">{{ item.running ? 'Ⅱ' : '▶' }}</span>
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="grid size-7 place-items-center rounded-md border border-[rgba(207,69,62,0.32)] text-[#ff6464] transition hover:bg-[rgba(207,69,62,0.12)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#ff6464]"
+                  [attr.aria-label]="'toolbox.queue.remove' | translate: 'Remove'"
+                  (click)="removeQueueItem(item)"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="size-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                    <path d="M10 11v5" />
+                    <path d="M14 11v5" />
+                  </svg>
+                </button>
+              </div>
+            </article>
+          }
+        } @else {
+          <p
+            class="m-0 rounded-lg border border-dashed border-[rgba(212,160,55,0.22)] bg-[rgba(212,160,55,0.05)] px-3 py-4 text-center text-xs text-[var(--gh-muted)]"
+          >
+            {{ 'toolbox.queue.empty' | translate: 'No active timers yet.' }}
+          </p>
+        }
+      </div>
+    </app-gh-panel>
+
+    <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
+      <div
+        class="grid grid-cols-2 gap-1 rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] p-1"
+        role="tablist"
+        [attr.aria-label]="calculatorTitleKey | translate: calculatorTitleFallback"
+      >
+        @for (tab of calculatorTabs; track tab.id) {
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="calculatorMode() === tab.id"
+            [class]="
+              calculatorMode() === tab.id
+                ? 'rounded-md border border-[var(--gh-border)] bg-[rgba(246,195,67,0.08)] px-2 py-1.5 text-xs font-extrabold text-[var(--gh-gold)] transition'
+                : 'rounded-md px-2 py-1.5 text-xs font-extrabold text-[var(--gh-muted)] transition hover:text-[var(--gh-text)]'
+            "
+            (click)="selectCalculatorMode(tab.id)"
+          >
+            {{ tab.labelKey | translate: tab.fallback }}
+          </button>
+        }
+      </div>
+
+      <div class="grid h-[14.75rem] overflow-hidden">
+        @if (calculatorMode() === 'calculator') {
+          <div class="grid h-full grid-rows-[auto_1fr] gap-2">
+            <div
+              class="grid h-[3.25rem] content-end gap-0.5 overflow-hidden border-b border-[var(--gh-border-soft)] px-1 py-0.5 text-right"
+            >
+              <div
+                class="grid gap-0.5 text-[0.55rem] font-semibold leading-none text-[var(--gh-muted)]"
+              >
+                @for (entry of calculatorHistory(); track entry.expression + entry.result) {
+                  <span class="truncate">{{ entry.expression }} = {{ entry.result }}</span>
                 }
               </div>
               <strong
-                [class]="
-                  item.tone === 'done'
-                    ? 'truncate pl-4 text-[0.7rem] font-black tabular-nums text-[var(--gh-gold)]'
-                    : 'truncate pl-4 text-[0.7rem] font-black tabular-nums text-[var(--gh-text)]'
-                "
+                class="truncate font-extrabold leading-tight text-[var(--gh-text)]"
+                [class]="calculatorDisplaySize()"
               >
-                {{ item.value }}
+                {{ calculatorDisplay() }}
               </strong>
             </div>
-            <div class="flex shrink-0 items-center gap-1">
-              @if (item.type !== 'alarm' && item.tone !== 'done') {
-                <button
-                  type="button"
-                  class="grid size-7 place-items-center rounded-md border border-[rgba(246,195,67,0.28)] text-xs font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-                  [attr.aria-label]="
-                    (item.running ? 'toolbox.queue.pause' : 'toolbox.queue.start')
-                      | translate: (item.running ? 'Pause' : 'Start')
-                  "
-                  (click)="toggleQueueItem(item)"
+
+            <div class="grid grid-cols-4 content-start gap-1">
+              @for (key of calculatorKeys; track key) {
+                <app-gh-button
+                  size="sm"
+                  [variant]="$last ? 'gold' : 'default'"
+                  [wide]="true"
+                  (click)="pressCalculatorKey(key)"
                 >
-                  <span aria-hidden="true">{{ item.running ? 'Ⅱ' : '▶' }}</span>
-                </button>
+                  {{ key }}
+                </app-gh-button>
               }
+            </div>
+          </div>
+        } @else {
+          <div class="grid h-full content-start gap-2 overflow-hidden text-xs">
+            <div class="grid grid-cols-[minmax(0,1fr)_2.5rem] items-center gap-1.5">
+              <div
+                class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-0.5 rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] px-1 py-0.5"
+              >
+                @for (unit of timeCalculatorUnits; track unit) {
+                  <input
+                    class="min-w-0 rounded border border-transparent bg-transparent px-0.5 py-0.5 text-center text-sm font-black tabular-nums text-[var(--gh-text)] outline-none transition focus:border-[rgba(246,195,67,0.5)] focus:bg-[rgba(246,195,67,0.08)]"
+                    inputmode="numeric"
+                    maxlength="2"
+                    [attr.aria-label]="
+                      timeCalculatorUnitLabels[unit] | translate: timeCalculatorUnitFallbacks[unit]
+                    "
+                    [value]="formatTimeCalculatorPart(timeCalculatorBase()[unit])"
+                    (focus)="selectTimeCalculatorInput($event)"
+                    (click)="selectTimeCalculatorInput($event)"
+                    (keydown)="handleTimeCalculatorInputKeydown('base', unit, $event)"
+                    (input)="updateTimeCalculatorPart('base', unit, $event)"
+                  />
+                  @if (!$last) {
+                    <span class="text-[0.65rem] font-black text-[var(--gh-muted)]">:</span>
+                  }
+                }
+              </div>
               <button
                 type="button"
-                class="grid size-7 place-items-center rounded-md border border-[rgba(207,69,62,0.32)] text-[#ff6464] transition hover:bg-[rgba(207,69,62,0.12)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#ff6464]"
-                [attr.aria-label]="'toolbox.queue.remove' | translate: 'Remove'"
-                (click)="removeQueueItem(item)"
+                class="grid h-7 place-items-center rounded-md border border-[rgba(246,195,67,0.3)] text-sm font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                [attr.aria-label]="'plannerV2.toolbox.timeCalculator.now' | translate: 'Now'"
+                [attr.title]="'plannerV2.toolbox.timeCalculator.now' | translate: 'Now'"
+                (click)="setTimeCalculatorNow()"
               >
-                <svg
-                  aria-hidden="true"
-                  class="size-3.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M3 6h18" />
-                  <path d="M8 6V4h8v2" />
-                  <path d="M19 6l-1 14H6L5 6" />
-                  <path d="M10 11v5" />
-                  <path d="M14 11v5" />
-                </svg>
+                🕒
               </button>
             </div>
-          </article>
-        }
-      } @else {
-        <p
-          class="m-0 rounded-lg border border-dashed border-[rgba(212,160,55,0.22)] bg-[rgba(212,160,55,0.05)] px-3 py-4 text-center text-xs text-[var(--gh-muted)]"
-        >
-          {{ 'toolbox.queue.empty' | translate: 'No active timers yet.' }}
-        </p>
-      }
-    </div>
-  </app-gh-panel>
 
-  <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
-    <div
-      class="grid grid-cols-2 gap-1 rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] p-1"
-      role="tablist"
-      [attr.aria-label]="calculatorTitleKey | translate: calculatorTitleFallback"
-    >
-      @for (tab of calculatorTabs; track tab.id) {
-        <button
-          type="button"
-          role="tab"
-          [attr.aria-selected]="calculatorMode() === tab.id"
-          [class]="
-            calculatorMode() === tab.id
-              ? 'rounded-md border border-[var(--gh-border)] bg-[rgba(246,195,67,0.08)] px-2 py-1.5 text-xs font-extrabold text-[var(--gh-gold)] transition'
-              : 'rounded-md px-2 py-1.5 text-xs font-extrabold text-[var(--gh-muted)] transition hover:text-[var(--gh-text)]'
-          "
-          (click)="selectCalculatorMode(tab.id)"
-        >
-          {{ tab.labelKey | translate: tab.fallback }}
-        </button>
-      }
-    </div>
-
-    <div class="grid h-[14.75rem] overflow-hidden">
-      @if (calculatorMode() === 'calculator') {
-        <div class="grid h-full grid-rows-[auto_1fr] gap-2">
-          <div
-            class="grid h-[3.25rem] content-end gap-0.5 overflow-hidden border-b border-[var(--gh-border-soft)] px-1 py-0.5 text-right"
-          >
-            <div
-              class="grid gap-0.5 text-[0.55rem] font-semibold leading-none text-[var(--gh-muted)]"
-            >
-              @for (entry of calculatorHistory(); track entry.expression + entry.result) {
-                <span class="truncate">{{ entry.expression }} = {{ entry.result }}</span>
-              }
-            </div>
-            <strong
-              class="truncate font-extrabold leading-tight text-[var(--gh-text)]"
-              [class]="calculatorDisplaySize()"
-            >
-              {{ calculatorDisplay() }}
-            </strong>
-          </div>
-
-          <div class="grid grid-cols-4 content-start gap-1">
-            @for (key of calculatorKeys; track key) {
-              <app-gh-button
-                size="sm"
-                [variant]="$last ? 'gold' : 'default'"
-                [wide]="true"
-                (click)="pressCalculatorKey(key)"
+            <div class="grid grid-cols-[1.75rem_minmax(0,1fr)_2.5rem] items-center gap-1.5">
+              <button
+                type="button"
+                class="grid h-7 w-7 place-items-center rounded-md border border-[rgba(246,195,67,0.36)] text-base font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                [attr.aria-label]="
+                  'plannerV2.toolbox.timeCalculator.toggleOperation'
+                    | translate: 'Toggle add/subtract'
+                "
+                (click)="toggleTimeCalculatorOperation()"
               >
-                {{ key }}
-              </app-gh-button>
-            }
-          </div>
-        </div>
-      } @else {
-        <div class="grid h-full content-start gap-2 overflow-hidden text-xs">
-          <div class="grid grid-cols-[minmax(0,1fr)_2.5rem] items-center gap-1.5">
-            <div
-              class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-0.5 rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] px-1 py-0.5"
-            >
-              @for (unit of timeCalculatorUnits; track unit) {
-                <input
-                  class="min-w-0 rounded border border-transparent bg-transparent px-0.5 py-0.5 text-center text-sm font-black tabular-nums text-[var(--gh-text)] outline-none transition focus:border-[rgba(246,195,67,0.5)] focus:bg-[rgba(246,195,67,0.08)]"
-                  inputmode="numeric"
-                  maxlength="2"
-                  [attr.aria-label]="
-                    timeCalculatorUnitLabels[unit] | translate: timeCalculatorUnitFallbacks[unit]
-                  "
-                  [value]="formatTimeCalculatorPart(timeCalculatorBase()[unit])"
-                  (focus)="selectTimeCalculatorInput($event)"
-                  (click)="selectTimeCalculatorInput($event)"
-                  (keydown)="handleTimeCalculatorInputKeydown('base', unit, $event)"
-                  (input)="updateTimeCalculatorPart('base', unit, $event)"
-                />
-                @if (!$last) {
-                  <span class="text-[0.65rem] font-black text-[var(--gh-muted)]">:</span>
+                {{ timeCalculatorOperationSymbol() }}
+              </button>
+              <div
+                class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-0.5 rounded-lg border border-[rgba(246,195,67,0.22)] bg-[rgba(246,195,67,0.06)] px-1 py-0.5"
+              >
+                @for (unit of timeCalculatorUnits; track unit) {
+                  <input
+                    class="min-w-0 rounded border border-transparent bg-transparent px-0.5 py-0.5 text-center text-sm font-black tabular-nums text-[var(--gh-gold)] outline-none transition focus:border-[rgba(246,195,67,0.5)] focus:bg-[rgba(246,195,67,0.1)]"
+                    inputmode="numeric"
+                    maxlength="2"
+                    [attr.aria-label]="
+                      timeCalculatorUnitLabels[unit] | translate: timeCalculatorUnitFallbacks[unit]
+                    "
+                    [value]="formatTimeCalculatorPart(timeCalculatorDuration()[unit])"
+                    (focus)="selectTimeCalculatorInput($event)"
+                    (click)="selectTimeCalculatorInput($event)"
+                    (keydown)="handleTimeCalculatorInputKeydown('duration', unit, $event)"
+                    (input)="updateTimeCalculatorPart('duration', unit, $event)"
+                  />
+                  @if (!$last) {
+                    <span class="text-[0.65rem] font-black text-[var(--gh-muted)]">:</span>
+                  }
                 }
-              }
+              </div>
+              <button
+                type="button"
+                class="h-7 rounded-md border border-[var(--gh-border-soft)] px-1 text-sm font-black text-[var(--gh-muted)] transition hover:border-[rgba(246,195,67,0.3)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                (click)="resetTimeCalculatorDuration()"
+              >
+                ↺
+              </button>
             </div>
-            <button
-              type="button"
-              class="grid h-7 place-items-center rounded-md border border-[rgba(246,195,67,0.3)] text-sm font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-              [attr.aria-label]="'plannerV2.toolbox.timeCalculator.now' | translate: 'Now'"
-              [attr.title]="'plannerV2.toolbox.timeCalculator.now' | translate: 'Now'"
-              (click)="setTimeCalculatorNow()"
-            >
-              🕒
-            </button>
-          </div>
 
-          <div class="grid grid-cols-[1.75rem_minmax(0,1fr)_2.5rem] items-center gap-1.5">
-            <button
-              type="button"
-              class="grid h-7 w-7 place-items-center rounded-md border border-[rgba(246,195,67,0.36)] text-base font-black text-[var(--gh-gold)] transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-              [attr.aria-label]="
-                'plannerV2.toolbox.timeCalculator.toggleOperation'
-                  | translate: 'Toggle add/subtract'
-              "
-              (click)="toggleTimeCalculatorOperation()"
-            >
-              {{ timeCalculatorOperationSymbol() }}
-            </button>
             <div
-              class="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-0.5 rounded-lg border border-[rgba(246,195,67,0.22)] bg-[rgba(246,195,67,0.06)] px-1 py-0.5"
+              class="grid grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-1.5 border-t border-[var(--gh-border-soft)] pt-2"
             >
-              @for (unit of timeCalculatorUnits; track unit) {
-                <input
-                  class="min-w-0 rounded border border-transparent bg-transparent px-0.5 py-0.5 text-center text-sm font-black tabular-nums text-[var(--gh-gold)] outline-none transition focus:border-[rgba(246,195,67,0.5)] focus:bg-[rgba(246,195,67,0.1)]"
-                  inputmode="numeric"
-                  maxlength="2"
-                  [attr.aria-label]="
-                    timeCalculatorUnitLabels[unit] | translate: timeCalculatorUnitFallbacks[unit]
-                  "
-                  [value]="formatTimeCalculatorPart(timeCalculatorDuration()[unit])"
-                  (focus)="selectTimeCalculatorInput($event)"
-                  (click)="selectTimeCalculatorInput($event)"
-                  (keydown)="handleTimeCalculatorInputKeydown('duration', unit, $event)"
-                  (input)="updateTimeCalculatorPart('duration', unit, $event)"
-                />
-                @if (!$last) {
-                  <span class="text-[0.65rem] font-black text-[var(--gh-muted)]">:</span>
-                }
-              }
+              <span
+                class="grid h-7 w-7 place-items-center text-base font-black text-[var(--gh-gold)]"
+                aria-hidden="true"
+              >
+                =
+              </span>
+              <strong
+                class="truncate rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(255,255,255,0.04)] px-2 py-1 text-center text-base font-black tabular-nums text-[var(--gh-text)]"
+              >
+                {{ formatTimeCalculatorPart(timeCalculatorResult().hours) }}:{{
+                  formatTimeCalculatorPart(timeCalculatorResult().minutes)
+                }}:{{ formatTimeCalculatorPart(timeCalculatorResult().seconds) }}
+              </strong>
             </div>
-            <button
-              type="button"
-              class="h-7 rounded-md border border-[var(--gh-border-soft)] px-1 text-sm font-black text-[var(--gh-muted)] transition hover:border-[rgba(246,195,67,0.3)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-              (click)="resetTimeCalculatorDuration()"
-            >
-              ↺
-            </button>
           </div>
+        }
+      </div>
+    </app-gh-panel>
 
-          <div
-            class="grid grid-cols-[1.75rem_minmax(0,1fr)] items-center gap-1.5 border-t border-[var(--gh-border-soft)] pt-2"
-          >
-            <span
-              class="grid h-7 w-7 place-items-center text-base font-black text-[var(--gh-gold)]"
-              aria-hidden="true"
-            >
-              =
-            </span>
-            <strong
-              class="truncate rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(255,255,255,0.04)] px-2 py-1 text-center text-base font-black tabular-nums text-[var(--gh-text)]"
-            >
-              {{ formatTimeCalculatorPart(timeCalculatorResult().hours) }}:{{
-                formatTimeCalculatorPart(timeCalculatorResult().minutes)
-              }}:{{ formatTimeCalculatorPart(timeCalculatorResult().seconds) }}
-            </strong>
-          </div>
-        </div>
-      }
-    </div>
-  </app-gh-panel>
+    <footer
+      class="border-t border-[var(--gh-border-soft)] pt-3 text-center text-[0.65rem] leading-relaxed text-[var(--gh-muted)] max-[76rem]:hidden"
+    >
+      <span>{{ 'plannerV2.toolbox.footer.createdBy' | translate: 'created by' }} </span>
+      <a
+        class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        target="_blank"
+        rel="noopener noreferrer"
+        [href]="createdByHref"
+      >
+        {{ createdByName }}
+      </a>
+      <span> · </span>
+      <a
+        class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        target="_blank"
+        rel="noopener noreferrer"
+        [href]="githubHref"
+      >
+        {{ 'plannerV2.toolbox.footer.github' | translate: 'GitHub' }}
+      </a>
+    </footer>
+  }
 
   @if (reminderDialogOpen()) {
     <div
@@ -419,27 +514,4 @@
       </section>
     </div>
   }
-
-  <footer
-    class="border-t border-[var(--gh-border-soft)] pt-3 text-center text-[0.65rem] leading-relaxed text-[var(--gh-muted)] max-[76rem]:hidden"
-  >
-    <span>{{ 'plannerV2.toolbox.footer.createdBy' | translate: 'created by' }} </span>
-    <a
-      class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-      target="_blank"
-      rel="noopener noreferrer"
-      [href]="createdByHref"
-    >
-      {{ createdByName }}
-    </a>
-    <span> · </span>
-    <a
-      class="font-bold text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-      target="_blank"
-      rel="noopener noreferrer"
-      [href]="githubHref"
-    >
-      {{ 'plannerV2.toolbox.footer.github' | translate: 'GitHub' }}
-    </a>
-  </footer>
 </aside>

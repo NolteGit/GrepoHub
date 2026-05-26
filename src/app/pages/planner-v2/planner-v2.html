@@ -1,5 +1,6 @@
 <main
-  class="gh-app-bg grid min-h-dvh grid-cols-[minmax(14rem,15.5rem)_minmax(0,1fr)_minmax(19rem,22rem)] grid-rows-[auto_minmax(0,1fr)] max-[76rem]:grid-cols-[4.8rem_minmax(0,1fr)] max-[46rem]:grid-cols-1"
+  class="gh-app-bg grid min-h-dvh grid-cols-[var(--planner-toolbox-column)_minmax(0,1fr)_minmax(19rem,22rem)] grid-rows-[auto_minmax(0,1fr)] max-[76rem]:grid-cols-[4.8rem_minmax(0,1fr)] max-[46rem]:grid-cols-1"
+  [style.--planner-toolbox-column]="toolboxCollapsed() ? '4.8rem' : 'minmax(14rem,15.5rem)'"
 >
   <input
     #planImportInput
@@ -13,7 +14,9 @@
     class="col-start-1 row-span-full max-[46rem]:hidden"
     [activeMode]="activeMode()"
     [canDeletePlan]="canDeleteActivePlan()"
+    [toolboxCollapsed]="toolboxCollapsed()"
     (actionSelected)="handleToolboxAction($event, planImportInput)"
+    (toolboxCollapsedChange)="setToolboxCollapsed($event)"
   />
 
   <app-planner-header

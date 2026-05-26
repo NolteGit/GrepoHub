@@ -843,5 +843,7 @@
   "plannerV2.planControls.deleteConfirm": "Supprimer \"{name}\" de ce navigateur ? Exporte-le d’abord si tu veux une sauvegarde.",
   "plannerV2.mode.details": "Détails",
   "plannerV2.tileDetails.header": "Détails de tuile",
-  "plannerV2.tileDetails.hint": "Stats / infos"
+  "plannerV2.tileDetails.hint": "Stats / infos",
+  "plannerV2.toolbox.collapse": "Réduire la boîte à outils",
+  "plannerV2.toolbox.expand": "Développer la boîte à outils"
 }

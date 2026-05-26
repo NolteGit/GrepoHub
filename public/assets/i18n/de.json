@@ -843,5 +843,7 @@
   "plannerV2.planControls.deleteConfirm": "„{name}“ aus diesem Browser löschen? Exportiere den Plan vorher, wenn du ein Backup möchtest.",
   "plannerV2.mode.details": "Details",
   "plannerV2.tileDetails.header": "Kachel-Details",
-  "plannerV2.tileDetails.hint": "Werte / Infos"
+  "plannerV2.tileDetails.hint": "Werte / Infos",
+  "plannerV2.toolbox.collapse": "Toolbox einklappen",
+  "plannerV2.toolbox.expand": "Toolbox ausklappen"
 }

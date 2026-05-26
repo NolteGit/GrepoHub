@@ -83,7 +83,9 @@ type ToolboxQuickLink = ReferenceQuickLink & {
 export class PlannerToolbox implements OnDestroy {
   readonly activeMode = input.required<PlannerMode>();
   readonly canDeletePlan = input(true);
+  readonly toolboxCollapsed = input(false);
   readonly actionSelected = output<PlannerToolboxActionId>();
+  readonly toolboxCollapsedChange = output<boolean>();
 
   protected readonly createdByName = 'Noltenius';
   protected readonly createdByHref = 'https://github.com/Noltenius';
@@ -385,6 +387,14 @@ export class PlannerToolbox implements OnDestroy {
       href: this.getQuickLinkHref(link, language),
     }));
   });
+
+  protected collapseToolbox(): void {
+    this.toolboxCollapsedChange.emit(true);
+  }
+
+  protected expandToolbox(): void {
+    this.toolboxCollapsedChange.emit(false);
+  }
 
   protected selectAction(action: ToolboxActionButton): void {
     if (action.disabled) {

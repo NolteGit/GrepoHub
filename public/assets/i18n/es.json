@@ -843,5 +843,7 @@
   "plannerV2.planControls.deleteConfirm": "¿Eliminar \"{name}\" de este navegador? Expórtalo antes si quieres una copia de seguridad.",
   "plannerV2.mode.details": "Detalles",
   "plannerV2.tileDetails.header": "Detalles de tarjeta",
-  "plannerV2.tileDetails.hint": "Estadísticas / info"
+  "plannerV2.tileDetails.hint": "Estadísticas / info",
+  "plannerV2.toolbox.collapse": "Contraer herramientas",
+  "plannerV2.toolbox.expand": "Expandir herramientas"
 }

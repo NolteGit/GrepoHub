@@ -843,5 +843,7 @@
   "plannerV2.planControls.deleteConfirm": "Eliminare \"{name}\" da questo browser? Esportalo prima se vuoi un backup.",
   "plannerV2.mode.details": "Dettagli",
   "plannerV2.tileDetails.header": "Dettagli riquadri",
-  "plannerV2.tileDetails.hint": "Statistiche / info"
+  "plannerV2.tileDetails.hint": "Statistiche / info",
+  "plannerV2.toolbox.collapse": "Comprimi strumenti",
+  "plannerV2.toolbox.expand": "Espandi strumenti"
 }

@@ -942,6 +942,7 @@ export class PlannerV2 {
     initialValue: [] as Unit[],
   });
   protected readonly activeMode = signal<PlannerMode>('city');
+  protected readonly toolboxCollapsed = signal(false);
   protected readonly buildingTileDetailsVisible = signal(false);
   protected readonly unitTileDetailsVisible = signal(false);
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
@@ -1407,6 +1408,10 @@ export class PlannerV2 {
 
   protected selectMode(mode: PlannerMode): void {
     this.activeMode.set(mode);
+  }
+
+  protected setToolboxCollapsed(collapsed: boolean): void {
+    this.toolboxCollapsed.set(collapsed);
   }
 
   protected setTileDetailsVisible(mode: PlannerMode, visible: boolean): void {
