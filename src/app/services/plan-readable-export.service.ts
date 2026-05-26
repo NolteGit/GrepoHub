@@ -332,7 +332,6 @@ export class PlanReadableExportService {
     readonly favor: number;
   }[] {
     return this.unitDefinitions()
-      .filter((unit) => unit.id !== 'militia')
       .map((unit) => ({
         unit,
         amount: plan.troopPlan.unitAmounts[unit.id] ?? 0,
@@ -510,7 +509,7 @@ export class PlanReadableExportService {
   } {
     const totals = this.unitDefinitions().reduce(
       (sum, unit) => {
-        const amount = unit.id === 'militia' ? 0 : (plan.troopPlan.unitAmounts[unit.id] ?? 0);
+        const amount = plan.troopPlan.unitAmounts[unit.id] ?? 0;
 
         return {
           totalUnits: sum.totalUnits + amount,

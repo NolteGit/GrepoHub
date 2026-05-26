@@ -118,7 +118,6 @@ const buildingFallbackIcons: Record<string, string> = {
 };
 
 const unitFallbackIcons: Record<string, string> = {
-  militia: '◉',
   swordsman: '⚔',
   slinger: '◒',
   archer: '➶',
@@ -153,7 +152,6 @@ const unitFallbackIcons: Record<string, string> = {
 };
 
 const unitSpeedById: Record<string, number> = {
-  militia: 0,
   swordsman: 8,
   slinger: 14,
   archer: 12,

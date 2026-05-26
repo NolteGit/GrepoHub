@@ -1,28 +1,5 @@
 [
   {
-    "id": "militia",
-    "nameKey": "unit.militia",
-    "type": "land",
-    "isMythical": false,
-    "god": null,
-    "cost": {
-      "wood": 0,
-      "stone": 0,
-      "silver": 0,
-      "favor": 0,
-      "population": 0
-    },
-    "transportCapacity": 0,
-    "transportSpace": 0,
-    "attack": 2,
-    "attackType": "blunt",
-    "defenseBlunt": 6,
-    "defenseSharp": 8,
-    "defenseDistance": 4,
-    "attackSea": 0,
-    "defenseSea": 0
-  },
-  {
     "id": "swordsman",
     "nameKey": "unit.swordsman",
     "type": "land",

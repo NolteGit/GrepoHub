@@ -78,29 +78,6 @@ const unitDefinitions: Unit[] = [
     attackSea: 0,
     defenseSea: 0,
   },
-  {
-    id: 'militia',
-    nameKey: 'unit.militia',
-    type: 'land',
-    isMythical: false,
-    god: null,
-    cost: {
-      wood: 0,
-      stone: 0,
-      silver: 0,
-      favor: 0,
-      population: 0,
-    },
-    transportCapacity: 0,
-    transportSpace: 0,
-    attack: 2,
-    attackType: 'blunt',
-    defenseBlunt: 6,
-    defenseSharp: 8,
-    defenseDistance: 4,
-    attackSea: 0,
-    defenseSea: 0,
-  },
 ];
 
 const testPlan: PlanConfig = {
@@ -152,7 +129,6 @@ const testPlan: PlanConfig = {
       swordsman: 10,
       transport_boat: 1,
       harpy: 2,
-      militia: 999,
     },
     modifiers: {
       bunks: true,
@@ -272,7 +248,6 @@ describe('PlanReadableExportService', () => {
     expect(harpyRow?.[0]).toBe('Mythical units');
     expect(harpyRow?.[5]).toBe('2');
     expect(harpyRow?.[11]).toBe('260');
-    expect(rows.some((row) => row[4] === 'Militia')).toBe(false);
     expect(totalUnitsRow?.[12]).toBe('13');
     expect(populationRow?.[12]).toBe('45');
     expect(transportCapacityRow?.[12]).toBe('22');
@@ -301,7 +276,6 @@ describe('PlanReadableExportService', () => {
     expect(content).toContain('- Population capacity: 744');
     expect(content).toContain('- Used population: 159');
     expect(content).toContain('- Free population: 585');
-    expect(content).not.toContain('Militia');
   });
 });
 
