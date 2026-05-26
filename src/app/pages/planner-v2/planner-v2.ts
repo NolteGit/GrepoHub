@@ -1612,7 +1612,6 @@ export class PlannerV2 {
     optionId: CitySpecialBuildingOptionId,
   ): SpecialBuildingOptionView {
     const isNone = optionId === 'none';
-    const isThermalBaths = optionId === 'thermal_baths';
 
     return {
       value: optionId,
@@ -1622,8 +1621,8 @@ export class PlannerV2 {
       imagePath: isNone ? '' : getBuildingImagePath(optionId),
       effectLabelKey: `plannerV2.specialBuildingEffect.${optionId}`,
       effectFallback: specialBuildingEffectFallbacks[optionId] ?? 'Special building effect',
-      populationBadgeValue: isNone ? '0' : isThermalBaths ? '+10%' : '-60',
-      populationBadgeTone: isNone ? 'muted' : isThermalBaths ? 'gain' : 'used',
+      populationBadgeValue: isNone ? '0' : '-60',
+      populationBadgeTone: isNone ? 'muted' : 'used',
     };
   }
 }
