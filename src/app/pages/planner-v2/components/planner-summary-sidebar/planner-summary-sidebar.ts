@@ -2,7 +2,6 @@ import { Component, computed, input } from '@angular/core';
 
 import { getBattleIconPath } from '../../../../data/asset-paths';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
-import { GhIconButton } from '../../../../shared/ui/gh-icon-button/gh-icon-button';
 import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
 
 import type {
@@ -75,7 +74,7 @@ const createDonutSegments = <
 
 @Component({
   selector: 'app-planner-summary-sidebar',
-  imports: [TranslatePipe, GhIconButton, GhPanel],
+  imports: [TranslatePipe, GhPanel],
   templateUrl: './planner-summary-sidebar.html',
 })
 export class PlannerSummarySidebar {
@@ -85,8 +84,6 @@ export class PlannerSummarySidebar {
 
   protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
   protected readonly populationTitleFallback = 'Population Overview';
-  protected readonly infoLabelKey = 'plannerV2.summary.infoLabel';
-  protected readonly infoLabelFallback = 'More information';
   protected readonly battleTitleKey = 'plannerV2.summary.context.battleStats';
   protected readonly battleTitleFallback = 'Troop Stats';
   protected readonly topUnitsTitleKey = 'plannerV2.summary.context.mostUsedUnits';
