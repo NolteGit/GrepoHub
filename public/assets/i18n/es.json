@@ -481,7 +481,7 @@
   "academyResearch.openButton": "Investigación",
   "academyResearch.openAria": "Abrir calculadora de investigaciones de academia",
   "academyResearch.eyebrow": "Ayuda de academia",
-  "academyResearch.title": "Calculadora de investigaciones",
+  "academyResearch.title": "Investigación de academia",
   "academyResearch.description": "Elige investigaciones para estimar los puntos y el nivel de academia necesarios. Esta ayuda es solo local y no se guarda en tu plan.",
   "academyResearch.close": "Cerrar",
   "academyResearch.academyLevel": "Nivel de academia",
@@ -844,5 +844,6 @@
   "plannerV2.tileDetails.header": "Detalles de tarjeta",
   "plannerV2.tileDetails.hint": "Estadísticas / info",
   "plannerV2.toolbox.collapse": "Contraer herramientas",
-  "plannerV2.toolbox.expand": "Expandir herramientas"
+  "plannerV2.toolbox.expand": "Expandir herramientas",
+  "academyResearch.technologiesButton": "Tecnologías"
 }

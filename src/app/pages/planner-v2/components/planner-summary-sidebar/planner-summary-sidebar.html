@@ -187,4 +187,170 @@
       }
     </section>
   </app-gh-panel>
+
+  <app-gh-panel class="grid gap-2">
+    <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3">
+      <strong class="min-w-0 truncate text-sm font-black text-[var(--gh-text)]">
+        {{ researchOpenButtonKey | translate: researchOpenButtonFallback }}
+      </strong>
+
+      <strong
+        class="shrink-0 text-xs font-black tabular-nums text-[var(--gh-gold)]"
+        [class.text-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+      >
+        {{ researchCalculation().selectedCost }}/{{ researchCalculation().availablePoints }}
+        {{ 'academyResearch.pointsShort' | translate: 'pts' }}
+      </strong>
+
+      <button
+        type="button"
+        class="shrink-0 rounded-lg border border-[var(--gh-border)] bg-[rgba(212,160,55,0.1)] px-3 py-1.5 text-xs font-black text-[var(--gh-gold)] transition hover:bg-[rgba(212,160,55,0.16)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        [attr.aria-label]="researchOpenAriaKey | translate: researchOpenAriaFallback"
+        (click)="openResearchDialog()"
+      >
+        {{ 'academyResearch.technologiesButton' | translate: 'Technologies' }}
+      </button>
+    </div>
+  </app-gh-panel>
+
+  @if (researchDialogOpen()) {
+    <div
+      class="fixed inset-0 z-50 grid place-items-center bg-[rgba(1,7,13,0.7)] p-2 backdrop-blur-sm"
+      (click)="closeResearchDialog()"
+    >
+      <section
+        class="grid max-h-[calc(100dvh-1rem)] w-full max-w-[37rem] gap-1.5 overflow-y-auto rounded-lg border border-[var(--gh-border)] bg-[rgba(4,18,31,0.98)] p-2 shadow-[var(--gh-shadow-panel)]"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'academyResearch.title' | translate: 'Academy Research'"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
+          <h2 class="m-0 min-w-0 truncate text-lg font-black leading-tight text-[var(--gh-text)]">
+            {{ 'academyResearch.title' | translate: 'Academy Research' }}
+          </h2>
+
+          <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
+            <label
+              class="inline-flex cursor-pointer items-center gap-1.5 text-xs font-bold text-[var(--gh-text)]"
+            >
+              <input
+                class="size-3.5 accent-[var(--gh-gold)]"
+                type="checkbox"
+                [checked]="researchLibraryBuilt()"
+                [attr.aria-label]="'academyResearch.libraryBuilt' | translate: 'Library built'"
+                (change)="toggleResearchLibrary($event)"
+              />
+              <span>{{ 'academyResearch.libraryBuilt' | translate: 'Library built' }}</span>
+            </label>
+
+            <button
+              type="button"
+              class="rounded border border-[var(--gh-border-soft)] px-2 py-1 text-[0.68rem] font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+              (click)="clearResearchSelection()"
+            >
+              {{ 'academyResearch.clearSelection' | translate: 'Clear selection' }}
+            </button>
+          </div>
+
+          <div class="flex shrink-0 items-center gap-1.5">
+            <div
+              class="grid min-w-[5.8rem] justify-items-center rounded-md border border-[rgba(212,160,55,0.38)] bg-[rgba(212,160,55,0.07)] px-2 py-0.5 leading-none"
+              [class.border-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+            >
+              <strong
+                class="text-xl font-black tabular-nums text-[var(--gh-gold)]"
+                [class.text-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+              >
+                {{ researchCalculation().selectedCost }}/{{ researchCalculation().availablePoints }}
+              </strong>
+              <span
+                class="text-[0.62rem] font-black uppercase tracking-[0.08em] text-[var(--gh-text)]"
+              >
+                {{ 'academyResearch.levelShort' | translate: 'Lvl' }} {{ academyLevel() }}
+              </span>
+            </div>
+            <button
+              type="button"
+              class="grid size-7 shrink-0 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+              [attr.aria-label]="'academyResearch.close' | translate: 'Close'"
+              (click)="closeResearchDialog()"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+        </header>
+
+        <section
+          class="overflow-x-auto rounded-md border border-[var(--gh-border)] bg-[rgba(2,13,23,0.42)] p-1 [scrollbar-width:thin]"
+          [attr.aria-label]="'academyResearch.boardAria' | translate: 'Academy research levels'"
+        >
+          <div class="grid min-w-[34.5rem] grid-cols-12 gap-0">
+            @for (group of researchGroups(); track group.requiredAcademyLevel) {
+              <section
+                class="grid min-w-0 content-start gap-0.5 border-r border-[rgba(212,160,55,0.14)] px-1 py-0.5 last:border-r-0"
+              >
+                <h3
+                  class="m-0 text-center text-[0.7rem] font-black tabular-nums text-[var(--gh-gold)]"
+                >
+                  {{ group.levelLabel }}
+                </h3>
+                @for (research of group.researches; track research.id) {
+                  <button
+                    type="button"
+                    class="group relative grid aspect-square min-h-0 place-items-center overflow-hidden rounded-sm border border-[rgba(212,160,55,0.16)] bg-[rgba(2,13,23,0.7)] p-0.5 transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                    [class.border-[var(--gh-gold)]]="research.selected"
+                    [class.opacity-45]="!research.unlocked && !research.selected"
+                    [class.ring-1]="research.selected"
+                    [class.ring-[var(--gh-gold)]]="research.selected"
+                    [attr.aria-pressed]="research.selected"
+                    [attr.title]="research.labelKey | translate: research.fallback"
+                    (click)="toggleResearch(research.id)"
+                  >
+                    @if (research.iconPath) {
+                      <img
+                        class="size-8 object-contain"
+                        [src]="research.iconPath"
+                        [alt]="research.labelKey | translate: research.fallback"
+                        loading="lazy"
+                      />
+                    } @else {
+                      <span class="text-base" aria-hidden="true">{{ research.icon }}</span>
+                    }
+                    <span
+                      class="absolute right-0 bottom-0 rounded-tl bg-[rgba(2,13,23,0.88)] px-0.5 text-[0.56rem] font-black leading-tight tabular-nums text-[var(--gh-gold)]"
+                      [attr.aria-label]="
+                        research.cost + ' ' + ('academyResearch.pointsShort' | translate: 'pts')
+                      "
+                    >
+                      {{ research.cost }}
+                    </span>
+                  </button>
+                }
+              </section>
+            }
+          </div>
+        </section>
+
+        <footer class="flex flex-wrap items-center gap-x-4 gap-y-1 px-0.5 text-xs font-black">
+          @if (!researchCalculation().isWithinMaximumPoints) {
+            <span class="text-[#ff8b8b]">
+              {{ 'academyResearch.missingPoints' | translate: 'Missing points' }}
+              {{ researchCalculation().missingPoints }}
+            </span>
+          } @else if (researchCalculation().missingAcademyLevels > 0) {
+            <span class="text-[#ff8b8b]">
+              {{ 'academyResearch.missingLevels' | translate: 'Missing levels' }}
+              {{ researchCalculation().missingAcademyLevels }}
+            </span>
+          } @else {
+            <span class="text-[#3fa36b]">
+              {{ 'academyResearch.remainingPoints' | translate: 'Remaining points' }}
+              {{ researchCalculation().remainingPoints }}
+            </span>
+          }
+        </footer>
+      </section>
+    </div>
+  }
 </aside>

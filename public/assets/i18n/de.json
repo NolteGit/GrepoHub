@@ -481,7 +481,7 @@
   "academyResearch.openButton": "Forschung",
   "academyResearch.openAria": "Akademie-Forschungsrechner öffnen",
   "academyResearch.eyebrow": "Akademie-Helfer",
-  "academyResearch.title": "Forschungsrechner",
+  "academyResearch.title": "Akademie-Forschung",
   "academyResearch.description": "Wähle Forschungen aus, um Punkte und benötigte Akademiestufe zu schätzen. Dieser Helfer ist nur lokal und wird nicht im Plan gespeichert.",
   "academyResearch.close": "Schließen",
   "academyResearch.academyLevel": "Akademiestufe",
@@ -844,5 +844,6 @@
   "plannerV2.tileDetails.header": "Kachel-Details",
   "plannerV2.tileDetails.hint": "Werte / Infos",
   "plannerV2.toolbox.collapse": "Toolbox einklappen",
-  "plannerV2.toolbox.expand": "Toolbox ausklappen"
+  "plannerV2.toolbox.expand": "Toolbox ausklappen",
+  "academyResearch.technologiesButton": "Technologien"
 }

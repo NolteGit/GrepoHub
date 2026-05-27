@@ -481,7 +481,7 @@
   "academyResearch.openButton": "Ricerca",
   "academyResearch.openAria": "Apri calcolatore ricerche accademia",
   "academyResearch.eyebrow": "Assistente accademia",
-  "academyResearch.title": "Calcolatore ricerche",
+  "academyResearch.title": "Ricerca accademia",
   "academyResearch.description": "Scegli ricerche per stimare i punti e il livello accademia necessari. Questo assistente è solo locale e non viene salvato nel tuo piano.",
   "academyResearch.close": "Chiudi",
   "academyResearch.academyLevel": "Livello accademia",
@@ -844,5 +844,6 @@
   "plannerV2.tileDetails.header": "Dettagli riquadri",
   "plannerV2.tileDetails.hint": "Statistiche / info",
   "plannerV2.toolbox.collapse": "Comprimi strumenti",
-  "plannerV2.toolbox.expand": "Espandi strumenti"
+  "plannerV2.toolbox.expand": "Espandi strumenti",
+  "academyResearch.technologiesButton": "Tecnologie"
 }

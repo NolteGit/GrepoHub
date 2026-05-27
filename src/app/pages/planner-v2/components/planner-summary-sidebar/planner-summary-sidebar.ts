@@ -1,7 +1,12 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 
-import { getBattleIconPath } from '../../../../data/asset-paths';
+import {
+  academyResearchLevelGroups,
+  type AcademyResearchId,
+} from '../../../../data/academy-research-presets';
+import { getAcademyResearchIconPath, getBattleIconPath } from '../../../../data/asset-paths';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { calculateAcademyResearchPlan } from '../../../../services/academy-research-calculator';
 import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
 
 import type {
@@ -24,6 +29,28 @@ type DonutSegment = TranslatableText & {
   readonly valueColor: string;
   readonly strokeDasharray: string;
   readonly strokeDashoffset: number;
+};
+
+type ResearchTile = TranslatableText & {
+  readonly id: AcademyResearchId;
+  readonly cost: number;
+  readonly requiredAcademyLevel: number;
+  readonly icon: string;
+  readonly iconPath: string;
+  readonly selected: boolean;
+  readonly unlocked: boolean;
+};
+
+type ResearchLevelGroupView = {
+  readonly requiredAcademyLevel: number;
+  readonly levelLabel: string;
+  readonly researches: readonly ResearchTile[];
+};
+
+type ResearchStatCard = TranslatableText & {
+  readonly id: string;
+  readonly value: string;
+  readonly tone: 'default' | 'success' | 'warning' | 'danger';
 };
 
 type BattleStatCell = TranslatableText & {
@@ -81,6 +108,12 @@ export class PlannerSummarySidebar {
   readonly population = input.required<SidebarPopulationStats>();
   readonly topUsedUnits = input.required<readonly SidebarUsedUnit[]>();
   readonly troopBattleStats = input.required<SidebarTroopBattleStats>();
+  readonly academyLevel = input(0);
+  readonly libraryBuilt = input(false);
+
+  protected readonly researchDialogOpen = signal(false);
+  protected readonly selectedResearchIds = signal<readonly AcademyResearchId[]>([]);
+  protected readonly researchLibraryBuilt = signal(false);
 
   protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
   protected readonly populationTitleFallback = 'Population Overview';
@@ -88,6 +121,97 @@ export class PlannerSummarySidebar {
   protected readonly battleTitleFallback = 'Troop Stats';
   protected readonly topUnitsTitleKey = 'plannerV2.summary.context.mostUsedUnits';
   protected readonly topUnitsTitleFallback = 'Most Used Units';
+  protected readonly researchOpenButtonKey = 'academyResearch.openButton';
+  protected readonly researchOpenButtonFallback = 'Research';
+  protected readonly researchOpenAriaKey = 'academyResearch.openAria';
+  protected readonly researchOpenAriaFallback = 'Open academy research calculator';
+  protected readonly researchCalculation = computed(() =>
+    calculateAcademyResearchPlan({
+      academyLevel: this.academyLevel(),
+      selectedResearchIds: this.selectedResearchIds(),
+      libraryBuilt: this.researchLibraryBuilt(),
+    }),
+  );
+  protected readonly researchGroups = computed<readonly ResearchLevelGroupView[]>(() =>
+    academyResearchLevelGroups.map((group) => ({
+      requiredAcademyLevel: group.requiredAcademyLevel,
+      levelLabel: group.requiredAcademyLevel.toString(),
+      researches: group.researches.map((research) => ({
+        id: research.id,
+        labelKey: research.nameKey,
+        fallback: research.fallbackName,
+        cost: research.cost,
+        requiredAcademyLevel: research.requiredAcademyLevel,
+        icon: research.icon,
+        iconPath: getAcademyResearchIconPath(research.id),
+        selected: this.selectedResearchIds().includes(research.id),
+        unlocked: this.academyLevel() >= research.requiredAcademyLevel,
+      })),
+    })),
+  );
+  protected readonly researchStatCards = computed<readonly ResearchStatCard[]>(() => {
+    const calculation = this.researchCalculation();
+
+    return [
+      {
+        id: 'available',
+        labelKey: 'academyResearch.availablePoints',
+        fallback: 'Available points',
+        value: calculation.availablePoints.toString(),
+        tone: 'default',
+      },
+      {
+        id: 'cost',
+        labelKey: 'academyResearch.selectedCost',
+        fallback: 'Selected cost',
+        value: calculation.selectedCost.toString(),
+        tone: calculation.isWithinMaximumPoints ? 'default' : 'danger',
+      },
+      {
+        id: 'remaining',
+        labelKey:
+          calculation.remainingPoints >= 0
+            ? 'academyResearch.remainingPoints'
+            : 'academyResearch.missingPoints',
+        fallback: calculation.remainingPoints >= 0 ? 'Remaining points' : 'Missing points',
+        value: Math.abs(calculation.remainingPoints).toString(),
+        tone: calculation.remainingPoints >= 0 ? 'success' : 'danger',
+      },
+      {
+        id: 'required',
+        labelKey: 'academyResearch.requiredLevel',
+        fallback: 'Required level',
+        value: calculation.requiredAcademyLevel.toString(),
+        tone: calculation.missingUnlockLevels > 0 ? 'warning' : 'default',
+      },
+    ];
+  });
+  protected readonly researchStatusKey = computed(() => {
+    const calculation = this.researchCalculation();
+
+    if (!calculation.isWithinMaximumPoints) {
+      return 'academyResearch.tooExpensive';
+    }
+
+    if (!calculation.isCurrentAcademyLevelEnough) {
+      return 'academyResearch.needsMoreAcademy';
+    }
+
+    return 'academyResearch.currentLevelEnough';
+  });
+  protected readonly researchStatusFallback = computed(() => {
+    const calculation = this.researchCalculation();
+
+    if (!calculation.isWithinMaximumPoints) {
+      return 'This selection needs more points than the academy can provide.';
+    }
+
+    if (!calculation.isCurrentAcademyLevelEnough) {
+      return 'The current academy level is not enough for this selection yet.';
+    }
+
+    return 'The current academy level can support this selection.';
+  });
   protected readonly populationBreakdown = computed<PopulationBreakdown>(() => ({
     capacity: formatNumber(this.population().populationCapacity),
     freeCapacity: formatNumber(this.population().freePopulationAfterTroops),
@@ -121,6 +245,48 @@ export class PlannerSummarySidebar {
 
     return createDonutSegments(values, capacity);
   });
+
+  protected openResearchDialog(): void {
+    this.researchLibraryBuilt.set(this.libraryBuilt());
+    this.researchDialogOpen.set(true);
+  }
+
+  protected closeResearchDialog(): void {
+    this.researchDialogOpen.set(false);
+  }
+
+  protected toggleResearchLibrary(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    this.researchLibraryBuilt.set(input.checked);
+  }
+
+  protected toggleResearch(researchId: AcademyResearchId): void {
+    this.selectedResearchIds.update((ids) =>
+      ids.includes(researchId) ? ids.filter((id) => id !== researchId) : [...ids, researchId],
+    );
+  }
+
+  protected clearResearchSelection(): void {
+    this.selectedResearchIds.set([]);
+  }
+
+  protected researchCardColor(tone: ResearchStatCard['tone']): string {
+    if (tone === 'success') {
+      return '#3fa36b';
+    }
+
+    if (tone === 'warning') {
+      return 'var(--gh-gold)';
+    }
+
+    if (tone === 'danger') {
+      return '#cf453e';
+    }
+
+    return 'var(--gh-text)';
+  }
+
   protected readonly battleRows = computed<readonly BattleStatRow[]>(() => {
     const stats = this.troopBattleStats();
 

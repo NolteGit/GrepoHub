@@ -1331,6 +1331,12 @@ export class PlannerV2 {
       additionalFastTransportShips: summary.additionalFastTransportShips,
     };
   });
+  protected readonly libraryBuilt = computed(() =>
+    Object.values(this.activeCityPlan().specialBuildings).includes('library'),
+  );
+
+  protected readonly academyLevel = computed(() => this.buildingLevels()['academy'] ?? 0);
+
   protected readonly sidebarPopulation = computed<SidebarPopulationStats>(() => {
     const citySummary = this.citySummary();
     const troopSummary = this.troopSummary();
