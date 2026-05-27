@@ -100,6 +100,15 @@ export class PlannerToolbox implements OnDestroy {
   protected readonly calculatorMode = signal<ToolboxCalculatorMode>('calculator');
   private readonly calculatorExpression = signal('');
   private readonly calculatorWasEvaluated = signal(false);
+  private readonly calculatorPanelHovered = signal(false);
+  private readonly calculatorPanelFocused = signal(false);
+  private readonly calculatorPanelPinned = signal(false);
+  protected readonly calculatorKeyboardActive = computed(
+    () =>
+      this.calculatorPanelHovered() ||
+      this.calculatorPanelFocused() ||
+      this.calculatorPanelPinned(),
+  );
   protected readonly calculatorHistory = signal<readonly CalculatorHistoryItem[]>([]);
   protected readonly timeCalculatorBase = signal<TimeCalculatorParts>(
     this.createCurrentTimeParts(),
@@ -396,12 +405,35 @@ export class PlannerToolbox implements OnDestroy {
     this.toolboxCollapsedChange.emit(false);
   }
 
+  protected enterCalculatorPanel(): void {
+    this.calculatorPanelHovered.set(true);
+  }
+
+  protected leaveCalculatorPanel(): void {
+    this.calculatorPanelHovered.set(false);
+  }
+
+  protected focusCalculatorPanel(): void {
+    this.calculatorPanelFocused.set(true);
+  }
+
+  protected blurCalculatorPanel(event: FocusEvent): void {
+    if (!this.isInsideCalculatorPanel(event.relatedTarget)) {
+      this.calculatorPanelFocused.set(false);
+    }
+  }
+
   protected selectAction(action: ToolboxActionButton): void {
     if (action.disabled) {
       return;
     }
 
     this.actionSelected.emit(action.id);
+  }
+
+  @HostListener('document:pointerdown', ['$event'])
+  protected handleDocumentPointerDown(event: PointerEvent): void {
+    this.calculatorPanelPinned.set(this.isInsideCalculatorPanel(event.target));
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -412,6 +444,16 @@ export class PlannerToolbox implements OnDestroy {
         this.closeReminderDialog();
       }
 
+      return;
+    }
+
+    if (
+      event.ctrlKey ||
+      event.metaKey ||
+      event.altKey ||
+      this.toolboxCollapsed() ||
+      !this.calculatorKeyboardActive()
+    ) {
       return;
     }
 
@@ -880,6 +922,12 @@ export class PlannerToolbox implements OnDestroy {
     }
 
     return null;
+  }
+
+  private isInsideCalculatorPanel(target: EventTarget | null): boolean {
+    return (
+      target instanceof HTMLElement && target.closest('[data-calculator-panel="true"]') !== null
+    );
   }
 
   private isEditableKeyboardTarget(target: EventTarget | null): boolean {

@@ -227,7 +227,15 @@
       </div>
     </app-gh-panel>
 
-    <app-gh-panel class="grid content-start gap-3 max-[76rem]:hidden" padding="sm">
+    <app-gh-panel
+      class="grid content-start gap-3 max-[76rem]:hidden"
+      padding="sm"
+      data-calculator-panel="true"
+      (mouseenter)="enterCalculatorPanel()"
+      (mouseleave)="leaveCalculatorPanel()"
+      (focusin)="focusCalculatorPanel()"
+      (focusout)="blurCalculatorPanel($event)"
+    >
       <div
         class="grid grid-cols-2 gap-1 rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] p-1"
         role="tablist"
