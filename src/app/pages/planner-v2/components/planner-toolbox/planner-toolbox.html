@@ -132,17 +132,17 @@
           (click)="openReminderDialog()"
         />
       </header>
-      <div class="grid max-h-[12.25rem] gap-2 overflow-y-auto pr-1 [scrollbar-width:thin]">
+      <div class="grid max-h-[10.75rem] gap-2 overflow-y-auto pr-1 [scrollbar-width:thin]">
         @if (queueItems().length > 0) {
           @for (item of queueItems(); track item.id) {
             <article
               [class]="
                 item.tone === 'done'
-                  ? 'grid min-h-[2.4rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[var(--gh-border)] bg-[rgba(246,195,67,0.12)] px-2 py-1.5 shadow-[inset_0_0_0_1px_rgba(246,195,67,0.16),0_0_0.75rem_rgba(246,195,67,0.1)]'
-                  : 'grid min-h-[2.4rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[rgba(212,160,55,0.14)] bg-[rgba(2,13,23,0.36)] px-2 py-1.5'
+                  ? 'grid min-h-[3.1rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[var(--gh-border)] bg-[rgba(246,195,67,0.12)] px-2 py-2 shadow-[inset_0_0_0_1px_rgba(246,195,67,0.16),0_0_0.75rem_rgba(246,195,67,0.1)]'
+                  : 'grid min-h-[3.1rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg border border-[rgba(212,160,55,0.14)] bg-[rgba(2,13,23,0.36)] px-2 py-2'
               "
             >
-              <div class="grid min-w-0 gap-0.5">
+              <div class="grid min-w-0 gap-1">
                 <div class="grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5">
                   <span
                     [class]="
@@ -169,8 +169,8 @@
                 <strong
                   [class]="
                     item.tone === 'done'
-                      ? 'truncate pl-4 text-[0.7rem] font-black tabular-nums text-[var(--gh-gold)]'
-                      : 'truncate pl-4 text-[0.7rem] font-black tabular-nums text-[var(--gh-text)]'
+                      ? 'truncate pl-4 text-[0.75rem] leading-none font-black tabular-nums text-[var(--gh-gold)]'
+                      : 'truncate pl-4 text-[0.75rem] leading-none font-black tabular-nums text-[var(--gh-text)]'
                   "
                 >
                   {{ item.value }}
@@ -202,15 +202,15 @@
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="2.2"
+                    stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   >
                     <path d="M3 6h18" />
-                    <path d="M8 6V4h8v2" />
-                    <path d="M19 6l-1 14H6L5 6" />
-                    <path d="M10 11v5" />
-                    <path d="M14 11v5" />
+                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    <path d="M19 6 18 20a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
                   </svg>
                 </button>
               </div>
