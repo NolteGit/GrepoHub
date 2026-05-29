@@ -10,9 +10,9 @@ import {
   CityModifierId,
   CitySpecialBuildingOptionId,
 } from '../models/city-configuration.model';
-import { defaultGrepolisGodId } from '../models/god.model';
 import { PlanConfig } from '../models/plan-config.model';
 import { Unit } from '../models/unit.model';
+import { getEffectiveCityPlanForSelectedGod } from './city-planner-effects';
 import { calculateCityPlannerPopulation } from './city-planner-population';
 import { GameDataService } from './game-data.service';
 import { PlanConfigService } from './plan-config.service';
@@ -110,7 +110,7 @@ export class PlanReadableExportService {
   }
 
   private buildTextReport(plan: PlanConfig, exportedAt: Date): string {
-    const cityPlan = this.getEffectiveCityPlan(plan);
+    const cityPlan = getEffectiveCityPlanForSelectedGod(plan.cityPlan, plan.settings.selectedGod);
     const buildingRows = this.getBuildingRows(cityPlan);
     const modifierRows = this.getCityModifierRows(cityPlan);
     const specialBuildingRows = this.getSpecialBuildingRows(cityPlan);
@@ -186,7 +186,7 @@ export class PlanReadableExportService {
   }
 
   private buildCsvRows(plan: PlanConfig): CsvRow[] {
-    const cityPlan = this.getEffectiveCityPlan(plan);
+    const cityPlan = getEffectiveCityPlanForSelectedGod(plan.cityPlan, plan.settings.selectedGod);
     const buildingRows = this.getBuildingRows(cityPlan).map((row) => ({
       Section: this.translate('planConfig.export.section.building', 'Building'),
       Building: row.name,
@@ -242,16 +242,6 @@ export class PlanReadableExportService {
       ...troopModifierRows,
       ...troopSummaryRows,
     ];
-  }
-
-  private getEffectiveCityPlan(plan: PlanConfig): CityConfiguration {
-    return {
-      ...plan.cityPlan,
-      modifiers: {
-        ...plan.cityPlan.modifiers,
-        aphroditeActive: plan.settings.selectedGod === defaultGrepolisGodId,
-      },
-    };
   }
 
   private getBuildingRows(cityPlan: CityConfiguration): {

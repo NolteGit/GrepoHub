@@ -35,6 +35,10 @@ import {
 import type { TroopConfiguration } from '../../models/troop-configuration.model';
 import type { Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import {
+  getEffectiveCityPlanForSelectedGod,
+  isAphroditeGodSelected,
+} from '../../services/city-planner-effects';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
@@ -322,8 +326,6 @@ const gods: readonly (GodOption & { readonly value: GrepolisGodId })[] = [
 
 const planNoticeAutoDismissMs = 4200;
 
-const isDefaultSelectedGod = (god: string): boolean => god === defaultGrepolisGodId;
-
 const landExpansionMaxLevel = 6;
 const landExpansionPopulationPerLevel = 50;
 
@@ -364,17 +366,6 @@ const clampBuildingLevel = (buildingId: string, level: number): number => {
 };
 
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
-
-const getEffectiveCityPlanForGod = (
-  cityPlan: CityConfiguration,
-  selectedGod: string,
-): CityConfiguration => ({
-  ...cityPlan,
-  modifiers: {
-    ...cityPlan.modifiers,
-    aphroditeActive: isDefaultSelectedGod(selectedGod),
-  },
-});
 
 const getLandExpansionPopulationBonus = (level: number): number => {
   return clampLandExpansionLevel(level) * landExpansionPopulationPerLevel;
@@ -974,7 +965,7 @@ export class PlannerV2 {
   protected readonly selectedGod = computed(() => this.activePlan().settings.selectedGod);
   protected readonly activeCityPlan = computed(() => this.activePlan().cityPlan);
   protected readonly effectiveCityPlan = computed(() =>
-    getEffectiveCityPlanForGod(this.activeCityPlan(), this.selectedGod()),
+    getEffectiveCityPlanForSelectedGod(this.activeCityPlan(), this.selectedGod()),
   );
   protected readonly activeTroopPlan = computed(() => this.activePlan().troopPlan);
   protected readonly buildingLevels = computed(() => this.activeCityPlan().buildingLevels);
@@ -1089,7 +1080,7 @@ export class PlannerV2 {
     const cityPlan = this.activeCityPlan();
     const buildingLevels = this.buildingLevels();
     const landExpansionLevel = clampLandExpansionLevel(buildingLevels['land_expansion'] ?? 0);
-    const isAphroditeGodSelected = isDefaultSelectedGod(this.selectedGod());
+    const aphroditeGodSelected = isAphroditeGodSelected(this.selectedGod());
 
     return [
       {
@@ -1099,7 +1090,7 @@ export class PlannerV2 {
         shortLabelKey: 'plannerV2.modifier.aphroditeShort',
         shortFallback: 'Pygmalion',
         iconPath: getCityModifierIconPath('pygmalion'),
-        active: isAphroditeGodSelected,
+        active: aphroditeGodSelected,
         disabled: false,
       },
       {
@@ -1624,7 +1615,7 @@ export class PlannerV2 {
   protected toggleCityModifier(modifierId: CityModifierToggleId): void {
     if (modifierId === 'aphroditeActive') {
       this.setSelectedGod(
-        isDefaultSelectedGod(this.selectedGod()) ? fallbackGrepolisGodId : defaultGrepolisGodId,
+        isAphroditeGodSelected(this.selectedGod()) ? fallbackGrepolisGodId : defaultGrepolisGodId,
       );
       return;
     }
