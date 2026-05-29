@@ -1373,6 +1373,16 @@ export class PlannerV2 {
       return;
     }
 
+    if (actionId === 'rename') {
+      this.renameActivePlanFromPrompt();
+      return;
+    }
+
+    if (actionId === 'note') {
+      this.updateActivePlanNoteFromPrompt();
+      return;
+    }
+
     if (actionId === 'import') {
       planImportInput.click();
       return;
@@ -1380,6 +1390,11 @@ export class PlannerV2 {
 
     if (actionId === 'export') {
       this.planImportExportUiService.exportActivePlanAsJson();
+      return;
+    }
+
+    if (actionId === 'clear') {
+      this.clearActivePlanWithConfirmation();
       return;
     }
 
@@ -1592,6 +1607,91 @@ export class PlannerV2 {
           'plannerV2.planControls.createdDetail',
           'Now editing: {name}.',
           { name: createdPlan.name },
+        ),
+      ],
+    });
+  }
+
+  private renameActivePlanFromPrompt(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    const requestedName = window.prompt(
+      this.translationService.translate('planConfig.renameDialog.nameLabel', 'Plan name'),
+      this.activePlan().name,
+    );
+
+    if (requestedName === null) {
+      return;
+    }
+
+    const renamedPlan = this.planConfigService.renameActivePlan(requestedName);
+
+    if (!renamedPlan) {
+      return;
+    }
+
+    this.localPlanNotice.set({
+      tone: 'success',
+      titleKey: 'planConfig.rename',
+      titleFallback: 'Rename',
+      detailLines: [
+        this.translationService.translate(
+          'plannerV2.planControls.createdDetail',
+          'Now editing: {name}.',
+          { name: renamedPlan.name },
+        ),
+      ],
+    });
+  }
+
+  private updateActivePlanNoteFromPrompt(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    const requestedNote = window.prompt(
+      this.translationService.translate('planConfig.noteDialog.noteLabel', 'Note'),
+      this.activePlan().cityPlan.note ?? '',
+    );
+
+    if (requestedNote === null) {
+      return;
+    }
+
+    this.planConfigService.updateActiveCityPlanNote(requestedNote);
+    this.localPlanNotice.set({
+      tone: 'success',
+      titleKey: 'planConfig.note',
+      titleFallback: 'Note',
+      detailLines: [
+        this.translationService.translate(
+          'plannerV2.planControls.createdDetail',
+          'Now editing: {name}.',
+          { name: this.activePlan().name },
+        ),
+      ],
+    });
+  }
+
+  private clearActivePlanWithConfirmation(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    const confirmed = window.confirm(
+      this.translationService.translate(
+        'planConfig.clearDialog.message',
+        'Choose the clear action from the active planner. Plans are saved only in this browser unless you export them.',
+      ),
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.planConfigService.clearActivePlan();
+    this.localPlanNotice.set({
+      tone: 'success',
+      titleKey: 'planConfig.clear',
+      titleFallback: 'Clear',
+      detailLines: [
+        this.translationService.translate(
+          'plannerV2.planControls.createdDetail',
+          'Now editing: {name}.',
+          { name: this.activePlan().name },
         ),
       ],
     });

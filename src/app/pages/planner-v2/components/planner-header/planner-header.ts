@@ -8,15 +8,22 @@ import {
   type GhSelectOption,
 } from '../../../../shared/ui/gh-select-field/gh-select-field';
 
-export type PlannerHeaderActionId = 'new' | 'import' | 'export' | 'delete';
+export type PlannerHeaderActionId =
+  | 'new'
+  | 'rename'
+  | 'note'
+  | 'import'
+  | 'export'
+  | 'clear'
+  | 'delete';
 
-type HeaderAction = {
+type HeaderMenuAction = {
   readonly id: PlannerHeaderActionId;
   readonly labelKey: string;
   readonly fallback: string;
   readonly icon: string;
-  readonly variant?: 'primary';
   readonly disabled?: boolean;
+  readonly tone?: 'danger';
 };
 
 @Component({
@@ -33,25 +40,48 @@ export class PlannerHeader {
 
   protected readonly planLabelKey = 'plannerV2.header.planLabel';
   protected readonly planLabelFallback = 'Plan';
+  protected readonly newPlanLabelKey = 'plannerV2.header.newPlan';
+  protected readonly newPlanLabelFallback = 'New plan';
+  protected readonly exportLabelKey = 'plannerV2.header.export';
+  protected readonly exportLabelFallback = 'Export';
+  protected readonly moreLabelKey = 'plannerV2.header.more';
+  protected readonly moreLabelFallback = 'More';
   protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>
     this.plans().map((plan) => ({ value: plan.id, label: plan.name })),
   );
-  protected readonly actions = computed<readonly HeaderAction[]>(() => [
+  protected readonly menuActions = computed<readonly HeaderMenuAction[]>(() => [
     {
-      id: 'new',
-      labelKey: 'plannerV2.header.newPlan',
-      fallback: 'New plan',
-      icon: '+',
-      variant: 'primary',
+      id: 'rename',
+      labelKey: 'planConfig.rename',
+      fallback: 'Rename',
+      icon: '▣',
     },
-    { id: 'import', labelKey: 'plannerV2.header.import', fallback: 'Import', icon: '⇧' },
-    { id: 'export', labelKey: 'plannerV2.header.export', fallback: 'Export', icon: '⇩' },
+    {
+      id: 'note',
+      labelKey: 'planConfig.note',
+      fallback: 'Note',
+      icon: '▤',
+    },
+    {
+      id: 'import',
+      labelKey: 'planConfig.importJson',
+      fallback: 'Import JSON',
+      icon: '⇧',
+    },
+    {
+      id: 'clear',
+      labelKey: 'planConfig.clear',
+      fallback: 'Clear',
+      icon: '◇',
+      tone: 'danger',
+    },
     {
       id: 'delete',
-      labelKey: 'plannerV2.header.delete',
+      labelKey: 'planConfig.delete',
       fallback: 'Delete',
       icon: '×',
       disabled: !this.canDeletePlan(),
+      tone: 'danger',
     },
   ]);
 }
