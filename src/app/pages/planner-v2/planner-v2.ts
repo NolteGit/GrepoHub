@@ -1672,21 +1672,13 @@ export class PlannerV2 {
   private setSelectedGod(god: string): void {
     const selectedGod = normalizeGrepolisGodId(god);
     const previousGod = this.selectedGod();
-    const aphroditeActive = isDefaultSelectedGod(selectedGod);
 
-    if (previousGod !== selectedGod) {
-      this.planConfigService.updateActivePlanSettings({ selectedGod });
-      this.clearInactiveMythicalUnits(selectedGod);
+    if (previousGod === selectedGod) {
+      return;
     }
 
-    if (this.activeCityPlan().modifiers.aphroditeActive !== aphroditeActive) {
-      this.updateCityPlan((cityPlan) => ({
-        modifiers: {
-          ...cityPlan.modifiers,
-          aphroditeActive,
-        },
-      }));
-    }
+    this.planConfigService.updateActivePlanSettings({ selectedGod });
+    this.clearInactiveMythicalUnits(selectedGod);
   }
 
   private clearInactiveMythicalUnits(selectedGod: string): void {

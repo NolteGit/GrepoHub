@@ -10,6 +10,7 @@ import {
   CityModifierId,
   CitySpecialBuildingOptionId,
 } from '../models/city-configuration.model';
+import { defaultGrepolisGodId } from '../models/god.model';
 import { PlanConfig } from '../models/plan-config.model';
 import { Unit } from '../models/unit.model';
 import { calculateCityPlannerPopulation } from './city-planner-population';
@@ -109,10 +110,11 @@ export class PlanReadableExportService {
   }
 
   private buildTextReport(plan: PlanConfig, exportedAt: Date): string {
-    const buildingRows = this.getBuildingRows(plan.cityPlan);
-    const modifierRows = this.getCityModifierRows(plan.cityPlan);
-    const specialBuildingRows = this.getSpecialBuildingRows(plan.cityPlan);
-    const citySummaryRows = this.getCitySummaryRows(plan.cityPlan);
+    const cityPlan = this.getEffectiveCityPlan(plan);
+    const buildingRows = this.getBuildingRows(cityPlan);
+    const modifierRows = this.getCityModifierRows(cityPlan);
+    const specialBuildingRows = this.getSpecialBuildingRows(cityPlan);
+    const citySummaryRows = this.getCitySummaryRows(cityPlan);
     const unitRows = this.getSelectedUnitRows(plan);
     const troopModifierRows = this.getTroopModifierRows(plan);
     const troopSummaryRows = this.getTroopSummaryRows(plan);
@@ -184,26 +186,27 @@ export class PlanReadableExportService {
   }
 
   private buildCsvRows(plan: PlanConfig): CsvRow[] {
-    const buildingRows = this.getBuildingRows(plan.cityPlan).map((row) => ({
+    const cityPlan = this.getEffectiveCityPlan(plan);
+    const buildingRows = this.getBuildingRows(cityPlan).map((row) => ({
       Section: this.translate('planConfig.export.section.building', 'Building'),
       Building: row.name,
       'Building Level': row.level,
       Population: row.population,
     }));
-    const modifierRows = this.getCityModifierRows(plan.cityPlan).map((row) => ({
+    const modifierRows = this.getCityModifierRows(cityPlan).map((row) => ({
       Section: this.translate('planConfig.export.section.cityModifier', 'City Modifier'),
       Modifier: row.name,
       Population: row.population,
       Value: row.value,
     }));
-    const specialBuildingRows = this.getSpecialBuildingRows(plan.cityPlan).map((row) => ({
+    const specialBuildingRows = this.getSpecialBuildingRows(cityPlan).map((row) => ({
       Section: this.translate('planConfig.export.section.specialBuilding', 'Special Building'),
       Building: row.name,
       Modifier: row.slot,
       Population: row.population,
       Value: row.optionId,
     }));
-    const citySummaryRows = this.getCitySummaryRows(plan.cityPlan).map((row) => ({
+    const citySummaryRows = this.getCitySummaryRows(cityPlan).map((row) => ({
       Section: this.translate('planConfig.export.citySummary', 'City Summary'),
       Modifier: row.name,
       Value: row.value,
@@ -239,6 +242,16 @@ export class PlanReadableExportService {
       ...troopModifierRows,
       ...troopSummaryRows,
     ];
+  }
+
+  private getEffectiveCityPlan(plan: PlanConfig): CityConfiguration {
+    return {
+      ...plan.cityPlan,
+      modifiers: {
+        ...plan.cityPlan.modifiers,
+        aphroditeActive: plan.settings.selectedGod === defaultGrepolisGodId,
+      },
+    };
   }
 
   private getBuildingRows(cityPlan: CityConfiguration): {
