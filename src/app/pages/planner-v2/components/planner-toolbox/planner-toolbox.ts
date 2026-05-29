@@ -1,7 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
+  QueryList,
+  ViewChildren,
   computed,
   inject,
   input,
@@ -83,6 +86,9 @@ type ToolboxQuickLink = ReferenceQuickLink & {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlannerToolbox implements OnDestroy {
+  @ViewChildren('languageMenu')
+  private languageMenus?: QueryList<ElementRef<HTMLDetailsElement>>;
+
   readonly activeMode = input.required<PlannerMode>();
   readonly canDeletePlan = input(true);
   readonly toolboxCollapsed = input(false);
@@ -429,6 +435,21 @@ export class PlannerToolbox implements OnDestroy {
     this.calculatorPanelHovered.set(false);
   }
 
+  private closeOpenLanguageMenus(): boolean {
+    let closedAnyMenu = false;
+
+    this.languageMenus?.forEach((menu) => {
+      if (!menu.nativeElement.open) {
+        return;
+      }
+
+      menu.nativeElement.open = false;
+      closedAnyMenu = true;
+    });
+
+    return closedAnyMenu;
+  }
+
   protected focusCalculatorPanel(): void {
     this.calculatorPanelFocused.set(true);
   }
@@ -454,12 +475,18 @@ export class PlannerToolbox implements OnDestroy {
 
   @HostListener('document:keydown', ['$event'])
   protected handleCalculatorKeyboard(event: KeyboardEvent): void {
-    if (this.reminderDialogOpen()) {
-      if (event.key === 'Escape') {
+    if (event.key === 'Escape') {
+      if (this.reminderDialogOpen()) {
         event.preventDefault();
         this.closeReminderDialog();
+        return;
       }
 
+      if (this.closeOpenLanguageMenus()) {
+        event.preventDefault();
+        return;
+      }
+    } else if (this.reminderDialogOpen()) {
       return;
     }
 
@@ -505,10 +532,20 @@ export class PlannerToolbox implements OnDestroy {
     this.reminderName.set('');
     this.resetReminderTimeParts();
     this.reminderDialogOpen.set(true);
+    this.focusReminderNameInput();
   }
 
   protected closeReminderDialog(): void {
     this.reminderDialogOpen.set(false);
+  }
+
+  private focusReminderNameInput(): void {
+    window.setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>('[data-reminder-name-input="true"]');
+
+      input?.focus();
+      input?.select();
+    });
   }
 
   protected selectReminderMode(mode: ToolboxReminderMode): void {

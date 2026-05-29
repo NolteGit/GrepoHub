@@ -1,4 +1,12 @@
-import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  HostListener,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
@@ -1473,6 +1481,20 @@ export class PlannerV2 {
   protected closePlanActionDialog(): void {
     this.planActionDialog.set(null);
     this.planDialogValue.set('');
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  protected handleDocumentEscape(event: Event): void {
+    if (this.planActionDialog()) {
+      event.preventDefault();
+      this.closePlanActionDialog();
+      return;
+    }
+
+    if (this.planNotice()) {
+      event.preventDefault();
+      this.closePlanNotice();
+    }
   }
 
   private focusPlanActionDialogField(): void {

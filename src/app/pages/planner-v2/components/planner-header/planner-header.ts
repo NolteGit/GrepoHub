@@ -1,4 +1,12 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  computed,
+  input,
+  output,
+} from '@angular/core';
 
 import { PlanConfig } from '../../../../models/plan-config.model';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
@@ -32,6 +40,9 @@ type HeaderMenuAction = {
   templateUrl: './planner-header.html',
 })
 export class PlannerHeader {
+  @ViewChild('moreMenu')
+  private moreMenu?: ElementRef<HTMLDetailsElement>;
+
   readonly plans = input.required<readonly PlanConfig[]>();
   readonly activePlanId = input.required<string>();
   readonly canDeletePlan = input(true);
@@ -51,6 +62,17 @@ export class PlannerHeader {
   protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>
     this.plans().map((plan) => ({ value: plan.id, label: plan.name })),
   );
+
+  @HostListener('document:keydown.escape', ['$event'])
+  protected handleDocumentEscape(event: Event): void {
+    if (!this.moreMenu?.nativeElement.open) {
+      return;
+    }
+
+    event.preventDefault();
+    this.moreMenu.nativeElement.open = false;
+    this.moreMenu.nativeElement.querySelector('summary')?.focus();
+  }
 
   protected readonly menuActions = computed<readonly HeaderMenuAction[]>(() => [
     {

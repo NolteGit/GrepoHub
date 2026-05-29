@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, HostListener, computed, input, signal } from '@angular/core';
 
 import {
   academyResearchLevelGroups,
@@ -253,6 +253,16 @@ export class PlannerSummarySidebar {
 
   protected closeResearchDialog(): void {
     this.researchDialogOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  protected handleDocumentEscape(event: Event): void {
+    if (!this.researchDialogOpen()) {
+      return;
+    }
+
+    event.preventDefault();
+    this.closeResearchDialog();
   }
 
   protected toggleResearchLibrary(event: Event): void {

@@ -119,7 +119,7 @@ describe('plan config normalization', () => {
     const normalized = normalizePlanConfig(rawPlan);
 
     expect(normalized.id).toMatch(/^custom-plan-/);
-    expect(normalized.name).toBe('Attack');
+    expect(normalized.name).toBe('Attack Plan');
     expect(normalized.settings).toEqual({
       worldSpeed: 3,
       unitSpeed: null,

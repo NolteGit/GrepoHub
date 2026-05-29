@@ -575,6 +575,7 @@
             {{ 'toolbox.common.name' | translate: 'Name' }}
           </span>
           <input
+            data-reminder-name-input="true"
             class="gh-control h-11 w-full min-w-0 rounded-xl px-3 text-sm font-black outline-none transition focus:border-[var(--gh-border)]"
             [attr.aria-label]="'toolbox.common.name' | translate: 'Name'"
             [attr.placeholder]="reminderDefaultNameKey() | translate: reminderDefaultNameFallback()"
