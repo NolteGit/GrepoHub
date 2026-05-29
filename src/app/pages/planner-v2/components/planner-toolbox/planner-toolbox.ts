@@ -166,6 +166,9 @@ export class PlannerToolbox implements OnDestroy {
   protected readonly timeCalculatorOperationSymbol = computed(() =>
     this.timeCalculatorOperation() === 'add' ? '+' : '−',
   );
+  protected readonly formattedTimeCalculatorResult = computed(() =>
+    this.formatTimeParts(this.timeCalculatorResult()),
+  );
   protected readonly timeCalculatorDayOffsetKey = computed(() => {
     const dayOffset = this.timeCalculatorResult().dayOffset;
 
@@ -837,6 +840,10 @@ export class PlannerToolbox implements OnDestroy {
   }
 
   private formatReminderTimeParts(parts: TimeCalculatorParts): string {
+    return this.formatTimeParts(parts);
+  }
+
+  private formatTimeParts(parts: TimeCalculatorParts): string {
     return `${this.formatTimeCalculatorPart(parts.hours)}:${this.formatTimeCalculatorPart(
       parts.minutes,
     )}:${this.formatTimeCalculatorPart(parts.seconds)}`;
