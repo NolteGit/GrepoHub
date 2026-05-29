@@ -1,23 +1,9 @@
-<header
-  class="grid items-end gap-6 px-4 py-3 min-[74rem]:grid-cols-[minmax(0,1fr)_minmax(31rem,auto)]"
->
-  <div class="min-w-0">
-    <h1
-      class="m-0 text-[clamp(2rem,3vw,2.8rem)] leading-none font-extrabold tracking-[-0.055em] text-[var(--gh-text)]"
-    >
-      {{ title() }}
-    </h1>
-    <p class="mt-2 mb-0 max-w-xl text-sm leading-relaxed text-[var(--gh-muted)]">
-      {{ subtitleKey | translate: subtitleFallback }}
-    </p>
-  </div>
-
+<header class="flex justify-center px-4 py-3">
   <div
-    class="grid items-end gap-3 min-[48rem]:grid-cols-[minmax(12rem,1fr)_repeat(4,auto)] min-[74rem]:grid-cols-[minmax(13rem,18rem)_repeat(4,auto)]"
+    class="grid w-full max-w-[44rem] items-end gap-2 min-[36rem]:grid-cols-[minmax(13rem,1fr)_repeat(4,2.75rem)]"
   >
     <app-gh-select-field
-      [labelKey]="planLabelKey"
-      [labelFallback]="planLabelFallback"
+      [ariaLabel]="planLabelKey | translate: planLabelFallback"
       [value]="activePlanId()"
       [options]="planOptions()"
       size="lg"
@@ -30,10 +16,12 @@
         [variant]="action.variant === 'primary' ? 'primary' : 'default'"
         [wide]="true"
         [disabled]="action.disabled ?? false"
+        [ariaLabel]="action.labelKey | translate: action.fallback"
         (click)="actionSelected.emit(action.id)"
       >
-        <span class="text-base leading-none text-[var(--gh-gold)]">{{ action.icon }}</span>
-        {{ action.labelKey | translate: action.fallback }}
+        <span class="text-base leading-none text-[var(--gh-gold)]" aria-hidden="true">{{
+          action.icon
+        }}</span>
       </app-gh-button>
     }
   </div>

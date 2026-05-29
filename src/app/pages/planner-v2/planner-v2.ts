@@ -776,6 +776,9 @@ const isVisibleForTroopCategory = (
   return unit.isMythical && (unit.god === selectedGod || unit.god === 'all');
 };
 
+const shouldKeepUnitForSelectedGod = (unit: Unit, selectedGod: string): boolean =>
+  !unit.isMythical || unit.god === selectedGod || unit.god === 'all';
+
 const createUnitTileStats = (unit: Unit, hasLighthouse: boolean): readonly UnitTileStat[] => {
   const baseSpeed = unitSpeedById[unit.id] ?? 0;
   const speed = hasLighthouse && unit.type === 'sea' ? Math.round(baseSpeed * 1.15) : baseSpeed;
@@ -1508,10 +1511,15 @@ export class PlannerV2 {
 
   private setSelectedGod(god: string): void {
     const selectedGod = normalizeGod(god);
+    const previousGod = this.selectedGod();
     const aphroditeActive = isDefaultSelectedGod(selectedGod);
 
     this.selectedGod.set(selectedGod);
     storeSelectedGod(selectedGod);
+
+    if (previousGod !== selectedGod) {
+      this.clearInactiveMythicalUnits(selectedGod);
+    }
 
     if (this.activeCityPlan().modifiers.aphroditeActive !== aphroditeActive) {
       this.updateCityPlan((cityPlan) => ({
@@ -1521,6 +1529,28 @@ export class PlannerV2 {
         },
       }));
     }
+  }
+
+  private clearInactiveMythicalUnits(selectedGod: string): void {
+    const unitAmounts = this.unitAmounts();
+    const inactiveMythicalUnitIds = this.unitDefinitions()
+      .filter((unit) => !shouldKeepUnitForSelectedGod(unit, selectedGod))
+      .filter((unit) => (unitAmounts[unit.id] ?? 0) > 0)
+      .map((unit) => unit.id);
+
+    if (inactiveMythicalUnitIds.length === 0) {
+      return;
+    }
+
+    this.updateTroopPlan((troopPlan) => ({
+      unitAmounts: inactiveMythicalUnitIds.reduce(
+        (nextUnitAmounts, unitId) => ({
+          ...nextUnitAmounts,
+          [unitId]: 0,
+        }),
+        { ...troopPlan.unitAmounts },
+      ),
+    }));
   }
 
   private updateCityPlan(

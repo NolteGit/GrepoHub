@@ -25,16 +25,12 @@ type HeaderAction = {
   templateUrl: './planner-header.html',
 })
 export class PlannerHeader {
-  readonly title = input.required<string>();
   readonly plans = input.required<readonly PlanConfig[]>();
   readonly activePlanId = input.required<string>();
   readonly canDeletePlan = input(true);
   readonly planSelected = output<string>();
   readonly actionSelected = output<PlannerHeaderActionId>();
 
-  protected readonly subtitleKey = 'plannerV2.header.subtitle';
-  protected readonly subtitleFallback =
-    'Plan your city and troops together. Optimize for power, efficiency, and victory.';
   protected readonly planLabelKey = 'plannerV2.header.planLabel';
   protected readonly planLabelFallback = 'Plan';
   protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>

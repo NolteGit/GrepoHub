@@ -24,7 +24,6 @@
     [activePlanId]="activePlan().id"
     [canDeletePlan]="canDeleteActivePlan()"
     [plans]="plans()"
-    [title]="'plannerV2.title' | translate"
     (actionSelected)="handlePlanAction($event, planImportInput)"
     (planSelected)="selectPlan($event)"
   />
