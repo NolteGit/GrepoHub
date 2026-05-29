@@ -66,10 +66,6 @@ export class PlanImportExportUiService {
       return this.translationService.translate(error.translationKey, error.message, error.params);
     }
 
-    if (error instanceof Error) {
-      return error.message;
-    }
-
     return this.translationService.translate(
       'planConfig.importError.unknown',
       'Could not import plan file.',

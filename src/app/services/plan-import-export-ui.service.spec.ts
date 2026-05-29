@@ -77,7 +77,7 @@ describe('PlanImportExportUiService', () => {
     });
   });
 
-  it('shows an error dialog after a failed import', async () => {
+  it('shows a generic error dialog for unexpected failed imports', async () => {
     const file = new File(['{}'], 'plans.json', { type: 'application/json' });
     const input = document.createElement('input');
 
@@ -91,7 +91,7 @@ describe('PlanImportExportUiService', () => {
 
     expect(service.planImportDialog()).toEqual({
       isError: true,
-      detailLines: ['Invalid JSON'],
+      detailLines: ['Could not import plan file.'],
     });
   });
 });
