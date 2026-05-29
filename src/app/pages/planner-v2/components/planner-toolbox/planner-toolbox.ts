@@ -14,6 +14,7 @@ import { brandImagePaths } from '../../../../data/asset-paths';
 import { referenceQuickLinks, type ReferenceQuickLink } from '../../../../data/reference-documents';
 import { formatNumber as formatCalculatorNumber } from '../../../../utils/toolbox-calculator.util';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { languageOptions, type SupportedLanguage } from '../../../../services/supported-languages';
 import { TranslationService } from '../../../../services/translation.service';
 import { ToolboxTimerService } from '../../../../services/toolbox-timer.service';
 import { GhButton } from '../../../../shared/ui/gh-button/gh-button';
@@ -264,6 +265,12 @@ export class PlannerToolbox implements OnDestroy {
   protected readonly addReminderLabelFallback = 'Add reminder';
   protected readonly quickLinksAriaKey = 'references.quickLinksAria';
   protected readonly quickLinksAriaFallback = 'Important quick links';
+  protected readonly languageOpenLabelKey = 'language.openMenu';
+  protected readonly languageOpenLabelFallback = 'Choose language';
+  protected readonly languageMenuLabelKey = 'language.menuAria';
+  protected readonly languageMenuLabelFallback = 'Language selection';
+  protected readonly languageOptions = languageOptions;
+  protected readonly currentLanguage = this.translationService.currentLanguage;
 
   protected readonly calculatorTabs: readonly ToolboxCalculatorTab[] = [
     {
@@ -390,6 +397,21 @@ export class PlannerToolbox implements OnDestroy {
       href: this.getQuickLinkHref(link, language),
     }));
   });
+
+  protected currentLanguageShortLabelKey(): string {
+    return (
+      this.languageOptions.find((language) => language.code === this.currentLanguage())
+        ?.shortLabelKey ?? 'language.englishCode'
+    );
+  }
+
+  protected currentLanguageShortFallback(): string {
+    return this.currentLanguage().toUpperCase();
+  }
+
+  protected selectLanguage(language: SupportedLanguage): void {
+    this.translationService.setLanguage(language);
+  }
 
   protected collapseToolbox(): void {
     this.toolboxCollapsedChange.emit(true);

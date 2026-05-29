@@ -1,13 +1,13 @@
 <aside
-  class="grid min-h-dvh gap-3 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] max-[76rem]:place-items-center max-[76rem]:px-2 max-[46rem]:hidden"
+  class="grid min-h-dvh gap-2 border-r border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.84)] max-[76rem]:place-items-center max-[76rem]:px-2 max-[46rem]:hidden"
   [class.p-2]="toolboxCollapsed()"
   [class.p-3]="!toolboxCollapsed()"
   [style.grid-template-rows]="
-    toolboxCollapsed() ? 'auto auto 1fr' : 'auto auto auto minmax(10rem, 1fr) auto auto'
+    toolboxCollapsed() ? 'auto auto 1fr' : 'auto auto auto minmax(9.25rem, 1fr) auto auto'
   "
 >
   @if (toolboxCollapsed()) {
-    <header class="grid justify-items-center border-b border-[var(--gh-border-soft)] pb-3">
+    <header class="grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-3">
       <button
         type="button"
         class="grid size-10 place-items-center rounded-lg border border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.45)] text-lg font-black text-[var(--gh-gold)] transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
@@ -17,6 +17,59 @@
       >
         <span aria-hidden="true">›</span>
       </button>
+
+      <details #collapsedLanguageMenu class="group relative z-40">
+        <summary
+          class="relative grid size-10 cursor-pointer list-none place-items-center rounded-lg border border-[rgba(246,195,67,0.36)] bg-[rgba(246,195,67,0.06)] text-[var(--gh-gold)] transition marker:hidden hover:bg-[rgba(246,195,67,0.12)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)] [&::-webkit-details-marker]:hidden"
+          [attr.aria-label]="languageOpenLabelKey | translate: languageOpenLabelFallback"
+          [attr.title]="languageOpenLabelKey | translate: languageOpenLabelFallback"
+        >
+          <svg
+            class="size-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m5 8 6 6" />
+            <path d="m4 14 6-6 2-3" />
+            <path d="M2 5h12" />
+            <path d="M7 2h1" />
+            <path d="m22 22-5-10-5 10" />
+            <path d="M14 18h6" />
+          </svg>
+          <span
+            class="absolute bottom-1 right-1 rounded-full bg-black/35 px-1 text-[0.5rem] font-black leading-3 tracking-[0.05em]"
+          >
+            {{ currentLanguageShortLabelKey() | translate: currentLanguageShortFallback() }}
+          </span>
+        </summary>
+
+        <div
+          class="absolute left-full top-0 z-30 ml-2 grid min-w-[10.75rem] overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[rgba(2,16,29,0.98)] p-1 text-left shadow-2xl shadow-black/40"
+          [attr.aria-label]="languageMenuLabelKey | translate: languageMenuLabelFallback"
+        >
+          @for (language of languageOptions; track language.code) {
+            <button
+              type="button"
+              class="inline-flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg border-0 bg-transparent px-3 text-left text-xs font-black tracking-[0.02em] text-[var(--gh-text)] transition hover:bg-[rgba(212,160,55,0.1)] hover:text-[var(--gh-gold)]"
+              [class.gh-toolbox-action-active]="currentLanguage() === language.code"
+              [style.color]="currentLanguage() === language.code ? 'var(--gh-gold)' : null"
+              (click)="collapsedLanguageMenu.open = false; selectLanguage(language.code)"
+            >
+              <span>{{ language.labelKey | translate: language.code }}</span>
+              <span
+                class="rounded-full bg-black/25 px-2 py-0.5 text-[0.62rem] tracking-[0.08em] text-[var(--gh-gold)]"
+              >
+                {{ language.shortLabelKey | translate: language.code.toUpperCase() }}
+              </span>
+            </button>
+          }
+        </div>
+      </details>
     </header>
 
     <section class="grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-3">
@@ -62,10 +115,59 @@
       </button>
     </section>
   } @else {
-    <header class="relative grid justify-items-center gap-0 pb-0 text-center">
+    <header class="relative -mt-1 grid justify-items-center gap-0 pb-0 text-center">
+      <details #languageMenu class="group absolute left-0 top-0 z-40">
+        <summary
+          class="gh-button inline-flex min-h-7 cursor-pointer list-none items-center justify-center gap-1 rounded-full px-2 text-[0.65rem] font-black transition marker:hidden [&::-webkit-details-marker]:hidden"
+          [attr.aria-label]="languageOpenLabelKey | translate: languageOpenLabelFallback"
+          [attr.title]="languageOpenLabelKey | translate: languageOpenLabelFallback"
+        >
+          <svg
+            class="size-3 text-[var(--gh-gold)]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m5 8 6 6" />
+            <path d="m4 14 6-6 2-3" />
+            <path d="M2 5h12" />
+            <path d="M7 2h1" />
+            <path d="m22 22-5-10-5 10" />
+            <path d="M14 18h6" />
+          </svg>
+          <span>{{ currentLanguageShortLabelKey() | translate: currentLanguageShortFallback() }}</span>
+          <span class="text-[0.6rem] leading-none text-[var(--gh-gold)]" aria-hidden="true">▾</span>
+        </summary>
+
+        <div
+          class="absolute left-0 z-30 mt-1.5 grid min-w-[10.75rem] overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[rgba(2,16,29,0.98)] p-1 text-left shadow-2xl shadow-black/40"
+          [attr.aria-label]="languageMenuLabelKey | translate: languageMenuLabelFallback"
+        >
+          @for (language of languageOptions; track language.code) {
+            <button
+              type="button"
+              class="inline-flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg border-0 bg-transparent px-3 text-left text-xs font-black tracking-[0.02em] text-[var(--gh-text)] transition hover:bg-[rgba(212,160,55,0.1)] hover:text-[var(--gh-gold)]"
+              [class.gh-toolbox-action-active]="currentLanguage() === language.code"
+              [style.color]="currentLanguage() === language.code ? 'var(--gh-gold)' : null"
+              (click)="languageMenu.open = false; selectLanguage(language.code)"
+            >
+              <span>{{ language.labelKey | translate: language.code }}</span>
+              <span
+                class="rounded-full bg-black/25 px-2 py-0.5 text-[0.62rem] tracking-[0.08em] text-[var(--gh-gold)]"
+              >
+                {{ language.shortLabelKey | translate: language.code.toUpperCase() }}
+              </span>
+            </button>
+          }
+        </div>
+      </details>
       <button
         type="button"
-        class="absolute right-0 top-0 grid size-8 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+        class="absolute right-0 top-0 grid size-7 place-items-center rounded-md border border-[var(--gh-border-soft)] text-sm font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
         [attr.aria-label]="'plannerV2.toolbox.collapse' | translate: 'Collapse toolbox'"
         [attr.title]="'plannerV2.toolbox.collapse' | translate: 'Collapse toolbox'"
         (click)="collapseToolbox()"
@@ -74,13 +176,13 @@
       </button>
 
       <img
-        class="mt-1 w-[10.2rem] max-w-[82%] select-none object-contain drop-shadow-[0_0_1rem_rgba(246,195,67,0.22)] max-[76rem]:w-14"
+        class="mt-0 w-[9.25rem] max-w-[76%] select-none object-contain drop-shadow-[0_0_0.85rem_rgba(246,195,67,0.2)] max-[76rem]:w-14"
         [src]="brandLogoPath"
         alt=""
       />
     </header>
 
-    <section class="flex items-center justify-center pb-1 text-center max-[76rem]:hidden">
+    <section class="-mt-1 flex items-center justify-center pb-0 text-center max-[76rem]:hidden">
       <time
         class="text-lg font-black leading-none tracking-wider text-[var(--gh-text)] tabular-nums"
       >
@@ -88,9 +190,9 @@
       </time>
     </section>
 
-    <section class="grid pb-1 max-[76rem]:hidden">
+    <section class="grid pb-0 max-[76rem]:hidden">
       <nav
-        class="grid grid-cols-4 gap-2"
+        class="grid grid-cols-4 gap-1.5"
         [attr.aria-label]="quickLinksAriaKey | translate: quickLinksAriaFallback"
       >
         @for (link of quickLinks(); track link.id) {
@@ -101,7 +203,7 @@
             link.id === 'support'
           ) {
             <a
-              class="grid size-12 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+              class="grid size-11 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
               target="_blank"
               rel="noopener noreferrer"
               [href]="link.href"
@@ -109,7 +211,7 @@
               [attr.aria-label]="link.title"
             >
               <img
-                class="max-h-9 max-w-full object-contain"
+                class="max-h-8 max-w-full object-contain"
                 [src]="link.iconPath"
                 [alt]="link.title"
               />

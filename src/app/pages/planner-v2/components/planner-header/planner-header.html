@@ -1,5 +1,5 @@
 <header
-  class="grid min-h-[4.25rem] grid-cols-[auto_auto_minmax(0,1fr)] items-center gap-3 px-5 py-2 max-[64rem]:grid-cols-[auto_minmax(0,1fr)] max-[58rem]:grid-cols-1 max-[58rem]:gap-2 max-[58rem]:px-3"
+  class="relative grid min-h-[4.25rem] grid-cols-[auto_minmax(0,1fr)] items-center gap-3 px-5 py-2 max-[64rem]:grid-cols-[auto_minmax(0,1fr)] max-[58rem]:grid-cols-1 max-[58rem]:gap-2 max-[58rem]:px-3"
 >
   <div
     class="hidden min-w-0 select-none font-serif text-[2rem] leading-none tracking-[0.02em] text-[var(--gh-gold)] drop-shadow-[0_0_10px_rgba(212,160,55,0.18)] min-[58rem]:block"
@@ -7,58 +7,6 @@
   >
     {{ brandLabelKey | translate: brandLabelFallback }}
   </div>
-
-  <details
-    #languageMenu
-    class="group relative justify-self-start max-[64rem]:row-start-2 max-[58rem]:row-auto max-[58rem]:justify-self-center"
-  >
-    <summary
-      class="gh-button inline-flex min-h-9 cursor-pointer list-none items-center justify-center gap-2 rounded-full px-3 text-sm font-black transition marker:hidden [&::-webkit-details-marker]:hidden"
-      [attr.aria-label]="languageOpenLabelKey | translate: languageOpenLabelFallback"
-    >
-      <svg
-        class="size-4 text-[var(--gh-gold)]"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="m5 8 6 6" />
-        <path d="m4 14 6-6 2-3" />
-        <path d="M2 5h12" />
-        <path d="M7 2h1" />
-        <path d="m22 22-5-10-5 10" />
-        <path d="M14 18h6" />
-      </svg>
-      <span>{{ currentLanguageShortLabelKey() | translate: currentLanguageShortFallback() }}</span>
-      <span class="text-xs leading-none text-[var(--gh-gold)]" aria-hidden="true">▾</span>
-    </summary>
-
-    <div
-      class="absolute left-0 z-30 mt-2 grid min-w-[11.5rem] overflow-hidden rounded-xl border border-[var(--gh-border)] bg-[rgba(2,16,29,0.98)] p-1 shadow-2xl shadow-black/40 max-[58rem]:left-1/2 max-[58rem]:-translate-x-1/2"
-      [attr.aria-label]="languageMenuLabelKey | translate: languageMenuLabelFallback"
-    >
-      @for (language of languageOptions; track language.code) {
-        <button
-          type="button"
-          class="inline-flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg border-0 bg-transparent px-3 text-left text-sm font-black tracking-[0.02em] text-[var(--gh-text)] transition hover:bg-[rgba(212,160,55,0.1)] hover:text-[var(--gh-gold)]"
-          [class.gh-toolbox-action-active]="currentLanguage() === language.code"
-          [style.color]="currentLanguage() === language.code ? 'var(--gh-gold)' : null"
-          (click)="languageMenu.open = false; selectLanguage(language.code)"
-        >
-          <span>{{ language.labelKey | translate: language.code }}</span>
-          <span
-            class="rounded-full bg-black/25 px-2 py-0.5 text-[0.65rem] tracking-[0.08em] text-[var(--gh-gold)]"
-          >
-            {{ language.shortLabelKey | translate: language.code.toUpperCase() }}
-          </span>
-        </button>
-      }
-    </div>
-  </details>
 
   <div
     class="flex min-w-0 flex-wrap items-center justify-end gap-2 max-[64rem]:col-span-2 max-[64rem]:row-start-1 max-[58rem]:col-span-1 max-[58rem]:row-auto max-[58rem]:justify-center"
