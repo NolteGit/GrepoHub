@@ -3,6 +3,7 @@
     <button
       class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
+      [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': −1'"
       [attr.title]="
         ('plannerV2.amount' | translate: 'Amount') + ': ±1 · Shift: ±10 · Ctrl/Cmd: ±100'
       "
@@ -50,6 +51,7 @@
     <button
       class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
+      [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': +1'"
       [attr.title]="
         ('plannerV2.amount' | translate: 'Amount') + ': ±1 · Shift: ±10 · Ctrl/Cmd: ±100'
       "
@@ -63,6 +65,8 @@
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
+      [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': −1'"
+      [attr.title]="('plannerV2.amount' | translate: 'Amount') + ': −1'"
       (click)="decrease()"
     >
       −
@@ -122,6 +126,8 @@
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
+      [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': +1'"
+      [attr.title]="('plannerV2.amount' | translate: 'Amount') + ': +1'"
       (click)="increase()"
     >
       +
@@ -132,6 +138,8 @@
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
+      [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': −1'"
+      [attr.title]="('plannerV2.amount' | translate: 'Amount') + ': −1'"
       (click)="decrease()"
     >
       −
@@ -142,6 +150,8 @@
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
+      [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': +1'"
+      [attr.title]="('plannerV2.amount' | translate: 'Amount') + ': +1'"
       (click)="increase()"
     >
       +
