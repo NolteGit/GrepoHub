@@ -20,7 +20,7 @@
   />
 
   <app-planner-header
-    class="col-start-2 col-end-4 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[76rem]:col-end-3 max-[46rem]:col-start-1"
+    class="col-start-2 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[46rem]:col-start-1"
     [activePlanId]="activePlan().id"
     [canDeletePlan]="canDeleteActivePlan()"
     [plans]="plans()"
@@ -96,7 +96,7 @@
   </section>
 
   <app-planner-summary-sidebar
-    class="col-start-3 row-start-2 min-h-0 min-w-0 max-[76rem]:hidden"
+    class="col-start-3 row-start-1 row-span-2 min-h-0 min-w-0 max-[76rem]:hidden"
     [population]="sidebarPopulation()"
     [topUsedUnits]="topUsedUnits()"
     [troopBattleStats]="troopBattleStats()"
