@@ -669,6 +669,7 @@
   "plannerV2.toolbox.timeCalculator.seconds": "Seconden",
   "plannerV2.toolbox.timeCalculator.time": "Tijd",
   "plannerV2.toolbox.timeCalculator.now": "Nu",
+  "plannerV2.toolbox.timeCalculator.resetDuration": "Duur resetten",
   "plannerV2.toolbox.timeCalculator.toggleOperation": "Optellen/aftrekken wisselen",
   "plannerV2.toolbox.timeCalculator.sameDay": "zelfde dag",
   "plannerV2.toolbox.timeCalculator.nextDay": "+1 dag",

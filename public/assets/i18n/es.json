@@ -669,6 +669,7 @@
   "plannerV2.toolbox.timeCalculator.seconds": "Segundos",
   "plannerV2.toolbox.timeCalculator.time": "Hora",
   "plannerV2.toolbox.timeCalculator.now": "Ahora",
+  "plannerV2.toolbox.timeCalculator.resetDuration": "Restablecer duración",
   "plannerV2.toolbox.timeCalculator.toggleOperation": "Alternar sumar/restar",
   "plannerV2.toolbox.timeCalculator.sameDay": "mismo día",
   "plannerV2.toolbox.timeCalculator.nextDay": "+1 día",

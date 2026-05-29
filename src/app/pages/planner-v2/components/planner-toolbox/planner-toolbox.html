@@ -468,6 +468,12 @@
               <button
                 type="button"
                 class="h-7 rounded-md border border-[var(--gh-border-soft)] px-1 text-sm font-black text-[var(--gh-muted)] transition hover:border-[rgba(246,195,67,0.3)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                [attr.aria-label]="
+                  'plannerV2.toolbox.timeCalculator.resetDuration' | translate: 'Reset duration'
+                "
+                [attr.title]="
+                  'plannerV2.toolbox.timeCalculator.resetDuration' | translate: 'Reset duration'
+                "
                 (click)="resetTimeCalculatorDuration()"
               >
                 ↺
