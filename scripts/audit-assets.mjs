@@ -223,6 +223,7 @@ function checkMappedFilesExist() {
 
   const source = readText(assetPathsFile);
   const mappedFiles = [
+    ...extractObjectValues(source, 'brandImagePaths').map((assetPath) => assetPath.replace('${imageBasePath}/', '')),
     ...extractObjectValues(source, 'quickLinkIconPaths').map((assetPath) => assetPath.replace('${imageBasePath}/', '')),
     ...extractObjectValues(source, 'buildingImageFileNames').map((fileName) => `buildings/${fileName}`),
     ...extractObjectValues(source, 'unitImageFileNames').map((fileName) => `units/${fileName}`),

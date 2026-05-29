@@ -1,5 +1,9 @@
 const imageBasePath = '/assets/images';
 
+export const brandImagePaths = {
+  grepoPlanLogo: `${imageBasePath}/brand/grepoplan-logo.webp`,
+} as const;
+
 export const quickLinkIconPaths = {
   grepolis: `${imageBasePath}/quick-links/button_grepoGame.webp`,
   grepodata: `${imageBasePath}/quick-links/button_grepoData.webp`,

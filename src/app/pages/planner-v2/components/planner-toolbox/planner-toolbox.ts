@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { brandImagePaths } from '../../../../data/asset-paths';
 import { referenceQuickLinks, type ReferenceQuickLink } from '../../../../data/reference-documents';
 import { formatNumber as formatCalculatorNumber } from '../../../../utils/toolbox-calculator.util';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
@@ -94,7 +95,7 @@ export class PlannerToolbox implements OnDestroy {
   private readonly translationService = inject(TranslationService);
   private readonly timerService = inject(ToolboxTimerService);
   private readonly now = signal(new Date());
-  private readonly intervalId = window.setInterval(() => this.now.set(new Date()), 30_000);
+  private readonly intervalId = window.setInterval(() => this.now.set(new Date()), 1_000);
   private readonly secondsPerDay = 86_400;
 
   protected readonly calculatorMode = signal<ToolboxCalculatorMode>('calculator');
@@ -248,18 +249,11 @@ export class PlannerToolbox implements OnDestroy {
     new Intl.DateTimeFormat(undefined, {
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
     }).format(this.now()),
   );
 
-  protected readonly clockDate = computed(() =>
-    new Intl.DateTimeFormat(undefined, {
-      weekday: 'long',
-      day: '2-digit',
-      month: 'long',
-    }).format(this.now()),
-  );
-
-  protected readonly brandInitial = 'G';
+  protected readonly brandLogoPath = brandImagePaths.grepoPlanLogo;
   protected readonly actionTitleKey = 'plannerV2.toolbox.tools';
   protected readonly actionTitleFallback = 'Tools';
   protected readonly queueTitleKey = 'plannerV2.toolbox.queue';

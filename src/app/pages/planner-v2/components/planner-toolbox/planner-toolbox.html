@@ -3,7 +3,7 @@
   [class.p-2]="toolboxCollapsed()"
   [class.p-3]="!toolboxCollapsed()"
   [style.grid-template-rows]="
-    toolboxCollapsed() ? 'auto auto 1fr' : 'auto auto minmax(10rem, 1fr) auto'
+    toolboxCollapsed() ? 'auto auto 1fr' : 'auto auto auto minmax(10rem, 1fr) auto auto'
   "
 >
   @if (toolboxCollapsed()) {
@@ -62,9 +62,7 @@
       </button>
     </section>
   } @else {
-    <header
-      class="relative grid justify-items-center gap-2 border-b border-[var(--gh-border-soft)] pb-4 text-center"
-    >
+    <header class="relative grid justify-items-center gap-0 pb-0 text-center">
       <button
         type="button"
         class="absolute right-0 top-0 grid size-8 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
@@ -75,21 +73,22 @@
         <span aria-hidden="true">‹</span>
       </button>
 
-      <div
-        class="grid aspect-square w-28 place-items-center rounded-full border border-[var(--gh-border)] bg-[radial-gradient(circle_at_50%_34%,rgba(246,195,67,0.36),transparent_2.4rem),radial-gradient(circle,rgba(8,35,58,0.95),rgba(2,13,23,0.96))] shadow-[inset_0_0_0_0.4rem_rgba(255,255,255,0.03),var(--gh-shadow-soft)] max-[76rem]:w-14"
-        aria-hidden="true"
-      >
-        <strong class="text-3xl leading-none text-[var(--gh-gold)] max-[76rem]:text-lg">{{
-          brandInitial
-        }}</strong>
-        <span class="text-xs font-extrabold tracking-wider text-[var(--gh-text)]">{{
-          clockTime()
-        }}</span>
-      </div>
-      <time class="text-xs text-[var(--gh-text)] max-[76rem]:hidden">{{ clockDate() }}</time>
+      <img
+        class="mt-1 w-[10.2rem] max-w-[82%] select-none object-contain drop-shadow-[0_0_1rem_rgba(246,195,67,0.22)] max-[76rem]:w-14"
+        [src]="brandLogoPath"
+        alt=""
+      />
     </header>
 
-    <section class="grid gap-2 border-b border-[var(--gh-border-soft)] pb-3 max-[76rem]:hidden">
+    <section class="flex items-center justify-center pb-1 text-center max-[76rem]:hidden">
+      <time
+        class="text-lg font-black leading-none tracking-wider text-[var(--gh-text)] tabular-nums"
+      >
+        {{ clockTime() }}
+      </time>
+    </section>
+
+    <section class="grid pb-1 max-[76rem]:hidden">
       <nav
         class="grid grid-cols-4 gap-2"
         [attr.aria-label]="quickLinksAriaKey | translate: quickLinksAriaFallback"
@@ -102,7 +101,7 @@
             link.id === 'support'
           ) {
             <a
-              class="grid min-h-14 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+              class="grid size-12 place-items-center overflow-hidden rounded-lg p-1 transition hover:bg-[rgba(246,195,67,0.1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
               target="_blank"
               rel="noopener noreferrer"
               [href]="link.href"
@@ -110,7 +109,7 @@
               [attr.aria-label]="link.title"
             >
               <img
-                class="max-h-10 max-w-full object-contain"
+                class="max-h-9 max-w-full object-contain"
                 [src]="link.iconPath"
                 [alt]="link.title"
               />
