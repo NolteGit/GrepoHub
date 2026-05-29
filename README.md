@@ -31,6 +31,8 @@ Useful entry points:
 - [`docs/07-angular-setup.md`](./docs/07-angular-setup.md) — local setup and Nx scripts.
 - [`docs/08-architecture.md`](./docs/08-architecture.md) — current architecture and module boundaries.
 - [`docs/09-development-notes.md`](./docs/09-development-notes.md) — current project state and decisions.
+- [`docs/10-manual-regression-checklist.md`](./docs/10-manual-regression-checklist.md) —
+  browser smoke tests for behavior-sensitive changes.
 
 ## Development
 
