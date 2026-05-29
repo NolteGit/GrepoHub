@@ -90,7 +90,7 @@ npm run clean
 npm run check
 ```
 
-`npm run verify` runs the core functional checks. `npm run check` additionally checks formatting and unused code/dependencies.
+`npm run verify` runs the full local quality gate. `npm run check` is kept as an alias for the same command so documentation and muscle memory stay valid.
 
 ## Static assets
 

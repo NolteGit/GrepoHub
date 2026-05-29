@@ -45,7 +45,6 @@ Run the main quality checks:
 
 ```bash
 npm run verify
-npm run check
 ```
 
 Useful scripts:
@@ -55,6 +54,8 @@ npm run start         # Nx dev server
 npm run typecheck     # TypeScript type checking
 npm run test:once     # One-shot Angular/Vitest test run through Nx
 npm run build         # Production build through Nx
+npm run verify        # Run all quality checks
+npm run check         # Alias for npm run verify
 npm run format:check  # Prettier check
 npm run format        # Apply Prettier formatting
 npm run deadcode      # knip unused-code/dependency check
