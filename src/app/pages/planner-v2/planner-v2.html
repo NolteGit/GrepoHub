@@ -10,6 +10,131 @@
     (change)="importPlanFromFile($event)"
   />
 
+  @if (planNotice(); as notice) {
+    <section
+      class="fixed right-4 bottom-4 z-40 grid w-[min(26rem,calc(100vw-2rem))] gap-2 rounded-xl border bg-[rgba(4,18,31,0.98)] p-3 text-sm shadow-[var(--gh-shadow-panel)] backdrop-blur-sm"
+      [class.border-[rgba(46,160,91,0.62)]]="notice.tone === 'success'"
+      [class.border-[#cf453e]]="notice.tone === 'error'"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h2
+            class="m-0 text-sm font-black tracking-wide uppercase"
+            [class.text-[#3fb56f]]="notice.tone === 'success'"
+            [class.text-[#ff6b63]]="notice.tone === 'error'"
+          >
+            {{ notice.titleKey | translate: notice.titleFallback }}
+          </h2>
+          <ul class="mt-1.5 mb-0 grid gap-1 p-0 text-[var(--gh-muted)]">
+            @for (line of notice.detailLines; track line) {
+              <li class="list-none">{{ line }}</li>
+            }
+          </ul>
+        </div>
+
+        <button
+          type="button"
+          class="grid size-7 shrink-0 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+          [attr.aria-label]="'planConfig.importDialog.ok' | translate: 'OK'"
+          (click)="closePlanNotice()"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+    </section>
+  }
+
+  @if (planActionDialog(); as dialog) {
+    <div
+      class="fixed inset-0 z-50 grid place-items-center bg-[rgba(1,7,13,0.72)] p-3 backdrop-blur-sm"
+      (click)="closePlanActionDialog()"
+    >
+      <form
+        class="grid w-full max-w-lg gap-4 rounded-2xl border border-[var(--gh-border)] bg-[rgba(4,18,31,0.98)] p-4 text-[var(--gh-text)] shadow-[var(--gh-shadow-panel)]"
+        (submit)="submitPlanActionDialog($event)"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p
+              class="m-0 text-[0.68rem] font-black uppercase tracking-[0.16em]"
+              [class.text-[var(--gh-gold)]]="dialog.tone === 'default'"
+              [class.text-[#ff6b63]]="dialog.tone === 'danger'"
+            >
+              {{ 'planConfig.more' | translate: 'More' }}
+            </p>
+            <h2 class="m-0 mt-1 text-xl font-black leading-tight">
+              {{ dialog.titleKey | translate: dialog.titleFallback }}
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            class="grid size-8 shrink-0 place-items-center rounded-md border border-[var(--gh-border-soft)] text-lg font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+            [attr.aria-label]="'academyResearch.close' | translate: 'Close'"
+            (click)="closePlanActionDialog()"
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+
+        <p class="m-0 text-sm leading-6 text-[var(--gh-muted)]">
+          {{ dialog.messageKey | translate: dialog.messageFallback : dialog.messageParams }}
+        </p>
+
+        @if (dialog.kind === 'text') {
+          <label class="grid gap-1.5 text-sm font-bold text-[var(--gh-text)]">
+            <span>{{ dialog.labelKey ?? '' | translate: dialog.labelFallback ?? '' }}</span>
+            <input
+              class="gh-control min-h-11 rounded-md px-3 text-base font-bold outline-none transition focus:border-[var(--gh-border)] focus:ring-1 focus:ring-[var(--gh-gold)]"
+              type="text"
+              autofocus
+              [value]="planDialogValue()"
+              (input)="updatePlanDialogValue($event)"
+            />
+          </label>
+        } @else if (dialog.kind === 'textarea') {
+          <label class="grid gap-1.5 text-sm font-bold text-[var(--gh-text)]">
+            <span>{{ dialog.labelKey ?? '' | translate: dialog.labelFallback ?? '' }}</span>
+            <textarea
+              class="gh-control min-h-32 resize-y rounded-md px-3 py-2 text-sm leading-6 outline-none transition focus:border-[var(--gh-border)] focus:ring-1 focus:ring-[var(--gh-gold)]"
+              [attr.maxlength]="planDialogNoteMaxLength"
+              [attr.placeholder]="
+                dialog.placeholderKey ?? '' | translate: dialog.placeholderFallback ?? ''
+              "
+              [value]="planDialogValue()"
+              (input)="updatePlanDialogValue($event)"
+            ></textarea>
+          </label>
+          <p class="m-0 text-right text-xs font-bold text-[var(--gh-muted)]">
+            {{
+              'planConfig.noteDialog.counter'
+                | translate
+                  : '{count}/{max} characters'
+                  : { count: planDialogValue().length, max: planDialogNoteMaxLength }
+            }}
+          </p>
+        }
+
+        <footer class="flex flex-wrap justify-end gap-2">
+          <app-gh-button size="md" (click)="closePlanActionDialog()">
+            {{ dialog.cancelKey | translate: dialog.cancelFallback }}
+          </app-gh-button>
+          <app-gh-button
+            type="submit"
+            variant="gold"
+            size="md"
+            [disabled]="isPlanDialogSubmitDisabled(dialog)"
+          >
+            {{ dialog.confirmKey | translate: dialog.confirmFallback }}
+          </app-gh-button>
+        </footer>
+      </form>
+    </div>
+  }
+
   <app-planner-toolbox
     class="col-start-1 row-span-full max-[46rem]:hidden"
     [activeMode]="activeMode()"
@@ -31,27 +156,6 @@
   <section
     class="col-start-2 row-start-2 flex min-h-0 min-w-0 flex-col gap-2 p-2 max-[46rem]:col-start-1"
   >
-    @if (planNotice(); as notice) {
-      <section
-        class="gh-panel flex items-start justify-between gap-3 rounded-xl border border-[var(--gh-border)] p-3 text-sm shadow-sm"
-      >
-        <div class="min-w-0">
-          <h2 class="m-0 text-sm font-black tracking-wide text-[var(--gh-text)] uppercase">
-            {{ notice.titleKey | translate: notice.titleFallback }}
-          </h2>
-          <ul class="mt-2 mb-0 grid gap-1 p-0 text-[var(--gh-muted)]">
-            @for (line of notice.detailLines; track line) {
-              <li class="list-none">{{ line }}</li>
-            }
-          </ul>
-        </div>
-
-        <app-gh-button size="sm" (click)="closePlanNotice()">
-          {{ 'planConfig.importDialog.ok' | translate: 'OK' }}
-        </app-gh-button>
-      </section>
-    }
-
     <section
       class="gh-surface grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-xl"
     >

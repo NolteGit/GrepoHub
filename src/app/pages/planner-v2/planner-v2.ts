@@ -24,8 +24,9 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 import { calculateCityPlannerPopulation } from '../../services/city-planner-population';
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
+import { maxCityPlanNoteLength } from '../../services/plan-config-normalization';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
-import { TranslationService } from '../../services/translation.service';
+import { TranslationService, type TranslationParams } from '../../services/translation.service';
 
 import { PlannerCitySetup } from './components/planner-city-setup/planner-city-setup';
 import {
@@ -308,6 +309,7 @@ const gods: readonly GodOption[] = [
 const defaultSelectedGod = 'aphrodite';
 const fallbackSelectedGod = 'zeus';
 const selectedGodStorageKey = 'grepo-hub.planner-v2.selectedGod';
+const planNoticeAutoDismissMs = 4200;
 
 const normalizeGod = (god: string | null): string => {
   if (god === null) {
@@ -911,6 +913,29 @@ type PlannerNotice = {
   readonly detailLines: readonly string[];
 };
 
+type PlannerActionDialogId = 'new' | 'rename' | 'note' | 'clear' | 'delete';
+
+type PlannerActionDialogKind = 'text' | 'textarea' | 'confirm';
+
+type PlannerActionDialog = {
+  readonly id: PlannerActionDialogId;
+  readonly kind: PlannerActionDialogKind;
+  readonly tone: 'default' | 'danger';
+  readonly titleKey: string;
+  readonly titleFallback: string;
+  readonly messageKey: string;
+  readonly messageFallback: string;
+  readonly messageParams?: TranslationParams;
+  readonly labelKey?: string;
+  readonly labelFallback?: string;
+  readonly placeholderKey?: string;
+  readonly placeholderFallback?: string;
+  readonly cancelKey: string;
+  readonly cancelFallback: string;
+  readonly confirmKey: string;
+  readonly confirmFallback: string;
+};
+
 @Component({
   selector: 'app-planner-v2',
   imports: [
@@ -936,6 +961,10 @@ export class PlannerV2 {
   protected readonly activePlan = this.planConfigService.activePlan;
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
   private readonly localPlanNotice = signal<PlannerNotice | null>(null);
+  private planNoticeAutoDismissTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+  protected readonly planActionDialog = signal<PlannerActionDialog | null>(null);
+  protected readonly planDialogValue = signal('');
+  protected readonly planDialogNoteMaxLength = maxCityPlanNoteLength;
   protected readonly selectedGod = signal(getInitialSelectedGod());
   protected readonly activeCityPlan = computed(() => this.activePlan().cityPlan);
   protected readonly effectiveCityPlan = computed(() =>
@@ -1369,17 +1398,17 @@ export class PlannerV2 {
     planImportInput: HTMLInputElement,
   ): void {
     if (actionId === 'new') {
-      this.createNewPlanFromPrompt();
+      this.openCreateNewPlanDialog();
       return;
     }
 
     if (actionId === 'rename') {
-      this.renameActivePlanFromPrompt();
+      this.openRenameActivePlanDialog();
       return;
     }
 
     if (actionId === 'note') {
-      this.updateActivePlanNoteFromPrompt();
+      this.openActivePlanNoteDialog();
       return;
     }
 
@@ -1394,11 +1423,11 @@ export class PlannerV2 {
     }
 
     if (actionId === 'clear') {
-      this.clearActivePlanWithConfirmation();
+      this.openClearActivePlanDialog();
       return;
     }
 
-    this.deleteActivePlanWithConfirmation();
+    this.openDeleteActivePlanDialog();
   }
 
   protected handleToolboxAction(
@@ -1424,13 +1453,73 @@ export class PlannerV2 {
   }
 
   protected async importPlanFromFile(event: Event): Promise<void> {
+    this.clearPlanNoticeAutoDismiss();
     this.localPlanNotice.set(null);
     await this.planImportExportUiService.importPlanFromJsonFile(event);
+
+    if (this.planImportExportUiService.planImportDialog()) {
+      this.schedulePlanNoticeAutoDismiss();
+    }
   }
 
   protected closePlanNotice(): void {
+    this.clearPlanNoticeAutoDismiss();
     this.localPlanNotice.set(null);
     this.planImportExportUiService.closePlanImportDialog();
+  }
+
+  protected closePlanActionDialog(): void {
+    this.planActionDialog.set(null);
+    this.planDialogValue.set('');
+  }
+
+  protected updatePlanDialogValue(event: Event): void {
+    const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
+
+    this.planDialogValue.set(target?.value ?? '');
+  }
+
+  protected isPlanDialogSubmitDisabled(dialog: PlannerActionDialog): boolean {
+    if (dialog.kind === 'confirm' || dialog.id === 'note') {
+      return false;
+    }
+
+    return this.planDialogValue().trim().length === 0;
+  }
+
+  protected submitPlanActionDialog(event: Event): void {
+    event.preventDefault();
+
+    const dialog = this.planActionDialog();
+
+    if (!dialog || this.isPlanDialogSubmitDisabled(dialog)) {
+      return;
+    }
+
+    const value = this.planDialogValue();
+    this.closePlanActionDialog();
+
+    if (dialog.id === 'new') {
+      this.createNewPlan(value);
+      return;
+    }
+
+    if (dialog.id === 'rename') {
+      this.renameActivePlan(value);
+      return;
+    }
+
+    if (dialog.id === 'note') {
+      this.updateActivePlanNote(value);
+      return;
+    }
+
+    if (dialog.id === 'clear') {
+      this.clearActivePlan();
+      return;
+    }
+
+    this.deleteActivePlan();
   }
 
   protected selectMode(mode: PlannerMode): void {
@@ -1580,25 +1669,128 @@ export class PlannerV2 {
     this.planConfigService.updateActiveTroopPlan(createPartialTroopPlan(this.activeTroopPlan()));
   }
 
-  private createNewPlanFromPrompt(): void {
+  private openCreateNewPlanDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
-    const defaultName = this.translationService.translate(
-      'plannerV2.planControls.defaultPlanName',
-      'New Plan',
+    this.planDialogValue.set(
+      this.translationService.translate('plannerV2.planControls.defaultPlanName', 'New Plan'),
     );
-    const message = this.translationService.translate(
-      'plannerV2.planControls.newPrompt',
-      'Enter a name for the new empty plan.',
-    );
-    const requestedName = window.prompt(message, defaultName);
+    this.planActionDialog.set({
+      id: 'new',
+      kind: 'text',
+      tone: 'default',
+      titleKey: 'planConfig.newPlanDialog.title',
+      titleFallback: 'Create new plan',
+      messageKey: 'plannerV2.planControls.newPrompt',
+      messageFallback: 'Enter a name for the new empty plan.',
+      labelKey: 'planConfig.newPlanDialog.nameLabel',
+      labelFallback: 'Plan name',
+      cancelKey: 'planConfig.newPlanDialog.cancel',
+      cancelFallback: 'Cancel',
+      confirmKey: 'planConfig.newPlanDialog.confirm',
+      confirmFallback: 'Create plan',
+    });
+  }
 
-    if (requestedName === null) {
+  private openRenameActivePlanDialog(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    this.planDialogValue.set(this.activePlan().name);
+    this.planActionDialog.set({
+      id: 'rename',
+      kind: 'text',
+      tone: 'default',
+      titleKey: 'planConfig.renameDialog.title',
+      titleFallback: 'Rename plan',
+      messageKey: 'planConfig.renameDialog.message',
+      messageFallback:
+        'Renames the selected plan in this browser. Default plans can be renamed too.',
+      labelKey: 'planConfig.renameDialog.nameLabel',
+      labelFallback: 'Plan name',
+      cancelKey: 'planConfig.renameDialog.cancel',
+      cancelFallback: 'Cancel',
+      confirmKey: 'planConfig.renameDialog.confirm',
+      confirmFallback: 'Save name',
+    });
+  }
+
+  private openActivePlanNoteDialog(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    this.planDialogValue.set(this.activePlan().cityPlan.note ?? '');
+    this.planActionDialog.set({
+      id: 'note',
+      kind: 'textarea',
+      tone: 'default',
+      titleKey: 'planConfig.noteDialog.title',
+      titleFallback: 'City plan note',
+      messageKey: 'planConfig.noteDialog.message',
+      messageFallback:
+        'Add an optional short note for this city plan. Leave it empty to remove the note.',
+      labelKey: 'planConfig.noteDialog.noteLabel',
+      labelFallback: 'Note',
+      placeholderKey: 'planConfig.noteDialog.placeholder',
+      placeholderFallback: 'Example: Harbor city for fast support ships.',
+      cancelKey: 'planConfig.noteDialog.cancel',
+      cancelFallback: 'Cancel',
+      confirmKey: 'planConfig.noteDialog.confirm',
+      confirmFallback: 'Save note',
+    });
+  }
+
+  private openClearActivePlanDialog(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    this.planActionDialog.set({
+      id: 'clear',
+      kind: 'confirm',
+      tone: 'danger',
+      titleKey: 'planConfig.clearDialog.title',
+      titleFallback: 'Clear configuration?',
+      messageKey: 'planConfig.clearDialog.message',
+      messageFallback:
+        'Choose the clear action from the active planner. Plans are saved only in this browser unless you export them.',
+      cancelKey: 'planConfig.clearDialog.cancel',
+      cancelFallback: 'Cancel',
+      confirmKey: 'planConfig.clearDialog.confirm',
+      confirmFallback: 'Clear',
+    });
+  }
+
+  private openDeleteActivePlanDialog(): void {
+    this.planImportExportUiService.closePlanImportDialog();
+
+    if (!this.canDeleteActivePlan()) {
+      this.showPlanNotice({
+        tone: 'error',
+        titleKey: 'planConfig.deleteDialog.errorTitle',
+        titleFallback: 'Plan not deleted',
+        detailLines: [
+          this.translationService.translate(
+            'planConfig.deleteDialog.lastPlanDetail',
+            'At least one plan is required. Create or import another plan before deleting this one.',
+          ),
+        ],
+      });
       return;
     }
 
-    const createdPlan = this.planConfigService.createNewPlan(requestedName);
+    this.planActionDialog.set({
+      id: 'delete',
+      kind: 'confirm',
+      tone: 'danger',
+      titleKey: 'planConfig.deleteDialog.title',
+      titleFallback: 'Delete plan?',
+      messageKey: 'plannerV2.planControls.deleteConfirm',
+      messageFallback: 'Delete "{name}" from this browser? Export it first if you want a backup.',
+      messageParams: { name: this.activePlan().name },
+      cancelKey: 'planConfig.deleteDialog.cancel',
+      cancelFallback: 'Cancel',
+      confirmKey: 'planConfig.deleteDialog.confirm',
+      confirmFallback: 'Delete',
+    });
+  }
 
-    this.localPlanNotice.set({
+  private createNewPlan(name: string): void {
+    const createdPlan = this.planConfigService.createNewPlan(name);
+
+    this.showPlanNotice({
       tone: 'success',
       titleKey: 'plannerV2.planControls.createdTitle',
       titleFallback: 'Plan created',
@@ -1606,30 +1798,22 @@ export class PlannerV2 {
         this.translationService.translate(
           'plannerV2.planControls.createdDetail',
           'Now editing: {name}.',
-          { name: createdPlan.name },
+          {
+            name: createdPlan.name,
+          },
         ),
       ],
     });
   }
 
-  private renameActivePlanFromPrompt(): void {
-    this.planImportExportUiService.closePlanImportDialog();
-    const requestedName = window.prompt(
-      this.translationService.translate('planConfig.renameDialog.nameLabel', 'Plan name'),
-      this.activePlan().name,
-    );
-
-    if (requestedName === null) {
-      return;
-    }
-
-    const renamedPlan = this.planConfigService.renameActivePlan(requestedName);
+  private renameActivePlan(name: string): void {
+    const renamedPlan = this.planConfigService.renameActivePlan(name);
 
     if (!renamedPlan) {
       return;
     }
 
-    this.localPlanNotice.set({
+    this.showPlanNotice({
       tone: 'success',
       titleKey: 'planConfig.rename',
       titleFallback: 'Rename',
@@ -1637,25 +1821,17 @@ export class PlannerV2 {
         this.translationService.translate(
           'plannerV2.planControls.createdDetail',
           'Now editing: {name}.',
-          { name: renamedPlan.name },
+          {
+            name: renamedPlan.name,
+          },
         ),
       ],
     });
   }
 
-  private updateActivePlanNoteFromPrompt(): void {
-    this.planImportExportUiService.closePlanImportDialog();
-    const requestedNote = window.prompt(
-      this.translationService.translate('planConfig.noteDialog.noteLabel', 'Note'),
-      this.activePlan().cityPlan.note ?? '',
-    );
-
-    if (requestedNote === null) {
-      return;
-    }
-
-    this.planConfigService.updateActiveCityPlanNote(requestedNote);
-    this.localPlanNotice.set({
+  private updateActivePlanNote(note: string): void {
+    this.planConfigService.updateActiveCityPlanNote(note);
+    this.showPlanNotice({
       tone: 'success',
       titleKey: 'planConfig.note',
       titleFallback: 'Note',
@@ -1663,27 +1839,17 @@ export class PlannerV2 {
         this.translationService.translate(
           'plannerV2.planControls.createdDetail',
           'Now editing: {name}.',
-          { name: this.activePlan().name },
+          {
+            name: this.activePlan().name,
+          },
         ),
       ],
     });
   }
 
-  private clearActivePlanWithConfirmation(): void {
-    this.planImportExportUiService.closePlanImportDialog();
-    const confirmed = window.confirm(
-      this.translationService.translate(
-        'planConfig.clearDialog.message',
-        'Choose the clear action from the active planner. Plans are saved only in this browser unless you export them.',
-      ),
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+  private clearActivePlan(): void {
     this.planConfigService.clearActivePlan();
-    this.localPlanNotice.set({
+    this.showPlanNotice({
       tone: 'success',
       titleKey: 'planConfig.clear',
       titleFallback: 'Clear',
@@ -1691,46 +1857,19 @@ export class PlannerV2 {
         this.translationService.translate(
           'plannerV2.planControls.createdDetail',
           'Now editing: {name}.',
-          { name: this.activePlan().name },
+          {
+            name: this.activePlan().name,
+          },
         ),
       ],
     });
   }
 
-  private deleteActivePlanWithConfirmation(): void {
-    this.planImportExportUiService.closePlanImportDialog();
-
-    if (!this.canDeleteActivePlan()) {
-      this.localPlanNotice.set({
-        tone: 'error',
-        titleKey: 'planConfig.deleteDialog.errorTitle',
-        titleFallback: 'Plan not deleted',
-        detailLines: [
-          this.translationService.translate(
-            'planConfig.deleteDialog.lastPlanDetail',
-            'At least one plan is required. Create or import another plan before deleting this one.',
-          ),
-        ],
-      });
-      return;
-    }
-
-    const confirmed = window.confirm(
-      this.translationService.translate(
-        'plannerV2.planControls.deleteConfirm',
-        'Delete "{name}" from this browser? Export it first if you want a backup.',
-        { name: this.activePlan().name },
-      ),
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
+  private deleteActivePlan(): void {
     const result = this.planConfigService.deleteActivePlan();
 
     if (!result) {
-      this.localPlanNotice.set({
+      this.showPlanNotice({
         tone: 'error',
         titleKey: 'planConfig.deleteDialog.errorTitle',
         titleFallback: 'Plan not deleted',
@@ -1744,7 +1883,7 @@ export class PlannerV2 {
       return;
     }
 
-    this.localPlanNotice.set({
+    this.showPlanNotice({
       tone: 'success',
       titleKey: 'planConfig.deleteDialog.successTitle',
       titleFallback: 'Plan deleted',
@@ -1752,15 +1891,41 @@ export class PlannerV2 {
         this.translationService.translate(
           'planConfig.deleteDialog.deletedDetail',
           '{name} deleted.',
-          { name: result.deletedPlanName },
+          {
+            name: result.deletedPlanName,
+          },
         ),
         this.translationService.translate(
           'planConfig.deleteDialog.selectedDetail',
           'Now selected: {name}.',
-          { name: result.selectedPlanName },
+          {
+            name: result.selectedPlanName,
+          },
         ),
       ],
     });
+  }
+
+  private showPlanNotice(notice: PlannerNotice): void {
+    this.planImportExportUiService.closePlanImportDialog();
+    this.localPlanNotice.set(notice);
+    this.schedulePlanNoticeAutoDismiss();
+  }
+
+  private schedulePlanNoticeAutoDismiss(): void {
+    this.clearPlanNoticeAutoDismiss();
+    this.planNoticeAutoDismissTimeoutId = window.setTimeout(() => {
+      this.closePlanNotice();
+    }, planNoticeAutoDismissMs);
+  }
+
+  private clearPlanNoticeAutoDismiss(): void {
+    if (this.planNoticeAutoDismissTimeoutId === null) {
+      return;
+    }
+
+    window.clearTimeout(this.planNoticeAutoDismissTimeoutId);
+    this.planNoticeAutoDismissTimeoutId = null;
   }
 
   private createSpecialBuildingOption(
