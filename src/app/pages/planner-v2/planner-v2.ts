@@ -523,6 +523,8 @@ type BuildingEffectValueContext = {
   readonly level: number;
   readonly population: number;
   readonly divineStatueCount: number;
+  readonly hasMerchantsShop: boolean;
+  readonly hasTower: boolean;
 };
 
 const senateConstructionTimePercentByLevel = [
@@ -576,7 +578,7 @@ const formatDecimal = (value: number): string => {
 };
 
 const getBuildingEffectValue = (context: BuildingEffectValueContext): string => {
-  const { buildingId, divineStatueCount, level, population } = context;
+  const { buildingId, divineStatueCount, hasMerchantsShop, hasTower, level, population } = context;
 
   if (buildingId === 'senate') {
     return formatPercent(getIndexedBuildingValue(senateConstructionTimePercentByLevel, level));
@@ -603,7 +605,7 @@ const getBuildingEffectValue = (context: BuildingEffectValueContext): string => 
   }
 
   if (buildingId === 'marketplace') {
-    return formatNumber(level * 500);
+    return formatNumber(level * (hasMerchantsShop ? 750 : 500));
   }
 
   if (buildingId === 'barracks' || buildingId === 'harbour') {
@@ -615,7 +617,9 @@ const getBuildingEffectValue = (context: BuildingEffectValueContext): string => 
   }
 
   if (buildingId === 'city_wall') {
-    return formatPercent(getIndexedBuildingValue(cityWallDefenseBonusPercentByLevel, level));
+    const wallDefensePercent = getIndexedBuildingValue(cityWallDefenseBonusPercentByLevel, level);
+
+    return formatPercent(wallDefensePercent + (hasTower ? 10 : 0));
   }
 
   return formatNumber(level);
@@ -726,13 +730,15 @@ const createBuildingEffectStat = (
   level: number,
   population: number,
   divineStatueCount: number,
+  hasMerchantsShop: boolean,
+  hasTower: boolean,
 ): BuildingTileStat => {
   const effect = buildingEffectChips[buildingId] ?? {
     icon: 'ℹ',
     labelKey: 'plannerV2.tile.info',
     fallback: 'Info',
   };
-  const context = { buildingId, divineStatueCount, level, population };
+  const context = { buildingId, divineStatueCount, hasMerchantsShop, hasTower, level, population };
   const value = getBuildingEffectValue(context);
 
   return {
@@ -857,8 +863,17 @@ const createBuildingTileStats = (
   level: number,
   population: number,
   divineStatueCount: number,
+  hasMerchantsShop: boolean,
+  hasTower: boolean,
 ): readonly BuildingTileStat[] => [
-  createBuildingEffectStat(buildingId, level, population, divineStatueCount),
+  createBuildingEffectStat(
+    buildingId,
+    level,
+    population,
+    divineStatueCount,
+    hasMerchantsShop,
+    hasTower,
+  ),
 ];
 
 type CityPopulationSummary = ReturnType<typeof calculateCityPlannerPopulation>;
@@ -1049,16 +1064,26 @@ export class PlannerV2 {
   });
   protected readonly cityBuildings = computed<readonly BuildingTileView[]>(() => {
     const buildingLevels = this.buildingLevels();
-    const divineStatueCount = Object.values(this.activeCityPlan().specialBuildings).filter(
+    const activeSpecialBuildings = Object.values(this.activeCityPlan().specialBuildings);
+    const divineStatueCount = activeSpecialBuildings.filter(
       (optionId) => optionId === 'divine_statue',
     ).length;
+    const hasMerchantsShop = activeSpecialBuildings.includes('merchants_shop');
+    const hasTower = activeSpecialBuildings.includes('tower');
 
     return cityBuildingOrder.map((buildingId) => {
       const definition = getBuildingDefinition(buildingId);
       const level = buildingLevels[buildingId] ?? 0;
       const maxLevel = getBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
-      const stats = createBuildingTileStats(buildingId, level, population, divineStatueCount);
+      const stats = createBuildingTileStats(
+        buildingId,
+        level,
+        population,
+        divineStatueCount,
+        hasMerchantsShop,
+        hasTower,
+      );
 
       return {
         id: buildingId,
@@ -1646,6 +1671,19 @@ export class PlannerV2 {
       specialBuildings: {
         ...cityPlan.specialBuildings,
         [slotId as CitySpecialBuildingSlotId]: optionId as CitySpecialBuildingOptionId,
+      },
+    }));
+  }
+
+  protected setLibraryBuilt(libraryBuilt: boolean): void {
+    this.updateCityPlan((cityPlan) => ({
+      specialBuildings: {
+        ...cityPlan.specialBuildings,
+        slot1: libraryBuilt
+          ? 'library'
+          : cityPlan.specialBuildings.slot1 === 'library'
+            ? 'none'
+            : cityPlan.specialBuildings.slot1,
       },
     }));
   }

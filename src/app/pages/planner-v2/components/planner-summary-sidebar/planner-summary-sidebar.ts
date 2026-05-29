@@ -1,4 +1,4 @@
-import { Component, HostListener, computed, input, signal } from '@angular/core';
+import { Component, HostListener, computed, input, output, signal } from '@angular/core';
 
 import {
   academyResearchLevelGroups,
@@ -110,10 +110,14 @@ export class PlannerSummarySidebar {
   readonly troopBattleStats = input.required<SidebarTroopBattleStats>();
   readonly academyLevel = input(0);
   readonly libraryBuilt = input(false);
+  readonly libraryBuiltChanged = output<boolean>();
 
   protected readonly researchDialogOpen = signal(false);
   protected readonly selectedResearchIds = signal<readonly AcademyResearchId[]>([]);
   protected readonly researchLibraryBuilt = signal(false);
+  protected readonly effectiveResearchLibraryBuilt = computed(() =>
+    this.researchDialogOpen() ? this.researchLibraryBuilt() : this.libraryBuilt(),
+  );
 
   protected readonly populationTitleKey = 'plannerV2.summary.populationTitle';
   protected readonly populationTitleFallback = 'Population Overview';
@@ -129,7 +133,7 @@ export class PlannerSummarySidebar {
     calculateAcademyResearchPlan({
       academyLevel: this.academyLevel(),
       selectedResearchIds: this.selectedResearchIds(),
-      libraryBuilt: this.researchLibraryBuilt(),
+      libraryBuilt: this.effectiveResearchLibraryBuilt(),
     }),
   );
   protected readonly researchGroups = computed<readonly ResearchLevelGroupView[]>(() =>
@@ -269,6 +273,7 @@ export class PlannerSummarySidebar {
     const input = event.target as HTMLInputElement;
 
     this.researchLibraryBuilt.set(input.checked);
+    this.libraryBuiltChanged.emit(input.checked);
   }
 
   protected toggleResearch(researchId: AcademyResearchId): void {
