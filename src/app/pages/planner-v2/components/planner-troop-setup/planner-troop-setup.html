@@ -13,7 +13,17 @@
         [attr.aria-pressed]="activeCategory() === category.id"
         (click)="categorySelected.emit(category.id)"
       >
-        <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
+        @if (category.iconPath) {
+          <img
+            class="size-8 shrink-0 object-contain"
+            [src]="category.iconPath"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+          />
+        } @else {
+          <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
+        }
         <span class="grid min-w-0 gap-0.5 text-left">
           <strong class="truncate">{{ category.labelKey | translate: category.fallback }}</strong>
           <small

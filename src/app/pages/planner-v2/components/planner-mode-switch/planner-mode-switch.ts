@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 
+import { setupIconPaths } from '../../../../data/asset-paths';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 export type PlannerMode = 'city' | 'troops';
@@ -13,7 +14,7 @@ type PlannerModeOption = {
   readonly id: PlannerMode;
   readonly labelKey: string;
   readonly fallback: string;
-  readonly icon: string;
+  readonly iconPath: string;
 };
 
 @Component({
@@ -31,8 +32,18 @@ export class PlannerModeSwitch {
   protected readonly ariaLabelKey = 'plannerV2.mode.ariaLabel';
   protected readonly ariaLabelFallback = 'Planner mode';
   protected readonly options: readonly PlannerModeOption[] = [
-    { id: 'city', labelKey: 'plannerV2.mode.city', fallback: 'City Setup', icon: '▣' },
-    { id: 'troops', labelKey: 'plannerV2.mode.troops', fallback: 'Troop Setup', icon: '⚔' },
+    {
+      id: 'city',
+      labelKey: 'plannerV2.mode.city',
+      fallback: 'City Setup',
+      iconPath: setupIconPaths.city,
+    },
+    {
+      id: 'troops',
+      labelKey: 'plannerV2.mode.troops',
+      fallback: 'Troop Setup',
+      iconPath: setupIconPaths.recruitment,
+    },
   ];
 
   protected selectMode(mode: PlannerMode): void {

@@ -56,7 +56,8 @@ export type UnitTileView = TranslatableText & {
 type SetupBarTab = TranslatableText & {
   readonly shortLabelKey: string;
   readonly shortFallback: string;
-  readonly icon: string;
+  readonly icon?: string;
+  readonly iconPath?: string;
 };
 
 export type TroopCategory = 'land' | 'sea' | 'mythical';

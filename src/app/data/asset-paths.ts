@@ -4,6 +4,17 @@ export const brandImagePaths = {
   grepoPlanLogo: `${imageBasePath}/brand/grepoplan-logo.webp`,
 } as const;
 
+export const uiIconPaths = {
+  warehouse: `${imageBasePath}/ui/boxes.svg`,
+  trade: `${imageBasePath}/ui/arrow-left-right.svg`,
+  research: `${imageBasePath}/ui/flask-conical.svg`,
+} as const;
+
+export const setupIconPaths = {
+  city: `${imageBasePath}/setup/city.webp`,
+  recruitment: `${imageBasePath}/setup/recruitment.webp`,
+} as const;
+
 export const quickLinkIconPaths = {
   grepolis: `${imageBasePath}/quick-links/button_grepoGame.webp`,
   grepodata: `${imageBasePath}/quick-links/button_grepoData.webp`,
@@ -120,6 +131,12 @@ const academyResearchIconFileNames: Record<string, string> = {
   set_sail: 'set-sail.webp',
 };
 
+const cityModifierIconFileNames: Record<string, string> = {
+  landExpansion: 'land-expansion.webp',
+  pygmalion: 'pygmalion.webp',
+  plow: 'plow.webp',
+};
+
 const battleIconFileNames: Record<string, string> = {
   attackSea: 'attackSea.webp',
   attackBlunt: 'blunt.webp',
@@ -154,6 +171,12 @@ export function getAcademyResearchIconPath(researchId: string): string {
   const fileName = academyResearchIconFileNames[researchId];
 
   return fileName ? `${imageBasePath}/technologies/${fileName}` : '';
+}
+
+export function getCityModifierIconPath(icon: string): string {
+  const fileName = cityModifierIconFileNames[icon];
+
+  return fileName ? `${imageBasePath}/modifiers/${fileName}` : '';
 }
 
 export function getBattleIconPath(icon: string): string {

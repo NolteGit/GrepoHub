@@ -8,8 +8,10 @@ import {
 import {
   getBattleIconPath,
   getBuildingImagePath,
+  getCityModifierIconPath,
   getResourceIconPath,
   getUnitIconPath,
+  uiIconPaths,
 } from '../../data/asset-paths';
 import type {
   CityConfiguration,
@@ -214,7 +216,7 @@ const buildingEffectChips: Record<string, BuildingEffectChip> = {
     fallback: 'Stone/h',
   },
   warehouse: {
-    iconPath: getBattleIconPath('capacity'),
+    iconPath: uiIconPaths.warehouse,
     labelKey: 'plannerV2.buildingEffect.capacity',
     fallback: 'Capacity',
   },
@@ -226,7 +228,7 @@ const buildingEffectChips: Record<string, BuildingEffectChip> = {
   barracks: {
     iconPath: getBattleIconPath('speed'),
     labelKey: 'plannerV2.buildingEffect.recruitSpeed',
-    fallback: 'Recruit speed',
+    fallback: 'Recruitment time',
   },
   temple: {
     iconPath: getResourceIconPath('favor'),
@@ -234,17 +236,17 @@ const buildingEffectChips: Record<string, BuildingEffectChip> = {
     fallback: 'Favor/h',
   },
   marketplace: {
-    icon: '🔁',
+    iconPath: uiIconPaths.trade,
     labelKey: 'plannerV2.buildingEffect.trade',
     fallback: 'Trade',
   },
   harbour: {
     iconPath: getBattleIconPath('speed'),
     labelKey: 'plannerV2.buildingEffect.recruitSpeed',
-    fallback: 'Recruit speed',
+    fallback: 'Recruitment time',
   },
   academy: {
-    icon: '🔬',
+    iconPath: uiIconPaths.research,
     labelKey: 'plannerV2.buildingEffect.researchPoints',
     fallback: 'Research pts',
   },
@@ -270,6 +272,7 @@ const troopCategories: readonly TroopCategoryTab[] = [
     shortLabelKey: 'plannerV2.troop.landUnitsShort',
     shortFallback: 'Land',
     icon: '⚔',
+    iconPath: getBuildingImagePath('barracks'),
   },
   {
     id: 'sea',
@@ -278,6 +281,7 @@ const troopCategories: readonly TroopCategoryTab[] = [
     shortLabelKey: 'plannerV2.troop.seaUnitsShort',
     shortFallback: 'Sea',
     icon: '⚓',
+    iconPath: getBuildingImagePath('harbour'),
   },
   {
     id: 'mythical',
@@ -286,6 +290,7 @@ const troopCategories: readonly TroopCategoryTab[] = [
     shortLabelKey: 'plannerV2.troop.mythicalUnitsShort',
     shortFallback: 'Mythical',
     icon: '♛',
+    iconPath: getBuildingImagePath('temple'),
   },
 ];
 
@@ -1042,10 +1047,10 @@ export class PlannerV2 {
       {
         id: 'aphroditeActive',
         labelKey: 'plannerV2.modifier.aphrodite',
-        fallback: 'Aphrodite',
+        fallback: 'Pygmalion',
         shortLabelKey: 'plannerV2.modifier.aphroditeShort',
-        shortFallback: 'Aphro',
-        icon: '♡',
+        shortFallback: 'Pygmalion',
+        iconPath: getCityModifierIconPath('pygmalion'),
         active: isAphroditeGodSelected,
         disabled: false,
       },
@@ -1055,7 +1060,7 @@ export class PlannerV2 {
         fallback: 'Land Expansion',
         shortLabelKey: 'plannerV2.modifier.landExpansionShort',
         shortFallback: 'Land',
-        icon: '▦',
+        iconPath: getCityModifierIconPath('landExpansion'),
         active: landExpansionLevel > 0,
         detail: formatLandExpansionDetail(landExpansionLevel),
         progressSteps: createLandExpansionProgressSteps(landExpansionLevel),
@@ -1066,7 +1071,7 @@ export class PlannerV2 {
         fallback: 'Plow',
         shortLabelKey: 'plannerV2.modifier.plowShort',
         shortFallback: 'Plow',
-        icon: '⚱',
+        iconPath: getCityModifierIconPath('plow'),
         active: cityPlan.modifiers.plowResearched,
       },
     ];

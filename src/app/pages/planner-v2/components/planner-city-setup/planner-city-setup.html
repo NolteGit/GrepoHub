@@ -5,18 +5,27 @@
   @for (modifier of compactModifiers(); track modifier.id) {
     <button
       type="button"
-      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer flex-col items-center justify-center gap-0.5 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 py-1.5 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:items-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)]"
+      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 py-1.5 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:justify-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)]"
       [class.gh-tab-active]="modifier.active"
       [class.opacity-65]="!modifier.active"
       [attr.aria-pressed]="modifier.active"
       (click)="modifierToggled.emit(modifier.id)"
     >
-      <span class="inline-flex min-w-0 items-center justify-center gap-2 max-[58rem]:justify-start">
+      @if (modifier.iconPath) {
+        <img
+          class="size-8 shrink-0 object-contain"
+          [src]="modifier.iconPath"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+        />
+      } @else if (modifier.icon) {
         <span class="text-base leading-none" aria-hidden="true">{{ modifier.icon }}</span>
-        <strong class="truncate">{{ modifier.labelKey | translate: modifier.fallback }}</strong>
-      </span>
+      }
 
-      <span class="grid min-w-0 justify-items-center gap-1 max-[58rem]:justify-items-start">
+      <span class="grid min-w-0 gap-0.5 text-left">
+        <strong class="truncate">{{ modifier.labelKey | translate: modifier.fallback }}</strong>
+
         @if (!modifier.progressSteps?.length) {
           <small
             class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
@@ -30,7 +39,7 @@
         }
 
         @if (modifier.progressSteps?.length) {
-          <span class="flex items-center justify-center gap-1" aria-hidden="true">
+          <span class="flex items-center justify-start gap-1" aria-hidden="true">
             @for (stepActive of modifier.progressSteps ?? []; track $index) {
               <span
                 class="size-1.5 rounded-full border"

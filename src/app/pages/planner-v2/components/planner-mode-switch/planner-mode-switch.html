@@ -6,15 +6,25 @@
     <div class="relative grid min-w-0 rounded-lg">
       <button
         type="button"
-        class="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-transparent px-16 text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] max-[42rem]:px-12"
+        class="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent px-16 text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] max-[42rem]:px-12"
         [class.gh-gold-fill]="activeMode() === option.id"
         [attr.aria-pressed]="activeMode() === option.id"
         (click)="selectMode(option.id)"
       >
-        <span class="text-base leading-none opacity-95" aria-hidden="true">{{ option.icon }}</span>
-        <strong class="truncate text-sm font-black tracking-wide">{{
-          option.labelKey | translate: option.fallback
-        }}</strong>
+        <span class="inline-flex min-w-0 items-center justify-center gap-2.5">
+          <span class="grid size-9 shrink-0 place-items-center" aria-hidden="true">
+            <img
+              class="max-h-[1.75rem] max-w-[1.75rem] object-contain"
+              [src]="option.iconPath"
+              alt=""
+              loading="lazy"
+            />
+          </span>
+          <strong
+            class="truncate text-[0.95rem] leading-[1.18] font-extrabold tracking-[0.035em] max-[42rem]:text-sm"
+            >{{ option.labelKey | translate: option.fallback }}</strong
+          >
+        </span>
       </button>
 
       <label
