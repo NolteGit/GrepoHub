@@ -159,7 +159,7 @@ export class PlanConfigService {
       this.autosaveTimeoutId = null;
     }
 
-    localStorage.setItem(this.storageKey, JSON.stringify(this.createExportBundle()));
+    this.writeStorageItem(this.storageKey, JSON.stringify(this.createExportBundle()));
     this.saveSelectedPlanId();
   }
   duplicateActivePlan(name: string): PlanConfig {
@@ -684,7 +684,7 @@ export class PlanConfigService {
   }
 
   private getInitialSelectedPlanId(plans: readonly PlanConfig[]): string {
-    const storedPlanId = localStorage.getItem(this.selectedPlanStorageKey);
+    const storedPlanId = this.readStorageItem(this.selectedPlanStorageKey);
 
     if (storedPlanId && plans.some((plan) => plan.id === storedPlanId)) {
       return storedPlanId;
@@ -697,15 +697,15 @@ export class PlanConfigService {
     const planId = this.selectedPlanId();
 
     if (planId) {
-      localStorage.setItem(this.selectedPlanStorageKey, planId);
+      this.writeStorageItem(this.selectedPlanStorageKey, planId);
       return;
     }
 
-    localStorage.removeItem(this.selectedPlanStorageKey);
+    this.removeStorageItem(this.selectedPlanStorageKey);
   }
 
   private loadPlans(): PlanConfig[] {
-    const storedPlans = localStorage.getItem(this.storageKey);
+    const storedPlans = this.readStorageItem(this.storageKey);
 
     if (storedPlans) {
       try {
@@ -760,7 +760,7 @@ export class PlanConfigService {
   }
 
   private loadLegacyCityConfigurations(): CityConfiguration[] {
-    const storedConfigurations = localStorage.getItem(this.legacyCityStorageKey);
+    const storedConfigurations = this.readStorageItem(this.legacyCityStorageKey);
 
     if (!storedConfigurations) {
       return [];
@@ -782,7 +782,7 @@ export class PlanConfigService {
   }
 
   private loadLegacyTroopConfigurations(): TroopConfiguration[] {
-    const storedConfigurations = localStorage.getItem(this.legacyTroopStorageKey);
+    const storedConfigurations = this.readStorageItem(this.legacyTroopStorageKey);
 
     if (!storedConfigurations) {
       return [];
@@ -800,6 +800,34 @@ export class PlanConfigService {
         : [];
     } catch {
       return [];
+    }
+  }
+
+  private readStorageItem(key: string): string | null {
+    try {
+      return typeof localStorage === 'undefined' ? null : localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  private writeStorageItem(key: string, value: string): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(key, value);
+      }
+    } catch {
+      return;
+    }
+  }
+
+  private removeStorageItem(key: string): void {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(key);
+      }
+    } catch {
+      return;
     }
   }
 

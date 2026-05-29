@@ -18,6 +18,7 @@ describe('PlanConfigService import validation', () => {
   afterEach(() => {
     service.savePlans();
     vi.clearAllTimers();
+    vi.restoreAllMocks();
     vi.useRealTimers();
     localStorage.clear();
   });
@@ -245,6 +246,39 @@ describe('PlanConfigService import validation', () => {
     });
     expect(service.activePlan().id).toBe(firstCustomPlan.id);
     expect(service.plans().some((plan) => plan.id === secondCustomPlan.id)).toBe(false);
+  });
+
+  it('falls back to preset plans when stored plan data is malformed', () => {
+    localStorage.setItem('grepo-hub-plan-configs', '{invalid');
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(PlanConfigService);
+
+    expect(service.activePlan().id).toBe('preset-empty');
+    expect(service.plans().length).toBeGreaterThan(0);
+  });
+
+  it('keeps the planner usable when localStorage reads fail', () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('Storage blocked');
+    });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(PlanConfigService);
+
+    expect(service.activePlan().id).toBe('preset-empty');
+    expect(service.plans().length).toBeGreaterThan(0);
+  });
+
+  it('keeps the planner usable when localStorage writes fail', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('Storage full');
+    });
+
+    expect(() => service.createNewPlan('No Storage')).not.toThrow();
+    expect(service.activePlan().name).toBe('No Storage');
   });
 
   it('keeps the selected plan after the service reloads', () => {
