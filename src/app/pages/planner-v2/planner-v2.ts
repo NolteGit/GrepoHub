@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import {
@@ -956,6 +956,8 @@ export class PlannerV2 {
   private readonly gameDataService = inject(GameDataService);
   private readonly planImportExportUiService = inject(PlanImportExportUiService);
   private readonly translationService = inject(TranslationService);
+  @ViewChild('planActionDialogField')
+  private planActionDialogField?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
 
   protected readonly plans = this.planConfigService.plans;
   protected readonly activePlan = this.planConfigService.activePlan;
@@ -1473,6 +1475,19 @@ export class PlannerV2 {
     this.planDialogValue.set('');
   }
 
+  private focusPlanActionDialogField(): void {
+    window.setTimeout(() => {
+      const field = this.planActionDialogField?.nativeElement;
+
+      if (!field) {
+        return;
+      }
+
+      field.focus();
+      field.select();
+    });
+  }
+
   protected updatePlanDialogValue(event: Event): void {
     const target = event.target as HTMLInputElement | HTMLTextAreaElement | null;
 
@@ -1689,6 +1704,7 @@ export class PlannerV2 {
       confirmKey: 'planConfig.newPlanDialog.confirm',
       confirmFallback: 'Create plan',
     });
+    this.focusPlanActionDialogField();
   }
 
   private openRenameActivePlanDialog(): void {
@@ -1710,6 +1726,7 @@ export class PlannerV2 {
       confirmKey: 'planConfig.renameDialog.confirm',
       confirmFallback: 'Save name',
     });
+    this.focusPlanActionDialogField();
   }
 
   private openActivePlanNoteDialog(): void {
@@ -1733,6 +1750,7 @@ export class PlannerV2 {
       confirmKey: 'planConfig.noteDialog.confirm',
       confirmFallback: 'Save note',
     });
+    this.focusPlanActionDialogField();
   }
 
   private openClearActivePlanDialog(): void {
