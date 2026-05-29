@@ -139,7 +139,9 @@
             <path d="m22 22-5-10-5 10" />
             <path d="M14 18h6" />
           </svg>
-          <span>{{ currentLanguageShortLabelKey() | translate: currentLanguageShortFallback() }}</span>
+          <span>{{
+            currentLanguageShortLabelKey() | translate: currentLanguageShortFallback()
+          }}</span>
           <span class="text-[0.6rem] leading-none text-[var(--gh-gold)]" aria-hidden="true">▾</span>
         </summary>
 

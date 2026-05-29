@@ -38,16 +38,16 @@ export class PlannerHeader {
   readonly planSelected = output<string>();
   readonly actionSelected = output<PlannerHeaderActionId>();
 
-  protected readonly brandLabelKey = 'plannerV2.header.brand';
-  protected readonly brandLabelFallback = 'GrepoPlan';
   protected readonly planLabelKey = 'plannerV2.header.planLabel';
   protected readonly planLabelFallback = 'Plan';
   protected readonly newPlanLabelKey = 'plannerV2.header.newPlan';
   protected readonly newPlanLabelFallback = 'New plan';
+  protected readonly importLabelKey = 'plannerV2.header.importPlan';
+  protected readonly importLabelFallback = 'Import plan';
   protected readonly exportLabelKey = 'plannerV2.header.export';
-  protected readonly exportLabelFallback = 'Export';
-  protected readonly moreLabelKey = 'plannerV2.header.more';
-  protected readonly moreLabelFallback = 'More';
+  protected readonly exportLabelFallback = 'Export plan';
+  protected readonly moreLabelKey = 'plannerV2.header.editPlan';
+  protected readonly moreLabelFallback = 'Edit plan';
   protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>
     this.plans().map((plan) => ({ value: plan.id, label: plan.name })),
   );
@@ -62,14 +62,8 @@ export class PlannerHeader {
     {
       id: 'note',
       labelKey: 'planConfig.note',
-      fallback: 'Note',
-      icon: 'note',
-    },
-    {
-      id: 'import',
-      labelKey: 'planConfig.importJson',
-      fallback: 'Import JSON',
-      icon: 'import',
+      fallback: 'Add note',
+      icon: 'pencil',
     },
     {
       id: 'clear',
