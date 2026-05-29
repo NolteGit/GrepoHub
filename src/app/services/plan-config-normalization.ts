@@ -287,9 +287,7 @@ export function normalizeNameKey(name: string): string {
 }
 
 export function normalizeDisplayPlanName(value: unknown, fallback: string): string {
-  const name = normalizeImportName(value, fallback)
-    .replace(/\s+Plan$/i, '')
-    .trim();
+  const name = normalizeImportName(value, fallback).trim();
 
   return name.length > 0 ? name : fallback;
 }

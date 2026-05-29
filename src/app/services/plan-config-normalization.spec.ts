@@ -150,7 +150,7 @@ describe('plan config normalization', () => {
   });
 
   it('creates duplicate-safe names with normalized whitespace and casing', () => {
-    expect(createUniqueNameFromNames(' Alpha  Plan ', 'Copy', [])).toBe('Alpha');
+    expect(createUniqueNameFromNames(' Alpha  Plan ', 'Copy', [])).toBe('Alpha Plan');
     expect(createUniqueNameFromNames('Alpha', 'Copy', [' alpha ', 'Alpha Copy'])).toBe(
       'Alpha Copy 2',
     );
@@ -158,7 +158,8 @@ describe('plan config normalization', () => {
       'Alpha Copy 3',
     );
     expect(normalizeNameKey('  Alpha    Copy  ')).toBe('alpha copy');
-    expect(normalizeDisplayPlanName('  Alpha Plan  ', 'Fallback')).toBe('Alpha');
+    expect(normalizeDisplayPlanName('  Alpha Plan  ', 'Fallback')).toBe('Alpha Plan');
+    expect(normalizeDisplayPlanName('  my plan  ', 'Fallback')).toBe('my plan');
   });
 
   it('creates portable imported IDs and deep-clones nested plan objects', () => {
