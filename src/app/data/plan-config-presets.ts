@@ -1,4 +1,5 @@
 import { CityConfiguration } from '../models/city-configuration.model';
+import { defaultGrepolisGodId } from '../models/god.model';
 import { PLAN_CONFIG_VERSION, PlanConfig, PlanConfigSettings } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
@@ -7,6 +8,7 @@ const defaultSettings: PlanConfigSettings = {
   unitSpeed: null,
   timezone: null,
   locale: null,
+  selectedGod: defaultGrepolisGodId,
 };
 
 const cloneCityPlan = (configuration: CityConfiguration): CityConfiguration => ({

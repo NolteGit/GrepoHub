@@ -1,4 +1,5 @@
 import { CityConfiguration } from './city-configuration.model';
+import type { GrepolisGodId } from './god.model';
 import { TroopConfiguration } from './troop-configuration.model';
 
 export const PLAN_CONFIG_FORMAT = 'grepo-hub-plan-config';
@@ -11,6 +12,7 @@ export type PlanConfigSettings = {
   unitSpeed: number | null;
   timezone: string | null;
   locale: string | null;
+  selectedGod: GrepolisGodId;
 };
 
 export type PlanConfig = {

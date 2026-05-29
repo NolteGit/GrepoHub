@@ -285,6 +285,15 @@ describe('PlanConfigService import validation', () => {
     expect(service.plans()).toEqual([finalPlan]);
   });
 
+  it('stores selected god as active plan state', () => {
+    service.selectPlan('preset-hybrid-plan');
+
+    service.updateActivePlanSettings({ selectedGod: 'hera' });
+
+    expect(service.activePlan().settings.selectedGod).toBe('hera');
+    expect(service.activePlan().isPreset).toBe(false);
+  });
+
   it('exports CSV and BBCode from the normalized active plan state', () => {
     service.selectPlan('preset-hybrid-plan');
     service.duplicateActivePlan('CSV, BBCode "Plan"');
@@ -300,7 +309,7 @@ describe('PlanConfigService import validation', () => {
     const bbCode = service.toBbCode();
 
     expect(planOverviewCsv.split('\n')[0]).toBe(
-      'planId,planName,cityPlanName,troopPlanName,worldSpeed,unitSpeed,cityPlanNote,updatedAt',
+      'planId,planName,cityPlanName,troopPlanName,worldSpeed,unitSpeed,selectedGod,cityPlanNote,updatedAt',
     );
     expect(planOverviewCsv).toContain('"CSV, BBCode ""Plan"""');
     expect(troopAmountsCsv).toContain('swordsman,12');

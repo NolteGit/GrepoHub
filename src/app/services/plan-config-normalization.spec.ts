@@ -104,6 +104,7 @@ describe('plan config normalization', () => {
         unitSpeed: -1,
         timezone: 'Europe/Vienna',
         locale: '',
+        selectedGod: 'hera',
       },
       cityPlan: {
         name: 'Nested City',
@@ -125,12 +126,24 @@ describe('plan config normalization', () => {
       unitSpeed: null,
       timezone: 'Europe/Vienna',
       locale: null,
+      selectedGod: 'hera',
     });
     expect(normalized.cityPlan.name).toBe('Nested City');
     expect(normalized.cityPlan.note).toHaveLength(500);
     expect(normalized.cityPlan.buildingLevels['farm']).toBe(12);
     expect(normalized.troopPlan.name).toBe('Nested Troops');
     expect(normalized.troopPlan.unitAmounts['swordsman']).toBe(20);
+  });
+
+  it('normalizes invalid selected god settings to the default god', () => {
+    const normalized = normalizePlanConfig({
+      name: 'Invalid God Plan',
+      settings: {
+        selectedGod: 'invalid-god',
+      },
+    } as unknown as Partial<PlanConfig>);
+
+    expect(normalized.settings.selectedGod).toBe('aphrodite');
   });
 
   it('creates minimum building levels and empty unit amount maps for reset workflows', () => {
@@ -192,6 +205,7 @@ describe('plan config normalization', () => {
     const clonedPlan = clonePlan(plan);
 
     clonedPlan.settings.worldSpeed = 2;
+    clonedPlan.settings.selectedGod = 'hera';
     clonedPlan.cityPlan.buildingLevels['farm'] = 20;
     clonedPlan.cityPlan.specialBuildings.slot1 = 'library';
     clonedPlan.troopPlan.unitAmounts['swordsman'] = 40;
@@ -201,6 +215,7 @@ describe('plan config normalization', () => {
       'imported-plan-my-nice-plan-123',
     );
     expect(plan.settings.worldSpeed).toBeNull();
+    expect(plan.settings.selectedGod).toBe('aphrodite');
     expect(plan.cityPlan.buildingLevels['farm']).toBe(10);
     expect(plan.cityPlan.specialBuildings.slot1).toBe('none');
     expect(plan.troopPlan.unitAmounts['swordsman']).toBe(20);

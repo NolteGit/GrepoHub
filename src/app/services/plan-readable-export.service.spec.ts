@@ -91,6 +91,7 @@ const testPlan: PlanConfig = {
     unitSpeed: null,
     timezone: null,
     locale: null,
+    selectedGod: 'aphrodite',
   },
   cityPlan: {
     id: 'city-readable-test',

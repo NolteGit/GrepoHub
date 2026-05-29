@@ -26,6 +26,12 @@ import type {
   CitySpecialBuildingOptionId,
   CitySpecialBuildingSlotId,
 } from '../../models/city-configuration.model';
+import {
+  defaultGrepolisGodId,
+  fallbackGrepolisGodId,
+  normalizeGrepolisGodId,
+  type GrepolisGodId,
+} from '../../models/god.model';
 import type { TroopConfiguration } from '../../models/troop-configuration.model';
 import type { Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -303,7 +309,7 @@ const troopCategories: readonly TroopCategoryTab[] = [
   },
 ];
 
-const gods: readonly GodOption[] = [
+const gods: readonly (GodOption & { readonly value: GrepolisGodId })[] = [
   { value: 'aphrodite', labelKey: 'god.aphrodite', fallback: 'Aphrodite' },
   { value: 'ares', labelKey: 'god.ares', fallback: 'Ares' },
   { value: 'artemis', labelKey: 'god.artemis', fallback: 'Artemis' },
@@ -314,34 +320,9 @@ const gods: readonly GodOption[] = [
   { value: 'zeus', labelKey: 'god.zeus', fallback: 'Zeus' },
 ];
 
-const defaultSelectedGod = 'aphrodite';
-const fallbackSelectedGod = 'zeus';
-const selectedGodStorageKey = 'grepo-hub.planner-v2.selectedGod';
 const planNoticeAutoDismissMs = 4200;
 
-const normalizeGod = (god: string | null): string => {
-  if (god === null) {
-    return defaultSelectedGod;
-  }
-
-  return gods.some((option) => option.value === god) ? god : defaultSelectedGod;
-};
-
-const getInitialSelectedGod = (): string => {
-  if (typeof window === 'undefined') {
-    return defaultSelectedGod;
-  }
-
-  return normalizeGod(window.localStorage.getItem(selectedGodStorageKey));
-};
-
-const storeSelectedGod = (god: string): void => {
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem(selectedGodStorageKey, god);
-  }
-};
-
-const isDefaultSelectedGod = (god: string): boolean => god === defaultSelectedGod;
+const isDefaultSelectedGod = (god: string): boolean => god === defaultGrepolisGodId;
 
 const landExpansionMaxLevel = 6;
 const landExpansionPopulationPerLevel = 50;
@@ -990,7 +971,7 @@ export class PlannerV2 {
   protected readonly planActionDialog = signal<PlannerActionDialog | null>(null);
   protected readonly planDialogValue = signal('');
   protected readonly planDialogNoteMaxLength = maxCityPlanNoteLength;
-  protected readonly selectedGod = signal(getInitialSelectedGod());
+  protected readonly selectedGod = computed(() => this.activePlan().settings.selectedGod);
   protected readonly activeCityPlan = computed(() => this.activePlan().cityPlan);
   protected readonly effectiveCityPlan = computed(() =>
     getEffectiveCityPlanForGod(this.activeCityPlan(), this.selectedGod()),
@@ -1643,7 +1624,7 @@ export class PlannerV2 {
   protected toggleCityModifier(modifierId: CityModifierToggleId): void {
     if (modifierId === 'aphroditeActive') {
       this.setSelectedGod(
-        isDefaultSelectedGod(this.selectedGod()) ? fallbackSelectedGod : defaultSelectedGod,
+        isDefaultSelectedGod(this.selectedGod()) ? fallbackGrepolisGodId : defaultGrepolisGodId,
       );
       return;
     }
@@ -1689,14 +1670,12 @@ export class PlannerV2 {
   }
 
   private setSelectedGod(god: string): void {
-    const selectedGod = normalizeGod(god);
+    const selectedGod = normalizeGrepolisGodId(god);
     const previousGod = this.selectedGod();
     const aphroditeActive = isDefaultSelectedGod(selectedGod);
 
-    this.selectedGod.set(selectedGod);
-    storeSelectedGod(selectedGod);
-
     if (previousGod !== selectedGod) {
+      this.planConfigService.updateActivePlanSettings({ selectedGod });
       this.clearInactiveMythicalUnits(selectedGod);
     }
 

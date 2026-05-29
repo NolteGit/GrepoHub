@@ -9,6 +9,7 @@ import {
   PLAN_CONFIG_VERSION,
   PlanConfig,
   PlanConfigBundle,
+  PlanConfigSettings,
 } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
@@ -346,6 +347,19 @@ export class PlanConfigService {
     }));
   }
 
+  updateActivePlanSettings(partialSettings: Partial<PlanConfigSettings>): void {
+    this.updateActivePlan((plan) =>
+      normalizePlanConfig({
+        ...plan,
+        isPreset: false,
+        settings: {
+          ...plan.settings,
+          ...partialSettings,
+        },
+      }),
+    );
+  }
+
   resetActiveCityPlan(): void {
     const currentPlan = this.activePlan();
     const presetPlan = planConfigPresets.find((plan) => plan.id === currentPlan.id);
@@ -560,6 +574,7 @@ export class PlanConfigService {
       plan.troopPlan.name,
       plan.settings.worldSpeed ?? '',
       plan.settings.unitSpeed ?? '',
+      plan.settings.selectedGod,
       plan.cityPlan.note ?? '',
       plan.updatedAt ?? '',
     ]);
@@ -572,6 +587,7 @@ export class PlanConfigService {
         'troopPlanName',
         'worldSpeed',
         'unitSpeed',
+        'selectedGod',
         'cityPlanNote',
         'updatedAt',
       ],

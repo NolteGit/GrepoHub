@@ -9,6 +9,7 @@ import {
   CitySpecialBuildingOptionId,
   CitySpecialBuildingSlotId,
 } from '../models/city-configuration.model';
+import { defaultGrepolisGodId, normalizeGrepolisGodId } from '../models/god.model';
 import { PlanConfig, PlanConfigSettings } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
@@ -90,6 +91,7 @@ function normalizeSettings(rawSettings: unknown): PlanConfigSettings {
     unitSpeed: Number.isFinite(parsedUnitSpeed) && parsedUnitSpeed > 0 ? parsedUnitSpeed : null,
     timezone: normalizeOptionalString(settings['timezone']),
     locale: normalizeOptionalString(settings['locale']),
+    selectedGod: normalizeGrepolisGodId(settings['selectedGod'] ?? settings['god']),
   };
 }
 
@@ -99,6 +101,7 @@ export function createDefaultSettings(): PlanConfigSettings {
     unitSpeed: null,
     timezone: null,
     locale: null,
+    selectedGod: defaultGrepolisGodId,
   };
 }
 
