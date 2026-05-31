@@ -94,6 +94,11 @@ if (!exists(headersPath)) {
   assertIncludes(headers, 'Referrer-Policy: strict-origin-when-cross-origin', 'public/_headers should set a referrer policy.');
   assertIncludes(headers, 'X-Content-Type-Options: nosniff', 'public/_headers should set nosniff.');
   assertIncludes(headers, 'Permissions-Policy:', 'public/_headers should set a permissions policy.');
+  assertIncludes(headers, 'Content-Security-Policy:', 'public/_headers should set a content security policy.');
+  assertIncludes(headers, "default-src 'self'", 'public/_headers CSP should default to self.');
+  assertIncludes(headers, "object-src 'none'", 'public/_headers CSP should block plugin/object content.');
+  assertIncludes(headers, "frame-ancestors 'none'", 'public/_headers CSP should block iframe embedding.');
+  assertIncludes(headers, "base-uri 'self'", 'public/_headers CSP should restrict base URIs.');
 }
 
 if (warnings.length > 0) {

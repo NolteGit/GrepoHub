@@ -300,6 +300,51 @@ function checkPresetUnitReferences(units) {
   }
 }
 
+function checkTroopUnitAmountLimits(units) {
+  const sourceFile = 'src/app/services/troop-unit-amounts.ts';
+  const source = readText(sourceFile);
+  const maxBudgetMatch = source.match(/const\s+maxPopulationBudgetPerUnit\s*=\s*(\d+)\s*;/);
+  const amountMapMatch = source.match(/const\s+troopUnitAmountMaxById[^=]*=\s*\{([\s\S]*?)\};/m);
+
+  if (!maxBudgetMatch) {
+    addError(`${sourceFile} is missing maxPopulationBudgetPerUnit`);
+    return;
+  }
+
+  if (!amountMapMatch) {
+    addError(`${sourceFile} is missing troopUnitAmountMaxById`);
+    return;
+  }
+
+  const maxPopulationBudgetPerUnit = Number(maxBudgetMatch[1]);
+  const amountLimits = new Map(
+    extractKeyNumberPairs(amountMapMatch[1]).map(({ key, value }) => [key, value]),
+  );
+  const unitIds = new Set(units.map((unit) => unit.id));
+
+  for (const unit of units) {
+    const expectedLimit = Math.ceil(maxPopulationBudgetPerUnit / Math.max(1, unit.cost.population));
+    const configuredLimit = amountLimits.get(unit.id);
+
+    if (configuredLimit === undefined) {
+      addError(`${sourceFile} is missing a unit amount limit for ${unit.id}`);
+      continue;
+    }
+
+    if (configuredLimit !== expectedLimit) {
+      addError(
+        `${sourceFile} has stale unit amount limit for ${unit.id}: ${configuredLimit}, expected ${expectedLimit}`,
+      );
+    }
+  }
+
+  for (const unitId of amountLimits.keys()) {
+    if (!unitIds.has(unitId)) {
+      addError(`${sourceFile} has unit amount limit for unknown unit id: ${unitId}`);
+    }
+  }
+}
+
 function extractPopulationTables(source) {
   const tables = new Map();
 
@@ -487,6 +532,7 @@ if (!Array.isArray(units)) {
 } else {
   checkUnits(units, languages, dictionaries);
   checkPresetUnitReferences(units);
+  checkTroopUnitAmountLimits(units);
 }
 
 if (!Array.isArray(buildings)) {
