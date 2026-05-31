@@ -3,11 +3,13 @@
 Use this checklist after behavior-sensitive changes, before sharing a build for feedback, or before
 deploying a production build.
 
-Run the automated gate first:
+Run the automated release gate first:
 
 ```bash
-npm run verify
+npm run release:check
 ```
+
+Use `npm run verify` for normal development checks when the production dependency audit is not needed.
 
 Then test the core flows below in the browser.
 
@@ -21,6 +23,7 @@ Then test the core flows below in the browser.
 [ ] Reload the page and confirm the selected plan is restored
 [ ] Reset/clear the plan and confirm values return to defaults
 [ ] Reload again and confirm the reset state remains stable
+[ ] If possible, test with localStorage blocked/full and confirm the app shows a local-save warning instead of crashing
 ```
 
 ## 2. Import and export
@@ -32,6 +35,7 @@ Then test the core flows below in the browser.
 [ ] Try importing invalid JSON and confirm a user-friendly error is shown
 [ ] Try importing a structurally invalid plan and confirm a user-friendly error is shown
 [ ] Export readable TXT/CSV/BBCode output and confirm selected god/city effects are correct
+[ ] Export a plan with a name/note starting with =, +, -, or @ and confirm CSV opens as text, not a spreadsheet formula
 ```
 
 ## 3. God and city-effect synchronization
@@ -106,6 +110,7 @@ Test at least a normal desktop width and a narrow browser window.
 
 ```text
 [ ] Main planner layout does not overflow horizontally
+[ ] Narrow viewport shows the small-screen notice
 [ ] Sidebar remains usable
 [ ] Popups fit within the viewport
 [ ] Unit/building tiles wrap cleanly
@@ -127,4 +132,5 @@ Use this after a production build or hosted preview deployment.
 [ ] App title and favicon are correct in the browser tab
 [ ] Static data, icons, and translations load correctly
 [ ] Browser console has no unexpected production errors during normal use
+[ ] Browser console has no CSP violations during normal use
 ```

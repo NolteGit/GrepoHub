@@ -47,9 +47,21 @@ X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
 X-Content-Type-Options: nosniff
 Permissions-Policy: camera=(), geolocation=(), microphone=()
+Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; upgrade-insecure-requests
 ```
 
-Do not add a Content-Security-Policy casually. Angular production builds and inline/runtime behavior should be checked carefully before enabling CSP.
+CSP changes should be tested with a production build and browser console open. If a future feature adds external APIs, fonts, images, or analytics, update `connect-src`, `font-src`, `img-src`, or `script-src` deliberately instead of broadening `default-src`.
+
+## Small-screen behavior
+
+Planner V2 is currently optimized for desktop and medium-width screens. Narrow screens show a notice because toolbox and summary areas are intentionally hidden at small widths.
+
+```text
+[ ] Narrow viewport shows the small-screen notice
+[ ] Core planner content remains readable
+[ ] No horizontal page overflow appears
+[ ] Hidden toolbox/sidebar functionality is still acceptable for the release target
+```
 
 ## Local smoke test without deployment
 
@@ -77,4 +89,10 @@ Run:
 npm run pages:audit
 ```
 
-This checks the local source files for the expected page shell, static-hosting headers, route fallback, and missing favicon references.
+This checks the local source files for the expected page shell, static-hosting headers, route fallback, CSP baseline, small-screen notice, and missing favicon references.
+
+For a full release gate, run:
+
+```powershell
+npm run release:check
+```

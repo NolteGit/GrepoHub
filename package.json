@@ -15,6 +15,8 @@
     "clean": "rimraf dist .angular/cache coverage",
     "fresh": "rimraf node_modules dist .angular coverage && npm ci",
     "verify": "npm run format:check && npm run assets:audit && npm run i18n:audit && npm run data:audit && npm run pages:audit && npm run typecheck && npm run test:once && npm run build && npm run deadcode",
+    "security:audit": "npm audit --omit=dev",
+    "release:check": "npm run verify && npm run security:audit",
     "check": "npm run verify",
     "verify:fix": "npm run format && npm run verify",
     "data:audit": "node scripts/audit-data.mjs",

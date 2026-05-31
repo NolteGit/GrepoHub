@@ -1,22 +1,69 @@
 # MVP Roadmap
 
-This roadmap reflects the current Planner V2 reset. The app should now grow in small vertical layers instead of returning to the older multi-page V1 structure.
+This roadmap tracks the current Planner V2 release path. Grepo Hub is currently a local-first, single-page Angular app centered on the planner workflow.
 
-## Current foundation
+## Completed foundation
 
-Completed foundation work:
+The current app already includes the main MVP foundation:
 
-- Clean-slate Planner V2 route and shell.
-- Old V1 page/layout UI removed.
-- Reusable services, models, data, translations, assets, and helpers retained.
-- Tailwind styling foundation added.
-- Nx workspace tooling added around the single Angular app.
+- Planner V2 route and single-page shell.
+- City setup with building levels, effects, population calculations, and special-building behavior.
+- Troop setup with land, sea, mythical units, god-dependent behavior, and amount controls.
+- Summary/sidebar values for population, battle stats, transport capacity, and most-used units.
+- Toolbox with calculator, time calculator, reminders, links, and small utility actions.
+- Local plan persistence, JSON import/export, and readable TXT/CSV/BBCode exports.
+- Static data and translation audits.
+- Static-hosting readiness checks for metadata, favicon, SPA fallback assumptions, and security headers.
+- Release hardening for CSP, safe local storage access, safer CSV exports, duplicate import IDs, and small-screen layout messaging.
+
+## Current release-prep focus
+
+Before the first public/hosted release, prioritize confidence and maintainability over new features.
+
+Target checks:
+
+```text
+npm run release:check
+```
+
+Manual browser checks should follow `docs/10-manual-regression-checklist.md`.
+
+## Next milestone: release candidate
+
+The next milestone is a small release-candidate pass with no broad feature work.
+
+Target work:
+
+- Review the production build locally.
+- Run the full manual regression checklist on desktop and a narrow viewport.
+- Confirm Cloudflare Pages preview behavior for `/` and `/planner-v2` refreshes.
+- Confirm the CSP does not block production assets or runtime behavior.
+- Patch Angular/Nx dev dependencies in a separate dependency-only change.
+- Update screenshots or public-facing docs after the final UI state is confirmed.
+
+## Next milestone: component boundaries
+
+After release, reduce the size of the largest Planner V2 files by extracting behavior in small, testable slices.
+
+Preferred extraction order:
+
+```txt
+src/app/pages/planner-v2/
+  planner-v2.ts
+  components/
+  utils/
+    planner-dialog-focus.ts
+    planner-selection-rules.ts
+    planner-summary-view-model.ts
+```
+
+Keep extraction behavior-preserving. Move pure calculations and UI mapping first; split templates only when the boundaries are obvious.
 
 ## Next milestone: reusable UI primitives
 
-Add shared Angular/Tailwind primitives before building many real tiles and summary panels.
+The app already uses repeated panel, tile, button, and stepper patterns. After release, convert only stable patterns into shared primitives.
 
-Target components:
+Candidate components:
 
 ```txt
 src/app/shared/ui/
@@ -29,76 +76,16 @@ src/app/shared/ui/
   gh-number-stepper
 ```
 
-## Milestone: split Planner V2 sections
-
-Split the current placeholder-heavy shell into real Planner V2 feature components:
-
-```txt
-planner-city-setup
-planner-troop-setup
-planner-bottom-summary
-```
-
-The parent Planner V2 page should keep ownership of high-level state.
-
-## Milestone: City Setup
-
-Implement City Setup first because it is the simpler workflow and provides context for troop requirements.
-
-Target behavior:
-
-- Real building data list.
-- Building tile component.
-- Level number stepper.
-- Special building selectors.
-- Modifier toggles.
-- Signal-first local planner state.
-- Computed city summaries.
-
-## Milestone: Troop Setup
-
-After City Setup works, implement Troop Setup.
-
-Target behavior:
-
-- Land / Sea / Mythical category tabs.
-- God dropdown.
-- Barracks / Harbour / Temple context values.
-- Unit tile component.
-- Amount number stepper.
-- Filtered visible units.
-- Computed troop summaries.
-
-## Milestone: persistence and import/export
-
-Wire Planner V2 state into the existing `PlanConfigService` and import/export services.
-
-Target behavior:
-
-- Select active plan.
-- Create/duplicate/delete plans.
-- Persist building levels and unit amounts.
-- Import/export JSON plan bundles.
-
-## Milestone: toolbox wiring
-
-Wire the reusable timer/calculator utilities into the left toolbox after the planner core is usable.
-
-Target behavior:
-
-- Live clock.
-- Calculator.
-- Time calculator.
-- Reminder/timer queue.
-- Useful quick links.
+Avoid creating abstractions for unstable UI while the planner layout is still changing.
 
 ## Later polish
 
 Later work can include:
 
-- Responsive/mobile tuning.
+- More complete responsive/mobile planner interactions.
 - Reference/guide overlay or route.
-- Generated TXT/BBCode/CSV exports.
-- Academy/research planning.
+- Academy/research planning expansion.
 - Browser notifications for timers.
 - Optional battle simulator research.
+- Optional import/export previews before applying imported bundles.
+- Optional IndexedDB storage if plans become too large for LocalStorage.
