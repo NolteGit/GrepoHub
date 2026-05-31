@@ -78,17 +78,10 @@ export class PlanConfigService {
     );
   });
   constructor() {
-    const normalizedPlans = this.normalizeExistingPlanNames(this.planConfigs());
     const currentPlans = this.planConfigs();
-    const changedPlans =
-      normalizedPlans.length !== currentPlans.length ||
-      normalizedPlans.some((plan, index) => {
-        const currentPlan = currentPlans[index];
+    const normalizedPlans = this.normalizeExistingPlans(currentPlans);
 
-        return !currentPlan || plan.id !== currentPlan.id || plan.name !== currentPlan.name;
-      });
-
-    if (!changedPlans) {
+    if (!this.havePlanIdentitiesChanged(currentPlans, normalizedPlans)) {
       return;
     }
 
@@ -430,7 +423,7 @@ export class PlanConfigService {
       return;
     }
 
-    const plans = rawPlans.map((plan) => normalizePlanConfig(plan));
+    const plans = this.normalizeExistingPlans(rawPlans.map((plan) => normalizePlanConfig(plan)));
 
     this.planConfigs.set(plans);
     this.selectedPlanId.set(plans[0]?.id ?? '');
@@ -522,32 +515,98 @@ export class PlanConfigService {
     return createUniqueIdSuffix();
   }
 
-  private normalizeExistingPlanNames(plans: readonly PlanConfig[]): PlanConfig[] {
+  private normalizeExistingPlans(plans: readonly PlanConfig[]): PlanConfig[] {
     const usedNames: string[] = [];
+    const usedPlanIds = new Set<string>();
+    const usedCityPlanIds = new Set<string>();
+    const usedTroopPlanIds = new Set<string>();
 
     return plans.map((plan) => {
       const suffix = plan.id.startsWith('imported-plan') ? 'Import' : 'Copy';
       const uniqueName = createUniqueNameFromNames(plan.name, suffix, usedNames);
+      const planId = this.createUniqueEntityId(plan.id, 'custom-plan', usedPlanIds);
+      const cityPlanId = this.createUniqueEntityId(
+        plan.cityPlan.id,
+        'custom-city',
+        usedCityPlanIds,
+      );
+      const troopPlanId = this.createUniqueEntityId(
+        plan.troopPlan.id,
+        'custom-troops',
+        usedTroopPlanIds,
+      );
 
       usedNames.push(uniqueName);
 
-      if (uniqueName === plan.name) {
+      if (
+        uniqueName === plan.name &&
+        planId === plan.id &&
+        cityPlanId === plan.cityPlan.id &&
+        troopPlanId === plan.troopPlan.id
+      ) {
         return plan;
       }
 
       return {
         ...plan,
+        id: planId,
         name: uniqueName,
         cityPlan: {
           ...plan.cityPlan,
+          id: cityPlanId,
           name: plan.cityPlan.name === plan.name ? uniqueName : plan.cityPlan.name,
         },
         troopPlan: {
           ...plan.troopPlan,
+          id: troopPlanId,
           name: plan.troopPlan.name === plan.name ? uniqueName : plan.troopPlan.name,
         },
       };
     });
+  }
+
+  private createUniqueEntityId(
+    requestedId: string,
+    fallbackPrefix: string,
+    usedIds: Set<string>,
+  ): string {
+    if (requestedId && !usedIds.has(requestedId)) {
+      usedIds.add(requestedId);
+
+      return requestedId;
+    }
+
+    let generatedId = '';
+
+    do {
+      generatedId = fallbackPrefix + '-' + createUniqueIdSuffix();
+    } while (usedIds.has(generatedId));
+
+    usedIds.add(generatedId);
+
+    return generatedId;
+  }
+
+  private havePlanIdentitiesChanged(
+    currentPlans: readonly PlanConfig[],
+    normalizedPlans: readonly PlanConfig[],
+  ): boolean {
+    return (
+      normalizedPlans.length !== currentPlans.length ||
+      normalizedPlans.some((plan, index) => {
+        const currentPlan = currentPlans[index];
+
+        return (
+          !currentPlan ||
+          plan.id !== currentPlan.id ||
+          plan.name !== currentPlan.name ||
+          plan.cityPlan.id !== currentPlan.cityPlan.id ||
+          plan.cityPlan.name !== currentPlan.cityPlan.name ||
+          plan.troopPlan.id !== currentPlan.troopPlan.id ||
+          plan.troopPlan.name !== currentPlan.troopPlan.name
+        );
+      })
+    );
   }
 
   private createUniquePlanName(

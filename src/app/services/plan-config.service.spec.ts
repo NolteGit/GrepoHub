@@ -103,6 +103,96 @@ describe('PlanConfigService import validation', () => {
     expect(importedPlans[1].troopPlan.unitAmounts['swordsman']).toBe(2);
   });
 
+  it('replaces imported bundles with duplicate-safe plan and nested IDs', () => {
+    const bundle = {
+      format: PLAN_CONFIG_FORMAT,
+      version: PLAN_CONFIG_VERSION,
+      exportedAt: new Date().toISOString(),
+      plans: [
+        {
+          id: 'duplicate-plan',
+          name: 'Collision',
+          cityPlan: {
+            id: 'duplicate-city',
+            name: 'Collision',
+          },
+          troopPlan: {
+            id: 'duplicate-troops',
+            name: 'Collision',
+          },
+        },
+        {
+          id: 'duplicate-plan',
+          name: 'collision',
+          cityPlan: {
+            id: 'duplicate-city',
+            name: 'collision',
+          },
+          troopPlan: {
+            id: 'duplicate-troops',
+            name: 'collision',
+          },
+        },
+      ],
+    };
+
+    service.fromJson(JSON.stringify(bundle));
+
+    const importedPlans = service.plans();
+
+    expect(importedPlans).toHaveLength(2);
+    expect(new Set(importedPlans.map((plan) => plan.id)).size).toBe(2);
+    expect(new Set(importedPlans.map((plan) => plan.cityPlan.id)).size).toBe(2);
+    expect(new Set(importedPlans.map((plan) => plan.troopPlan.id)).size).toBe(2);
+    expect(importedPlans.map((plan) => plan.name)).toEqual(['Collision', 'collision Copy']);
+    expect(importedPlans.map((plan) => plan.cityPlan.name)).toEqual([
+      'Collision',
+      'collision Copy',
+    ]);
+    expect(importedPlans.map((plan) => plan.troopPlan.name)).toEqual([
+      'Collision',
+      'collision Copy',
+    ]);
+    expect(service.activePlan().id).toBe(importedPlans[0].id);
+  });
+
+  it('repairs duplicate stored IDs on startup before plan updates run', () => {
+    const bundle = {
+      format: PLAN_CONFIG_FORMAT,
+      version: PLAN_CONFIG_VERSION,
+      exportedAt: new Date().toISOString(),
+      plans: [
+        {
+          id: 'stored-plan',
+          name: 'Stored',
+          cityPlan: { id: 'stored-city', name: 'Stored' },
+          troopPlan: { id: 'stored-troops', name: 'Stored' },
+        },
+        {
+          id: 'stored-plan',
+          name: 'Stored',
+          cityPlan: { id: 'stored-city', name: 'Stored' },
+          troopPlan: { id: 'stored-troops', name: 'Stored' },
+        },
+      ],
+    };
+
+    localStorage.setItem('grepo-hub-plan-configs', JSON.stringify(bundle));
+    localStorage.setItem('grepo-hub-selected-plan-id', 'stored-plan');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(PlanConfigService);
+
+    const storedPlans = service.plans();
+
+    expect(storedPlans).toHaveLength(2);
+    expect(new Set(storedPlans.map((plan) => plan.id)).size).toBe(2);
+    expect(new Set(storedPlans.map((plan) => plan.cityPlan.id)).size).toBe(2);
+    expect(new Set(storedPlans.map((plan) => plan.troopPlan.id)).size).toBe(2);
+    expect(storedPlans.map((plan) => plan.name)).toEqual(['Stored', 'Stored Copy']);
+    expect(service.activePlan().id).toBe('stored-plan');
+  });
+
   it('creates a new empty custom plan and selects it', () => {
     const initialPlanCount = service.plans().length;
 
