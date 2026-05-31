@@ -846,6 +846,8 @@
   "plannerV2.mode.details": "Detalles",
   "plannerV2.tileDetails.header": "Detalles de tarjeta",
   "plannerV2.tileDetails.hint": "Estadísticas / info",
+  "plannerV2.mobileNotice.title": "Se recomienda el diseño de escritorio",
+  "plannerV2.mobileNotice.detail": "La planificación funciona en pantallas pequeñas, pero la caja de herramientas y el panel de resumen están ocultos. Usa una pantalla más ancha para ver el planificador completo.",
   "plannerV2.toolbox.collapse": "Contraer herramientas",
   "plannerV2.toolbox.expand": "Expandir herramientas",
   "academyResearch.technologiesButton": "Tecnologías",

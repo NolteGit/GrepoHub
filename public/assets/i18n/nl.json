@@ -846,6 +846,8 @@
   "plannerV2.mode.details": "Details",
   "plannerV2.tileDetails.header": "Tegeldetails",
   "plannerV2.tileDetails.hint": "Stats / info",
+  "plannerV2.mobileNotice.title": "Desktopindeling aanbevolen",
+  "plannerV2.mobileNotice.detail": "Plannen werkt op kleine schermen, maar de toolbox en samenvattingszijbalk zijn verborgen. Gebruik een breder scherm voor de volledige planner.",
   "plannerV2.toolbox.collapse": "Toolbox inklappen",
   "plannerV2.toolbox.expand": "Toolbox uitklappen",
   "academyResearch.technologiesButton": "Technologieën",

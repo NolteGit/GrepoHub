@@ -846,6 +846,8 @@
   "plannerV2.mode.details": "Details",
   "plannerV2.tileDetails.header": "Kachel-Details",
   "plannerV2.tileDetails.hint": "Werte / Infos",
+  "plannerV2.mobileNotice.title": "Desktop-Layout empfohlen",
+  "plannerV2.mobileNotice.detail": "Die Planung funktioniert auf kleinen Bildschirmen, aber Toolbox und Zusammenfassungsleiste sind ausgeblendet. Nutze einen breiteren Bildschirm für den vollständigen Planer.",
   "plannerV2.toolbox.collapse": "Toolbox einklappen",
   "plannerV2.toolbox.expand": "Toolbox ausklappen",
   "academyResearch.technologiesButton": "Technologien",

@@ -846,6 +846,8 @@
   "plannerV2.mode.details": "Détails",
   "plannerV2.tileDetails.header": "Détails de tuile",
   "plannerV2.tileDetails.hint": "Stats / infos",
+  "plannerV2.mobileNotice.title": "Affichage ordinateur recommandé",
+  "plannerV2.mobileNotice.detail": "La planification fonctionne sur les petits écrans, mais la boîte à outils et le panneau de résumé sont masqués. Utilisez un écran plus large pour le planificateur complet.",
   "plannerV2.toolbox.collapse": "Réduire la boîte à outils",
   "plannerV2.toolbox.expand": "Développer la boîte à outils",
   "academyResearch.technologiesButton": "Technologies",

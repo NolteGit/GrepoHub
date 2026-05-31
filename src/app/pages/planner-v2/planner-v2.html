@@ -165,6 +165,26 @@
   <section
     class="col-start-2 row-start-2 flex min-h-0 min-w-0 flex-col gap-2 p-2 max-[46rem]:col-start-1"
   >
+    <aside
+      class="hidden rounded-xl border border-[rgba(246,195,67,0.28)] bg-[rgba(246,195,67,0.08)] px-3 py-2 text-sm leading-6 text-[var(--gh-muted)] max-[46rem]:block"
+      role="note"
+      aria-labelledby="planner-mobile-notice-title"
+    >
+      <strong
+        id="planner-mobile-notice-title"
+        class="block text-[0.72rem] font-black uppercase tracking-[0.14em] text-[var(--gh-gold)]"
+      >
+        {{ 'plannerV2.mobileNotice.title' | translate: 'Desktop layout recommended' }}
+      </strong>
+      <span>
+        {{
+          'plannerV2.mobileNotice.detail'
+            | translate
+              : 'Planning works on small screens, but the toolbox and summary sidebar are hidden. Use a wider screen for the full planner.'
+        }}
+      </span>
+    </aside>
+
     <section
       class="gh-surface grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-xl"
     >

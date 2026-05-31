@@ -846,6 +846,8 @@
   "plannerV2.mode.details": "Details",
   "plannerV2.tileDetails.header": "Tile Details",
   "plannerV2.tileDetails.hint": "Stats / info",
+  "plannerV2.mobileNotice.title": "Desktop layout recommended",
+  "plannerV2.mobileNotice.detail": "Planning works on small screens, but the toolbox and summary sidebar are hidden. Use a wider screen for the full planner.",
   "plannerV2.toolbox.collapse": "Collapse toolbox",
   "plannerV2.toolbox.expand": "Expand toolbox",
   "academyResearch.technologiesButton": "Technologies",

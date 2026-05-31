@@ -84,6 +84,23 @@ if (exists('public/404.html')) {
   warn('public/404.html exists. For Cloudflare Pages SPA fallback, keep no top-level 404.html unless routing is intentionally changed.');
 }
 
+const plannerV2TemplatePath = 'src/app/pages/planner-v2/planner-v2.html';
+if (!exists(plannerV2TemplatePath)) {
+  warn('Missing src/app/pages/planner-v2/planner-v2.html.');
+} else {
+  const plannerV2Template = readText(plannerV2TemplatePath);
+  assertIncludes(
+    plannerV2Template,
+    'plannerV2.mobileNotice.title',
+    'Planner V2 should keep a small-screen notice because the toolbox and sidebar are intentionally hidden on narrow screens.',
+  );
+  assertIncludes(
+    plannerV2Template,
+    'plannerV2.mobileNotice.detail',
+    'Planner V2 should explain the limited small-screen layout.',
+  );
+}
+
 const headersPath = 'public/_headers';
 if (!exists(headersPath)) {
   warn('Missing public/_headers for static hosting security headers.');
