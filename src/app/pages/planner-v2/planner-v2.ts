@@ -907,12 +907,15 @@ export class PlannerV2 {
   private readonly translationService = inject(TranslationService);
   @ViewChild('planActionDialogField')
   private planActionDialogField?: ElementRef<HTMLInputElement | HTMLTextAreaElement>;
+  @ViewChild('planActionDialogPanel')
+  private planActionDialogPanel?: ElementRef<HTMLElement>;
 
   protected readonly plans = this.planConfigService.plans;
   protected readonly activePlan = this.planConfigService.activePlan;
   protected readonly canDeleteActivePlan = this.planConfigService.canDeleteActivePlan;
   private readonly localPlanNotice = signal<PlannerNotice | null>(null);
   private planNoticeAutoDismissTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+  private planActionDialogRestoreFocusElement: HTMLElement | null = null;
   protected readonly planActionDialog = signal<PlannerActionDialog | null>(null);
   protected readonly planDialogValue = signal('');
   protected readonly planDialogNoteMaxLength = maxCityPlanNoteLength;
@@ -1317,8 +1320,15 @@ export class PlannerV2 {
   }
 
   protected closePlanActionDialog(): void {
+    const restoreFocusElement = this.planActionDialogRestoreFocusElement;
+
     this.planActionDialog.set(null);
     this.planDialogValue.set('');
+    this.planActionDialogRestoreFocusElement = null;
+
+    if (restoreFocusElement?.isConnected) {
+      window.setTimeout(() => restoreFocusElement.focus());
+    }
   }
 
   @HostListener('document:keydown.escape', ['$event'])
@@ -1333,6 +1343,60 @@ export class PlannerV2 {
       event.preventDefault();
       this.closePlanNotice();
     }
+  }
+
+  protected handlePlanActionDialogKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const panel = this.planActionDialogPanel?.nativeElement;
+
+    if (!panel) {
+      return;
+    }
+
+    const focusableElements = this.getPlanActionDialogFocusableElements(panel);
+
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      panel.focus();
+      return;
+    }
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (event.shiftKey && (!activeElement || activeElement === firstElement)) {
+      event.preventDefault();
+      lastElement.focus();
+      return;
+    }
+
+    if (!event.shiftKey && activeElement === lastElement) {
+      event.preventDefault();
+      firstElement.focus();
+    }
+  }
+
+  private getPlanActionDialogFocusableElements(panel: HTMLElement): HTMLElement[] {
+    return Array.from(
+      panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((element) => !element.hasAttribute('disabled') && element.tabIndex >= 0);
+  }
+
+  private capturePlanActionDialogRestoreFocus(): void {
+    const activeElement = document.activeElement;
+
+    this.planActionDialogRestoreFocusElement =
+      activeElement instanceof HTMLElement ? activeElement : null;
+  }
+
+  private focusPlanActionDialogPanel(): void {
+    window.setTimeout(() => this.planActionDialogPanel?.nativeElement.focus());
   }
 
   private focusPlanActionDialogField(): void {
@@ -1549,6 +1613,7 @@ export class PlannerV2 {
 
   private openCreateNewPlanDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
+    this.capturePlanActionDialogRestoreFocus();
     this.planDialogValue.set(
       this.translationService.translate('plannerV2.planControls.defaultPlanName', 'New Plan'),
     );
@@ -1572,6 +1637,7 @@ export class PlannerV2 {
 
   private openRenameActivePlanDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
+    this.capturePlanActionDialogRestoreFocus();
     this.planDialogValue.set(this.activePlan().name);
     this.planActionDialog.set({
       id: 'rename',
@@ -1594,6 +1660,7 @@ export class PlannerV2 {
 
   private openActivePlanNoteDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
+    this.capturePlanActionDialogRestoreFocus();
     this.planDialogValue.set(this.activePlan().cityPlan.note ?? '');
     this.planActionDialog.set({
       id: 'note',
@@ -1618,6 +1685,7 @@ export class PlannerV2 {
 
   private openClearActivePlanDialog(): void {
     this.planImportExportUiService.closePlanImportDialog();
+    this.capturePlanActionDialogRestoreFocus();
     this.planActionDialog.set({
       id: 'clear',
       kind: 'confirm',
@@ -1632,6 +1700,7 @@ export class PlannerV2 {
       confirmKey: 'planConfig.clearDialog.confirm',
       confirmFallback: 'Clear',
     });
+    this.focusPlanActionDialogPanel();
   }
 
   private openDeleteActivePlanDialog(): void {
@@ -1652,6 +1721,7 @@ export class PlannerV2 {
       return;
     }
 
+    this.capturePlanActionDialogRestoreFocus();
     this.planActionDialog.set({
       id: 'delete',
       kind: 'confirm',
@@ -1666,6 +1736,7 @@ export class PlannerV2 {
       confirmKey: 'planConfig.deleteDialog.confirm',
       confirmFallback: 'Delete',
     });
+    this.focusPlanActionDialogPanel();
   }
 
   private createNewPlan(name: string): void {

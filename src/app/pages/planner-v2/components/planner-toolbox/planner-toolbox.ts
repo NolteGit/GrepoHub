@@ -15,7 +15,10 @@ import {
 
 import { brandImagePaths } from '../../../../data/asset-paths';
 import { referenceQuickLinks, type ReferenceQuickLink } from '../../../../data/reference-documents';
-import { formatNumber as formatCalculatorNumber } from '../../../../utils/toolbox-calculator.util';
+import {
+  evaluateCalculatorExpression,
+  formatNumber as formatCalculatorNumber,
+} from '../../../../utils/toolbox-calculator.util';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { languageOptions, type SupportedLanguage } from '../../../../services/supported-languages';
 import { TranslationService } from '../../../../services/translation.service';
@@ -1141,7 +1144,7 @@ export class PlannerToolbox implements OnDestroy {
       return;
     }
 
-    const result = this.evaluateCalculatorExpression(expression);
+    const result = evaluateCalculatorExpression(expression);
 
     if (result === null) {
       this.calculatorExpression.set('0');
@@ -1154,115 +1157,6 @@ export class PlannerToolbox implements OnDestroy {
     this.addCalculatorHistory(expression, formattedResult);
     this.calculatorExpression.set(formattedResult);
     this.calculatorWasEvaluated.set(true);
-  }
-
-  private evaluateCalculatorExpression(expression: string): number | null {
-    const tokens = this.tokenizeCalculatorExpression(expression);
-    let index = 0;
-
-    const parseExpression = (): number | null => {
-      let value = parseTerm();
-
-      while (value !== null && (tokens[index] === '+' || tokens[index] === '−')) {
-        const operator = tokens[index];
-        index += 1;
-        const right = parseTerm();
-
-        if (right === null) {
-          return null;
-        }
-
-        value = operator === '+' ? value + right : value - right;
-      }
-
-      return value;
-    };
-
-    const parseTerm = (): number | null => {
-      let value = parseFactor();
-
-      while (value !== null && (tokens[index] === '×' || tokens[index] === '÷')) {
-        const operator = tokens[index];
-        index += 1;
-        const right = parseFactor();
-
-        if (right === null) {
-          return null;
-        }
-
-        value = operator === '×' ? value * right : right === 0 ? 0 : value / right;
-      }
-
-      return value;
-    };
-
-    const parseFactor = (): number | null => {
-      const token = tokens[index];
-
-      if (!token) {
-        return null;
-      }
-
-      if (token === '(') {
-        index += 1;
-        const value = parseExpression();
-
-        if (tokens[index] !== ')') {
-          return null;
-        }
-
-        index += 1;
-        return value;
-      }
-
-      const value = Number(token);
-
-      if (!Number.isFinite(value)) {
-        return null;
-      }
-
-      index += 1;
-      return value;
-    };
-
-    const result = parseExpression();
-
-    return result !== null && index === tokens.length ? result : null;
-  }
-
-  private tokenizeCalculatorExpression(expression: string): readonly string[] {
-    const tokens: string[] = [];
-    const compactExpression = expression.replace(/\s+/g, '').replace(/-/g, '−');
-    let index = 0;
-
-    while (index < compactExpression.length) {
-      const character = compactExpression[index];
-      const previousToken = tokens[tokens.length - 1];
-      const isUnaryMinus =
-        character === '−' &&
-        (!previousToken || previousToken === '(' || this.isCalculatorOperator(previousToken));
-
-      if (/[0-9.]/.test(character) || isUnaryMinus) {
-        let numberText = isUnaryMinus ? '-' : '';
-        index += isUnaryMinus ? 1 : 0;
-
-        while (index < compactExpression.length && /[0-9.]/.test(compactExpression[index])) {
-          numberText += compactExpression[index];
-          index += 1;
-        }
-
-        tokens.push(numberText);
-        continue;
-      }
-
-      if (this.isCalculatorOperator(character) || character === '(' || character === ')') {
-        tokens.push(character);
-      }
-
-      index += 1;
-    }
-
-    return tokens;
   }
 
   private getLastNumberSegment(expression: string): string {
