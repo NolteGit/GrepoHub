@@ -12,6 +12,7 @@ import {
   PlanConfigSettings,
 } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
+import { escapeDelimitedValue } from '../utils/export-file.util';
 
 import {
   assertSupportedPlanConfigBundle,
@@ -887,20 +888,6 @@ export class PlanConfigService {
   }
 
   private stringifyCsvCell(value: string): string {
-    const safeValue = this.neutralizeSpreadsheetFormula(value);
-
-    if (!this.hasCsvSpecialCharacter(safeValue)) {
-      return safeValue;
-    }
-
-    return `"${safeValue.replaceAll('"', '""')}"`;
-  }
-
-  private hasCsvSpecialCharacter(value: string): boolean {
-    return value.includes(',') || value.includes('"') || value.includes('\n');
-  }
-
-  private neutralizeSpreadsheetFormula(value: string): string {
-    return /^[=+\-@]/.test(value.trimStart()) ? `'${value}` : value;
+    return escapeDelimitedValue(value, ',');
   }
 }

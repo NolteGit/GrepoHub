@@ -12,6 +12,11 @@ import {
 } from '../models/city-configuration.model';
 import { PlanConfig } from '../models/plan-config.model';
 import { Unit } from '../models/unit.model';
+import {
+  downloadTextFile,
+  escapeDelimitedValue,
+  sanitizeDownloadFileName,
+} from '../utils/export-file.util';
 import { getEffectiveCityPlanForSelectedGod } from './city-planner-effects';
 import { calculateCityPlannerPopulation } from './city-planner-population';
 import { GameDataService } from './game-data.service';
@@ -55,7 +60,7 @@ export class PlanReadableExportService {
       const activePlan = this.planConfigService.activePlan();
       const fileName = this.getReadableExportFileName(activePlan.name, exportedAt, 'txt');
 
-      this.downloadTextFile(fileName, this.buildTextReport(activePlan, exportedAt), 'text/plain');
+      downloadTextFile(fileName, this.buildTextReport(activePlan, exportedAt), 'text/plain');
     });
   }
 
@@ -89,7 +94,7 @@ export class PlanReadableExportService {
         { id: 'Value', label: this.translate('planConfig.export.column.value', 'Value') },
       ];
 
-      this.downloadTextFile(
+      downloadTextFile(
         fileName,
         '\uFEFF' + this.toCsv(this.buildCsvRows(activePlan), columns),
         'text/csv',
@@ -625,24 +630,7 @@ export class PlanReadableExportService {
   }
 
   private escapeCsvValue(value: string | number): string {
-    const stringValue = String(value);
-
-    if (!/[;"\r\n]/.test(stringValue)) {
-      return stringValue;
-    }
-
-    return '"' + stringValue.replace(/"/g, '""') + '"';
-  }
-
-  private downloadTextFile(fileName: string, content: string, mimeType: string): void {
-    const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.click();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
+    return escapeDelimitedValue(value, ';');
   }
 
   private getReadableExportFileName(
@@ -652,22 +640,12 @@ export class PlanReadableExportService {
   ): string {
     return (
       'grepo-hub_' +
-      this.sanitizeFileName(planName) +
+      sanitizeDownloadFileName(planName) +
       '_' +
       this.formatFileDate(exportedAt) +
       '.' +
       extension
     );
-  }
-
-  private sanitizeFileName(value: string): string {
-    const sanitizedValue = value
-      .trim()
-      .replace(/[^a-z0-9._-]+/gi, '-')
-      .replace(/^-+|-+$/g, '')
-      .toLowerCase();
-
-    return sanitizedValue || 'grepo-plan';
   }
 
   private formatFileDate(value: Date): string {

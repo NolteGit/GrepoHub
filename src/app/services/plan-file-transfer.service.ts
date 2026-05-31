@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 
 import { PLAN_CONFIG_FORMAT, PLAN_CONFIG_VERSION } from '../models/plan-config.model';
+import { downloadTextFile, sanitizeDownloadFileName } from '../utils/export-file.util';
 import { PlanConfigService, PlanImportResult } from './plan-config.service';
 import { isPlainRecord } from './plan-config-normalization';
 import { TranslatableError } from './translatable-error';
@@ -34,7 +35,7 @@ export class PlanFileTransferService {
     const planName = typeof activePlan['name'] === 'string' ? activePlan['name'] : 'grepo-plan';
 
     return {
-      fileName: this.sanitizeFileName(planName) + '.grepo-plan.json',
+      fileName: sanitizeDownloadFileName(planName) + '.grepo-plan.json',
       content: JSON.stringify(exportBundle, null, 2),
       mimeType: 'application/json',
     };
@@ -43,7 +44,7 @@ export class PlanFileTransferService {
   exportActivePlanAsJson(): void {
     const exportFile = this.createActivePlanJsonExport();
 
-    this.downloadTextFile(exportFile.fileName, exportFile.content, exportFile.mimeType);
+    downloadTextFile(exportFile.fileName, exportFile.content, exportFile.mimeType);
   }
 
   importJsonFileAsNewPlans(file: File): Promise<PlanImportResult> {
@@ -132,7 +133,7 @@ export class PlanFileTransferService {
   }
 
   private createPortableExportId(prefix: string, name: string, exportIdSuffix: string): string {
-    return prefix + '-' + this.sanitizeFileName(name) + '-' + exportIdSuffix;
+    return prefix + '-' + sanitizeDownloadFileName(name) + '-' + exportIdSuffix;
   }
 
   private removeNullishValues(value: unknown): unknown {
@@ -151,26 +152,5 @@ export class PlanFileTransferService {
 
       return cleanedValue;
     }, {});
-  }
-
-  private downloadTextFile(fileName: string, content: string, mimeType: string): void {
-    const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.click();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-
-  private sanitizeFileName(value: string): string {
-    const sanitizedValue = value
-      .trim()
-      .replace(/[^a-z0-9._-]+/gi, '-')
-      .replace(/^-+|-+$/g, '')
-      .toLowerCase();
-
-    return sanitizedValue || 'grepo-plan';
   }
 }
