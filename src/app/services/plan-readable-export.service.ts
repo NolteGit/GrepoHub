@@ -642,7 +642,7 @@ export class PlanReadableExportService {
     anchor.href = url;
     anchor.download = fileName;
     anchor.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
   private getReadableExportFileName(

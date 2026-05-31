@@ -353,6 +353,14 @@ describe('PlanConfigService import validation', () => {
     expect(bbCode).toContain('[*]archer[|]3');
   });
 
+  it('neutralizes spreadsheet formulas in CSV exports', () => {
+    service.createNewPlan('=SUM(1,1)');
+
+    const planOverviewCsv = service.toPlanOverviewCsv();
+
+    expect(planOverviewCsv).toContain('"\'=SUM(1,1)"');
+  });
+
   it('strips unknown units and clamps imported troop amounts', () => {
     const bundle = {
       format: PLAN_CONFIG_FORMAT,
@@ -377,7 +385,7 @@ describe('PlanConfigService import validation', () => {
 
     const importedPlan = service.activePlan();
 
-    expect(importedPlan.troopPlan.unitAmounts['swordsman']).toBe(10000);
+    expect(importedPlan.troopPlan.unitAmounts['swordsman']).toBe(5000);
     expect(importedPlan.troopPlan.unitAmounts['archer']).toBe(0);
     expect(importedPlan.troopPlan.unitAmounts['unknown_unit']).toBeUndefined();
   });

@@ -43,6 +43,10 @@ import { calculateCityPlannerPopulation } from '../../services/city-planner-popu
 import { GameDataService } from '../../services/game-data.service';
 import { PlanConfigService } from '../../services/plan-config.service';
 import { maxCityPlanNoteLength } from '../../services/plan-config-normalization';
+import {
+  clampTroopUnitAmount,
+  getTroopUnitAmountMaxForPopulationCost,
+} from '../../services/troop-unit-amounts';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { TranslationService, type TranslationParams } from '../../services/translation.service';
 import {
@@ -405,8 +409,7 @@ const createTilePopulationBadge = (
 };
 
 const getUnitAmountMax = (unit: Unit): number => {
-  const populationCost = Math.max(1, unit.cost.population);
-  return Math.ceil(5000 / populationCost);
+  return getTroopUnitAmountMaxForPopulationCost(unit.cost.population);
 };
 
 type CostSummary = {
@@ -945,6 +948,20 @@ export class PlannerV2 {
       };
     }
 
+    if (this.planConfigService.localSaveFailed()) {
+      return {
+        tone: 'error',
+        titleKey: 'planConfig.storage.saveFailedTitle',
+        titleFallback: 'Local save failed',
+        detailLines: [
+          this.translationService.translate(
+            'planConfig.storage.saveFailedDetail',
+            'Your latest changes could not be saved locally. Export a backup before closing the app.',
+          ),
+        ],
+      };
+    }
+
     return this.localPlanNotice();
   });
 
@@ -1413,7 +1430,7 @@ export class PlannerV2 {
     this.updateTroopPlan((troopPlan) => ({
       unitAmounts: {
         ...troopPlan.unitAmounts,
-        [unitId]: normalizeNonNegativeInteger(amount),
+        [unitId]: clampTroopUnitAmount(unitId, amount),
       },
     }));
   }

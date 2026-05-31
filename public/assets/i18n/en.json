@@ -848,5 +848,7 @@
   "plannerV2.tileDetails.hint": "Stats / info",
   "plannerV2.toolbox.collapse": "Collapse toolbox",
   "plannerV2.toolbox.expand": "Expand toolbox",
-  "academyResearch.technologiesButton": "Technologies"
+  "academyResearch.technologiesButton": "Technologies",
+  "planConfig.storage.saveFailedTitle": "Local save failed",
+  "planConfig.storage.saveFailedDetail": "Your latest changes could not be saved locally. Export a backup before closing the app."
 }

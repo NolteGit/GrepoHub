@@ -88,7 +88,7 @@ describe('plan config normalization', () => {
     expect(normalized.unitAmounts['swordsman']).toBe(13);
     expect(normalized.unitAmounts['archer']).toBe(0);
     expect(normalized.unitAmounts['hydra']).toBe(5);
-    expect(normalized.unitAmounts['horseman']).toBe(10000);
+    expect(normalized.unitAmounts['horseman']).toBe(1667);
     expect(normalized.unitAmounts['slinger']).toBe(0);
     expect(normalized.unitAmounts['unknown_unit']).toBeUndefined();
     expect(normalized.modifiers.bunks).toBe(true);

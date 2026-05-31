@@ -67,6 +67,20 @@ describe('TranslationService', () => {
     expect(service.translate('nav.toolbox')).toBe('Werkzeuge');
   });
 
+  it('keeps language changes usable when localStorage writes fail', () => {
+    createService();
+    http.expectOne('/assets/i18n/en.json').flush({});
+    const setItemSpy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('storage blocked');
+    });
+
+    service.setLanguage('de');
+
+    expect(service.currentLanguage()).toBe('de');
+    http.expectOne('/assets/i18n/de.json').flush({});
+    setItemSpy.mockRestore();
+  });
+
   it('cycles through supported languages', () => {
     createService();
     http.expectOne('/assets/i18n/en.json').flush({});

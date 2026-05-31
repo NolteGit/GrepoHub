@@ -13,42 +13,11 @@ import { defaultGrepolisGodId, normalizeGrepolisGodId } from '../models/god.mode
 import { PlanConfig, PlanConfigSettings } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
+import { allowedTroopUnitIds, clampTroopUnitAmount } from './troop-unit-amounts';
+
 export const maxCityPlanNoteLength = 500;
 
-const maxTroopUnitAmount = 10000;
-const allowedTroopUnitIds = new Set([
-  'swordsman',
-  'slinger',
-  'archer',
-  'hoplite',
-  'horseman',
-  'chariot',
-  'catapult',
-  'divine_envoy',
-  'minotaur',
-  'manticore',
-  'cyclop',
-  'hydra',
-  'harpy',
-  'medusa',
-  'centaur',
-  'pegasus',
-  'cerberus',
-  'erinys',
-  'griffin',
-  'calydonian_boar',
-  'siren',
-  'satyr',
-  'ladon',
-  'spartoi',
-  'transport_boat',
-  'bireme',
-  'light_ship',
-  'fire_ship',
-  'fast_transport_ship',
-  'trireme',
-  'colony_ship',
-]);
+let generatedIdCounter = 0;
 const minimumBuildingLevels: Record<string, number> = {
   barracks: 1,
   farm: 1,
@@ -61,6 +30,30 @@ const minimumBuildingLevels: Record<string, number> = {
   warehouse: 1,
 };
 
+export function createUniqueIdSuffix(): string {
+  try {
+    const randomId = globalThis.crypto?.randomUUID?.();
+
+    if (randomId) {
+      return randomId;
+    }
+  } catch {
+    return createFallbackIdSuffix();
+  }
+
+  return createFallbackIdSuffix();
+}
+
+function createGeneratedId(prefix: string): string {
+  return `${prefix}-${createUniqueIdSuffix()}`;
+}
+
+function createFallbackIdSuffix(): string {
+  generatedIdCounter += 1;
+
+  return `${Date.now()}-${generatedIdCounter}`;
+}
+
 export function normalizePlanConfig(rawPlan: Partial<PlanConfig>): PlanConfig {
   const rawCityPlan = isPlainRecord(rawPlan.cityPlan)
     ? rawPlan.cityPlan
@@ -70,7 +63,7 @@ export function normalizePlanConfig(rawPlan: Partial<PlanConfig>): PlanConfig {
     : troopConfigurationPresets[0];
 
   return {
-    id: normalizeOptionalString(rawPlan.id) ?? `custom-plan-${Date.now()}`,
+    id: normalizeOptionalString(rawPlan.id) ?? createGeneratedId('custom-plan'),
     name: normalizeDisplayPlanName(rawPlan.name, 'Configuration'),
     isPreset: Boolean(rawPlan.isPreset),
     createdAt: normalizeOptionalString(rawPlan.createdAt),
@@ -124,7 +117,7 @@ export function normalizeCityConfiguration(
   const migratedSlot2 = rawSpecialBuildings['slot2'] ?? 'none';
 
   return {
-    id: normalizeOptionalString(rawConfiguration.id) ?? `custom-city-${Date.now()}`,
+    id: normalizeOptionalString(rawConfiguration.id) ?? createGeneratedId('custom-city'),
     name: normalizeImportName(rawConfiguration.name, 'City Plan'),
     note: normalizeCityPlanNote(rawConfiguration.note),
     isPreset: Boolean(rawConfiguration.isPreset),
@@ -170,7 +163,7 @@ export function normalizeTroopConfiguration(
     : {};
 
   return {
-    id: normalizeOptionalString(rawConfiguration.id) ?? `custom-troops-${Date.now()}`,
+    id: normalizeOptionalString(rawConfiguration.id) ?? createGeneratedId('custom-troops'),
     name: normalizeImportName(rawConfiguration.name, 'Troop Plan'),
     isPreset: Boolean(rawConfiguration.isPreset),
     unitAmounts: Object.entries(rawUnitAmounts).reduce(
@@ -182,7 +175,7 @@ export function normalizeTroopConfiguration(
         const parsedAmount = Number(rawAmount);
 
         amounts[unitId] = Number.isFinite(parsedAmount)
-          ? Math.min(Math.max(Math.round(parsedAmount), 0), maxTroopUnitAmount)
+          ? clampTroopUnitAmount(unitId, parsedAmount)
           : 0;
 
         return amounts;

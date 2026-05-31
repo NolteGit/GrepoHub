@@ -53,6 +53,10 @@
     >
       <form
         class="grid w-full max-w-lg gap-4 rounded-2xl border border-[var(--gh-border)] bg-[rgba(4,18,31,0.98)] p-4 text-[var(--gh-text)] shadow-[var(--gh-shadow-panel)]"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="plan-action-dialog-title"
+        aria-describedby="plan-action-dialog-description"
         (submit)="submitPlanActionDialog($event)"
         (click)="$event.stopPropagation()"
       >
@@ -65,7 +69,7 @@
             >
               {{ 'planConfig.more' | translate: 'More' }}
             </p>
-            <h2 class="m-0 mt-1 text-xl font-black leading-tight">
+            <h2 id="plan-action-dialog-title" class="m-0 mt-1 text-xl font-black leading-tight">
               {{ dialog.titleKey | translate: dialog.titleFallback }}
             </h2>
           </div>
@@ -80,7 +84,7 @@
           </button>
         </header>
 
-        <p class="m-0 text-sm leading-6 text-[var(--gh-muted)]">
+        <p id="plan-action-dialog-description" class="m-0 text-sm leading-6 text-[var(--gh-muted)]">
           {{ dialog.messageKey | translate: dialog.messageFallback : dialog.messageParams }}
         </p>
 

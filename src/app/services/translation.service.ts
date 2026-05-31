@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 
+import { BrowserStorageService } from './browser-storage.service';
+
 import {
   getNextSupportedLanguage,
   isSupportedLanguage,
@@ -15,6 +17,7 @@ export type TranslationParams = Record<string, string | number>;
 })
 export class TranslationService {
   private readonly http = inject(HttpClient);
+  private readonly browserStorage = inject(BrowserStorageService);
   private readonly storageKey = 'grepo-hub-language';
   private readonly fallbackLanguage: SupportedLanguage = 'en';
 
@@ -35,7 +38,7 @@ export class TranslationService {
 
   setLanguage(language: SupportedLanguage): void {
     this.language.set(language);
-    localStorage.setItem(this.storageKey, language);
+    this.browserStorage.setItem(this.storageKey, language);
     this.loadLanguage(language);
   }
 
@@ -77,7 +80,7 @@ export class TranslationService {
   }
 
   private getInitialLanguage(): SupportedLanguage {
-    const storedLanguage = localStorage.getItem(this.storageKey);
+    const storedLanguage = this.browserStorage.getItem(this.storageKey);
 
     return isSupportedLanguage(storedLanguage) ? storedLanguage : this.fallbackLanguage;
   }

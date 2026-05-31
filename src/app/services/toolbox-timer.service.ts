@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 
 import type {
   ActiveTimerItem,
@@ -7,6 +7,8 @@ import type {
   QueuedStopwatch,
 } from '../models/toolbox.models';
 import { formatDurationMs } from '../utils/toolbox-time.util';
+
+import { BrowserStorageService } from './browser-storage.service';
 
 type StoredTimerQueueState = {
   readonly queuedCountdowns?: readonly QueuedCountdown[];
@@ -52,6 +54,7 @@ export class ToolboxTimerService {
       .map((entry) => entry.item);
   });
 
+  private readonly browserStorage = inject(BrowserStorageService);
   private countdownIntervalId: number | null = null;
   private countdownDeadline = 0;
   private stopwatchIntervalId: number | null = null;
@@ -665,11 +668,7 @@ export class ToolboxTimerService {
   }
 
   private readStoredState(): StoredTimerQueueState | null {
-    if (typeof localStorage === 'undefined') {
-      return null;
-    }
-
-    const rawState = localStorage.getItem(this.storageKey);
+    const rawState = this.browserStorage.getItem(this.storageKey);
 
     if (!rawState) {
       return null;
@@ -689,10 +688,6 @@ export class ToolboxTimerService {
   }
 
   private persistState(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
     const now = Date.now();
     const state: StoredTimerQueueState = {
       queuedCountdowns: this.queuedCountdowns().map((countdown) => ({
@@ -707,7 +702,7 @@ export class ToolboxTimerService {
       queuedAlarms: this.queuedAlarms(),
     };
 
-    localStorage.setItem(this.storageKey, JSON.stringify(state));
+    this.browserStorage.setItem(this.storageKey, JSON.stringify(state));
   }
 
   private createQueueId(prefix: string): string {

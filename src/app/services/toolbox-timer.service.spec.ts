@@ -13,6 +13,18 @@ describe('ToolboxTimerService', () => {
     expect(service.stopwatchRunning()).toBe(false);
   });
 
+  it('keeps timers usable when persisted timer state cannot be read', () => {
+    const getItemSpy = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('storage blocked');
+    });
+
+    TestBed.configureTestingModule({});
+    const service = TestBed.inject(ToolboxTimerService);
+
+    expect(service.overviewItems()).toEqual([]);
+    getItemSpy.mockRestore();
+  });
+
   it('stores a manual stopwatch elapsed value independently from UI components', () => {
     TestBed.configureTestingModule({});
     const service = TestBed.inject(ToolboxTimerService);

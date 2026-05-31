@@ -848,5 +848,7 @@
   "plannerV2.tileDetails.hint": "Estadísticas / info",
   "plannerV2.toolbox.collapse": "Contraer herramientas",
   "plannerV2.toolbox.expand": "Expandir herramientas",
-  "academyResearch.technologiesButton": "Tecnologías"
+  "academyResearch.technologiesButton": "Tecnologías",
+  "planConfig.storage.saveFailedTitle": "Error al guardar localmente",
+  "planConfig.storage.saveFailedDetail": "Los últimos cambios no se pudieron guardar localmente. Exporta una copia de seguridad antes de cerrar la aplicación."
 }

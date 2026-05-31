@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { cityConfigurationPresets } from '../data/city-planner-presets';
 import { planConfigPresets } from '../data/plan-config-presets';
@@ -27,6 +27,7 @@ import {
   createEmptyUnitAmounts,
   createImportedPlanId,
   createMinimumBuildingLevels,
+  createUniqueIdSuffix,
   createUniqueNameFromNames,
   isPlainRecord,
   normalizeCityConfiguration,
@@ -37,6 +38,7 @@ import {
   normalizePlanConfig,
   normalizeTroopConfiguration,
 } from './plan-config-normalization';
+import { BrowserStorageService } from './browser-storage.service';
 
 export interface PlanImportResult {
   readonly count: number;
@@ -58,14 +60,16 @@ export class PlanConfigService {
   private readonly selectedPlanStorageKey = 'grepo-hub-selected-plan-id';
   private readonly legacyCityStorageKey = 'grepo-hub-city-configurations';
   private readonly legacyTroopStorageKey = 'grepo-hub-troop-configurations';
+  private readonly browserStorage = inject(BrowserStorageService);
   private readonly autosaveDelayMs = 300;
   private autosaveTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private customPlanIdCounter = 0;
+  private readonly localSaveFailure = signal(false);
   private readonly planConfigs = signal<PlanConfig[]>(this.loadPlans());
   private readonly selectedPlanId = signal(this.getInitialSelectedPlanId(this.planConfigs()));
 
   readonly plans = this.planConfigs.asReadonly();
   readonly activePlanId = this.selectedPlanId.asReadonly();
+  readonly localSaveFailed = this.localSaveFailure.asReadonly();
   readonly activePlan = computed(() => {
     return (
       this.planConfigs().find((plan) => plan.id === this.selectedPlanId()) ??
@@ -159,8 +163,13 @@ export class PlanConfigService {
       this.autosaveTimeoutId = null;
     }
 
-    this.writeStorageItem(this.storageKey, JSON.stringify(this.createExportBundle()));
-    this.saveSelectedPlanId();
+    const plansSaved = this.writeStorageItem(
+      this.storageKey,
+      JSON.stringify(this.createExportBundle()),
+    );
+    const selectedPlanSaved = this.saveSelectedPlanId();
+
+    this.localSaveFailure.set(!plansSaved || !selectedPlanSaved);
   }
   duplicateActivePlan(name: string): PlanConfig {
     const now = new Date().toISOString();
@@ -481,7 +490,7 @@ export class PlanConfigService {
       : {};
     const cityPlanName = normalizeImportName(rawCityPlan.name, planName + ' City');
     const troopPlanName = normalizeImportName(rawTroopPlan.name, planName + ' Troops');
-    const importSuffix = Date.now() + '-' + (index + 1);
+    const importSuffix = createUniqueIdSuffix() + '-' + (index + 1);
 
     const cityPlan = normalizeCityConfiguration({
       ...rawCityPlan,
@@ -510,9 +519,7 @@ export class PlanConfigService {
   }
 
   private createCustomPlanIdSuffix(): string {
-    this.customPlanIdCounter += 1;
-
-    return `${Date.now()}-${this.customPlanIdCounter}`;
+    return createUniqueIdSuffix();
   }
 
   private normalizeExistingPlanNames(plans: readonly PlanConfig[]): PlanConfig[] {
@@ -693,15 +700,14 @@ export class PlanConfigService {
     return plans[0]?.id ?? '';
   }
 
-  private saveSelectedPlanId(): void {
+  private saveSelectedPlanId(): boolean {
     const planId = this.selectedPlanId();
 
     if (planId) {
-      this.writeStorageItem(this.selectedPlanStorageKey, planId);
-      return;
+      return this.writeStorageItem(this.selectedPlanStorageKey, planId);
     }
 
-    this.removeStorageItem(this.selectedPlanStorageKey);
+    return this.removeStorageItem(this.selectedPlanStorageKey);
   }
 
   private loadPlans(): PlanConfig[] {
@@ -804,31 +810,15 @@ export class PlanConfigService {
   }
 
   private readStorageItem(key: string): string | null {
-    try {
-      return typeof localStorage === 'undefined' ? null : localStorage.getItem(key);
-    } catch {
-      return null;
-    }
+    return this.browserStorage.getItem(key);
   }
 
-  private writeStorageItem(key: string, value: string): void {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(key, value);
-      }
-    } catch {
-      return;
-    }
+  private writeStorageItem(key: string, value: string): boolean {
+    return this.browserStorage.setItem(key, value);
   }
 
-  private removeStorageItem(key: string): void {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem(key);
-      }
-    } catch {
-      return;
-    }
+  private removeStorageItem(key: string): boolean {
+    return this.browserStorage.removeItem(key);
   }
 
   private stringifyCsv(rows: (string | number)[][]): string {
@@ -838,10 +828,20 @@ export class PlanConfigService {
   }
 
   private stringifyCsvCell(value: string): string {
-    if (!/[",\n]/.test(value)) {
-      return value;
+    const safeValue = this.neutralizeSpreadsheetFormula(value);
+
+    if (!this.hasCsvSpecialCharacter(safeValue)) {
+      return safeValue;
     }
 
-    return `"${value.replaceAll('"', '""')}"`;
+    return `"${safeValue.replaceAll('"', '""')}"`;
+  }
+
+  private hasCsvSpecialCharacter(value: string): boolean {
+    return value.includes(',') || value.includes('"') || value.includes('\n');
+  }
+
+  private neutralizeSpreadsheetFormula(value: string): string {
+    return /^[=+\-@]/.test(value.trimStart()) ? `'${value}` : value;
   }
 }
