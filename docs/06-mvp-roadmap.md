@@ -26,7 +26,7 @@ Target checks:
 npm run release:check
 ```
 
-Manual browser checks should follow `docs/10-manual-regression-checklist.md`.
+Manual browser checks should follow `docs/10-manual-regression-checklist.md`. CI now runs the same release gate for pull requests and pushes to the main branches.
 
 ## Next milestone: release candidate
 
@@ -35,6 +35,7 @@ The next milestone is a small release-candidate pass with no broad feature work.
 Target work:
 
 - Review the production build locally.
+- Keep the GitHub Actions release check green.
 - Run the full manual regression checklist on desktop and a narrow viewport.
 - Confirm Cloudflare Pages preview behavior for `/` and `/planner-v2` refreshes.
 - Confirm the CSP does not block production assets or runtime behavior.

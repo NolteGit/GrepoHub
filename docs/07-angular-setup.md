@@ -6,8 +6,8 @@ This document describes the current Grepo Hub Angular/Nx setup and the commands 
 
 Install:
 
-- Node.js
-- npm
+- Node.js matching `.nvmrc`
+- npm 11 or newer
 
 The project uses local dependencies for Angular and Nx, so global CLI installation is optional.
 
@@ -83,6 +83,8 @@ npm run typecheck
 npm run test:once
 npm run build
 npm run verify
+npm run release:check
+npm run security:audit
 npm run format:check
 npm run format
 npm run deadcode
@@ -90,7 +92,18 @@ npm run clean
 npm run check
 ```
 
-`npm run verify` runs the full local quality gate. `npm run check` is kept as an alias for the same command so documentation and muscle memory stay valid.
+`npm run verify` runs the full local quality gate. `npm run release:check` runs the same gate plus the production dependency audit. `npm run check` is kept as an alias for `npm run verify` so documentation and muscle memory stay valid.
+
+## Continuous integration
+
+GitHub Actions runs the release gate on pull requests and pushes to `main` or `master`:
+
+```bash
+npm ci --no-audit --no-fund
+npm run release:check
+```
+
+Keep the workflow small and release-focused. Add deployment automation only after the static hosting target is final.
 
 ## Static assets
 

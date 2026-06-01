@@ -4,7 +4,7 @@ Grepo Hub is a local-first Grepolis companion app built with Angular. The curren
 
 ## Current status
 
-The app is in a Planner V2 rebuild phase.
+The app is in release-prep for the current planner experience. The primary release target is desktop and decently sized screens; full mobile optimization is planned as a separate Media-Day milestone.
 
 Current foundation:
 
@@ -47,6 +47,7 @@ Run the main quality checks:
 
 ```bash
 npm run verify
+npm run release:check
 ```
 
 Useful scripts:
@@ -57,6 +58,8 @@ npm run typecheck     # TypeScript type checking
 npm run test:once     # One-shot Angular/Vitest test run through Nx
 npm run build         # Production build through Nx
 npm run verify        # Run all quality checks
+npm run release:check # Run verify plus production dependency audit
+npm run security:audit # Audit production dependencies only
 npm run check         # Alias for npm run verify
 npm run format:check  # Prettier check
 npm run format        # Apply Prettier formatting
@@ -84,3 +87,14 @@ Grepo Hub is designed to work as a static web app. The current data flow is:
 4. Plans can be exported and imported as JSON bundles.
 
 This keeps the app simple to host, easy to test, and suitable for static hosting such as Cloudflare Pages or GitHub Pages.
+
+## Continuous integration
+
+The repository includes a GitHub Actions workflow that runs the release gate on pushes to `main`/`master` and on pull requests:
+
+```bash
+npm ci --no-audit --no-fund
+npm run release:check
+```
+
+The workflow uses the Node.js version declared in `.nvmrc`.

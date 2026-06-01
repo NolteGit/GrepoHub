@@ -2,7 +2,7 @@
 
 ## Current phase
 
-The project is now in the Planner V2 implementation phase.
+The project is now in release-prep for the current planner experience. The app is usable on desktop and decently sized screens; mobile/responsive optimization is intentionally planned as a dedicated Media-Day milestone.
 
 The old V1 UI surfaces were removed to avoid carrying over layout hacks and duplicated SCSS. The reusable app brain remains: services, models, static data, translations, assets, import/export logic, local storage logic, and calculation helpers.
 
@@ -94,14 +94,11 @@ All visible UI labels should have translation keys. Fallback strings are allowed
 
 ## Recommended next coding tasks
 
-1. Add shared UI primitives under `src/app/shared/ui`.
-2. Split Planner V2 placeholders into City Setup, Troop Setup, and bottom summary components.
-3. Implement City Setup with real building data and reusable tile/stepper components.
-4. Add computed city summaries.
-5. Implement Troop Setup with category/god filtering.
-6. Add computed troop summaries.
-7. Wire plan persistence, import, and export into the V2 controls.
-8. Wire toolbox timer/calculator utilities after the core planner workflow is stable.
+1. Keep the release gate green in CI and locally.
+2. Decide whether the public app identity stays Grepo Hub or becomes GrepoPlan.
+3. Rename `planner-v2` to `planner` in a mechanical patch if the final identity no longer needs the V2 distinction.
+4. Extract only clear domain rules or reusable utilities from large files.
+5. Run a dedicated Media-Day for responsive/mobile layout once the desktop release baseline is stable.
 
 ## Open questions
 
