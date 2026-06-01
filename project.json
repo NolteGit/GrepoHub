@@ -16,6 +16,14 @@
         "browser": "src/main.ts",
         "tsConfig": "tsconfig.app.json",
         "inlineStyleLanguage": "css",
+        "optimization": {
+          "scripts": true,
+          "styles": {
+            "minify": true,
+            "inlineCritical": false
+          },
+          "fonts": true
+        },
         "assets": [
           {
             "glob": "**/*",
