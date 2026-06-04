@@ -163,6 +163,27 @@ function checkUnits(units, languages, dictionaries) {
           addError(`${label} has invalid cost.${resource}: ${unit.cost[resource]}`);
         }
       }
+
+      if (isNonNegativeInteger(unit.cost.population) && unit.cost.population <= 0) {
+        addError(`${label} must have positive population cost`);
+      }
+
+      if (unit.isMythical && isNonNegativeInteger(unit.cost.favor) && unit.cost.favor <= 0) {
+        addError(`${label} is mythical but has no favor cost`);
+      }
+
+      if (!unit.isMythical && isNonNegativeInteger(unit.cost.favor) && unit.cost.favor !== 0) {
+        addError(`${label} is not mythical but has favor cost: ${unit.cost.favor}`);
+      }
+
+      const materialCost = ['wood', 'stone', 'silver'].reduce(
+        (sum, resource) => sum + (Number.isFinite(unit.cost[resource]) ? unit.cost[resource] : 0),
+        0,
+      );
+
+      if (materialCost <= 0 && unit.cost.favor <= 0) {
+        addError(`${label} has no material or favor cost`);
+      }
     }
 
     for (const field of [
