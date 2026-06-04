@@ -279,6 +279,64 @@ function extractKeyStringPairs(block) {
   }));
 }
 
+function extractConstStringMap(source, constName) {
+  const match = source.match(new RegExp(`const\\s+${constName}[^=]*=\\s*\\{([\\s\\S]*?)\\};`, 'm'));
+
+  if (!match) {
+    addError(`src/app/data/asset-paths.ts is missing ${constName}`);
+    return new Map();
+  }
+
+  return new Map(extractKeyStringPairs(match[1]).map(({ key, value }) => [key, value]));
+}
+
+function checkMappedImageFile(map, mapName, key, folder) {
+  const fileName = map.get(key);
+
+  if (!fileName) {
+    addError(`src/app/data/asset-paths.ts ${mapName} is missing ${key}`);
+    return;
+  }
+
+  const imagePath = path.join('public', 'assets', 'images', folder, fileName);
+
+  if (!fs.existsSync(projectPath(imagePath))) {
+    addError(`src/app/data/asset-paths.ts ${mapName}.${key} references missing image: ${imagePath}`);
+  }
+}
+
+function checkAssetPathMappings(units, buildings) {
+  const source = readText('src/app/data/asset-paths.ts');
+  const buildingImages = extractConstStringMap(source, 'buildingImageFileNames');
+  const unitImages = extractConstStringMap(source, 'unitImageFileNames');
+  const battleIcons = extractConstStringMap(source, 'battleIconFileNames');
+  const requiredBattleIcons = [
+    'attackSea',
+    'attackBlunt',
+    'attackSharp',
+    'attackDistance',
+    'booty',
+    'capacity',
+    'defenseBlunt',
+    'defenseDistance',
+    'defenseSea',
+    'defenseSharp',
+    'speed',
+  ];
+
+  for (const building of buildings) {
+    checkMappedImageFile(buildingImages, 'buildingImageFileNames', building.id, 'buildings');
+  }
+
+  for (const unit of units) {
+    checkMappedImageFile(unitImages, 'unitImageFileNames', unit.id, 'units');
+  }
+
+  for (const icon of requiredBattleIcons) {
+    checkMappedImageFile(battleIcons, 'battleIconFileNames', icon, 'battle');
+  }
+}
+
 function checkPresetUnitReferences(units) {
   const unitIds = new Set(units.map((unit) => unit.id));
 
@@ -635,6 +693,10 @@ checkAcademyResearch(languages, dictionaries);
 
 if (Array.isArray(buildings)) {
   checkBuildingJsonAlignment(buildings, buildingPlanIds);
+}
+
+if (Array.isArray(units) && Array.isArray(buildings)) {
+  checkAssetPathMappings(units, buildings);
 }
 
 reportSection('Data audit warnings', warnings);
