@@ -345,6 +345,92 @@ function checkTroopUnitAmountLimits(units) {
   }
 }
 
+function extractExportedStringConstant(source, name, sourceFile) {
+  const match = source.match(new RegExp(`export\\s+const\\s+${name}\\s*=\\s*'([^']+)'\\s*;`));
+
+  if (!match) {
+    addError(`${sourceFile} is missing ${name}`);
+    return null;
+  }
+
+  return match[1];
+}
+
+function extractExportedNumberConstant(source, name, sourceFile) {
+  const match = source.match(new RegExp(`export\\s+const\\s+${name}\\s*=\\s*(\\d+)\\s*;`));
+
+  if (!match) {
+    addError(`${sourceFile} is missing ${name}`);
+    return null;
+  }
+
+  return Number(match[1]);
+}
+
+function checkTransportCapacityRules(units) {
+  const sourceFile = 'src/app/domain/planner/transport-rules.ts';
+  const source = readText(sourceFile);
+  const slowTransportShipId = extractExportedStringConstant(source, 'slowTransportShipId', sourceFile);
+  const fastTransportShipId = extractExportedStringConstant(source, 'fastTransportShipId', sourceFile);
+  const bunksCapacityBonusPerShip = extractExportedNumberConstant(
+    source,
+    'bunksCapacityBonusPerShip',
+    sourceFile,
+  );
+
+  if (!slowTransportShipId || !fastTransportShipId || bunksCapacityBonusPerShip === null) {
+    return;
+  }
+
+  if (slowTransportShipId === fastTransportShipId) {
+    addError(`${sourceFile} slow and fast transport ids must be different`);
+  }
+
+  if (bunksCapacityBonusPerShip <= 0) {
+    addError(`${sourceFile} has invalid bunksCapacityBonusPerShip: ${bunksCapacityBonusPerShip}`);
+  }
+
+  const unitById = new Map(units.map((unit) => [unit.id, unit]));
+  const transportShipIds = new Set([slowTransportShipId, fastTransportShipId]);
+
+  for (const unitId of transportShipIds) {
+    const unit = unitById.get(unitId);
+
+    if (!unit) {
+      addError(`${sourceFile} references unknown transport ship id: ${unitId}`);
+      continue;
+    }
+
+    if (unit.type !== 'sea') {
+      addError(`${sourceFile} transport ship ${unitId} must be a sea unit`);
+    }
+
+    if (unit.transportCapacity <= 0) {
+      addError(`${sourceFile} transport ship ${unitId} must have positive transportCapacity`);
+    }
+
+    if (unit.transportSpace !== 0) {
+      addError(`Transport ship ${unitId} should not consume transportSpace`);
+    }
+  }
+
+  for (const unit of units) {
+    const label = `Unit ${unit.id ?? '<missing-id>'}`;
+
+    if (unit.transportCapacity > 0 && !transportShipIds.has(unit.id)) {
+      addError(`${label} has transportCapacity > 0 but is not listed in ${sourceFile}`);
+    }
+
+    if (transportShipIds.has(unit.id)) {
+      continue;
+    }
+
+    if (unit.type === 'sea' && unit.transportSpace > 0) {
+      addError(`${label} is sea but consumes transportSpace`);
+    }
+  }
+}
+
 function extractPopulationTables(source) {
   const tables = new Map();
 
@@ -533,6 +619,7 @@ if (!Array.isArray(units)) {
   checkUnits(units, languages, dictionaries);
   checkPresetUnitReferences(units);
   checkTroopUnitAmountLimits(units);
+  checkTransportCapacityRules(units);
 }
 
 if (!Array.isArray(buildings)) {
