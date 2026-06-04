@@ -102,7 +102,7 @@ All visible UI labels should have translation keys. Fallback strings are allowed
 2. Keep public-facing GrepoPlan naming consistent across UI, metadata, docs, and exports.
 3. Rename `planner-v2` to `planner` in a mechanical patch once the public branding patch has settled.
 4. Extract only clear domain rules or reusable utilities from large files.
-5. Run a dedicated Media-Day for responsive/mobile layout once the desktop release baseline is stable.
+5. Follow `docs/12-responsive-layout-guidelines.md` for responsive changes and run a dedicated Media-Day once the desktop release baseline is stable.
 
 ## Open questions
 

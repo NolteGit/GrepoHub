@@ -87,6 +87,12 @@ The troop setup context strip contains:
 
 There is intentionally no Favorites tab in the current V2 direction.
 
+## Responsive strategy
+
+The planner is desktop/tablet-first for the current release. Its responsive behavior should follow the shared breakpoint strategy in [`12-responsive-layout-guidelines.md`](./12-responsive-layout-guidelines.md).
+
+Use app-level breakpoints for shell changes, such as hiding the summary sidebar or switching to the mobile fallback. Prefer fluid tile grids for city/building/unit collections instead of adding more one-off breakpoint chains.
+
 ## Styling approach
 
 Planner V2 uses Tailwind utilities, CSS design tokens, and reusable Angular UI primitives.

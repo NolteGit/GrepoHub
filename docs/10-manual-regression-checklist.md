@@ -113,7 +113,7 @@ Test at least a normal desktop width and a narrow browser window.
 [ ] Narrow viewport shows the small-screen notice
 [ ] Sidebar remains usable
 [ ] Popups fit within the viewport
-[ ] Unit/building tiles wrap cleanly
+[ ] Unit/building tiles wrap cleanly at desktop, compact, and narrow widths
 [ ] Icon-only controls have hover titles or accessible labels
 [ ] Focus states are visible enough for keyboard users
 [ ] Disabled controls look disabled

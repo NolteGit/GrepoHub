@@ -33,6 +33,8 @@ Useful entry points:
 - [`docs/09-development-notes.md`](./docs/09-development-notes.md) — current project state and decisions.
 - [`docs/10-manual-regression-checklist.md`](./docs/10-manual-regression-checklist.md) —
   browser smoke tests for behavior-sensitive changes.
+- [`docs/12-responsive-layout-guidelines.md`](./docs/12-responsive-layout-guidelines.md) —
+  responsive strategy and Media-Day rules.
 
 ## Development
 

@@ -83,7 +83,7 @@ Avoid creating abstractions for unstable UI while the planner layout is still ch
 
 Later work can include:
 
-- More complete responsive/mobile planner interactions.
+- More complete responsive/mobile planner interactions, guided by `docs/12-responsive-layout-guidelines.md`.
 - Reference/guide overlay or route.
 - Academy/research planning expansion.
 - Browser notifications for timers.
