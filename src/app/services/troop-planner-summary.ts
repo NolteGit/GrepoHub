@@ -1,9 +1,13 @@
+import {
+  calculateBunksBonus,
+  fastTransportShipId,
+  getRequiredTransportShipCount,
+  getTransportShipCapacity,
+  isTransportShipUnitId,
+  slowTransportShipId,
+} from '../domain/planner/transport-rules';
 import type { TroopConfiguration } from '../models/troop-configuration.model';
 import type { Unit } from '../models/unit.model';
-
-const slowTransportShipId = 'transport_boat';
-const fastTransportShipId = 'fast_transport_ship';
-const bunksCapacityBonusPerShip = 6;
 
 export type TroopPlannerSummary = {
   readonly totalUnits: number;
@@ -57,19 +61,6 @@ type TroopPlannerTotals = Omit<
 >;
 
 const clampPercentage = (value: number): number => Math.max(0, Math.min(100, Math.round(value)));
-
-const getTransportShipCapacity = (
-  units: readonly Unit[],
-  unitId: string,
-  bunksEnabled: boolean,
-): number => {
-  const baseCapacity = units.find((unit) => unit.id === unitId)?.transportCapacity ?? 0;
-
-  return baseCapacity > 0 && bunksEnabled ? baseCapacity + bunksCapacityBonusPerShip : baseCapacity;
-};
-
-const getRequiredTransportShipCount = (transportSpace: number, shipCapacity: number): number =>
-  transportSpace > 0 && shipCapacity > 0 ? Math.ceil(transportSpace / shipCapacity) : 0;
 
 const emptyTroopPlannerTotals: TroopPlannerTotals = {
   totalUnits: 0,
@@ -141,9 +132,7 @@ export function calculateTroopPlannerSummary(
       stone: sum.stone + amount * unit.cost.stone,
       silver: sum.silver + amount * unit.cost.silver,
       favor: sum.favor + amount * unit.cost.favor,
-      transportShipCount:
-        sum.transportShipCount +
-        (unit.id === slowTransportShipId || unit.id === fastTransportShipId ? amount : 0),
+      transportShipCount: sum.transportShipCount + (isTransportShipUnitId(unit.id) ? amount : 0),
       slowTransportShipCount:
         sum.slowTransportShipCount + (unit.id === slowTransportShipId ? amount : 0),
       fastTransportShipCount:
@@ -151,7 +140,7 @@ export function calculateTroopPlannerSummary(
     };
   }, emptyTroopPlannerTotals);
   const bunksEnabled = troopPlan.modifiers.bunks;
-  const bunksBonus = bunksEnabled ? totals.transportShipCount * bunksCapacityBonusPerShip : 0;
+  const bunksBonus = calculateBunksBonus(totals.transportShipCount, bunksEnabled);
   const transportCapacity = totals.transportCapacity + bunksBonus;
   const transportBalance = transportCapacity - totals.transportSpace;
   const slowTransportCapacity = getTransportShipCapacity(units, slowTransportShipId, bunksEnabled);
