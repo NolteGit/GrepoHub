@@ -6,7 +6,7 @@ const root = process.cwd();
 const errors = [];
 const warnings = [];
 const validUnitTypes = new Set(['land', 'sea']);
-const validGods = new Set([
+const playableUnitGods = new Set([
   'zeus',
   'poseidon',
   'hera',
@@ -15,8 +15,8 @@ const validGods = new Set([
   'artemis',
   'aphrodite',
   'ares',
-  'all',
 ]);
+const validGods = new Set([...playableUnitGods, 'all']);
 const validAttackTypes = new Set(['naval', 'blunt', 'sharp', 'distance']);
 const cityBuildingPresetSources = new Set(['src/app/data/city-planner-presets.ts', 'src/app/data/plan-config-presets.ts']);
 const cityModifierPresetSources = new Set(['src/app/data/city-planner-presets.ts']);
@@ -116,6 +116,8 @@ function checkTranslationKey(key, label, languages, dictionaries) {
 function checkUnits(units, languages, dictionaries) {
   checkDuplicateIds(units, 'Unit data');
 
+  const mythicalUnitCountsByGod = new Map([...playableUnitGods].map((god) => [god, 0]));
+
   for (const unit of units) {
     const label = `Unit ${unit.id ?? '<missing-id>'}`;
 
@@ -131,6 +133,22 @@ function checkUnits(units, languages, dictionaries) {
 
     if (unit.god !== null && !validGods.has(unit.god)) {
       addError(`${label} has invalid god: ${unit.god}`);
+    }
+
+    if (unit.isMythical && unit.god === null) {
+      addError(`${label} is mythical but has no god`);
+    }
+
+    if (!unit.isMythical && unit.god !== null) {
+      addError(`${label} is not mythical but has god: ${unit.god}`);
+    }
+
+    if (unit.god === 'all' && unit.id !== 'divine_envoy') {
+      addError(`${label} uses god=all but is not divine_envoy`);
+    }
+
+    if (unit.isMythical && playableUnitGods.has(unit.god)) {
+      mythicalUnitCountsByGod.set(unit.god, (mythicalUnitCountsByGod.get(unit.god) ?? 0) + 1);
     }
 
     if (!validAttackTypes.has(unit.attackType)) {
@@ -172,6 +190,12 @@ function checkUnits(units, languages, dictionaries) {
 
     if (unit.type === 'land' && unit.transportCapacity > 0) {
       addError(`${label} is land but has transportCapacity > 0`);
+    }
+  }
+
+  for (const [god, count] of mythicalUnitCountsByGod) {
+    if (count === 0) {
+      addError(`Unit data has no god-specific mythical units for god: ${god}`);
     }
   }
 }
