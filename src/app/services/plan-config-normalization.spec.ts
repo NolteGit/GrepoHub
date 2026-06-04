@@ -146,6 +146,23 @@ describe('plan config normalization', () => {
     expect(normalized.settings.selectedGod).toBe('aphrodite');
   });
 
+  it('applies the same BHP-based troop caps during normalization', () => {
+    const normalized = normalizeTroopConfiguration({
+      name: 'Troop Caps',
+      unitAmounts: {
+        swordsman: 99999,
+        horseman: 99999,
+        transport_boat: 99999,
+        colony_ship: 99999,
+      },
+    });
+
+    expect(normalized.unitAmounts['swordsman']).toBe(5000);
+    expect(normalized.unitAmounts['horseman']).toBe(1667);
+    expect(normalized.unitAmounts['transport_boat']).toBe(715);
+    expect(normalized.unitAmounts['colony_ship']).toBe(30);
+  });
+
   it('creates minimum building levels and empty unit amount maps for reset workflows', () => {
     const minimumLevels = createMinimumBuildingLevels();
     const emptyAmounts = createEmptyUnitAmounts({

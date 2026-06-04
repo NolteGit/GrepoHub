@@ -418,6 +418,90 @@ describe('PlanConfigService import validation', () => {
     expect(service.activePlan().isPreset).toBe(false);
   });
 
+  it('normalizes active plan settings through the same rules used for imported plans', () => {
+    service.selectPlan('preset-hybrid-plan');
+
+    service.updateActivePlanSettings({
+      selectedGod: 'invalid-god',
+      worldSpeed: -2,
+      unitSpeed: 0,
+      timezone: '  Europe/Berlin  ',
+      locale: '  ',
+    } as never);
+
+    expect(service.activePlan().settings).toEqual({
+      selectedGod: 'aphrodite',
+      worldSpeed: null,
+      unitSpeed: null,
+      timezone: 'Europe/Berlin',
+      locale: null,
+    });
+    expect(service.activePlan().isPreset).toBe(false);
+  });
+
+  it('normalizes active city updates through import-safe building and special-building rules', () => {
+    service.selectPlan('preset-hybrid-plan');
+
+    service.updateActiveCityPlan({
+      buildingLevels: {
+        farm: 999,
+        senate: -10,
+        barracks: 7.6,
+        academy: Number.NaN,
+      },
+      modifiers: {
+        plowResearched: 1,
+        aphroditeActive: 0,
+        thermalBathsBuilt: true,
+      },
+      specialBuildings: {
+        slot1: 'invalid-special-building',
+        slot2: 'tower',
+      },
+    } as never);
+
+    const cityPlan = service.activePlan().cityPlan;
+
+    expect(cityPlan.buildingLevels['farm']).toBe(45);
+    expect(cityPlan.buildingLevels['senate']).toBe(0);
+    expect(cityPlan.buildingLevels['barracks']).toBe(8);
+    expect(cityPlan.buildingLevels['academy']).toBe(0);
+    expect(cityPlan.modifiers).toEqual({
+      plowResearched: true,
+      aphroditeActive: false,
+    });
+    expect(cityPlan.specialBuildings).toEqual({
+      slot1: 'none',
+      slot2: 'tower',
+    });
+  });
+
+  it('normalizes active troop updates through the same caps used for imported plans', () => {
+    service.selectPlan('preset-hybrid-plan');
+
+    service.updateActiveTroopPlan({
+      unitAmounts: {
+        swordsman: 10001.6,
+        horseman: 50000,
+        colony_ship: 999,
+        archer: -4,
+        unknown_unit: 25,
+      },
+      modifiers: {
+        bunks: 'yes',
+      },
+    } as never);
+
+    const troopPlan = service.activePlan().troopPlan;
+
+    expect(troopPlan.unitAmounts['swordsman']).toBe(5000);
+    expect(troopPlan.unitAmounts['horseman']).toBe(1667);
+    expect(troopPlan.unitAmounts['colony_ship']).toBe(30);
+    expect(troopPlan.unitAmounts['archer']).toBe(0);
+    expect(troopPlan.unitAmounts['unknown_unit']).toBeUndefined();
+    expect(troopPlan.modifiers.bunks).toBe(true);
+  });
+
   it('exports CSV and BBCode from the normalized active plan state', () => {
     service.selectPlan('preset-hybrid-plan');
     service.duplicateActivePlan('CSV, BBCode "Plan"');

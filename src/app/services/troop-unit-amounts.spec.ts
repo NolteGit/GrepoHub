@@ -1,0 +1,20 @@
+import { clampTroopUnitAmount, getTroopUnitAmountMaxForPopulationCost } from './troop-unit-amounts';
+
+describe('troop unit amount rules', () => {
+  it('derives unit amount maxima from a 5000 population budget', () => {
+    expect(getTroopUnitAmountMaxForPopulationCost(1)).toBe(5000);
+    expect(getTroopUnitAmountMaxForPopulationCost(3)).toBe(1667);
+    expect(getTroopUnitAmountMaxForPopulationCost(7)).toBe(715);
+    expect(getTroopUnitAmountMaxForPopulationCost(170)).toBe(30);
+  });
+
+  it('clamps UI and import amounts with the same per-unit rule table', () => {
+    expect(clampTroopUnitAmount('swordsman', 99999)).toBe(5000);
+    expect(clampTroopUnitAmount('horseman', 99999)).toBe(1667);
+    expect(clampTroopUnitAmount('transport_boat', 99999)).toBe(715);
+    expect(clampTroopUnitAmount('colony_ship', 99999)).toBe(30);
+    expect(clampTroopUnitAmount('swordsman', -10)).toBe(0);
+    expect(clampTroopUnitAmount('swordsman', Number.NaN)).toBe(0);
+    expect(clampTroopUnitAmount('unknown_unit', 50)).toBe(0);
+  });
+});

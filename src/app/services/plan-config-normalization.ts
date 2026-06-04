@@ -303,7 +303,7 @@ export function createImportedPlanId(prefix: string, name: string, suffix: strin
 }
 
 function normalizeOptionalString(value: unknown): string | null {
-  return typeof value === 'string' && value.trim().length > 0 ? value : null;
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
 export function normalizeCityPlanNote(value: unknown): string | undefined {
