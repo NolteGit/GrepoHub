@@ -1,9 +1,11 @@
 import type { CityConfiguration } from '../models/city-configuration.model';
-import { defaultGrepolisGodId, type GrepolisGodId } from '../models/god.model';
+import type { GrepolisGodId } from '../models/god.model';
+import {
+  getPygmalionModifierState,
+  isPygmalionGodSelected,
+} from '../domain/planner/god-effect-rules';
 
-export function isAphroditeGodSelected(selectedGod: GrepolisGodId | string): boolean {
-  return selectedGod === defaultGrepolisGodId;
-}
+export const isAphroditeGodSelected = isPygmalionGodSelected;
 
 export function getEffectiveCityPlanForSelectedGod(
   cityPlan: CityConfiguration,
@@ -13,7 +15,7 @@ export function getEffectiveCityPlanForSelectedGod(
     ...cityPlan,
     modifiers: {
       ...cityPlan.modifiers,
-      aphroditeActive: isAphroditeGodSelected(selectedGod),
+      aphroditeActive: getPygmalionModifierState(selectedGod),
     },
   };
 }
