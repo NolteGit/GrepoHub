@@ -80,7 +80,9 @@
 </section>
 
 <app-gh-panel class="mt-3 grid gap-2" padding="sm">
-  <header class="flex flex-wrap items-center justify-between gap-3">
+  <header
+    class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 max-[42rem]:grid-cols-[minmax(0,1fr)_auto]"
+  >
     <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
       <h2 class="m-0 text-xs font-extrabold tracking-wide text-[var(--gh-muted)] uppercase">
         {{ 'plannerV2.summary.context.transportCapacity' | translate: 'Transport Capacity' }}
@@ -109,7 +111,16 @@
       </label>
     </div>
 
-    <div class="grid min-w-0 gap-0.5 text-right">
+    <img
+      class="pointer-events-none size-7 shrink-0 justify-self-center object-contain opacity-80 drop-shadow-[0_0_0.85rem_rgba(246,195,67,0.2)]"
+      src="assets/images/battle/capacity.webp"
+      alt=""
+      aria-hidden="true"
+    />
+
+    <div
+      class="grid min-w-0 gap-0.5 justify-self-end text-right max-[42rem]:col-span-2 max-[42rem]:justify-self-stretch"
+    >
       <small
         class="text-[0.58rem] font-extrabold uppercase tracking-[0.14em] text-[var(--gh-muted)]"
       >
@@ -142,13 +153,6 @@
         ></span>
       }
     </div>
-
-    <img
-      class="pointer-events-none absolute left-1/2 top-1/2 z-10 size-7 -translate-x-1/2 -translate-y-1/2 object-contain opacity-75 drop-shadow-[0_0_0.85rem_rgba(246,195,67,0.2)] max-[42rem]:hidden"
-      src="assets/images/battle/capacity.webp"
-      alt=""
-      aria-hidden="true"
-    />
 
     <div class="relative grid min-h-12 gap-0.5 px-3 py-1.5">
       <div
