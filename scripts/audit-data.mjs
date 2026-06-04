@@ -739,28 +739,72 @@ function checkCityModifiersAndSpecialBuildings() {
 
 function checkAcademyResearch(languages, dictionaries) {
   const source = readText('src/app/data/academy-research-presets.ts');
+  const idTypeIds = extractStringUnion(source, 'AcademyResearchId');
   const ids = [];
+  const groupMatch = source.match(/academyResearchLevelGroups[^=]*=\s*\[([\s\S]*?)\];/m);
 
-  for (const match of source.matchAll(/createResearch\(\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*(-?\d+)\s*,\s*(-?\d+)/g)) {
-    const [, id, fallbackName, costText, requiredLevelText] = match;
-    const cost = Number(costText);
-    const requiredLevel = Number(requiredLevelText);
+  if (!groupMatch) {
+    addError('Could not find academyResearchLevelGroups');
+    return;
+  }
 
-    ids.push(id);
+  for (const group of groupMatch[1].matchAll(
+    /\{\s*requiredAcademyLevel:\s*(-?\d+)\s*,\s*researches:\s*\[([\s\S]*?)\]\s*,?\s*\}/g,
+  )) {
+    const [, groupLevelText, researchesBlock] = group;
+    const groupLevel = Number(groupLevelText);
 
-    if (!isNonEmptyString(fallbackName)) {
-      addError(`Academy research ${id} has missing fallbackName`);
+    if (!Number.isInteger(groupLevel) || groupLevel < 1 || groupLevel > 36) {
+      addError(`Academy research group has invalid requiredAcademyLevel: ${groupLevelText}`);
     }
 
-    if (!isNonNegativeInteger(cost)) {
-      addError(`Academy research ${id} has invalid cost: ${costText}`);
-    }
+    for (const match of researchesBlock.matchAll(
+      /createResearch\(\s*'([^']+)'\s*,\s*'([^']+)'\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*'([^']*)'\s*\)/g,
+    )) {
+      const [, id, fallbackName, costText, requiredLevelText, icon] = match;
+      const cost = Number(costText);
+      const requiredLevel = Number(requiredLevelText);
 
-    if (!Number.isInteger(requiredLevel) || requiredLevel < 1 || requiredLevel > 36) {
-      addError(`Academy research ${id} has invalid requiredAcademyLevel: ${requiredLevelText}`);
-    }
+      ids.push(id);
 
-    checkTranslationKey(`academyResearch.${id}`, `Academy research ${id}`, languages, dictionaries);
+      if (!idTypeIds.has(id)) {
+        addError(`Academy research ${id} is missing from AcademyResearchId`);
+      }
+
+      if (!isNonEmptyString(fallbackName)) {
+        addError(`Academy research ${id} has missing fallbackName`);
+      }
+
+      if (!isNonNegativeInteger(cost)) {
+        addError(`Academy research ${id} has invalid cost: ${costText}`);
+      }
+
+      if (!Number.isInteger(requiredLevel) || requiredLevel < 1 || requiredLevel > 36) {
+        addError(`Academy research ${id} has invalid requiredAcademyLevel: ${requiredLevelText}`);
+      }
+
+      if (requiredLevel !== groupLevel) {
+        addError(
+          `Academy research ${id} required level ${requiredLevel} does not match group level ${groupLevel}`,
+        );
+      }
+
+      if (!isNonEmptyString(icon)) {
+        addError(`Academy research ${id} has missing icon`);
+      }
+
+      checkTranslationKey(`academyResearch.${id}`, `Academy research ${id}`, languages, dictionaries);
+    }
+  }
+
+  for (const id of idTypeIds) {
+    if (!ids.includes(id)) {
+      addError(`AcademyResearchId includes unused id: ${id}`);
+    }
+  }
+
+  if (!/academyResearchDefinitions[^=]*=\s*academyResearchLevelGroups\.flatMap\(\(group\)\s*=>\s*group\.researches\)/m.test(source)) {
+    addError('academyResearchDefinitions must be derived from academyResearchLevelGroups');
   }
 
   checkDuplicateIds(
