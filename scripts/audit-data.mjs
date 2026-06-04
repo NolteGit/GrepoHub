@@ -513,6 +513,49 @@ function checkTransportCapacityRules(units) {
   }
 }
 
+function checkUnitCombatStats(units) {
+  for (const unit of units) {
+    const label = `Unit ${unit.id ?? '<missing-id>'}`;
+
+    if (unit.type === 'land') {
+      if (unit.attack <= 0) {
+        addError(`${label} is land but has no positive land attack value`);
+      }
+
+      if (unit.attackSea !== 0) {
+        addError(`${label} is land but has attackSea > 0`);
+      }
+
+      if (unit.defenseSea !== 0) {
+        addError(`${label} is land but has defenseSea > 0`);
+      }
+
+      if (unit.defenseBlunt + unit.defenseSharp + unit.defenseDistance <= 0) {
+        addError(`${label} is land but has no land defense values`);
+      }
+    }
+
+    if (unit.type === 'sea') {
+      if (unit.attack !== unit.attackSea) {
+        addError(`${label} is sea but attack (${unit.attack}) does not match attackSea (${unit.attackSea})`);
+      }
+
+      if (unit.defenseBlunt !== 0) {
+        addError(`${label} is sea but has defenseBlunt > 0`);
+      }
+
+      if (unit.defenseSharp !== 0) {
+        addError(`${label} is sea but has defenseSharp > 0`);
+      }
+
+      if (unit.defenseDistance !== 0) {
+        addError(`${label} is sea but has defenseDistance > 0`);
+      }
+    }
+  }
+}
+
+
 function extractPopulationTables(source) {
   const tables = new Map();
 
@@ -527,7 +570,7 @@ function checkCityPlanDefinitions() {
   const source = readText('src/app/data/city-planner-presets.ts');
   const tables = extractPopulationTables(source);
   const definitionMatch = source.match(/cityBuildingPlanDefinitions[^=]*=\s*\[([\s\S]*?)\];/m);
-  const buildingPlanIds = new Set();
+  const buildingPlanIds = new Map();
 
   if (!definitionMatch) {
     addError('Could not find cityBuildingPlanDefinitions');
@@ -538,7 +581,7 @@ function checkCityPlanDefinitions() {
     const [, id, maxLevelText, tableExpression] = match;
     const maxLevel = Number(maxLevelText);
 
-    buildingPlanIds.add(id);
+    buildingPlanIds.set(id, maxLevel);
 
     if (tableExpression.startsWith('createLinearPopulationTable')) {
       const levelMatch = tableExpression.match(/createLinearPopulationTable\((\d+),/);
@@ -681,12 +724,36 @@ function checkAcademyResearch(languages, dictionaries) {
 }
 
 function checkBuildingJsonAlignment(buildings, buildingPlanIds) {
-  const buildingDataIds = new Set(buildings.map((building) => building.id));
+  const buildingById = new Map(buildings.map((building) => [building.id, building]));
   const intentionallyPlanOnlyBuildingIds = new Set(['land_expansion']);
 
-  for (const id of buildingPlanIds) {
-    if (!buildingDataIds.has(id) && !intentionallyPlanOnlyBuildingIds.has(id)) {
-      addWarning(`City plan building has no public building data entry: ${id}`);
+  for (const [id, planMaxLevel] of buildingPlanIds) {
+    const building = buildingById.get(id);
+
+    if (!building) {
+      if (!intentionallyPlanOnlyBuildingIds.has(id)) {
+        addWarning(`City plan building has no public building data entry: ${id}`);
+      }
+
+      continue;
+    }
+
+    if (building.isSpecial) {
+      addError(`Special building ${id} must not appear as a normal city-plan building`);
+    }
+
+    if (building.maxLevel !== null && building.maxLevel !== planMaxLevel) {
+      addError(`Building ${id} maxLevel ${building.maxLevel} does not match city plan maxLevel ${planMaxLevel}`);
+    }
+  }
+
+  for (const building of buildings) {
+    if (building.isSpecial || building.maxLevel === null) {
+      continue;
+    }
+
+    if (!buildingPlanIds.has(building.id)) {
+      addWarning(`Building data has no city-plan definition: ${building.id}`);
     }
   }
 }
@@ -702,6 +769,7 @@ if (!Array.isArray(units)) {
   checkPresetUnitReferences(units);
   checkTroopUnitAmountLimits(units);
   checkTransportCapacityRules(units);
+  checkUnitCombatStats(units);
 }
 
 if (!Array.isArray(buildings)) {
