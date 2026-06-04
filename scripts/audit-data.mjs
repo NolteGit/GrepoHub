@@ -301,7 +301,7 @@ function checkPresetUnitReferences(units) {
 }
 
 function checkTroopUnitAmountLimits(units) {
-  const sourceFile = 'src/app/services/troop-unit-amounts.ts';
+  const sourceFile = 'src/app/domain/planner/unit-rules.ts';
   const source = readText(sourceFile);
   const maxBudgetMatch = source.match(/const\s+maxPopulationBudgetPerUnit\s*=\s*(\d+)\s*;/);
   const amountMapMatch = source.match(/const\s+troopUnitAmountMaxById[^=]*=\s*\{([\s\S]*?)\};/m);

@@ -55,7 +55,7 @@ import { maxCityPlanNoteLength } from '../../services/plan-config-normalization'
 import {
   clampTroopUnitAmount,
   getTroopUnitAmountMaxForPopulationCost,
-} from '../../services/troop-unit-amounts';
+} from '../../domain/planner/unit-rules';
 import { PlanImportExportUiService } from '../../services/plan-import-export-ui.service';
 import { TranslationService, type TranslationParams } from '../../services/translation.service';
 import {

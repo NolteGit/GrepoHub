@@ -17,7 +17,7 @@ import {
   createMinimumCityBuildingLevels,
   clampCityBuildingLevel,
 } from '../domain/planner/building-rules';
-import { allowedTroopUnitIds, clampTroopUnitAmount } from './troop-unit-amounts';
+import { allowedTroopUnitIds, clampTroopUnitAmount } from '../domain/planner/unit-rules';
 
 export const maxCityPlanNoteLength = 500;
 

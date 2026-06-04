@@ -4,10 +4,12 @@
   "ignoreIssues": {
     "src/app/data/asset-paths.ts": ["exports", "types"],
     "src/app/data/academy-research-presets.ts": ["exports"],
+    "src/app/domain/planner/unit-rules.ts": ["exports"],
     "src/app/models/toolbox.models.ts": ["types"],
     "src/app/models/troop-configuration.model.ts": ["types"],
     "src/app/models/unit.model.ts": ["types"],
     "src/app/services/plan-config-normalization.ts": ["exports"],
+    "src/app/services/troop-unit-amounts.ts": ["exports"],
     "src/app/services/supported-languages.ts": ["exports", "types"],
     "src/app/utils/toolbox-time.util.ts": ["exports", "types"]
   },
