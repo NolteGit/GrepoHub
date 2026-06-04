@@ -65,9 +65,17 @@ if (!exists(projectJsonPath)) {
   warn('Missing project.json.');
 } else {
   const projectJson = JSON.parse(readText(projectJsonPath));
-  const outputPath = projectJson?.targets?.build?.options?.outputPath;
+  const buildOptions = projectJson?.targets?.build?.options;
+  const outputPath = buildOptions?.outputPath;
   if (outputPath !== 'dist/grepo-hub') {
     warn(`Unexpected build outputPath: ${String(outputPath)}. Expected dist/grepo-hub.`);
+  }
+
+  const inlineCritical = buildOptions?.optimization?.styles?.inlineCritical;
+  if (inlineCritical !== false) {
+    warn(
+      'project.json should keep build.options.optimization.styles.inlineCritical=false so Angular does not emit CSP-blocked stylesheet onload handlers.',
+    );
   }
 }
 
