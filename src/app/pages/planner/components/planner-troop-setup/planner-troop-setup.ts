@@ -1,5 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 
+import { getBattleIconPath } from '../../../../data/asset-paths';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { GhPanel } from '../../../../shared/ui/gh-panel/gh-panel';
 
@@ -68,6 +69,8 @@ export class PlannerTroopSetup {
   readonly godSelected = output<string>();
   readonly unitAmountChanged = output<{ readonly unitId: string; readonly amount: number }>();
   readonly bunksToggled = output<boolean>();
+
+  protected readonly capacityIconPath = getBattleIconPath('capacity');
 
   protected readonly categoryTabs = computed<readonly TroopCategoryTabWithContext[]>(() => {
     const contexts = this.categoryContexts();
