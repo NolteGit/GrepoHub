@@ -33,6 +33,15 @@ import {
   type GrepolisGodId,
 } from '../../models/god.model';
 import type { TroopConfiguration } from '../../models/troop-configuration.model';
+import {
+  clampCityBuildingLevel,
+  clampLandExpansionLevel,
+  createLandExpansionProgressSteps,
+  getCityBuildingDefinition,
+  getCityBuildingMaxLevel,
+  getLandExpansionPopulationBonus,
+  landExpansionMaxLevel,
+} from '../../domain/planner/building-rules';
 import type { Unit } from '../../models/unit.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
@@ -334,9 +343,6 @@ const gods: readonly (GodOption & { readonly value: GrepolisGodId })[] = [
 
 const planNoticeAutoDismissMs = 4200;
 
-const landExpansionMaxLevel = 6;
-const landExpansionPopulationPerLevel = 50;
-
 const specialBuildingEffectFallbacks: Record<string, string> = {
   none: 'None selected',
   theatre: 'Extra slow culture points possible',
@@ -349,47 +355,13 @@ const specialBuildingEffectFallbacks: Record<string, string> = {
   merchants_shop: '+50% trade, BD trade and Phoenician trade',
 };
 
-const getBuildingDefinition = (buildingId: string) => {
-  return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
-};
-
-const getBuildingMaxLevel = (buildingId: string): number => {
-  return getBuildingDefinition(buildingId)?.maxLevel ?? 40;
-};
-
-const normalizeNonNegativeInteger = (value: number): number => {
-  return Math.max(0, Math.floor(Number.isFinite(value) ? value : 0));
-};
-
-const clampLandExpansionLevel = (level: number): number => {
-  return Math.min(landExpansionMaxLevel, normalizeNonNegativeInteger(level));
-};
-
-const clampBuildingLevel = (buildingId: string, level: number): number => {
-  if (buildingId === 'land_expansion') {
-    return clampLandExpansionLevel(level);
-  }
-
-  return Math.min(getBuildingMaxLevel(buildingId), normalizeNonNegativeInteger(level));
-};
-
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value);
-
-const getLandExpansionPopulationBonus = (level: number): number => {
-  return clampLandExpansionLevel(level) * landExpansionPopulationPerLevel;
-};
 
 const formatLandExpansionDetail = (level: number): string => {
   const normalizedLevel = clampLandExpansionLevel(level);
   const populationBonus = getLandExpansionPopulationBonus(normalizedLevel);
 
   return `Level ${normalizedLevel}/${landExpansionMaxLevel} · +${formatNumber(populationBonus)} BHP`;
-};
-
-const createLandExpansionProgressSteps = (level: number): readonly boolean[] => {
-  const normalizedLevel = clampLandExpansionLevel(level);
-
-  return Array.from({ length: landExpansionMaxLevel }, (_, index) => index < normalizedLevel);
 };
 
 const createTilePopulationBadge = (
@@ -576,7 +548,7 @@ const getBuildingEffectValue = (context: BuildingEffectValueContext): string => 
   }
 
   if (buildingId === 'cave') {
-    return level >= getBuildingMaxLevel('cave') ? '∞' : formatNumber(level * 1000);
+    return level >= getCityBuildingMaxLevel('cave') ? '∞' : formatNumber(level * 1000);
   }
 
   if (buildingId === 'temple') {
@@ -1015,9 +987,9 @@ export class Planner {
     const hasTower = activeSpecialBuildings.includes('tower');
 
     return cityBuildingOrder.map((buildingId) => {
-      const definition = getBuildingDefinition(buildingId);
+      const definition = getCityBuildingDefinition(buildingId);
       const level = buildingLevels[buildingId] ?? 0;
-      const maxLevel = getBuildingMaxLevel(buildingId);
+      const maxLevel = getCityBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
       const stats = createBuildingTileStats(
         buildingId,
@@ -1512,7 +1484,7 @@ export class Planner {
     this.updateCityPlan((cityPlan) => ({
       buildingLevels: {
         ...cityPlan.buildingLevels,
-        [buildingId]: clampBuildingLevel(buildingId, level),
+        [buildingId]: clampCityBuildingLevel(buildingId, level),
       },
     }));
   }

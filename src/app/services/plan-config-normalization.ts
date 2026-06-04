@@ -13,22 +13,15 @@ import { defaultGrepolisGodId, normalizeGrepolisGodId } from '../models/god.mode
 import { PlanConfig, PlanConfigSettings } from '../models/plan-config.model';
 import { TroopConfiguration } from '../models/troop-configuration.model';
 
+import {
+  createMinimumCityBuildingLevels,
+  clampCityBuildingLevel,
+} from '../domain/planner/building-rules';
 import { allowedTroopUnitIds, clampTroopUnitAmount } from './troop-unit-amounts';
 
 export const maxCityPlanNoteLength = 500;
 
 let generatedIdCounter = 0;
-const minimumBuildingLevels: Record<string, number> = {
-  barracks: 1,
-  farm: 1,
-  marketplace: 1,
-  quarry: 1,
-  senate: 9,
-  silver_mine: 1,
-  temple: 1,
-  timber_camp: 1,
-  warehouse: 1,
-};
 
 export function createUniqueIdSuffix(): string {
   try {
@@ -124,12 +117,10 @@ export function normalizeCityConfiguration(
     buildingLevels: cityBuildingPlanDefinitions.reduce(
       (accumulator, building) => {
         const rawLevel = Number(rawBuildingLevels[building.id] ?? 0);
-        const normalizedLevel = Number.isFinite(rawLevel) ? rawLevel : 0;
 
-        accumulator[building.id] = Math.min(
-          Math.max(Math.round(normalizedLevel), 0),
-          building.maxLevel,
-        );
+        accumulator[building.id] = Number.isFinite(rawLevel)
+          ? clampCityBuildingLevel(building.id, rawLevel)
+          : 0;
 
         return accumulator;
       },
@@ -189,14 +180,7 @@ export function normalizeTroopConfiguration(
 }
 
 export function createMinimumBuildingLevels(): Record<string, number> {
-  return cityBuildingPlanDefinitions.reduce(
-    (levels, building) => {
-      levels[building.id] = Math.min(minimumBuildingLevels[building.id] ?? 0, building.maxLevel);
-
-      return levels;
-    },
-    {} as Record<string, number>,
-  );
+  return createMinimumCityBuildingLevels();
 }
 
 export function createEmptyUnitAmounts(

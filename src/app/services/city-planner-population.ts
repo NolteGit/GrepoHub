@@ -3,23 +3,11 @@ import {
   cityModifierDefinitions,
   citySpecialBuildingOptionDefinitions,
 } from '../data/city-planner-presets';
+import { CityConfiguration, CitySpecialBuildingOptionId } from '../models/city-configuration.model';
 import {
-  CityBuildingPlanDefinition,
-  CityConfiguration,
-  CitySpecialBuildingOptionId,
-} from '../models/city-configuration.model';
-
-const cityBuildingMinLevels: Record<string, number> = {
-  barracks: 1,
-  farm: 1,
-  marketplace: 1,
-  quarry: 1,
-  senate: 9,
-  silver_mine: 1,
-  temple: 1,
-  timber_camp: 1,
-  warehouse: 1,
-};
+  clampCityBuildingLevelForPopulation,
+  getCityBuildingDefinition,
+} from '../domain/planner/building-rules';
 
 interface CityPlannerPopulationBreakdown {
   readonly farmLevel: number;
@@ -103,16 +91,9 @@ export function calculateCityPlannerPopulation(
 }
 
 function getCityPlannerBuildingLevel(configuration: CityConfiguration, buildingId: string): number {
-  const definition = getCityPlannerBuildingDefinition(buildingId);
-  const configuredLevel = configuration.buildingLevels[buildingId] ?? 0;
-
-  if (!definition) {
-    return configuredLevel;
-  }
-
-  return Math.min(
-    Math.max(configuredLevel, cityBuildingMinLevels[buildingId] ?? 0),
-    definition.maxLevel,
+  return clampCityBuildingLevelForPopulation(
+    buildingId,
+    configuration.buildingLevels[buildingId] ?? 0,
   );
 }
 
@@ -121,19 +102,13 @@ function getCityPlannerBuildingPopulation(buildingId: string, level: number): nu
 }
 
 function getExactCityPlannerBuildingPopulation(buildingId: string, level: number): number {
-  const definition = getCityPlannerBuildingDefinition(buildingId);
+  const definition = getCityBuildingDefinition(buildingId);
 
   if (!definition) {
     return 0;
   }
 
   return definition.populationByLevel[level] ?? 0;
-}
-
-function getCityPlannerBuildingDefinition(
-  buildingId: string,
-): CityBuildingPlanDefinition | undefined {
-  return cityBuildingPlanDefinitions.find((building) => building.id === buildingId);
 }
 
 function getCityPlannerSpecialBuildingPopulation(optionId: CitySpecialBuildingOptionId): number {
