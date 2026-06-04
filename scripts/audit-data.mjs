@@ -382,7 +382,30 @@ function checkAssetPathMappings(units, buildings) {
   }
 }
 
-function checkPresetUnitReferences(units) {
+function readTroopUnitAmountRuleConfig() {
+  const sourceFile = 'src/app/domain/planner/unit-rules.ts';
+  const source = readText(sourceFile);
+  const maxBudgetMatch = source.match(/const\s+maxPopulationBudgetPerUnit\s*=\s*(\d+)\s*;/);
+  const amountMapMatch = source.match(/const\s+troopUnitAmountMaxById[^=]*=\s*\{([\s\S]*?)\};/m);
+
+  if (!maxBudgetMatch) {
+    addError(`${sourceFile} is missing maxPopulationBudgetPerUnit`);
+    return null;
+  }
+
+  if (!amountMapMatch) {
+    addError(`${sourceFile} is missing troopUnitAmountMaxById`);
+    return null;
+  }
+
+  return {
+    sourceFile,
+    maxPopulationBudgetPerUnit: Number(maxBudgetMatch[1]),
+    amountLimits: new Map(extractKeyNumberPairs(amountMapMatch[1]).map(({ key, value }) => [key, value])),
+  };
+}
+
+function checkPresetUnitReferences(units, amountLimits = new Map()) {
   const unitIds = new Set(units.map((unit) => unit.id));
 
   for (const sourceFile of troopPresetSources) {
@@ -398,31 +421,25 @@ function checkPresetUnitReferences(units) {
         if (!isNonNegativeInteger(value)) {
           addError(`${sourceFile} has invalid unit amount for ${key}: ${value}`);
         }
+
+        const maxAmount = amountLimits.get(key);
+
+        if (maxAmount !== undefined && value > maxAmount) {
+          addError(`${sourceFile} has unit amount for ${key} above max ${maxAmount}: ${value}`);
+        }
       }
     }
   }
 }
 
 function checkTroopUnitAmountLimits(units) {
-  const sourceFile = 'src/app/domain/planner/unit-rules.ts';
-  const source = readText(sourceFile);
-  const maxBudgetMatch = source.match(/const\s+maxPopulationBudgetPerUnit\s*=\s*(\d+)\s*;/);
-  const amountMapMatch = source.match(/const\s+troopUnitAmountMaxById[^=]*=\s*\{([\s\S]*?)\};/m);
+  const config = readTroopUnitAmountRuleConfig();
 
-  if (!maxBudgetMatch) {
-    addError(`${sourceFile} is missing maxPopulationBudgetPerUnit`);
-    return;
+  if (!config) {
+    return new Map();
   }
 
-  if (!amountMapMatch) {
-    addError(`${sourceFile} is missing troopUnitAmountMaxById`);
-    return;
-  }
-
-  const maxPopulationBudgetPerUnit = Number(maxBudgetMatch[1]);
-  const amountLimits = new Map(
-    extractKeyNumberPairs(amountMapMatch[1]).map(({ key, value }) => [key, value]),
-  );
+  const { amountLimits, maxPopulationBudgetPerUnit, sourceFile } = config;
   const unitIds = new Set(units.map((unit) => unit.id));
 
   for (const unit of units) {
@@ -446,6 +463,8 @@ function checkTroopUnitAmountLimits(units) {
       addError(`${sourceFile} has unit amount limit for unknown unit id: ${unitId}`);
     }
   }
+
+  return amountLimits;
 }
 
 function extractExportedStringConstant(source, name, sourceFile) {
@@ -643,6 +662,12 @@ function checkCityPresetReferences(buildingPlanIds) {
         if (!isNonNegativeInteger(value)) {
           addError(`${sourceFile} has invalid building level for ${key}: ${value}`);
         }
+
+        const maxLevel = buildingPlanIds.get(key);
+
+        if (maxLevel !== undefined && value > maxLevel) {
+          addError(`${sourceFile} has building level for ${key} above max ${maxLevel}: ${value}`);
+        }
       }
     }
   }
@@ -787,8 +812,8 @@ if (!Array.isArray(units)) {
   addError('public/assets/data/units.json must be an array');
 } else {
   checkUnits(units, languages, dictionaries);
-  checkPresetUnitReferences(units);
-  checkTroopUnitAmountLimits(units);
+  const troopUnitAmountLimits = checkTroopUnitAmountLimits(units);
+  checkPresetUnitReferences(units, troopUnitAmountLimits);
   checkTransportCapacityRules(units);
   checkUnitCombatStats(units);
 }
