@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Grepo Hub is a Grepolis companion web app for planning and playing alongside the main game. It should help active and returning players manage common planning tasks without becoming a gameplay automation tool.
+GrepoPlan is a Grepolis companion web app for planning and playing alongside the main game. It should help active and returning players manage common planning tasks without becoming a gameplay automation tool.
 
 The app should focus on:
 
@@ -13,7 +13,7 @@ The app should focus on:
 - Time calculations and active timers
 - Future battle simulation support
 
-Grepo Hub should be useful while playing, but it should not interact directly with the Grepolis game client.
+GrepoPlan should be useful while playing, but it should not interact directly with the Grepolis game client.
 
 ## Development goal
 

@@ -2,8 +2,8 @@
   "documents": [
     {
       "id": "grepohub-how-to",
-      "title": "GrepoHub - How To",
-      "description": "Compact guide to the main GrepoHub pages, local plans, imports, exports, and helper tools.",
+      "title": "GrepoPlan - How To",
+      "description": "Compact guide to the main GrepoPlan pages, local plans, imports, exports, and helper tools.",
       "category": "Guides",
       "type": "markdown",
       "path": "/library/documents/grepohub-how-to.md",

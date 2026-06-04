@@ -14,11 +14,12 @@ This checklist is for static hosting readiness only. It does not require deployi
 
 ## Static routing
 
-Grepo Hub is a client-side Angular app. The important smoke checks are:
+GrepoPlan is a client-side Angular app. The important smoke checks are:
 
 ```text
 [ ] / loads the app
-[ ] /planner-v2 loads the app directly after browser refresh
+[ ] /planner loads the app directly after browser refresh
+[ ] /planner-v2 still loads as a legacy alias
 [ ] Unknown client-side paths route back into the app instead of showing a host-level 404
 [ ] No top-level 404.html is added unless static-host routing is intentionally changed
 ```
@@ -28,12 +29,12 @@ For Cloudflare Pages, the app relies on the platform SPA fallback behavior by ke
 ## Metadata and assets
 
 ```text
-[ ] Browser title says Grepo Hub
+[ ] Browser title says GrepoPlan
 [ ] Meta description exists
 [ ] Viewport meta tag exists
 [ ] base href remains /
 [ ] favicon links point to existing public assets
-[ ] No old GrepoPlan metadata remains in the public page shell
+[ ] No old GrepoHub metadata remains in the public page shell
 ```
 
 ## Security headers
@@ -54,7 +55,7 @@ CSP changes should be tested with a production build and browser console open. I
 
 ## Small-screen behavior
 
-Planner V2 is currently optimized for desktop and medium-width screens. Narrow screens show a notice because toolbox and summary areas are intentionally hidden at small widths.
+The planner is currently optimized for desktop and medium-width screens. Narrow screens show a notice because toolbox and summary areas are intentionally hidden at small widths.
 
 ```text
 [ ] Narrow viewport shows the small-screen notice
@@ -69,17 +70,18 @@ After building, serve the static output with a local static server and check the
 
 ```powershell
 npm run build
-npx http-server dist/grepo-hub -p 4173
+npx http-server dist/grepo-hub/browser -p 4173
 ```
 
 Then open:
 
 ```text
 http://localhost:4173/
+http://localhost:4173/planner
 http://localhost:4173/planner-v2
 ```
 
-Depending on the local static server, direct refresh of `/planner-v2` may not mimic Cloudflare Pages SPA fallback. Treat the real hosting preview as the final routing check later.
+Depending on the local static server, direct refresh of `/planner` or `/planner-v2` may not mimic Cloudflare Pages SPA fallback. Treat the real hosting preview as the final routing check later.
 
 ## Automated audit
 

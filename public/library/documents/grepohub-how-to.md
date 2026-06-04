@@ -1,6 +1,6 @@
-# GrepoHub - How To
+# GrepoPlan - How To
 
-GrepoHub is a local-first helper app for planning cities, troops, references, and small calculations around Grepolis. The home page is only an entry point, so this guide focuses on the working pages.
+GrepoPlan is a local-first helper app for planning cities, troops, references, and small calculations around Grepolis. The home page is only an entry point, so this guide focuses on the working pages.
 
 ## Configurations
 
@@ -10,7 +10,7 @@ Use the configuration selector to switch between saved plans. Use **Save** after
 
 Use **Export** when you want to keep a backup or share a readable version of the current plan. JSON is for restoring the plan later. TXT is for reading and sharing. CSV is for spreadsheet use.
 
-Use **Import JSON** only for files that were exported as GrepoHub JSON. TXT and CSV are not meant to be imported again.
+Use **Import JSON** only for files that were exported as GrepoPlan JSON. TXT and CSV are not meant to be imported again.
 
 ## City Planner
 
@@ -52,7 +52,7 @@ The Toolbox should stay practical and small. Tools that become complex enough ca
 
 ## Export and Backup Workflow
 
-Use JSON when the goal is backup, restore, or sharing a plan with another GrepoHub user. JSON keeps the technical structure of the configuration.
+Use JSON when the goal is backup, restore, or sharing a plan with another GrepoPlan user. JSON keeps the technical structure of the configuration.
 
 Use TXT when the goal is readability. It is useful for sharing a plan in Discord, saving notes, or checking a plan outside the app.
 
@@ -62,7 +62,7 @@ A simple backup habit is to export JSON after larger changes and keep the file n
 
 ## Local Data
 
-GrepoHub stores saved configurations in your browser. This keeps the app lightweight and avoids accounts, sync, and server storage.
+GrepoPlan stores saved configurations in your browser. This keeps the app lightweight and avoids accounts, sync, and server storage.
 
 Because the data is local, clearing browser data can remove saved plans. Export important plans as JSON before changing devices, resetting the browser, or cleaning site data.
 

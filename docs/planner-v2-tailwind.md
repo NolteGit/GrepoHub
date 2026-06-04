@@ -6,7 +6,7 @@ Planner V2 now uses Tailwind as the default styling layer for new UI work.
 
 Use Tailwind utilities directly for local layout, spacing, grid/flex behavior, typography, responsive behavior, and simple interaction states.
 
-Keep the Grepo Hub visual identity in `src/styles.css`:
+Keep the GrepoPlan visual identity in `src/styles.css`:
 
 - theme tokens in `:root`
 - minimal base reset in `@layer base`

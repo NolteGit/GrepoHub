@@ -42,7 +42,7 @@ if (!exists(indexHtmlPath)) {
   warn('Missing src/index.html.');
 } else {
   const indexHtml = readText(indexHtmlPath);
-  assertIncludes(indexHtml, '<title>Grepo Hub</title>', 'src/index.html should use the expected Grepo Hub browser title.');
+  assertIncludes(indexHtml, '<title>GrepoPlan</title>', 'src/index.html should use the expected GrepoPlan browser title.');
   assertIncludes(indexHtml, '<base href="/"', 'src/index.html should keep <base href="/"> for root static hosting.');
   assertIncludes(indexHtml, 'name="viewport"', 'src/index.html should include a viewport meta tag.');
   assertIncludes(indexHtml, 'name="description"', 'src/index.html should include a meta description.');
@@ -76,7 +76,8 @@ if (!exists(routesPath)) {
   warn('Missing src/app/app.routes.ts.');
 } else {
   const routes = readText(routesPath);
-  assertIncludes(routes, "path: 'planner-v2'", "Routes should keep a stable /planner-v2 entry for refresh/deep-link checks.");
+  assertIncludes(routes, "path: 'planner'", "Routes should expose /planner as the stable public planner route.");
+  assertIncludes(routes, "path: 'planner-v2'", "Routes should keep a legacy /planner-v2 entry for old refresh/deep-link checks.");
   assertIncludes(routes, "path: '**'", 'Routes should keep a wildcard fallback route.');
 }
 

@@ -128,7 +128,8 @@ Use this after a production build or hosted preview deployment.
 [ ] Production build completes
 [ ] Hosted app opens on the root route
 [ ] Refreshing the root route still works
-[ ] Refreshing /planner-v2 still works if the host exposes that route
+[ ] Refreshing /planner works
+[ ] Refreshing /planner-v2 still works as a legacy alias
 [ ] App title and favicon are correct in the browser tab
 [ ] Static data, icons, and translations load correctly
 [ ] Browser console has no unexpected production errors during normal use

@@ -1,21 +1,22 @@
 # Feature List
 
-This document describes the current Grepo Hub feature direction after the Planner V2 reset.
+This document describes the current GrepoPlan feature direction after the planner reset.
 
 ## Current routed surface
 
-Grepo Hub currently exposes the Planner V2 shell at:
+GrepoPlan currently exposes the planner shell at:
 
 ```txt
 /
+/planner
 /planner-v2
 ```
 
-The old Home, City Planner, Troops Planner, References, and Toolbox pages were intentionally removed as UI surfaces. Their reusable data, services, helpers, translations, and assets remain available for the V2 implementation.
+The old Home, City Planner, Troops Planner, References, and Toolbox pages were intentionally removed as UI surfaces. Their reusable data, services, helpers, translations, and assets remain available for the planner implementation.
 
-## Planner V2
+## Planner
 
-Planner V2 is the central app surface.
+The planner is the central app surface.
 
 The intended layout has three persistent areas:
 
@@ -27,7 +28,7 @@ The intended layout has three persistent areas:
 
 City Setup will contain the building-planning workflow.
 
-Planned V2 behavior:
+Planned behavior:
 
 - Building tiles for all normal buildings.
 - Wider selectors for special buildings.
@@ -40,7 +41,7 @@ Planned V2 behavior:
 
 Troop Setup will contain the unit-planning workflow.
 
-Planned V2 behavior:
+Planned behavior:
 
 - Land / Sea / Mythical category tabs.
 - God dropdown for mythical units.
@@ -51,7 +52,7 @@ Planned V2 behavior:
 
 ## Toolbox
 
-The toolbox is no longer a separate route. It is part of the Planner V2 shell.
+The toolbox is no longer a separate route. It is part of the planner shell.
 
 Planned toolbox behavior:
 
@@ -61,15 +62,15 @@ Planned toolbox behavior:
 - Calculator and time calculator.
 - Quick links.
 
-Timer and calculator backend utilities already exist under `src/app/services` and `src/app/utils`; the V2 UI will wire them in later.
+Timer and calculator backend utilities already exist under `src/app/services` and `src/app/utils`; the planner UI will wire them in later.
 
 ## References and guides
 
-Reference content is not currently exposed as a separate page in V2. Existing reference documents and quick-link assets are retained so they can later be surfaced through the toolbox, a compact overlay, or a future dedicated route if needed.
+Reference content is not currently exposed as a separate page in the current planner release. Existing reference documents and quick-link assets are retained so they can later be surfaced through the toolbox, a compact overlay, or a future dedicated route if needed.
 
 ## Translation support
 
-Grepo Hub uses local JSON translation files under `public/assets/i18n/`.
+GrepoPlan uses local JSON translation files under `public/assets/i18n/`.
 
 Supported languages are currently:
 

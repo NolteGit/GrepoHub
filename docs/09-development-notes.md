@@ -9,20 +9,24 @@ The old V1 UI surfaces were removed to avoid carrying over layout hacks and dupl
 ## Confirmed app name
 
 ```txt
-Grepo Hub
+GrepoPlan
 ```
 
-## Confirmed project directory
+## Repository and package naming
 
 ```txt
-GrepoHub
+GitHub repository: GrepoHub for now
+Public app name: GrepoPlan
 ```
+
+The repository/package names can be renamed later in a separate mechanical patch. The current priority is consistent public-facing GrepoPlan branding.
 
 ## Confirmed routes
 
 ```txt
-planner-v2 -> /
-planner-v2 -> /planner-v2
+planner -> /
+planner -> /planner
+planner-v2 -> /planner-v2 legacy alias
 ```
 
 ## Important design decisions
@@ -95,8 +99,8 @@ All visible UI labels should have translation keys. Fallback strings are allowed
 ## Recommended next coding tasks
 
 1. Keep the release gate green in CI and locally.
-2. Decide whether the public app identity stays Grepo Hub or becomes GrepoPlan.
-3. Rename `planner-v2` to `planner` in a mechanical patch if the final identity no longer needs the V2 distinction.
+2. Keep public-facing GrepoPlan naming consistent across UI, metadata, docs, and exports.
+3. Rename `planner-v2` to `planner` in a mechanical patch once the public branding patch has settled.
 4. Extract only clear domain rules or reusable utilities from large files.
 5. Run a dedicated Media-Day for responsive/mobile layout once the desktop release baseline is stable.
 

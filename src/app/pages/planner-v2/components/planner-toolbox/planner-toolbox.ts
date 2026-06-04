@@ -100,7 +100,7 @@ export class PlannerToolbox implements OnDestroy {
 
   protected readonly createdByName = 'Noltenius';
   protected readonly createdByHref = 'https://github.com/Noltenius';
-  protected readonly githubHref = 'https://github.com/Noltenius/GrepoHub';
+  protected readonly githubHref = 'https://github.com/NolteGit/GrepoHub';
 
   private readonly translationService = inject(TranslationService);
   private readonly timerService = inject(ToolboxTimerService);

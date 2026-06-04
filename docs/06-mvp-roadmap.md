@@ -1,12 +1,12 @@
 # MVP Roadmap
 
-This roadmap tracks the current Planner V2 release path. Grepo Hub is currently a local-first, single-page Angular app centered on the planner workflow.
+This roadmap tracks the current planner release path. GrepoPlan is currently a local-first, single-page Angular app centered on the planner workflow.
 
 ## Completed foundation
 
 The current app already includes the main MVP foundation:
 
-- Planner V2 route and single-page shell.
+- Planner route and single-page shell.
 - City setup with building levels, effects, population calculations, and special-building behavior.
 - Troop setup with land, sea, mythical units, god-dependent behavior, and amount controls.
 - Summary/sidebar values for population, battle stats, transport capacity, and most-used units.
@@ -37,14 +37,14 @@ Target work:
 - Review the production build locally.
 - Keep the GitHub Actions release check green.
 - Run the full manual regression checklist on desktop and a narrow viewport.
-- Confirm Cloudflare Pages preview behavior for `/` and `/planner-v2` refreshes.
+- Confirm Cloudflare Pages preview behavior for `/`, `/planner`, and `/planner-v2` refreshes.
 - Confirm the CSP does not block production assets or runtime behavior.
 - Patch Angular/Nx dev dependencies in a separate dependency-only change.
 - Update screenshots or public-facing docs after the final UI state is confirmed.
 
 ## Next milestone: component boundaries
 
-After release, reduce the size of the largest Planner V2 files by extracting behavior in small, testable slices.
+After release, reduce the size of the largest planner files by extracting behavior in small, testable slices.
 
 Preferred extraction order:
 

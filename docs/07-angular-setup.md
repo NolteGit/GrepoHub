@@ -1,6 +1,6 @@
 # Angular Setup
 
-This document describes the current Grepo Hub Angular/Nx setup and the commands most useful during development.
+This document describes the current GrepoPlan Angular/Nx setup and the commands most useful during development.
 
 ## Prerequisites
 
@@ -40,8 +40,9 @@ http://localhost:4200/
 ## Current routes
 
 ```txt
-/           -> Planner V2
-/planner-v2 -> Planner V2
+/           -> Planner
+/planner    -> Planner
+/planner-v2 -> Planner legacy alias
 ```
 
 ## Nx workspace
@@ -129,7 +130,7 @@ public/assets/i18n/nl.json
 
 ## Styling setup
 
-Planner V2 uses Tailwind v4 through `@tailwindcss/postcss`.
+The planner uses Tailwind v4 through `@tailwindcss/postcss`.
 
 Important files:
 
@@ -138,14 +139,14 @@ src/styles.css
 .postcssrc.json
 ```
 
-The global stylesheet should contain only Tailwind import, Grepo Hub design tokens, base styles, and stable reusable primitives. Repeated UI patterns should become Angular components instead of long copied class strings.
+The global stylesheet should contain only Tailwind import, GrepoPlan design tokens, base styles, and stable reusable primitives. Repeated UI patterns should become Angular components instead of long copied class strings.
 
 ## Development approach
 
 Recommended next steps:
 
 1. Add shared UI primitives under `src/app/shared/ui`.
-2. Split Planner V2 placeholders into City Setup, Troop Setup, and bottom summary components.
+2. Split planner placeholders into City Setup, Troop Setup, and bottom summary components.
 3. Implement City Setup first and wire building levels through signal-first state.
 4. Add computed city summaries.
 5. Implement Troop Setup and troop summaries.

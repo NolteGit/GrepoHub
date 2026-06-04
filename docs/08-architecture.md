@@ -2,7 +2,7 @@
 
 ## General architecture
 
-Grepo Hub is a client-side Angular app with a local-first data model.
+GrepoPlan is a client-side Angular app with a local-first data model.
 
 The current MVP does not require a backend, login, sync service, or database. Static game data is loaded from local JSON files and user-created configurations are stored in the browser.
 
@@ -133,7 +133,7 @@ Responsibilities:
 
 ## Styling architecture
 
-Planner V2 uses Tailwind utilities with Grepo Hub design tokens in `src/styles.css`.
+Planner V2 uses Tailwind utilities with GrepoPlan design tokens in `src/styles.css`.
 
 Rules:
 

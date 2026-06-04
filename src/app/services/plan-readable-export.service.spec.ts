@@ -264,7 +264,7 @@ describe('PlanReadableExportService', () => {
     expect(capturedAnchor?.download).toMatch(
       /^grepo-hub_logic-test-plan_\d{4}-\d{2}-\d{2}_\d{4}\.txt$/,
     );
-    expect(content).toContain('Grepo Hub Export');
+    expect(content).toContain('GrepoPlan Export');
     expect(content).toContain('Config: Logic Test Plan');
     expect(content).toContain('- Swordsman: 10, Space 10, Population 10, Wood 950');
     expect(content).toContain('- Harpy: 2, Space 2, Population 28');

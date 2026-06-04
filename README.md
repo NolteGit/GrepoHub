@@ -1,6 +1,6 @@
-# Grepo Hub
+# GrepoPlan
 
-Grepo Hub is a local-first Grepolis companion app built with Angular. The current development direction is a fresh Planner V2 interface that reuses the existing planning logic, static game data, translations, import/export code, and local storage services.
+GrepoPlan is a local-first Grepolis companion app built with Angular. The current app surface is the planner workspace, which reuses the existing planning logic, static game data, translations, import/export code, and local storage services.
 
 ## Current status
 
@@ -9,8 +9,8 @@ The app is in release-prep for the current planner experience. The primary relea
 Current foundation:
 
 - Angular app managed through Nx workspace tooling.
-- Tailwind-based styling foundation with Grepo Hub design tokens in `src/styles.css`.
-- Planner V2 route and shell with functional toolbox, center workspace, and right summary sidebar.
+- Tailwind-based styling foundation with GrepoPlan design tokens in `src/styles.css`.
+- Planner workspace with functional toolbox, center workspace, and right summary sidebar.
 - Reusable core logic preserved under `src/app/services`, `src/app/models`, `src/app/data`, and `src/app/utils`.
 - Static unit/building data under `public/assets/data/`.
 - Local translations under `public/assets/i18n/`.
@@ -25,7 +25,7 @@ Project documentation lives in [`docs`](./docs).
 Useful entry points:
 
 - [`docs/02-features.md`](./docs/02-features.md) — current and planned features.
-- [`docs/03-layout-and-navigation.md`](./docs/03-layout-and-navigation.md) — Planner V2 layout direction.
+- [`docs/03-layout-and-navigation.md`](./docs/03-layout-and-navigation.md) — planner layout direction.
 - [`docs/04-data-and-import-export.md`](./docs/04-data-and-import-export.md) — static data, translations, and plan import/export.
 - [`docs/05-time-tools.md`](./docs/05-time-tools.md) — toolbox timing features.
 - [`docs/07-angular-setup.md`](./docs/07-angular-setup.md) — local setup and Nx scripts.
@@ -71,15 +71,16 @@ npm run fresh         # Reinstall dependencies from package-lock.json
 ## Routes
 
 ```txt
-/           -> Planner V2
-/planner-v2 -> Planner V2
+/           -> Planner
+/planner    -> Planner
+/planner-v2 -> Planner legacy alias
 ```
 
-The old separate Home, City Planner, Troops Planner, References, and Toolbox routes were removed during the clean-slate V2 reset. Their reusable logic, static assets, translations, and services were retained where useful.
+The old separate Home, City Planner, Troops Planner, References, and Toolbox routes were removed during the clean-slate planner reset. Their reusable logic, static assets, translations, and services were retained where useful.
 
 ## Local-first behavior
 
-Grepo Hub is designed to work as a static web app. The current data flow is:
+GrepoPlan is designed to work as a static web app. The current data flow is:
 
 1. Static game data is loaded from `public/assets/data/`.
 2. UI translations are loaded from `public/assets/i18n/`.

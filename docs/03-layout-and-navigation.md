@@ -2,7 +2,7 @@
 
 ## Overall direction
 
-Grepo Hub is moving toward a single Planner V2 workspace instead of several separate planning/tool pages.
+GrepoPlan is moving toward a single Planner V2 workspace instead of several separate planning/tool pages.
 
 The layout should feel like an active Grepolis planning desk: compact, dark, readable, and stable while the user switches between City Setup and Troop Setup.
 
@@ -94,7 +94,7 @@ Planner V2 uses Tailwind utilities, CSS design tokens, and reusable Angular UI p
 Rules:
 
 - Use Tailwind for layout, spacing, grid/flex, typography, and state styling.
-- Use CSS variables in `src/styles.css` for Grepo Hub theme tokens.
+- Use CSS variables in `src/styles.css` for GrepoPlan theme tokens.
 - Extract repeated panel/button/tile patterns into `src/app/shared/ui` components.
 - Keep component-specific SCSS rare.
 - Avoid large page-level style files and deep selectors.

@@ -8,7 +8,7 @@ import { getNextSupportedLanguage } from '../services/supported-languages';
 import { TranslationService, type SupportedLanguage } from '../services/translation.service';
 
 const testTranslations: Record<string, string> = {
-  'home.title': 'Grepo Hub',
+  'home.title': 'GrepoPlan',
   'language.openMenu': 'Choose language',
   'language.menuAria': 'Language selection',
   'language.english': 'English',

@@ -125,7 +125,7 @@ export class PlanReadableExportService {
     const troopSummaryRows = this.getTroopSummaryRows(plan);
 
     return [
-      this.translate('planConfig.export.title', 'Grepo Hub Export'),
+      this.translate('planConfig.export.title', 'GrepoPlan Export'),
       this.translate('planConfig.export.config', 'Config') + ': ' + plan.name,
       this.translate('planConfig.export.date', 'Date') + ': ' + this.formatDisplayDate(exportedAt),
       '',

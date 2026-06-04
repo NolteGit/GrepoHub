@@ -2,7 +2,7 @@
 
 ## Data approach
 
-Grepo Hub is a client-side app without a backend.
+GrepoPlan is a client-side app without a backend.
 
 The app uses:
 
