@@ -49,8 +49,8 @@ After release, reduce the size of the largest planner files by extracting behavi
 Preferred extraction order:
 
 ```txt
-src/app/pages/planner-v2/
-  planner-v2.ts
+src/app/pages/planner/
+  planner.ts
   components/
   utils/
     planner-dialog-focus.ts

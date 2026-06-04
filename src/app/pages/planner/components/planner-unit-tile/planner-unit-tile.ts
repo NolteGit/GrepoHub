@@ -3,15 +3,15 @@ import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
 import { GhNumberStepper } from '../../../../shared/ui/gh-number-stepper/gh-number-stepper';
 
-import type { BuildingTileView } from '../../planner-v2.models';
+import type { UnitTileView } from '../../planner.models';
 
 @Component({
-  selector: 'app-planner-building-tile',
+  selector: 'app-planner-unit-tile',
   imports: [TranslatePipe, GhNumberStepper],
-  templateUrl: './planner-building-tile.html',
+  templateUrl: './planner-unit-tile.html',
 })
-export class PlannerBuildingTile {
-  readonly building = input.required<BuildingTileView>();
+export class PlannerUnitTile {
+  readonly unit = input.required<UnitTileView>();
   readonly detailsVisible = input(false);
-  readonly levelChanged = output<number>();
+  readonly amountChanged = output<number>();
 }

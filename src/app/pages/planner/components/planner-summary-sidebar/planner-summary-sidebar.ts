@@ -14,7 +14,7 @@ import type {
   SidebarTroopBattleStats,
   SidebarUsedUnit,
   TranslatableText,
-} from '../../planner-v2.models';
+} from '../../planner.models';
 
 type PopulationBreakdown = {
   readonly capacity: string;

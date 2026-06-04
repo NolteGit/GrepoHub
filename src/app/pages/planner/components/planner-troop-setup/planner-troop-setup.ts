@@ -12,7 +12,7 @@ import type {
   TroopCategory,
   TroopCategoryTab,
   UnitTileView,
-} from '../../planner-v2.models';
+} from '../../planner.models';
 
 type TranslationParams = Record<string, string | number>;
 

@@ -88,7 +88,7 @@ import type {
   TroopCategoryTab,
   UnitTileStat,
   UnitTileView,
-} from './planner-v2.models';
+} from './planner.models';
 
 const cityBuildingOrder = [
   'senate',
@@ -886,7 +886,7 @@ type PlannerActionDialog = {
 };
 
 @Component({
-  selector: 'app-planner-v2',
+  selector: 'app-planner',
   imports: [
     TranslatePipe,
     PlannerToolbox,
@@ -898,9 +898,9 @@ type PlannerActionDialog = {
     GhButton,
   ],
   providers: [PlanImportExportUiService],
-  templateUrl: './planner-v2.html',
+  templateUrl: './planner.html',
 })
-export class PlannerV2 {
+export class Planner {
   private readonly planConfigService = inject(PlanConfigService);
   private readonly gameDataService = inject(GameDataService);
   private readonly planImportExportUiService = inject(PlanImportExportUiService);

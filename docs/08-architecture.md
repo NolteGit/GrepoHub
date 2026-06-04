@@ -21,7 +21,7 @@ src/
       troops-planner-presets.ts
     models/
     pages/
-      planner-v2/
+      planner/
         components/
     pipes/
     services/

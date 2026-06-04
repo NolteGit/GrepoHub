@@ -10,7 +10,7 @@ import type {
   CityModifierToggleId,
   SpecialBuildingOptionView,
   SpecialBuildingSlotView,
-} from '../../planner-v2.models';
+} from '../../planner.models';
 
 @Component({
   selector: 'app-planner-city-setup',

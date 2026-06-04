@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
-const loadPlanner = () =>
-  import('./pages/planner-v2/planner-v2').then((module) => module.PlannerV2);
+const loadPlanner = () => import('./pages/planner/planner').then((module) => module.Planner);
 
 export const routes: Routes = [
   {
@@ -14,7 +13,8 @@ export const routes: Routes = [
   },
   {
     path: 'planner-v2',
-    loadComponent: loadPlanner,
+    redirectTo: 'planner',
+    pathMatch: 'full',
   },
   {
     path: '**',

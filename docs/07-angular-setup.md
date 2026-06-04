@@ -63,7 +63,7 @@ nx.json
 Important folders:
 
 ```txt
-src/app/pages/planner-v2/
+src/app/pages/planner/
 src/app/services/
 src/app/models/
 src/app/data/

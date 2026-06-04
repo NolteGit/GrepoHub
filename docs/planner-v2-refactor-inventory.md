@@ -22,7 +22,7 @@ This refactor keeps the reusable application core and removes the old V1 present
 
 ## New clean entry point
 
-- `src/app/pages/planner-v2` is a minimal compile-safe workspace that proves the retained plan core is connected.
+- `src/app/pages/planner` is a minimal compile-safe workspace that proves the retained plan core is connected.
 - Routes now point `/` and `/planner-v2` to the fresh V2 workspace.
 - The root app now only hosts Angular routing.
 - Global styles now contain only tokens and base reset rules.

@@ -85,9 +85,9 @@ if (exists('public/404.html')) {
   warn('public/404.html exists. For Cloudflare Pages SPA fallback, keep no top-level 404.html unless routing is intentionally changed.');
 }
 
-const plannerV2TemplatePath = 'src/app/pages/planner-v2/planner-v2.html';
+const plannerV2TemplatePath = 'src/app/pages/planner/planner.html';
 if (!exists(plannerV2TemplatePath)) {
-  warn('Missing src/app/pages/planner-v2/planner-v2.html.');
+  warn('Missing src/app/pages/planner/planner.html.');
 } else {
   const plannerV2Template = readText(plannerV2TemplatePath);
   assertIncludes(
