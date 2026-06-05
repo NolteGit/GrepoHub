@@ -1,6 +1,6 @@
-<header class="grid min-h-[3.75rem] items-center px-5 py-2 max-[58rem]:px-3">
+<header class="grid min-h-[3.75rem] items-center px-5 py-2 max-[58rem]:px-3 max-[34rem]:py-1.5">
   <div
-    class="mx-auto flex w-full max-w-[76rem] flex-wrap items-center justify-center gap-x-10 gap-y-2 max-[74rem]:gap-x-7 max-[58rem]:gap-x-4"
+    class="mx-auto flex w-full max-w-[76rem] flex-wrap items-center justify-center gap-x-10 gap-y-2 max-[74rem]:gap-x-7 max-[58rem]:gap-x-4 max-[34rem]:gap-x-2 max-[34rem]:gap-y-1.5"
   >
     <div class="contents">
       <app-gh-button
@@ -49,7 +49,7 @@
       </app-gh-button>
     </div>
 
-    <div class="w-[22rem] min-w-[14rem] max-w-full">
+    <div class="w-[22rem] min-w-[14rem] max-w-full max-[34rem]:min-w-full">
       <app-gh-select-field
         [ariaLabel]="planLabelKey | translate: planLabelFallback"
         [value]="activePlanId()"
@@ -84,7 +84,7 @@
 
       <details #moreMenu class="group relative">
         <summary
-          class="gh-button inline-flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition marker:hidden [&::-webkit-details-marker]:hidden"
+          class="gh-button inline-flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition marker:hidden max-[34rem]:px-3 [&::-webkit-details-marker]:hidden"
           [attr.aria-label]="moreLabelKey | translate: moreLabelFallback"
         >
           <span class="whitespace-nowrap">{{ moreLabelKey | translate: moreLabelFallback }}</span>

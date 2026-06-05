@@ -165,7 +165,7 @@
   />
 
   <app-planner-header
-    class="col-start-2 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[46rem]:col-start-1"
+    class="col-start-2 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[46rem]:col-start-1 max-[46rem]:p-1.5"
     [activePlanId]="activePlan().id"
     [canDeletePlan]="canDeleteActivePlan()"
     [plans]="plans()"
@@ -174,16 +174,16 @@
   />
 
   <section
-    class="col-start-2 row-start-2 flex min-h-0 min-w-0 flex-col gap-2 p-2 max-[46rem]:col-start-1"
+    class="col-start-2 row-start-2 flex min-h-0 min-w-0 flex-col gap-2 p-2 max-[46rem]:col-start-1 max-[46rem]:p-1.5"
   >
     <aside
-      class="hidden rounded-xl border border-[rgba(246,195,67,0.28)] bg-[rgba(246,195,67,0.08)] px-3 py-2 text-sm leading-6 text-[var(--gh-muted)] max-[46rem]:block"
+      class="hidden rounded-xl border border-[rgba(246,195,67,0.24)] bg-[rgba(246,195,67,0.07)] px-3 py-2 text-sm leading-6 text-[var(--gh-muted)] max-[46rem]:block max-[34rem]:rounded-lg max-[34rem]:px-2.5 max-[34rem]:py-2 max-[34rem]:text-xs max-[34rem]:leading-5"
       role="note"
       aria-labelledby="planner-mobile-notice-title"
     >
       <strong
         id="planner-mobile-notice-title"
-        class="block text-[0.72rem] font-black uppercase tracking-[0.14em] text-[var(--gh-gold)]"
+        class="block text-[0.72rem] font-black uppercase tracking-[0.14em] text-[var(--gh-gold)] max-[34rem]:text-[0.62rem] max-[34rem]:tracking-[0.1em]"
       >
         {{ 'plannerV2.mobileNotice.title' | translate: 'Desktop layout recommended' }}
       </strong>
@@ -207,7 +207,7 @@
         (modeSelected)="selectMode($event)"
       />
 
-      <section class="gh-scroll-area min-h-0 overflow-auto p-3">
+      <section class="gh-scroll-area min-h-0 overflow-auto p-3 max-[76rem]:p-2 max-[34rem]:p-1.5">
         @if (activeMode() === 'city') {
           <app-planner-city-setup
             [modifiers]="cityModifiers()"

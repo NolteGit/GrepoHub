@@ -1,7 +1,11 @@
-<article class="gh-panel grid content-start gap-2 rounded-md p-2.5">
-  <div class="grid min-w-0 grid-cols-[4.2rem_minmax(0,1fr)] gap-x-2.5 gap-y-1.5">
+<article
+  class="gh-panel grid content-start gap-2 rounded-md p-2.5 max-[76rem]:p-2 max-[34rem]:gap-1.5 max-[34rem]:p-1.5"
+>
+  <div
+    class="grid min-w-0 grid-cols-[4.2rem_minmax(0,1fr)] gap-x-2.5 gap-y-1.5 max-[76rem]:grid-cols-[3.65rem_minmax(0,1fr)] max-[76rem]:gap-x-2 max-[34rem]:grid-cols-[3.35rem_minmax(0,1fr)] max-[34rem]:gap-x-1.5"
+  >
     <div
-      class="gh-icon-box row-span-2 grid aspect-square w-16 place-items-center overflow-hidden rounded-md"
+      class="gh-icon-box row-span-2 grid aspect-square w-16 place-items-center overflow-hidden rounded-md max-[76rem]:w-14 max-[34rem]:w-12"
     >
       @if (unit().imagePath) {
         <img
@@ -16,7 +20,7 @@
     </div>
 
     <header class="flex min-w-0 items-start justify-between gap-2">
-      <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)]">
+      <h2 class="m-0 truncate text-base font-bold text-[var(--gh-text)] max-[34rem]:text-sm">
         {{ unit().labelKey | translate: unit().fallback }}
       </h2>
       <span
@@ -51,11 +55,11 @@
 
   @if (detailsVisible() && unit().stats.length > 0) {
     <footer
-      class="flex min-w-0 gap-1.5 overflow-visible border-t border-[var(--gh-border-soft)] pt-2 text-xs"
+      class="flex min-w-0 flex-wrap gap-1.5 overflow-visible border-t border-[var(--gh-border-soft)] pt-2 text-xs max-[34rem]:gap-1 max-[34rem]:pt-1.5"
     >
       @for (stat of unit().stats; track stat.labelKey) {
         <span
-          class="group relative inline-flex h-7 min-w-0 shrink-0 items-center gap-1 rounded-full border border-[rgba(212,160,55,0.16)] bg-[rgba(255,255,255,0.035)] px-2 py-1 outline-none"
+          class="group relative inline-flex h-7 min-w-0 shrink-0 items-center gap-1 rounded-full border border-[rgba(212,160,55,0.16)] bg-[rgba(255,255,255,0.035)] px-2 py-1 outline-none max-[34rem]:h-6 max-[34rem]:px-1.5"
           tabindex="0"
           [attr.aria-label]="stat.labelKey | translate: stat.fallback"
         >

@@ -1,11 +1,11 @@
 <section
-  class="mb-3 grid grid-cols-3 items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1"
+  class="mb-3 grid grid-cols-3 items-stretch overflow-hidden rounded-md border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.48)] max-[58rem]:grid-cols-1 max-[34rem]:mb-2 max-[34rem]:gap-1.5"
   [attr.aria-label]="'plannerV2.citySetupContextLabel' | translate: 'City setup context'"
 >
   @for (modifier of compactModifiers(); track modifier.id) {
     <button
       type="button"
-      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 py-1.5 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:justify-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)]"
+      class="inline-flex min-h-[3.9rem] min-w-0 cursor-pointer items-center justify-center gap-2 border-0 border-b-[0.18rem] border-transparent bg-transparent px-3 py-1.5 font-bold text-[var(--gh-text)] transition hover:bg-white/5 max-[58rem]:justify-start max-[58rem]:border-b max-[58rem]:border-[var(--gh-border-soft)] max-[34rem]:min-h-[3.3rem] max-[34rem]:px-2.5"
       [class.gh-tab-active]="modifier.active"
       [class.opacity-65]="!modifier.active"
       [attr.aria-pressed]="modifier.active"
@@ -13,7 +13,7 @@
     >
       @if (modifier.iconPath) {
         <img
-          class="size-8 shrink-0 object-contain"
+          class="size-8 shrink-0 object-contain max-[34rem]:size-7"
           [src]="modifier.iconPath"
           alt=""
           aria-hidden="true"
@@ -28,7 +28,7 @@
 
         @if (!modifier.progressSteps?.length) {
           <small
-            class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
+            class="truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)] max-[34rem]:tracking-[0.1em]"
           >
             @if (modifier.active) {
               {{ 'plannerV2.modifier.active' | translate: 'Active' }}
@@ -57,7 +57,7 @@
 </section>
 
 <section
-  class="mb-3 grid grid-cols-4 items-stretch gap-3 max-[86rem]:grid-cols-1"
+  class="mb-3 grid grid-cols-[minmax(12rem,1fr)_minmax(17rem,1.35fr)_minmax(12rem,1fr)] items-stretch gap-3 max-[76rem]:gap-2 max-[58rem]:grid-cols-1 max-[34rem]:mb-2 max-[34rem]:gap-1.5"
   [attr.aria-label]="'plannerV2.specialBuildingLabel' | translate: 'Special buildings'"
 >
   @if (specialSlots()[0]; as slot) {
@@ -138,10 +138,10 @@
     </app-gh-panel>
   }
 
-  <div class="col-span-2 grid min-w-0 place-items-center max-[86rem]:col-span-1">
+  <div class="grid min-w-0 place-items-center">
     @if (heroBuilding(); as building) {
       <app-planner-building-tile
-        class="w-full max-w-[22rem]"
+        class="w-full max-w-[21rem]"
         [building]="building"
         [detailsVisible]="detailsVisible()"
         (levelChanged)="buildingLevelChanged.emit({ buildingId: building.id, level: $event })"
@@ -229,7 +229,7 @@
 </section>
 
 <section
-  class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-3"
+  class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3 max-[76rem]:gap-2 max-[34rem]:gap-1.5"
   [attr.aria-label]="'plannerV2.citySetupLabel' | translate: 'City setup buildings'"
 >
   @for (building of buildings(); track building.id) {
