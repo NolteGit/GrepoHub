@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { PlanFileTransferService } from './plan-file-transfer.service';
 import { PlanImportExportUiService } from './plan-import-export-ui.service';
+import { TranslatableError } from './translatable-error';
 import { TranslationService } from './translation.service';
 
 class PlanFileTransferServiceStub {
@@ -93,5 +94,57 @@ describe('PlanImportExportUiService', () => {
       isError: true,
       detailLines: ['Could not import plan file.'],
     });
+  });
+
+  it('does nothing when the file input has no selected file', async () => {
+    const input = document.createElement('input');
+
+    await service.importPlanFromJsonFile({ target: input } as unknown as Event);
+
+    expect(fileTransferService.importJsonFileAsNewPlans).not.toHaveBeenCalled();
+    expect(service.planImportDialog()).toBeNull();
+  });
+
+  it('shows translated import errors for known import failures', async () => {
+    const file = new File(['{broken'], 'broken-plan.json', { type: 'application/json' });
+    const input = document.createElement('input');
+
+    Object.defineProperty(input, 'files', {
+      value: [file],
+    });
+
+    fileTransferService.importJsonFileAsNewPlans.mockRejectedValue(
+      new TranslatableError(
+        'planConfig.importError.invalidJson',
+        'The selected file is not valid JSON.',
+      ),
+    );
+
+    await service.importPlanFromJsonFile({ target: input } as unknown as Event);
+
+    expect(fileTransferService.importJsonFileAsNewPlans).toHaveBeenCalledWith(file);
+    expect(service.planImportDialog()).toEqual({
+      isError: true,
+      detailLines: ['The selected file is not valid JSON.'],
+    });
+  });
+
+  it('clears import feedback when the dialog is closed', async () => {
+    const file = new File(['{}'], 'plans.json', { type: 'application/json' });
+    const input = document.createElement('input');
+
+    Object.defineProperty(input, 'files', {
+      value: [file],
+    });
+
+    fileTransferService.importJsonFileAsNewPlans.mockRejectedValue(new Error('Invalid JSON'));
+
+    await service.importPlanFromJsonFile({ target: input } as unknown as Event);
+
+    expect(service.planImportDialog()).not.toBeNull();
+
+    service.closePlanImportDialog();
+
+    expect(service.planImportDialog()).toBeNull();
   });
 });
