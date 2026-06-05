@@ -258,6 +258,8 @@
   "planConfig.importDialog.errorTitle": "Import mislukt",
   "planConfig.importDialog.errorMessage": "Het geselecteerde bestand kon niet worden geïmporteerd:",
   "planConfig.importDialog.ok": "OK",
+  "planConfig.exportDialog.successTitle": "Export gereed",
+  "planConfig.exportDialog.successMessage": "Gedownload plan:",
   "planConfig.delete": "Verwijderen",
   "planConfig.deleteDialog.title": "Plan verwijderen?",
   "planConfig.deleteDialog.message": "Dit verwijdert het geselecteerde plan alleen uit deze browser. Het verwijdert zowel het gebouwenplan als het troepenplan voor deze configuratie. Exporteer eerst JSON als je een back-up wilt.",

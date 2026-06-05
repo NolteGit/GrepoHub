@@ -258,6 +258,8 @@
   "planConfig.importDialog.errorTitle": "Import fehlgeschlagen",
   "planConfig.importDialog.errorMessage": "Die ausgewählte Datei konnte nicht importiert werden:",
   "planConfig.importDialog.ok": "OK",
+  "planConfig.exportDialog.successTitle": "Export bereit",
+  "planConfig.exportDialog.successMessage": "Heruntergeladener Plan:",
   "planConfig.delete": "Löschen",
   "planConfig.deleteDialog.title": "Plan löschen?",
   "planConfig.deleteDialog.message": "Dies entfernt den ausgewählten Plan nur aus diesem Browser. Dabei werden sowohl der Gebäudeplan als auch der Truppenplan dieser Konfiguration gelöscht. Exportiere vorher JSON, wenn du ein Backup möchtest.",

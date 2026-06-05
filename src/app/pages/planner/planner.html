@@ -28,11 +28,21 @@
           >
             {{ notice.titleKey | translate: notice.titleFallback }}
           </h2>
-          <ul class="mt-1.5 mb-0 grid gap-1 p-0 text-[var(--gh-muted)]">
-            @for (line of notice.detailLines; track line) {
-              <li class="list-none">{{ line }}</li>
-            }
-          </ul>
+          @if (notice.messageKey && notice.messageFallback) {
+            <p class="m-0 mt-1.5 text-[0.8rem] font-semibold text-[var(--gh-muted)]">
+              {{ notice.messageKey | translate: notice.messageFallback : notice.messageParams }}
+            </p>
+          }
+
+          @if (notice.detailLines.length) {
+            <ul class="mt-1.5 mb-0 grid gap-1 p-0 text-[var(--gh-muted)]">
+              @for (line of notice.detailLines; track line) {
+                <li class="list-none truncate font-bold text-[var(--gh-text)]" [attr.title]="line">
+                  {{ line }}
+                </li>
+              }
+            </ul>
+          }
         </div>
 
         <button

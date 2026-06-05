@@ -258,6 +258,8 @@
   "planConfig.importDialog.errorTitle": "Importazione non riuscita",
   "planConfig.importDialog.errorMessage": "Impossibile importare il file selezionato:",
   "planConfig.importDialog.ok": "OK",
+  "planConfig.exportDialog.successTitle": "Esportazione pronta",
+  "planConfig.exportDialog.successMessage": "Piano scaricato:",
   "planConfig.delete": "Elimina",
   "planConfig.deleteDialog.title": "Eliminare il piano?",
   "planConfig.deleteDialog.message": "Questo rimuove il piano selezionato solo da questo browser. Elimina sia il piano edifici sia il piano truppe per questa configurazione. Esporta prima JSON se vuoi un backup.",

@@ -831,6 +831,9 @@ type PlannerNotice = {
   readonly tone: 'success' | 'error';
   readonly titleKey: string;
   readonly titleFallback: string;
+  readonly messageKey?: string;
+  readonly messageFallback?: string;
+  readonly messageParams?: Record<string, string | number>;
   readonly detailLines: readonly string[];
 };
 
@@ -919,6 +922,12 @@ export class Planner {
           ? 'planConfig.importDialog.errorTitle'
           : 'planConfig.importDialog.successTitle',
         titleFallback: importDialog.isError ? 'Import failed' : 'Import complete',
+        messageKey: importDialog.isError
+          ? 'planConfig.importDialog.errorMessage'
+          : 'planConfig.importDialog.successMessage',
+        messageFallback: importDialog.isError
+          ? 'The selected file could not be imported:'
+          : 'Imported plan(s):',
         detailLines: importDialog.detailLines,
       };
     }
@@ -1241,7 +1250,17 @@ export class Planner {
     }
 
     if (actionId === 'export') {
+      this.clearPlanNoticeAutoDismiss();
+      this.localPlanNotice.set(null);
       this.planImportExportUiService.exportActivePlanAsJson();
+      this.showPlanNotice({
+        tone: 'success',
+        titleKey: 'planConfig.exportDialog.successTitle',
+        titleFallback: 'Export ready',
+        messageKey: 'planConfig.exportDialog.successMessage',
+        messageFallback: 'Downloaded plan:',
+        detailLines: [this.activePlan().name],
+      });
       return;
     }
 

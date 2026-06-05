@@ -258,6 +258,8 @@
   "planConfig.importDialog.errorTitle": "Import failed",
   "planConfig.importDialog.errorMessage": "The selected file could not be imported:",
   "planConfig.importDialog.ok": "OK",
+  "planConfig.exportDialog.successTitle": "Export ready",
+  "planConfig.exportDialog.successMessage": "Downloaded plan:",
   "planConfig.delete": "Delete",
   "planConfig.deleteDialog.title": "Delete plan?",
   "planConfig.deleteDialog.message": "This removes the selected plan from this browser only. It deletes both the building plan and troop plan for this configuration. Export JSON first if you want a backup.",
