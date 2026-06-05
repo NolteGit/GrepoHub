@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   HostListener,
   inject,
@@ -78,6 +79,10 @@ import {
   PlannerToolbox,
   type PlannerToolboxActionId,
 } from './components/planner-toolbox/planner-toolbox';
+import {
+  compactToolboxMediaQuery,
+  getEffectiveToolboxCollapsed,
+} from './planner-responsive-layout';
 import { PlannerTroopSetup } from './components/planner-troop-setup/planner-troop-setup';
 import { GhButton } from '../../shared/ui/gh-button/gh-button';
 import type {
@@ -877,6 +882,7 @@ type PlannerActionDialog = {
   templateUrl: './planner.html',
 })
 export class Planner {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly planConfigService = inject(PlanConfigService);
   private readonly gameDataService = inject(GameDataService);
   private readonly planImportExportUiService = inject(PlanImportExportUiService);
@@ -907,7 +913,11 @@ export class Planner {
     initialValue: [] as Unit[],
   });
   protected readonly activeMode = signal<PlannerMode>('city');
-  protected readonly toolboxCollapsed = signal(false);
+  private readonly compactToolboxLayout = signal(this.matchesCompactToolboxLayout());
+  private readonly toolboxCollapsedPreference = signal(false);
+  protected readonly toolboxCollapsed = computed(() =>
+    getEffectiveToolboxCollapsed(this.toolboxCollapsedPreference(), this.compactToolboxLayout()),
+  );
   protected readonly buildingTileDetailsVisible = signal(false);
   protected readonly unitTileDetailsVisible = signal(false);
   protected readonly selectedTroopCategory = signal<TroopCategory>('land');
@@ -949,6 +959,10 @@ export class Planner {
 
     return this.localPlanNotice();
   });
+
+  constructor() {
+    this.watchCompactToolboxLayout();
+  }
 
   protected readonly cityPopulation = computed(() =>
     calculateCityPlannerPopulation(this.effectiveCityPlan()),
@@ -1455,12 +1469,40 @@ export class Planner {
     this.deleteActivePlan();
   }
 
+  private matchesCompactToolboxLayout(): boolean {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return false;
+    }
+
+    return window.matchMedia(compactToolboxMediaQuery).matches;
+  }
+
+  private watchCompactToolboxLayout(): void {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia(compactToolboxMediaQuery);
+    const updateCompactLayout = (matches: boolean): void => {
+      this.compactToolboxLayout.set(matches);
+    };
+    const handleMediaQueryChange = (event: MediaQueryListEvent): void => {
+      updateCompactLayout(event.matches);
+    };
+
+    updateCompactLayout(mediaQuery.matches);
+    mediaQuery.addEventListener('change', handleMediaQueryChange);
+    this.destroyRef.onDestroy(() =>
+      mediaQuery.removeEventListener('change', handleMediaQueryChange),
+    );
+  }
+
   protected selectMode(mode: PlannerMode): void {
     this.activeMode.set(mode);
   }
 
   protected setToolboxCollapsed(collapsed: boolean): void {
-    this.toolboxCollapsed.set(collapsed);
+    this.toolboxCollapsedPreference.set(collapsed);
   }
 
   protected setTileDetailsVisible(mode: PlannerMode, visible: boolean): void {
