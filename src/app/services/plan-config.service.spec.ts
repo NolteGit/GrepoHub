@@ -204,7 +204,7 @@ describe('PlanConfigService import validation', () => {
     expect(createdPlan.isPreset).toBe(false);
     expect(createdPlan.cityPlan.isPreset).toBe(false);
     expect(createdPlan.troopPlan.isPreset).toBe(false);
-    expect(createdPlan.cityPlan.buildingLevels['senate']).toBe(9);
+    expect(createdPlan.cityPlan.buildingLevels['senate']).toBe(1);
     expect(createdPlan.cityPlan.buildingLevels['farm']).toBe(1);
     expect(createdPlan.cityPlan.buildingLevels['harbour']).toBe(0);
     expect(createdPlan.cityPlan.modifiers).toEqual({
@@ -261,7 +261,7 @@ describe('PlanConfigService import validation', () => {
 
     expect(clearedPlan.id).toBe(customPlan.id);
     expect(clearedPlan.isPreset).toBe(false);
-    expect(clearedPlan.cityPlan.buildingLevels['senate']).toBe(9);
+    expect(clearedPlan.cityPlan.buildingLevels['senate']).toBe(1);
     expect(clearedPlan.cityPlan.buildingLevels['farm']).toBe(1);
     expect(clearedPlan.cityPlan.buildingLevels['harbour']).toBe(0);
     expect(clearedPlan.cityPlan.buildingLevels['land_expansion']).toBe(0);

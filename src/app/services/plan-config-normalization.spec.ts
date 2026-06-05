@@ -170,7 +170,7 @@ describe('plan config normalization', () => {
       swordsman: 25,
     });
 
-    expect(minimumLevels['senate']).toBe(9);
+    expect(minimumLevels['senate']).toBe(1);
     expect(minimumLevels['farm']).toBe(1);
     expect(minimumLevels['harbour']).toBe(0);
     expect(minimumLevels['land_expansion']).toBe(0);

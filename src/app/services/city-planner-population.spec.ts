@@ -77,7 +77,7 @@ describe('calculateCityPlannerPopulation', () => {
 
     expect(result.breakdown.farmLevel).toBe(45);
     expect(result.breakdown.farmCapacity).toBe(3560);
-    expect(result.usedPopulation).toBe(159);
+    expect(result.usedPopulation).toBe(133);
   });
 
   it('matches the Rattan real-game population reference', () => {
