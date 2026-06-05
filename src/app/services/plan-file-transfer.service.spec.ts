@@ -81,4 +81,34 @@ describe('PlanFileTransferService', () => {
       'The selected file is too large. Import files must be 1 MB or smaller.',
     );
   });
+
+  it('rejects empty import files with a user-facing error', async () => {
+    const emptyFile = new File(['   '], 'empty-plan.json', { type: 'application/json' });
+
+    await expect(service.importJsonFileAsNewPlans(emptyFile)).rejects.toThrow(
+      'The selected file is empty.',
+    );
+  });
+
+  it('rejects invalid JSON import files with a user-facing error', async () => {
+    const invalidJsonFile = new File(['{broken'], 'broken-plan.json', {
+      type: 'application/json',
+    });
+
+    await expect(service.importJsonFileAsNewPlans(invalidJsonFile)).rejects.toThrow(
+      'The selected file is not valid JSON.',
+    );
+  });
+
+  it('rejects unsupported JSON import files without changing stored plans', async () => {
+    const existingPlansBeforeImport = localStorage.getItem('grepo-hub.plan-configs.v1');
+    const unsupportedFile = new File([JSON.stringify({ plans: [] })], 'unsupported-plan.json', {
+      type: 'application/json',
+    });
+
+    await expect(service.importJsonFileAsNewPlans(unsupportedFile)).rejects.toThrow(
+      'Unsupported plan config file.',
+    );
+    expect(localStorage.getItem('grepo-hub.plan-configs.v1')).toBe(existingPlansBeforeImport);
+  });
 });
