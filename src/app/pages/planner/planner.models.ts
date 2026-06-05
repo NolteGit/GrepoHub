@@ -36,6 +36,7 @@ export type BuildingTileView = TranslatableText & {
   readonly imagePath: string;
   readonly icon: string;
   readonly level: number;
+  readonly minimumLevel: number;
   readonly maxLevel: number;
   readonly populationBadge: TilePopulationBadge;
   readonly stats: readonly BuildingTileStat[];

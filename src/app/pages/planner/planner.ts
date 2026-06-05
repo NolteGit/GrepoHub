@@ -39,6 +39,7 @@ import {
   createLandExpansionProgressSteps,
   getCityBuildingDefinition,
   getCityBuildingMaxLevel,
+  getCityBuildingMinimumLevel,
   getLandExpansionPopulationBonus,
   landExpansionMaxLevel,
 } from '../../domain/planner/building-rules';
@@ -998,6 +999,7 @@ export class Planner {
     return cityBuildingOrder.map((buildingId) => {
       const definition = getCityBuildingDefinition(buildingId);
       const level = buildingLevels[buildingId] ?? 0;
+      const minimumLevel = getCityBuildingMinimumLevel(buildingId);
       const maxLevel = getCityBuildingMaxLevel(buildingId);
       const population = level > 0 ? (definition?.populationByLevel[level] ?? 0) : 0;
       const stats = createBuildingTileStats(
@@ -1016,6 +1018,7 @@ export class Planner {
         icon: buildingFallbackIcons[buildingId] ?? '▥',
         imagePath: getBuildingImagePath(buildingId),
         level,
+        minimumLevel,
         maxLevel,
         populationBadge: createTilePopulationBadge(population, 'Population effect', true),
         stats,

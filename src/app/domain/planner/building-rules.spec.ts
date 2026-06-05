@@ -8,6 +8,7 @@ import {
   createMinimumCityBuildingLevels,
   getCityBuildingDefinition,
   getCityBuildingMaxLevel,
+  getCityBuildingMinimumLevel,
   getLandExpansionPopulationBonus,
   landExpansionMaxLevel,
 } from './building-rules';
@@ -45,13 +46,21 @@ describe('building rules', () => {
     expect(createMinimumCityBuildingLevels()).toMatchObject({
       barracks: 1,
       farm: 1,
-      senate: 9,
+      senate: 1,
       warehouse: 1,
     });
   });
 
+  it('exposes the city setup minimum level for stepper reset actions', () => {
+    expect(getCityBuildingMinimumLevel('senate')).toBe(1);
+    expect(getCityBuildingMinimumLevel('farm')).toBe(1);
+    expect(getCityBuildingMinimumLevel('harbour')).toBe(0);
+    expect(getCityBuildingMinimumLevel('land_expansion')).toBe(0);
+    expect(getCityBuildingMinimumLevel('unknown')).toBe(0);
+  });
+
   it('applies population-context minimum levels where Grepolis requires them', () => {
-    expect(clampCityBuildingLevelForPopulation('senate', 0)).toBe(9);
+    expect(clampCityBuildingLevelForPopulation('senate', 0)).toBe(1);
     expect(clampCityBuildingLevelForPopulation('farm', 0)).toBe(1);
     expect(clampCityBuildingLevelForPopulation('academy', 0)).toBe(0);
     expect(clampCityBuildingLevelForPopulation('unknown', 4)).toBe(4);

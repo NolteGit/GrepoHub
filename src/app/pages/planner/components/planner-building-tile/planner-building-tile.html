@@ -40,7 +40,7 @@
       <span class="sr-only">{{ 'plannerV2.level' | translate: 'Level' }}</span>
       <app-gh-number-stepper
         [value]="building().level"
-        [min]="0"
+        [min]="building().minimumLevel"
         [max]="building().maxLevel"
         [showMinMax]="true"
         (valueChange)="levelChanged.emit($event)"

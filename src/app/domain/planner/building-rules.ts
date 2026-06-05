@@ -10,7 +10,7 @@ const cityBuildingMinimumLevels: Record<string, number> = {
   farm: 1,
   marketplace: 1,
   quarry: 1,
-  senate: 9,
+  senate: 1,
   silver_mine: 1,
   temple: 1,
   timber_camp: 1,
@@ -25,6 +25,10 @@ export function getCityBuildingDefinition(
 
 export function getCityBuildingMaxLevel(buildingId: string): number {
   return getCityBuildingDefinition(buildingId)?.maxLevel ?? 40;
+}
+
+export function getCityBuildingMinimumLevel(buildingId: string): number {
+  return Math.min(cityBuildingMinimumLevels[buildingId] ?? 0, getCityBuildingMaxLevel(buildingId));
 }
 
 export function clampLandExpansionLevel(level: number): number {
@@ -56,10 +60,7 @@ export function clampCityBuildingLevelForPopulation(buildingId: string, level: n
 export function createMinimumCityBuildingLevels(): Record<string, number> {
   return cityBuildingPlanDefinitions.reduce(
     (levels, building) => {
-      levels[building.id] = Math.min(
-        cityBuildingMinimumLevels[building.id] ?? 0,
-        building.maxLevel,
-      );
+      levels[building.id] = getCityBuildingMinimumLevel(building.id);
 
       return levels;
     },
