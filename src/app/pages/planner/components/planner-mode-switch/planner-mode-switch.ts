@@ -28,6 +28,7 @@ export class PlannerModeSwitch {
   readonly activeMode = input.required<PlannerMode>();
   readonly cityDetailsVisible = input(false);
   readonly troopDetailsVisible = input(false);
+  readonly compactDetailsLabels = input(false);
   readonly modeSelected = output<PlannerMode>();
   readonly detailsToggled = output<PlannerDetailsToggle>();
 

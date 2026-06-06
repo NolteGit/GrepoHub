@@ -63,12 +63,14 @@
           class="relative h-4 w-8 rounded-full border border-[var(--gh-border-soft)] bg-black/25 transition peer-checked:border-[rgba(212,160,55,0.45)] peer-checked:bg-[rgba(212,160,55,0.16)] after:absolute after:top-[0.1875rem] after:left-[0.1875rem] after:h-2.5 after:w-2.5 after:rounded-full after:bg-[var(--gh-muted)] after:transition after:content-[''] peer-checked:after:translate-x-4 peer-checked:after:bg-[var(--gh-gold)] max-[34rem]:h-3.5 max-[34rem]:w-7 max-[34rem]:after:top-[0.15625rem] max-[34rem]:after:left-[0.15625rem] max-[34rem]:after:h-2 max-[34rem]:after:w-2 max-[34rem]:peer-checked:after:translate-x-3.5 max-[30rem]:h-3 max-[30rem]:w-6 max-[30rem]:after:top-0.5 max-[30rem]:after:left-0.5 max-[30rem]:after:size-1.5 max-[30rem]:peer-checked:after:translate-x-3"
           aria-hidden="true"
         ></span>
-        <span
-          class="max-[34rem]:sr-only"
-          [style.color]="activeMode() === option.id ? 'rgba(2,13,23,0.72)' : 'var(--gh-muted)'"
-        >
-          {{ 'plannerV2.mode.details' | translate: 'Details' }}
-        </span>
+        @if (!compactDetailsLabels()) {
+          <span
+            class="max-[34rem]:sr-only"
+            [style.color]="activeMode() === option.id ? 'rgba(2,13,23,0.72)' : 'var(--gh-muted)'"
+          >
+            {{ 'plannerV2.mode.details' | translate: 'Details' }}
+          </span>
+        }
       </label>
     </div>
   }

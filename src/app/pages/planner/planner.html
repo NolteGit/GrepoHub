@@ -184,6 +184,7 @@
         [activeMode]="activeMode()"
         [cityDetailsVisible]="buildingTileDetailsVisible()"
         [troopDetailsVisible]="unitTileDetailsVisible()"
+        [compactDetailsLabels]="!toolboxCollapsed()"
         (detailsToggled)="setTileDetailsVisible($event.mode, $event.visible)"
         (modeSelected)="selectMode($event)"
       />
