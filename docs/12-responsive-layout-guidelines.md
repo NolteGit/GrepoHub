@@ -8,17 +8,17 @@ The planner shell uses three conceptual layout modes:
 
 ```txt
 wide/desktop   toolbox | planner workspace | summary sidebar
-compact        collapsed toolbox | planner workspace
-mobile         planner workspace only, no desktop recommendation banner
+compact        collapsed toolbox | compact population summary | planner workspace
+mobile         compact population summary | planner workspace, no desktop recommendation banner
 ```
 
 The current breakpoint intent is:
 
 ```txt
-< 46rem       mobile shell / one-column fallback
-46rem–76rem   compact shell / summary hidden / toolbox reduced
+< 46rem       mobile shell / one-column fallback / compact population summary
+46rem–76rem   compact shell / full summary hidden / compact population summary / toolbox reduced
 76rem–104rem  desktop shell / normal planner layout
-> 104rem      wide layout / more tile columns where useful
+> 104rem      wide layout / four-card rows where enough workspace is available
 ```
 
 These values are not a design system by themselves. They are the app-level breakpoints that should be reused before adding new arbitrary `max-[...]` values.
@@ -38,17 +38,15 @@ max-[46rem]  mobile shell / one-column fallback
 
 Avoid adding a new shell breakpoint unless the whole app layout truly needs it.
 
-### 2. Prefer fluid grids for tile collections
+### 2. Use intentional tile-grid states
 
-For city/building/unit tile collections, prefer fluid grids before adding manual 4 → 3 → 2 → 1 breakpoint chains.
+For city/building/unit tile collections, avoid accidental 3-column and 5+-column states. The planner should prefer a predictable column ladder:
 
-Preferred pattern:
-
-```html
-class="grid grid-cols-[repeat(auto-fit,minmax(17rem,1fr))] gap-3"
+```txt
+4 columns -> 2 columns -> 1 column
 ```
 
-Use manual grid breakpoints only when a specific layout cannot be expressed well with `auto-fit`/`minmax`.
+Use the shared `planner-card-grid` class for normal building and unit collections. It uses the available planner workspace width, not the physical device type, so browser zoom and toolbox width naturally influence when the grid steps down.
 
 ### 3. Keep component breakpoints local and justified
 
@@ -83,7 +81,7 @@ Target topics for Media-Day:
 
 ```txt
 mobile access to toolbox actions
-mobile access to summary values
+mobile access to full summary/details beyond the compact population summary
 bottom sheet / drawer / tabs decision
 touch target sizes
 sticky actions
@@ -94,23 +92,7 @@ small-screen spacing and control density
 
 ## First implementation target
 
-After the planner source rename is settled, the first low-risk responsive cleanup should be the city and troop tile grids.
-
-Target files after the rename:
-
-```txt
-src/app/pages/planner/components/planner-city-setup/planner-city-setup.html
-src/app/pages/planner/components/planner-troop-setup/planner-troop-setup.html
-```
-
-Equivalent current paths before the rename:
-
-```txt
-src/app/pages/planner-v2/components/planner-city-setup/planner-city-setup.html
-src/app/pages/planner-v2/components/planner-troop-setup/planner-troop-setup.html
-```
-
-Start by replacing repeated fixed breakpoint grid chains with a fluid grid where it preserves the current desktop feel.
+The current implementation target is desktop/zoom stability for normal building and unit cards. Keep these collections on the shared `planner-card-grid` helper unless a component-specific reason requires a separate grid.
 
 ## Definition of done for responsive patches
 

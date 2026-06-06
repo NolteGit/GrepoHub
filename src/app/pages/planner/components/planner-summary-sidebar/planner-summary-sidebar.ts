@@ -106,6 +106,7 @@ const createDonutSegments = <
 })
 export class PlannerSummarySidebar {
   readonly population = input.required<SidebarPopulationStats>();
+  readonly compact = input(false);
   readonly topUsedUnits = input.required<readonly SidebarUsedUnit[]>();
   readonly troopBattleStats = input.required<SidebarTroopBattleStats>();
   readonly academyLevel = input(0);

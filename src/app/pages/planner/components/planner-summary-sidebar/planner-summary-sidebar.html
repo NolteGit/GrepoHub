@@ -1,20 +1,12 @@
-<aside
-  class="gh-scroll-area grid h-full min-h-0 content-start gap-3 overflow-auto border-l border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.74)] p-3"
->
-  <app-gh-panel class="grid gap-2.5" variant="primary">
-    <header class="flex items-center justify-between gap-3">
-      <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
-        {{ populationTitleKey | translate: populationTitleFallback }}
-      </h2>
-    </header>
-
+@if (compact()) {
+  <app-gh-panel class="block overflow-hidden" variant="primary">
     <section
-      class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2.5"
+      class="grid min-w-0 grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-3 max-[34rem]:grid-cols-[4.5rem_minmax(0,1fr)] max-[34rem]:gap-2"
       [attr.aria-label]="
         'plannerV2.summary.populationChartAria' | translate: 'Population usage chart'
       "
     >
-      <div class="relative size-32" aria-hidden="true">
+      <div class="relative size-[5.5rem] max-[34rem]:size-[4.5rem]" aria-hidden="true">
         <svg class="block size-full overflow-visible" viewBox="0 0 100 100">
           <circle
             class="stroke-[rgba(255,255,255,0.06)]"
@@ -45,11 +37,11 @@
         </svg>
 
         <div
-          class="pointer-events-none absolute inset-[1rem] grid place-items-center rounded-full border border-[rgba(255,255,255,0.05)] bg-[rgba(2,13,23,0.94)] text-center shadow-[0_0_16px_rgba(2,13,23,0.7)]"
+          class="pointer-events-none absolute inset-[0.75rem] grid place-items-center rounded-full border border-[rgba(255,255,255,0.05)] bg-[rgba(2,13,23,0.94)] text-center shadow-[0_0_12px_rgba(2,13,23,0.68)]"
         >
-          <div class="grid justify-items-center gap-1">
+          <div class="grid justify-items-center gap-0.5">
             <strong
-              class="text-xl leading-none"
+              class="text-base leading-none max-[34rem]:text-sm"
               [style.color]="
                 population().freePopulationAfterTroops < 0
                   ? '#cf453e'
@@ -60,297 +52,414 @@
             >
               {{ populationBreakdown().freeCapacity }}
             </strong>
-            <span class="text-[0.66rem] leading-tight text-[var(--gh-muted)]">
+            <span class="text-[0.58rem] leading-tight text-[var(--gh-muted)]">
               / {{ populationBreakdown().capacity }}
             </span>
           </div>
         </div>
       </div>
 
-      <div class="ml-auto grid w-full max-w-[8.75rem] justify-self-end gap-1.5">
-        @for (segment of populationSegments(); track segment.id) {
-          <div
-            class="grid grid-cols-[auto_minmax(0,1fr)_4rem] items-center gap-x-2 border-b border-[rgba(212,160,55,0.14)] pb-1.5 last:border-b-0 last:pb-0"
+      <div class="grid min-w-0 gap-2">
+        <div class="min-w-0">
+          <h2
+            class="m-0 truncate text-sm font-black text-[var(--gh-text)]"
+            [attr.title]="populationTitleKey | translate: populationTitleFallback"
           >
-            <span
-              class="size-2.5 rounded-full opacity-90 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
-              [style.background]="segment.color"
-              aria-hidden="true"
-            ></span>
-            <span class="min-w-0 text-left text-sm text-[var(--gh-text)]">
-              {{ segment.labelKey | translate: segment.fallback }}
-            </span>
-            <strong
-              class="justify-self-end text-right text-sm font-semibold leading-none tabular-nums"
-              [style.color]="segment.valueColor"
+            {{ populationTitleKey | translate: populationTitleFallback }}
+          </h2>
+          <p class="m-0 mt-0.5 text-xs font-bold text-[var(--gh-muted)]">
+            {{ populationBreakdown().freeCapacity }} / {{ populationBreakdown().capacity }}
+            {{ 'plannerV2.summary.bhpShort' | translate: 'BHP' }}
+          </p>
+        </div>
+
+        <div class="grid min-w-0 grid-cols-3 gap-1.5 max-[34rem]:gap-1">
+          @for (segment of populationSegments(); track segment.id) {
+            <div
+              class="grid min-w-0 gap-0.5 rounded-md border border-[rgba(212,160,55,0.14)] bg-[rgba(2,13,23,0.36)] px-2 py-1 max-[34rem]:px-1.5"
+              [attr.title]="segment.labelKey | translate: segment.fallback"
             >
-              {{ segment.value }}
-            </strong>
-          </div>
-        }
+              <span class="flex min-w-0 items-center gap-1.5">
+                <span
+                  class="size-2 shrink-0 rounded-full opacity-90 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+                  [style.background]="segment.color"
+                  aria-hidden="true"
+                ></span>
+                <span
+                  class="min-w-0 truncate text-[0.68rem] font-bold leading-tight text-[var(--gh-muted)]"
+                >
+                  {{ segment.labelKey | translate: segment.fallback }}
+                </span>
+              </span>
+              <strong
+                class="truncate text-sm font-black leading-none tabular-nums max-[34rem]:text-xs"
+                [style.color]="segment.valueColor"
+              >
+                {{ segment.value }}
+              </strong>
+            </div>
+          }
+        </div>
       </div>
     </section>
   </app-gh-panel>
+} @else {
+  <aside
+    class="gh-scroll-area grid h-full min-h-0 content-start gap-3 overflow-auto border-l border-[var(--gh-border-soft)] bg-[rgba(2,13,23,0.74)] p-3"
+  >
+    <app-gh-panel class="grid gap-2.5" variant="primary">
+      <header class="flex items-center justify-between gap-3">
+        <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
+          {{ populationTitleKey | translate: populationTitleFallback }}
+        </h2>
+      </header>
 
-  <app-gh-panel class="grid gap-3">
-    <header class="flex items-center justify-between gap-3">
-      <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
-        {{ topUnitsTitleKey | translate: topUnitsTitleFallback }}
-      </h2>
-    </header>
-
-    @if (topUsedUnits().length > 0) {
-      <ol class="m-0 grid gap-3 p-0">
-        @for (unit of topUsedUnits(); track unit.labelKey) {
-          <li
-            class="grid grid-cols-[1.8rem_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 text-sm"
-          >
-            <span
-              class="grid size-7 place-items-center overflow-hidden rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.04)]"
-              aria-hidden="true"
-            >
-              @if (unit.imagePath) {
-                <img class="size-6 object-contain" [src]="unit.imagePath" [alt]="unit.fallback" />
-              } @else {
-                <span class="text-xs text-[var(--gh-gold)]">{{ unit.icon }}</span>
-              }
-            </span>
-            <span class="min-w-0 truncate text-[var(--gh-text)]">
-              {{ unit.labelKey | translate: unit.fallback }}
-            </span>
-            <span class="flex items-baseline gap-1 whitespace-nowrap tabular-nums">
-              <strong class="text-sm leading-none text-[var(--gh-gold)]">
-                {{ unit.displayAmount }}
-              </strong>
-              <span class="text-xs font-medium leading-none text-[var(--gh-muted)]">
-                ({{ unit.displayBhp }} {{ 'plannerV2.summary.bhpShort' | translate: 'BHP' }})
-              </span>
-            </span>
-            <span
-              class="col-span-2 col-start-2 h-1.5 overflow-hidden rounded-full bg-white/5"
-              [attr.aria-label]="
-                unit.displayBhp + ' ' + ('plannerV2.summary.bhpShort' | translate: 'BHP')
-              "
-            >
-              <span
-                class="block h-full bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.38))]"
-                [style.width.%]="unit.sharePercent"
-              ></span>
-            </span>
-          </li>
-        }
-      </ol>
-    } @else {
-      <p
-        class="m-0 rounded-lg border border-dashed border-[rgba(212,160,55,0.25)] bg-[rgba(212,160,55,0.06)] p-3 text-center text-sm text-[var(--gh-muted)]"
-      >
-        {{ 'plannerV2.summary.noUnitsSelected' | translate: 'No units selected yet.' }}
-      </p>
-    }
-  </app-gh-panel>
-
-  <app-gh-panel class="grid gap-3">
-    <header class="flex items-center justify-between gap-3">
-      <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
-        {{ battleTitleKey | translate: battleTitleFallback }}
-      </h2>
-    </header>
-
-    <section
-      class="overflow-hidden rounded-lg border border-[rgba(212,160,55,0.16)] bg-[rgba(3,19,35,0.52)]"
-      [attr.aria-label]="battleTitleKey | translate: battleTitleFallback"
-    >
-      @for (row of battleRows(); track row.id; let rowIndex = $index) {
-        <div
-          class="grid grid-cols-4 border-[rgba(212,160,55,0.11)]"
-          [class.border-b]="rowIndex === 0"
-        >
-          @for (stat of row.stats; track stat.id; let statIndex = $index) {
-            <span
-              class="grid min-h-9 min-w-0 grid-cols-[1rem_minmax(0,1fr)] items-center gap-1 border-[rgba(212,160,55,0.1)] px-1.5 py-1.5"
-              [class.border-r]="statIndex < 3"
-              [title]="stat.labelKey | translate: stat.fallback"
-            >
-              <img
-                class="size-4 shrink-0 object-contain"
-                [src]="stat.iconPath"
-                [alt]="stat.fallback"
-              />
-              <strong
-                class="min-w-0 justify-self-end truncate text-[0.8rem] font-bold text-[var(--gh-text)] tabular-nums"
-              >
-                {{ stat.value }}
-              </strong>
-            </span>
-          }
-        </div>
-      }
-    </section>
-  </app-gh-panel>
-
-  <app-gh-panel class="grid gap-2">
-    <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3">
-      <strong class="min-w-0 truncate text-sm font-black text-[var(--gh-text)]">
-        {{ researchOpenButtonKey | translate: researchOpenButtonFallback }}
-      </strong>
-
-      <strong
-        class="shrink-0 text-xs font-black tabular-nums text-[var(--gh-gold)]"
-        [class.text-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
-      >
-        {{ researchCalculation().selectedCost }}/{{ researchCalculation().availablePoints }}
-        {{ 'academyResearch.pointsShort' | translate: 'pts' }}
-      </strong>
-
-      <button
-        type="button"
-        class="shrink-0 rounded-lg border border-[var(--gh-border)] bg-[rgba(212,160,55,0.1)] px-3 py-1.5 text-xs font-black text-[var(--gh-gold)] transition hover:bg-[rgba(212,160,55,0.16)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-        [attr.aria-label]="researchOpenAriaKey | translate: researchOpenAriaFallback"
-        (click)="openResearchDialog()"
-      >
-        {{ 'academyResearch.technologiesButton' | translate: 'Technologies' }}
-      </button>
-    </div>
-  </app-gh-panel>
-
-  @if (researchDialogOpen()) {
-    <div
-      class="fixed inset-0 z-50 grid place-items-center bg-[rgba(1,7,13,0.7)] p-2 backdrop-blur-sm"
-      (click)="closeResearchDialog()"
-    >
       <section
-        class="grid max-h-[calc(100dvh-1rem)] w-full max-w-[37rem] gap-1.5 overflow-y-auto rounded-lg border border-[var(--gh-border)] bg-[rgba(4,18,31,0.98)] p-2 shadow-[var(--gh-shadow-panel)]"
-        role="dialog"
-        aria-modal="true"
-        [attr.aria-label]="'academyResearch.title' | translate: 'Academy Research'"
-        (click)="$event.stopPropagation()"
+        class="grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-2.5"
+        [attr.aria-label]="
+          'plannerV2.summary.populationChartAria' | translate: 'Population usage chart'
+        "
       >
-        <header class="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
-          <h2 class="m-0 min-w-0 truncate text-lg font-black leading-tight text-[var(--gh-text)]">
-            {{ 'academyResearch.title' | translate: 'Academy Research' }}
-          </h2>
+        <div class="relative size-32" aria-hidden="true">
+          <svg class="block size-full overflow-visible" viewBox="0 0 100 100">
+            <circle
+              class="stroke-[rgba(255,255,255,0.06)]"
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke-width="12"
+            />
 
-          <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
-            <label
-              class="inline-flex cursor-pointer items-center gap-1.5 text-xs font-bold text-[var(--gh-text)]"
-            >
-              <input
-                class="size-3.5 accent-[var(--gh-gold)]"
-                type="checkbox"
-                [checked]="researchLibraryBuilt()"
-                [attr.aria-label]="'academyResearch.libraryBuilt' | translate: 'Library built'"
-                (change)="toggleResearchLibrary($event)"
-              />
-              <span>{{ 'academyResearch.libraryBuilt' | translate: 'Library built' }}</span>
-            </label>
+            <g transform="rotate(-90 50 50)">
+              @for (segment of populationSegments(); track segment.id) {
+                @if (segment.rawValue > 0) {
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke-width="12"
+                    stroke-linecap="butt"
+                    [attr.stroke]="segment.color"
+                    [attr.stroke-dasharray]="segment.strokeDasharray"
+                    [attr.stroke-dashoffset]="segment.strokeDashoffset"
+                  />
+                }
+              }
+            </g>
+          </svg>
 
-            <button
-              type="button"
-              class="rounded border border-[var(--gh-border-soft)] px-2 py-1 text-[0.68rem] font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-              (click)="clearResearchSelection()"
-            >
-              {{ 'academyResearch.clearSelection' | translate: 'Clear selection' }}
-            </button>
-          </div>
-
-          <div class="flex shrink-0 items-center gap-1.5">
-            <div
-              class="grid min-w-[5.8rem] justify-items-center rounded-md border border-[rgba(212,160,55,0.38)] bg-[rgba(212,160,55,0.07)] px-2 py-0.5 leading-none"
-              [class.border-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
-            >
+          <div
+            class="pointer-events-none absolute inset-[1rem] grid place-items-center rounded-full border border-[rgba(255,255,255,0.05)] bg-[rgba(2,13,23,0.94)] text-center shadow-[0_0_16px_rgba(2,13,23,0.7)]"
+          >
+            <div class="grid justify-items-center gap-1">
               <strong
-                class="text-xl font-black tabular-nums text-[var(--gh-gold)]"
-                [class.text-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+                class="text-xl leading-none"
+                [style.color]="
+                  population().freePopulationAfterTroops < 0
+                    ? '#cf453e'
+                    : population().freePopulationAfterTroops > 0
+                      ? '#3fa36b'
+                      : 'var(--gh-muted)'
+                "
               >
-                {{ researchCalculation().selectedCost }}/{{ researchCalculation().availablePoints }}
+                {{ populationBreakdown().freeCapacity }}
               </strong>
-              <span
-                class="text-[0.62rem] font-black uppercase tracking-[0.08em] text-[var(--gh-text)]"
-              >
-                {{ 'academyResearch.levelShort' | translate: 'Lvl' }} {{ academyLevel() }}
+              <span class="text-[0.66rem] leading-tight text-[var(--gh-muted)]">
+                / {{ populationBreakdown().capacity }}
               </span>
             </div>
-            <button
-              type="button"
-              class="grid size-7 shrink-0 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-              [attr.aria-label]="'academyResearch.close' | translate: 'Close'"
-              (click)="closeResearchDialog()"
-            >
-              <span aria-hidden="true">×</span>
-            </button>
           </div>
-        </header>
+        </div>
 
-        <section
-          class="overflow-x-auto rounded-md border border-[var(--gh-border)] bg-[rgba(2,13,23,0.42)] p-1 [scrollbar-width:thin]"
-          [attr.aria-label]="'academyResearch.boardAria' | translate: 'Academy research levels'"
-        >
-          <div class="grid min-w-[34.5rem] grid-cols-12 gap-0">
-            @for (group of researchGroups(); track group.requiredAcademyLevel) {
-              <section
-                class="grid min-w-0 content-start gap-0.5 border-r border-[rgba(212,160,55,0.14)] px-1 py-0.5 last:border-r-0"
+        <div class="ml-auto grid w-full max-w-[8.75rem] justify-self-end gap-1.5">
+          @for (segment of populationSegments(); track segment.id) {
+            <div
+              class="grid grid-cols-[auto_minmax(0,1fr)_4rem] items-center gap-x-2 border-b border-[rgba(212,160,55,0.14)] pb-1.5 last:border-b-0 last:pb-0"
+            >
+              <span
+                class="size-2.5 rounded-full opacity-90 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+                [style.background]="segment.color"
+                aria-hidden="true"
+              ></span>
+              <span class="min-w-0 text-left text-sm text-[var(--gh-text)]">
+                {{ segment.labelKey | translate: segment.fallback }}
+              </span>
+              <strong
+                class="justify-self-end text-right text-sm font-semibold leading-none tabular-nums"
+                [style.color]="segment.valueColor"
               >
-                <h3
-                  class="m-0 text-center text-[0.7rem] font-black tabular-nums text-[var(--gh-gold)]"
-                >
-                  {{ group.levelLabel }}
-                </h3>
-                @for (research of group.researches; track research.id) {
-                  <button
-                    type="button"
-                    class="group relative grid aspect-square min-h-0 place-items-center overflow-hidden rounded-sm border border-[rgba(212,160,55,0.16)] bg-[rgba(2,13,23,0.7)] p-0.5 transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
-                    [class.border-[var(--gh-gold)]]="research.selected"
-                    [class.opacity-45]="!research.unlocked && !research.selected"
-                    [class.ring-1]="research.selected"
-                    [class.ring-[var(--gh-gold)]]="research.selected"
-                    [attr.aria-pressed]="research.selected"
-                    [attr.title]="research.labelKey | translate: research.fallback"
-                    (click)="toggleResearch(research.id)"
-                  >
-                    @if (research.iconPath) {
-                      <img
-                        class="size-8 object-contain"
-                        [src]="research.iconPath"
-                        [alt]="research.labelKey | translate: research.fallback"
-                        loading="lazy"
-                      />
-                    } @else {
-                      <span class="text-base" aria-hidden="true">{{ research.icon }}</span>
-                    }
-                    <span
-                      class="absolute right-0 bottom-0 rounded-tl bg-[rgba(2,13,23,0.88)] px-0.5 text-[0.56rem] font-black leading-tight tabular-nums text-[var(--gh-gold)]"
-                      [attr.aria-label]="
-                        research.cost + ' ' + ('academyResearch.pointsShort' | translate: 'pts')
-                      "
-                    >
-                      {{ research.cost }}
-                    </span>
-                  </button>
+                {{ segment.value }}
+              </strong>
+            </div>
+          }
+        </div>
+      </section>
+    </app-gh-panel>
+
+    <app-gh-panel class="grid gap-3">
+      <header class="flex items-center justify-between gap-3">
+        <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
+          {{ topUnitsTitleKey | translate: topUnitsTitleFallback }}
+        </h2>
+      </header>
+
+      @if (topUsedUnits().length > 0) {
+        <ol class="m-0 grid gap-3 p-0">
+          @for (unit of topUsedUnits(); track unit.labelKey) {
+            <li
+              class="grid grid-cols-[1.8rem_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 text-sm"
+            >
+              <span
+                class="grid size-7 place-items-center overflow-hidden rounded-lg border border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.04)]"
+                aria-hidden="true"
+              >
+                @if (unit.imagePath) {
+                  <img class="size-6 object-contain" [src]="unit.imagePath" [alt]="unit.fallback" />
+                } @else {
+                  <span class="text-xs text-[var(--gh-gold)]">{{ unit.icon }}</span>
                 }
-              </section>
+              </span>
+              <span class="min-w-0 truncate text-[var(--gh-text)]">
+                {{ unit.labelKey | translate: unit.fallback }}
+              </span>
+              <span class="flex items-baseline gap-1 whitespace-nowrap tabular-nums">
+                <strong class="text-sm leading-none text-[var(--gh-gold)]">
+                  {{ unit.displayAmount }}
+                </strong>
+                <span class="text-xs font-medium leading-none text-[var(--gh-muted)]">
+                  ({{ unit.displayBhp }} {{ 'plannerV2.summary.bhpShort' | translate: 'BHP' }})
+                </span>
+              </span>
+              <span
+                class="col-span-2 col-start-2 h-1.5 overflow-hidden rounded-full bg-white/5"
+                [attr.aria-label]="
+                  unit.displayBhp + ' ' + ('plannerV2.summary.bhpShort' | translate: 'BHP')
+                "
+              >
+                <span
+                  class="block h-full bg-[linear-gradient(90deg,var(--gh-gold),rgba(246,195,67,0.38))]"
+                  [style.width.%]="unit.sharePercent"
+                ></span>
+              </span>
+            </li>
+          }
+        </ol>
+      } @else {
+        <p
+          class="m-0 rounded-lg border border-dashed border-[rgba(212,160,55,0.25)] bg-[rgba(212,160,55,0.06)] p-3 text-center text-sm text-[var(--gh-muted)]"
+        >
+          {{ 'plannerV2.summary.noUnitsSelected' | translate: 'No units selected yet.' }}
+        </p>
+      }
+    </app-gh-panel>
+
+    <app-gh-panel class="grid gap-3">
+      <header class="flex items-center justify-between gap-3">
+        <h2 class="m-0 text-base font-bold text-[var(--gh-text)]">
+          {{ battleTitleKey | translate: battleTitleFallback }}
+        </h2>
+      </header>
+
+      <section
+        class="overflow-hidden rounded-lg border border-[rgba(212,160,55,0.16)] bg-[rgba(3,19,35,0.52)]"
+        [attr.aria-label]="battleTitleKey | translate: battleTitleFallback"
+      >
+        @for (row of battleRows(); track row.id; let rowIndex = $index) {
+          <div
+            class="grid grid-cols-4 border-[rgba(212,160,55,0.11)]"
+            [class.border-b]="rowIndex === 0"
+          >
+            @for (stat of row.stats; track stat.id; let statIndex = $index) {
+              <span
+                class="grid min-h-9 min-w-0 grid-cols-[1rem_minmax(0,1fr)] items-center gap-1 border-[rgba(212,160,55,0.1)] px-1.5 py-1.5"
+                [class.border-r]="statIndex < 3"
+                [title]="stat.labelKey | translate: stat.fallback"
+              >
+                <img
+                  class="size-4 shrink-0 object-contain"
+                  [src]="stat.iconPath"
+                  [alt]="stat.fallback"
+                />
+                <strong
+                  class="min-w-0 justify-self-end truncate text-[0.8rem] font-bold text-[var(--gh-text)] tabular-nums"
+                >
+                  {{ stat.value }}
+                </strong>
+              </span>
             }
           </div>
-        </section>
-
-        <footer class="flex flex-wrap items-center gap-x-4 gap-y-1 px-0.5 text-xs font-black">
-          @if (!researchCalculation().isWithinMaximumPoints) {
-            <span class="text-[#ff8b8b]">
-              {{ 'academyResearch.missingPoints' | translate: 'Missing points' }}
-              {{ researchCalculation().missingPoints }}
-            </span>
-          } @else if (researchCalculation().missingAcademyLevels > 0) {
-            <span class="text-[#ff8b8b]">
-              {{ 'academyResearch.missingLevels' | translate: 'Missing levels' }}
-              {{ researchCalculation().missingAcademyLevels }}
-            </span>
-          } @else {
-            <span class="text-[#3fa36b]">
-              {{ 'academyResearch.remainingPoints' | translate: 'Remaining points' }}
-              {{ researchCalculation().remainingPoints }}
-            </span>
-          }
-        </footer>
+        }
       </section>
-    </div>
-  }
-</aside>
+    </app-gh-panel>
+
+    <app-gh-panel class="grid gap-2">
+      <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3">
+        <strong class="min-w-0 truncate text-sm font-black text-[var(--gh-text)]">
+          {{ researchOpenButtonKey | translate: researchOpenButtonFallback }}
+        </strong>
+
+        <strong
+          class="shrink-0 text-xs font-black tabular-nums text-[var(--gh-gold)]"
+          [class.text-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+        >
+          {{ researchCalculation().selectedCost }}/{{ researchCalculation().availablePoints }}
+          {{ 'academyResearch.pointsShort' | translate: 'pts' }}
+        </strong>
+
+        <button
+          type="button"
+          class="shrink-0 rounded-lg border border-[var(--gh-border)] bg-[rgba(212,160,55,0.1)] px-3 py-1.5 text-xs font-black text-[var(--gh-gold)] transition hover:bg-[rgba(212,160,55,0.16)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+          [attr.aria-label]="researchOpenAriaKey | translate: researchOpenAriaFallback"
+          (click)="openResearchDialog()"
+        >
+          {{ 'academyResearch.technologiesButton' | translate: 'Technologies' }}
+        </button>
+      </div>
+    </app-gh-panel>
+
+    @if (researchDialogOpen()) {
+      <div
+        class="fixed inset-0 z-50 grid place-items-center bg-[rgba(1,7,13,0.7)] p-2 backdrop-blur-sm"
+        (click)="closeResearchDialog()"
+      >
+        <section
+          class="grid max-h-[calc(100dvh-1rem)] w-full max-w-[37rem] gap-1.5 overflow-y-auto rounded-lg border border-[var(--gh-border)] bg-[rgba(4,18,31,0.98)] p-2 shadow-[var(--gh-shadow-panel)]"
+          role="dialog"
+          aria-modal="true"
+          [attr.aria-label]="'academyResearch.title' | translate: 'Academy Research'"
+          (click)="$event.stopPropagation()"
+        >
+          <header class="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2">
+            <h2 class="m-0 min-w-0 truncate text-lg font-black leading-tight text-[var(--gh-text)]">
+              {{ 'academyResearch.title' | translate: 'Academy Research' }}
+            </h2>
+
+            <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1">
+              <label
+                class="inline-flex cursor-pointer items-center gap-1.5 text-xs font-bold text-[var(--gh-text)]"
+              >
+                <input
+                  class="size-3.5 accent-[var(--gh-gold)]"
+                  type="checkbox"
+                  [checked]="researchLibraryBuilt()"
+                  [attr.aria-label]="'academyResearch.libraryBuilt' | translate: 'Library built'"
+                  (change)="toggleResearchLibrary($event)"
+                />
+                <span>{{ 'academyResearch.libraryBuilt' | translate: 'Library built' }}</span>
+              </label>
+
+              <button
+                type="button"
+                class="rounded border border-[var(--gh-border-soft)] px-2 py-1 text-[0.68rem] font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-text)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                (click)="clearResearchSelection()"
+              >
+                {{ 'academyResearch.clearSelection' | translate: 'Clear selection' }}
+              </button>
+            </div>
+
+            <div class="flex shrink-0 items-center gap-1.5">
+              <div
+                class="grid min-w-[5.8rem] justify-items-center rounded-md border border-[rgba(212,160,55,0.38)] bg-[rgba(212,160,55,0.07)] px-2 py-0.5 leading-none"
+                [class.border-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+              >
+                <strong
+                  class="text-xl font-black tabular-nums text-[var(--gh-gold)]"
+                  [class.text-[#cf453e]]="!researchCalculation().isWithinMaximumPoints"
+                >
+                  {{ researchCalculation().selectedCost }}/{{
+                    researchCalculation().availablePoints
+                  }}
+                </strong>
+                <span
+                  class="text-[0.62rem] font-black uppercase tracking-[0.08em] text-[var(--gh-text)]"
+                >
+                  {{ 'academyResearch.levelShort' | translate: 'Lvl' }} {{ academyLevel() }}
+                </span>
+              </div>
+              <button
+                type="button"
+                class="grid size-7 shrink-0 place-items-center rounded-md border border-[var(--gh-border-soft)] text-base font-black text-[var(--gh-muted)] transition hover:border-[var(--gh-border)] hover:text-[var(--gh-gold)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                [attr.aria-label]="'academyResearch.close' | translate: 'Close'"
+                (click)="closeResearchDialog()"
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+          </header>
+
+          <section
+            class="overflow-x-auto rounded-md border border-[var(--gh-border)] bg-[rgba(2,13,23,0.42)] p-1 [scrollbar-width:thin]"
+            [attr.aria-label]="'academyResearch.boardAria' | translate: 'Academy research levels'"
+          >
+            <div class="grid min-w-[34.5rem] grid-cols-12 gap-0">
+              @for (group of researchGroups(); track group.requiredAcademyLevel) {
+                <section
+                  class="grid min-w-0 content-start gap-0.5 border-r border-[rgba(212,160,55,0.14)] px-1 py-0.5 last:border-r-0"
+                >
+                  <h3
+                    class="m-0 text-center text-[0.7rem] font-black tabular-nums text-[var(--gh-gold)]"
+                  >
+                    {{ group.levelLabel }}
+                  </h3>
+                  @for (research of group.researches; track research.id) {
+                    <button
+                      type="button"
+                      class="group relative grid aspect-square min-h-0 place-items-center overflow-hidden rounded-sm border border-[rgba(212,160,55,0.16)] bg-[rgba(2,13,23,0.7)] p-0.5 transition hover:border-[var(--gh-border)] hover:bg-[rgba(246,195,67,0.08)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[var(--gh-gold)]"
+                      [class.border-[var(--gh-gold)]]="research.selected"
+                      [class.opacity-45]="!research.unlocked && !research.selected"
+                      [class.ring-1]="research.selected"
+                      [class.ring-[var(--gh-gold)]]="research.selected"
+                      [attr.aria-pressed]="research.selected"
+                      [attr.title]="research.labelKey | translate: research.fallback"
+                      (click)="toggleResearch(research.id)"
+                    >
+                      @if (research.iconPath) {
+                        <img
+                          class="size-8 object-contain"
+                          [src]="research.iconPath"
+                          [alt]="research.labelKey | translate: research.fallback"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <span class="text-base" aria-hidden="true">{{ research.icon }}</span>
+                      }
+                      <span
+                        class="absolute right-0 bottom-0 rounded-tl bg-[rgba(2,13,23,0.88)] px-0.5 text-[0.56rem] font-black leading-tight tabular-nums text-[var(--gh-gold)]"
+                        [attr.aria-label]="
+                          research.cost + ' ' + ('academyResearch.pointsShort' | translate: 'pts')
+                        "
+                      >
+                        {{ research.cost }}
+                      </span>
+                    </button>
+                  }
+                </section>
+              }
+            </div>
+          </section>
+
+          <footer class="flex flex-wrap items-center gap-x-4 gap-y-1 px-0.5 text-xs font-black">
+            @if (!researchCalculation().isWithinMaximumPoints) {
+              <span class="text-[#ff8b8b]">
+                {{ 'academyResearch.missingPoints' | translate: 'Missing points' }}
+                {{ researchCalculation().missingPoints }}
+              </span>
+            } @else if (researchCalculation().missingAcademyLevels > 0) {
+              <span class="text-[#ff8b8b]">
+                {{ 'academyResearch.missingLevels' | translate: 'Missing levels' }}
+                {{ researchCalculation().missingAcademyLevels }}
+              </span>
+            } @else {
+              <span class="text-[#3fa36b]">
+                {{ 'academyResearch.remainingPoints' | translate: 'Remaining points' }}
+                {{ researchCalculation().remainingPoints }}
+              </span>
+            }
+          </footer>
+        </section>
+      </div>
+    }
+  </aside>
+}
