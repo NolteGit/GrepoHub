@@ -14,6 +14,8 @@ type PlannerModeOption = {
   readonly id: PlannerMode;
   readonly labelKey: string;
   readonly fallback: string;
+  readonly shortLabelKey: string;
+  readonly shortFallback: string;
   readonly iconPath: string;
 };
 
@@ -36,12 +38,16 @@ export class PlannerModeSwitch {
       id: 'city',
       labelKey: 'plannerV2.mode.city',
       fallback: 'City Setup',
+      shortLabelKey: 'plannerV2.mode.cityShort',
+      shortFallback: 'City',
       iconPath: setupIconPaths.city,
     },
     {
       id: 'troops',
       labelKey: 'plannerV2.mode.troops',
       fallback: 'Troop Setup',
+      shortLabelKey: 'plannerV2.mode.troopsShort',
+      shortFallback: 'Troops',
       iconPath: setupIconPaths.recruitment,
     },
   ];

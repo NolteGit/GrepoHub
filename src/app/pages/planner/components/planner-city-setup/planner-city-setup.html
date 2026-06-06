@@ -24,7 +24,17 @@
       }
 
       <span class="grid min-w-0 gap-0.5 text-left">
-        <strong class="truncate">{{ modifier.labelKey | translate: modifier.fallback }}</strong>
+        <strong
+          class="min-w-0 truncate"
+          [attr.title]="modifier.labelKey | translate: modifier.fallback"
+        >
+          <span class="block truncate max-[34rem]:hidden">
+            {{ modifier.labelKey | translate: modifier.fallback }}
+          </span>
+          <span class="hidden truncate max-[34rem]:block">
+            {{ modifier.shortLabelKey | translate: modifier.shortFallback }}
+          </span>
+        </strong>
 
         @if (!modifier.progressSteps?.length) {
           <small

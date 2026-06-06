@@ -24,9 +24,16 @@
             />
           </span>
           <strong
-            class="truncate text-[0.95rem] leading-[1.18] font-extrabold tracking-[0.035em] max-[42rem]:text-sm max-[34rem]:text-[0.78rem] max-[34rem]:tracking-[0.02em]"
-            >{{ option.labelKey | translate: option.fallback }}</strong
+            class="min-w-0 truncate text-[0.95rem] leading-[1.18] font-extrabold tracking-[0.035em] max-[42rem]:text-sm max-[34rem]:text-[0.78rem] max-[34rem]:tracking-[0.02em]"
+            [attr.title]="option.labelKey | translate: option.fallback"
           >
+            <span class="block truncate max-[34rem]:hidden">
+              {{ option.labelKey | translate: option.fallback }}
+            </span>
+            <span class="hidden truncate max-[34rem]:block">
+              {{ option.shortLabelKey | translate: option.shortFallback }}
+            </span>
+          </strong>
         </span>
       </button>
 

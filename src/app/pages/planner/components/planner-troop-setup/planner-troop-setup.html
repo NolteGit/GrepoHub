@@ -25,7 +25,17 @@
           <span class="text-base leading-none" aria-hidden="true">{{ category.icon }}</span>
         }
         <span class="grid min-w-0 gap-0.5 text-left">
-          <strong class="truncate">{{ category.labelKey | translate: category.fallback }}</strong>
+          <strong
+            class="min-w-0 truncate"
+            [attr.title]="category.labelKey | translate: category.fallback"
+          >
+            <span class="block truncate max-[34rem]:hidden">
+              {{ category.labelKey | translate: category.fallback }}
+            </span>
+            <span class="hidden truncate max-[34rem]:block">
+              {{ category.shortLabelKey | translate: category.shortFallback }}
+            </span>
+          </strong>
           <small
             class="inline-flex min-w-0 items-center gap-1 truncate text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--gh-muted)]"
             [attr.title]="category.context.labelKey | translate: category.context.fallback"
