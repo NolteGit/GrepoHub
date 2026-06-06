@@ -89,6 +89,24 @@ const compactLabelLimits = new Map([
   ['plannerV2.header.importPlanShort', 8],
   ['plannerV2.header.exportShort', 8],
   ['plannerV2.header.editPlanShort', 8],
+  ['plannerV2.mode.cityShort', 8],
+  ['plannerV2.mode.troopsShort', 8],
+  ['plannerV2.modifier.landExpansionShort', 8],
+  ['plannerV2.modifier.aphroditeShort', 9],
+  ['plannerV2.modifier.plowShort', 8],
+  ['plannerV2.troop.landUnitsShort', 8],
+  ['plannerV2.troop.seaUnitsShort', 8],
+  ['plannerV2.troop.mythicalUnitsShort', 9],
+  ['plannerV2.stat.attackShort', 8],
+  ['plannerV2.stat.populationShort', 8],
+  ['plannerV2.stat.defenseShort', 8],
+  ['plannerV2.stat.favorShort', 8],
+  ['plannerV2.summary.bhpShort', 8],
+  ['plannerV2.summary.offenseShort', 8],
+  ['plannerV2.summary.defenseShort', 8],
+  ['plannerV2.summary.context.transportCapacityShort', 9],
+  ['plannerV2.summary.bunksToggleShort', 8],
+  ['plannerV2.summary.transportLoadShort', 8],
 ]);
 
 for (const [language, dictionary] of Object.entries(dictionaries)) {
@@ -96,6 +114,7 @@ for (const [language, dictionary] of Object.entries(dictionaries)) {
     const value = dictionary[key];
 
     if (typeof value !== 'string') {
+      addError(`${language}.${key} is missing compact label text`);
       continue;
     }
 

@@ -95,9 +95,17 @@
   >
     <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
       <h2
-        class="m-0 text-xs font-extrabold tracking-wide text-[var(--gh-muted)] uppercase max-[34rem]:text-[0.68rem] max-[34rem]:tracking-[0.08em]"
+        class="m-0 min-w-0 text-xs font-extrabold tracking-wide text-[var(--gh-muted)] uppercase max-[34rem]:text-[0.68rem] max-[34rem]:tracking-[0.08em]"
+        [attr.title]="
+          'plannerV2.summary.context.transportCapacity' | translate: 'Transport Capacity'
+        "
       >
-        {{ 'plannerV2.summary.context.transportCapacity' | translate: 'Transport Capacity' }}
+        <span class="block truncate max-[42rem]:hidden">
+          {{ 'plannerV2.summary.context.transportCapacity' | translate: 'Transport Capacity' }}
+        </span>
+        <span class="hidden truncate max-[42rem]:block">
+          {{ 'plannerV2.summary.context.transportCapacityShort' | translate: 'Transport' }}
+        </span>
       </h2>
 
       <label
@@ -114,8 +122,16 @@
           class="relative h-5 w-9 rounded-full border border-[var(--gh-border-soft)] bg-black/20 transition peer-checked:border-[rgba(212,160,55,0.55)] peer-checked:bg-[rgba(212,160,55,0.22)] after:absolute after:top-1 after:left-1 after:h-3 after:w-3 after:rounded-full after:bg-[var(--gh-muted)] after:transition after:content-[''] peer-checked:after:translate-x-4 peer-checked:after:bg-[var(--gh-gold)]"
           aria-hidden="true"
         ></span>
-        <span class="uppercase tracking-[0.1em] max-[34rem]:tracking-[0.06em]">
-          {{ 'plannerV2.summary.bunksToggle' | translate: 'Bunks' }}
+        <span
+          class="min-w-0 uppercase tracking-[0.1em] max-[34rem]:tracking-[0.06em]"
+          [attr.title]="'plannerV2.summary.bunksToggle' | translate: 'Bunks'"
+        >
+          <span class="block truncate max-[42rem]:hidden">
+            {{ 'plannerV2.summary.bunksToggle' | translate: 'Bunks' }}
+          </span>
+          <span class="hidden truncate max-[42rem]:block">
+            {{ 'plannerV2.summary.bunksToggleShort' | translate: 'Bunks' }}
+          </span>
         </span>
         <small class="text-[0.65rem] font-bold text-[var(--gh-muted)] max-[34rem]:text-[0.6rem]">
           {{ 'plannerV2.summary.bunksToggleHint' | translate: '+6 / ship' }}
@@ -134,9 +150,15 @@
       class="grid min-w-0 gap-0.5 justify-self-end text-right max-[42rem]:col-span-2 max-[42rem]:justify-self-stretch"
     >
       <small
-        class="text-[0.58rem] font-extrabold uppercase tracking-[0.14em] text-[var(--gh-muted)]"
+        class="min-w-0 text-[0.58rem] font-extrabold uppercase tracking-[0.14em] text-[var(--gh-muted)]"
+        [attr.title]="'plannerV2.summary.transportLoad' | translate: 'Transport load'"
       >
-        {{ 'plannerV2.summary.transportLoad' | translate: 'Transport load' }}
+        <span class="block truncate max-[42rem]:hidden">
+          {{ 'plannerV2.summary.transportLoad' | translate: 'Transport load' }}
+        </span>
+        <span class="hidden truncate max-[42rem]:block">
+          {{ 'plannerV2.summary.transportLoadShort' | translate: 'Load' }}
+        </span>
       </small>
       <strong class="text-xs font-black tabular-nums" [style.color]="transportAccentColor()">
         {{ transportLoadValue() }}

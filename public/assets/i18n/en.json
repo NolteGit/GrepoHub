@@ -858,5 +858,8 @@
   "plannerV2.toolbox.expand": "Expand toolbox",
   "academyResearch.technologiesButton": "Technologies",
   "planConfig.storage.saveFailedTitle": "Local save failed",
-  "planConfig.storage.saveFailedDetail": "Your latest changes could not be saved locally. Export a backup before closing the app."
+  "planConfig.storage.saveFailedDetail": "Your latest changes could not be saved locally. Export a backup before closing the app.",
+  "plannerV2.summary.context.transportCapacityShort": "Transport",
+  "plannerV2.summary.bunksToggleShort": "Bunks",
+  "plannerV2.summary.transportLoadShort": "Load"
 }

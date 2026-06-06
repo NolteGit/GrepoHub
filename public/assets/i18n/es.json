@@ -858,5 +858,8 @@
   "plannerV2.toolbox.expand": "Expandir herramientas",
   "academyResearch.technologiesButton": "Tecnologías",
   "planConfig.storage.saveFailedTitle": "Error al guardar localmente",
-  "planConfig.storage.saveFailedDetail": "Los últimos cambios no se pudieron guardar localmente. Exporta una copia de seguridad antes de cerrar la aplicación."
+  "planConfig.storage.saveFailedDetail": "Los últimos cambios no se pudieron guardar localmente. Exporta una copia de seguridad antes de cerrar la aplicación.",
+  "plannerV2.summary.context.transportCapacityShort": "Transp.",
+  "plannerV2.summary.bunksToggleShort": "Literas",
+  "plannerV2.summary.transportLoadShort": "Carga"
 }

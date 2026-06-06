@@ -858,5 +858,8 @@
   "plannerV2.toolbox.expand": "Espandi strumenti",
   "academyResearch.technologiesButton": "Tecnologie",
   "planConfig.storage.saveFailedTitle": "Salvataggio locale non riuscito",
-  "planConfig.storage.saveFailedDetail": "Le ultime modifiche non sono state salvate localmente. Esporta un backup prima di chiudere l’app."
+  "planConfig.storage.saveFailedDetail": "Le ultime modifiche non sono state salvate localmente. Esporta un backup prima di chiudere l’app.",
+  "plannerV2.summary.context.transportCapacityShort": "Trasporto",
+  "plannerV2.summary.bunksToggleShort": "Cucc.",
+  "plannerV2.summary.transportLoadShort": "Carico"
 }

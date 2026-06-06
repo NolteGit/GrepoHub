@@ -858,5 +858,8 @@
   "plannerV2.toolbox.expand": "Développer la boîte à outils",
   "academyResearch.technologiesButton": "Technologies",
   "planConfig.storage.saveFailedTitle": "Échec de l’enregistrement local",
-  "planConfig.storage.saveFailedDetail": "Vos dernières modifications n’ont pas pu être enregistrées localement. Exportez une sauvegarde avant de fermer l’application."
+  "planConfig.storage.saveFailedDetail": "Vos dernières modifications n’ont pas pu être enregistrées localement. Exportez une sauvegarde avant de fermer l’application.",
+  "plannerV2.summary.context.transportCapacityShort": "Transp.",
+  "plannerV2.summary.bunksToggleShort": "Couch.",
+  "plannerV2.summary.transportLoadShort": "Charge"
 }

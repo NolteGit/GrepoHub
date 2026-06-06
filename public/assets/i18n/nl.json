@@ -858,5 +858,8 @@
   "plannerV2.toolbox.expand": "Toolbox uitklappen",
   "academyResearch.technologiesButton": "Technologieën",
   "planConfig.storage.saveFailedTitle": "Lokaal opslaan mislukt",
-  "planConfig.storage.saveFailedDetail": "Je laatste wijzigingen konden niet lokaal worden opgeslagen. Exporteer een back-up voordat je de app sluit."
+  "planConfig.storage.saveFailedDetail": "Je laatste wijzigingen konden niet lokaal worden opgeslagen. Exporteer een back-up voordat je de app sluit.",
+  "plannerV2.summary.context.transportCapacityShort": "Transp.",
+  "plannerV2.summary.bunksToggleShort": "Hangm.",
+  "plannerV2.summary.transportLoadShort": "Lading"
 }
