@@ -46,6 +46,7 @@ export class PlannerHeader {
   readonly plans = input.required<readonly PlanConfig[]>();
   readonly activePlanId = input.required<string>();
   readonly canDeletePlan = input(true);
+  readonly compactActions = input(false);
   readonly planSelected = output<string>();
   readonly actionSelected = output<PlannerHeaderActionId>();
 
@@ -53,12 +54,20 @@ export class PlannerHeader {
   protected readonly planLabelFallback = 'Plan';
   protected readonly newPlanLabelKey = 'plannerV2.header.newPlan';
   protected readonly newPlanLabelFallback = 'New plan';
+  protected readonly newPlanShortLabelKey = 'plannerV2.header.newPlanShort';
+  protected readonly newPlanShortLabelFallback = 'New';
   protected readonly importLabelKey = 'plannerV2.header.importPlan';
   protected readonly importLabelFallback = 'Import plan';
+  protected readonly importShortLabelKey = 'plannerV2.header.importPlanShort';
+  protected readonly importShortLabelFallback = 'Import';
   protected readonly exportLabelKey = 'plannerV2.header.export';
   protected readonly exportLabelFallback = 'Export plan';
+  protected readonly exportShortLabelKey = 'plannerV2.header.exportShort';
+  protected readonly exportShortLabelFallback = 'Export';
   protected readonly moreLabelKey = 'plannerV2.header.editPlan';
   protected readonly moreLabelFallback = 'Edit plan';
+  protected readonly moreShortLabelKey = 'plannerV2.header.editPlanShort';
+  protected readonly moreShortLabelFallback = 'Edit';
   protected readonly planOptions = computed<readonly GhSelectOption[]>(() =>
     this.plans().map((plan) => ({ value: plan.id, label: plan.name })),
   );

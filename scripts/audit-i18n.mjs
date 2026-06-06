@@ -84,6 +84,27 @@ for (const [language, dictionary] of Object.entries(dictionaries)) {
   }
 }
 
+const compactLabelLimits = new Map([
+  ['plannerV2.header.newPlanShort', 8],
+  ['plannerV2.header.importPlanShort', 8],
+  ['plannerV2.header.exportShort', 8],
+  ['plannerV2.header.editPlanShort', 8],
+]);
+
+for (const [language, dictionary] of Object.entries(dictionaries)) {
+  for (const [key, limit] of compactLabelLimits) {
+    const value = dictionary[key];
+
+    if (typeof value !== 'string') {
+      continue;
+    }
+
+    if (Array.from(value).length > limit) {
+      addError(`${language}.${key} must be ${limit} characters or shorter`);
+    }
+  }
+}
+
 const sourceFiles = walk(
   join(root, 'src', 'app'),
   (path) => /\.(ts|html)$/.test(path) && !path.endsWith('.spec.ts'),

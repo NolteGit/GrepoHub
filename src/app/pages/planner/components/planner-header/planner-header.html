@@ -1,11 +1,13 @@
 <header class="grid min-h-[3.75rem] items-center px-5 py-2 max-[58rem]:px-3 max-[34rem]:py-1.5">
   <div
-    class="mx-auto flex w-full max-w-[76rem] flex-wrap items-center justify-center gap-x-10 gap-y-2 max-[74rem]:gap-x-7 max-[58rem]:gap-x-4 max-[34rem]:gap-x-2 max-[34rem]:gap-y-1.5"
+    class="mx-auto flex w-full max-w-[86rem] flex-nowrap items-center justify-center gap-x-4 gap-y-2 max-[58rem]:gap-x-3 max-[34rem]:flex-wrap max-[34rem]:gap-x-2 max-[34rem]:gap-y-1.5"
   >
     <div class="contents">
       <app-gh-button
+        class="shrink-0"
         size="md"
         [ariaLabel]="newPlanLabelKey | translate: newPlanLabelFallback"
+        [attr.title]="newPlanLabelKey | translate: newPlanLabelFallback"
         (click)="actionSelected.emit('new')"
       >
         <svg
@@ -21,14 +23,18 @@
           <rect width="12" height="12" x="8" y="8" rx="2" />
           <path d="M4 16c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2" />
         </svg>
-        <span class="whitespace-nowrap max-[34rem]:sr-only">{{
-          newPlanLabelKey | translate: newPlanLabelFallback
-        }}</span>
+        @if (!compactActions()) {
+          <span class="max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap">{{
+            newPlanShortLabelKey | translate: newPlanShortLabelFallback
+          }}</span>
+        }
       </app-gh-button>
 
       <app-gh-button
+        class="shrink-0"
         size="md"
         [ariaLabel]="importLabelKey | translate: importLabelFallback"
+        [attr.title]="importLabelKey | translate: importLabelFallback"
         (click)="actionSelected.emit('import')"
       >
         <svg
@@ -45,13 +51,17 @@
           <path d="m7 10 5 5 5-5" />
           <path d="M12 15V3" />
         </svg>
-        <span class="whitespace-nowrap max-[34rem]:sr-only">{{
-          importLabelKey | translate: importLabelFallback
-        }}</span>
+        @if (!compactActions()) {
+          <span class="max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap">{{
+            importShortLabelKey | translate: importShortLabelFallback
+          }}</span>
+        }
       </app-gh-button>
     </div>
 
-    <div class="w-[22rem] min-w-[14rem] max-w-full max-[34rem]:order-first max-[34rem]:min-w-full">
+    <div
+      class="w-[22rem] min-w-[12rem] max-w-[25rem] flex-1 max-[34rem]:order-first max-[34rem]:min-w-full"
+    >
       <app-gh-select-field
         [ariaLabel]="planLabelKey | translate: planLabelFallback"
         [value]="activePlanId()"
@@ -63,8 +73,10 @@
 
     <div class="contents">
       <app-gh-button
+        class="shrink-0"
         size="md"
         [ariaLabel]="exportLabelKey | translate: exportLabelFallback"
+        [attr.title]="exportLabelKey | translate: exportLabelFallback"
         (click)="actionSelected.emit('export')"
       >
         <svg
@@ -81,31 +93,27 @@
           <path d="m17 8-5-5-5 5" />
           <path d="M12 3v12" />
         </svg>
-        <span class="whitespace-nowrap max-[34rem]:sr-only">{{
-          exportLabelKey | translate: exportLabelFallback
-        }}</span>
+        @if (!compactActions()) {
+          <span class="max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap">{{
+            exportShortLabelKey | translate: exportShortLabelFallback
+          }}</span>
+        }
       </app-gh-button>
 
-      <details #moreMenu class="group relative">
+      <details #moreMenu class="group relative shrink-0">
         <summary
-          class="gh-button inline-flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition marker:hidden max-[34rem]:px-3 [&::-webkit-details-marker]:hidden"
+          class="gh-button inline-flex min-h-10 min-w-10 max-w-[7rem] cursor-pointer list-none items-center justify-center gap-2 rounded-md px-3 text-sm font-bold transition marker:hidden [&::-webkit-details-marker]:hidden"
           [attr.aria-label]="moreLabelKey | translate: moreLabelFallback"
+          [attr.title]="moreLabelKey | translate: moreLabelFallback"
         >
-          <span
-            class="hidden text-base leading-none text-[var(--gh-gold)] max-[34rem]:inline"
-            aria-hidden="true"
-          >
-            ⋯
-          </span>
-          <span class="whitespace-nowrap max-[34rem]:sr-only">{{
-            moreLabelKey | translate: moreLabelFallback
-          }}</span>
-          <span
-            class="text-xs leading-none text-[var(--gh-gold)] max-[34rem]:hidden"
-            aria-hidden="true"
-          >
-            ▾
-          </span>
+          @if (compactActions()) {
+            <span class="text-base leading-none text-[var(--gh-gold)]" aria-hidden="true">⋯</span>
+          } @else {
+            <span class="max-w-[4.75rem] overflow-hidden text-ellipsis whitespace-nowrap">{{
+              moreShortLabelKey | translate: moreShortLabelFallback
+            }}</span>
+            <span class="text-xs leading-none text-[var(--gh-gold)]" aria-hidden="true">▾</span>
+          }
         </summary>
 
         <div
