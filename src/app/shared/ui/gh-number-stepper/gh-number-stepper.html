@@ -1,7 +1,9 @@
 @if (variant() === 'amount') {
-  <div class="grid min-w-0 grid-cols-[2rem_minmax(4.6rem,5.6rem)_2rem] items-center gap-2">
+  <div
+    class="grid min-w-0 grid-cols-[2rem_minmax(4.6rem,5.6rem)_2rem] items-center gap-2 max-[34rem]:grid-cols-[1.75rem_minmax(3.8rem,1fr)_1.75rem] max-[34rem]:gap-1"
+  >
     <button
-      class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+      class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)] max-[34rem]:min-h-7"
       type="button"
       [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': −1'"
       [attr.title]="
@@ -13,7 +15,7 @@
     </button>
     <span class="relative block min-w-0">
       <input
-        class="gh-control min-h-8 w-full min-w-0 rounded px-2 pr-7 text-center text-sm font-extrabold text-[var(--gh-text)] tabular-nums outline-none transition focus:border-[var(--gh-gold)] focus:bg-white/5"
+        class="gh-control min-h-8 w-full min-w-0 rounded px-2 pr-7 text-center text-sm font-extrabold max-[34rem]:min-h-7 max-[34rem]:px-1.5 max-[34rem]:pr-6 max-[34rem]:text-xs text-[var(--gh-text)] tabular-nums outline-none transition focus:border-[var(--gh-gold)] focus:bg-white/5"
         type="text"
         inputmode="numeric"
         autocomplete="off"
@@ -23,7 +25,7 @@
         (keydown)="handleAmountInputKeydown($event)"
       />
       <button
-        class="absolute top-1/2 right-1 grid size-5 -translate-y-1/2 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
+        class="absolute top-1/2 right-1 grid size-5 -translate-y-1/2 max-[34rem]:size-4 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
         type="button"
         [attr.aria-label]="('plannerV2.min' | translate: 'MIN') + ': 0'"
         [attr.title]="('plannerV2.min' | translate: 'MIN') + ': 0'"
@@ -31,7 +33,7 @@
         (click)="resetToMinimum()"
       >
         <svg
-          class="size-3.5"
+          class="size-3.5 max-[34rem]:size-3"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -49,7 +51,7 @@
       </button>
     </span>
     <button
-      class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
+      class="gh-control min-h-8 min-w-8 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)] max-[34rem]:min-h-7"
       type="button"
       [attr.aria-label]="('plannerV2.amount' | translate: 'Amount') + ': +1'"
       [attr.title]="
@@ -61,7 +63,9 @@
     </button>
   </div>
 } @else if (showMinMax()) {
-  <div class="grid min-w-0 grid-cols-[1.75rem_minmax(4.5rem,5.4rem)_1.75rem] items-center gap-1">
+  <div
+    class="grid min-w-0 grid-cols-[1.75rem_minmax(4.5rem,5.4rem)_1.75rem] items-center gap-1 max-[34rem]:grid-cols-[1.75rem_minmax(4rem,1fr)_1.75rem] max-[34rem]:gap-0.5"
+  >
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
@@ -73,7 +77,7 @@
     </button>
     <span class="relative block min-w-0">
       <input
-        class="gh-control min-h-7 w-full min-w-0 rounded px-6 text-center text-sm font-extrabold text-[var(--gh-text)] tabular-nums outline-none transition focus:border-[var(--gh-gold)] focus:bg-white/5"
+        class="gh-control min-h-7 w-full min-w-0 rounded px-6 text-center text-sm font-extrabold max-[34rem]:px-5 max-[34rem]:text-xs text-[var(--gh-text)] tabular-nums outline-none transition focus:border-[var(--gh-gold)] focus:bg-white/5"
         type="text"
         inputmode="numeric"
         autocomplete="off"
@@ -83,7 +87,7 @@
         (keydown)="handleAmountInputKeydown($event)"
       />
       <button
-        class="absolute top-1/2 left-1 grid size-5 -translate-y-1/2 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
+        class="absolute top-1/2 left-1 grid size-5 -translate-y-1/2 max-[34rem]:size-4 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
         type="button"
         [attr.aria-label]="'plannerV2.min' | translate: 'MIN'"
         [attr.title]="'plannerV2.min' | translate: 'MIN'"
@@ -91,7 +95,7 @@
         (click)="resetToMinimum()"
       >
         <svg
-          class="size-3.5"
+          class="size-3.5 max-[34rem]:size-3"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -108,14 +112,14 @@
         </svg>
       </button>
       <button
-        class="absolute top-1/2 right-1 grid size-5 -translate-y-1/2 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
+        class="absolute top-1/2 right-1 grid size-5 -translate-y-1/2 max-[34rem]:size-4 place-items-center rounded text-[var(--gh-muted)] transition hover:bg-white/5 hover:text-[var(--gh-gold)] disabled:pointer-events-none disabled:opacity-20"
         type="button"
         [attr.aria-label]="'plannerV2.max' | translate: 'MAX'"
         [attr.title]="'plannerV2.max' | translate: 'MAX'"
         [disabled]="!canSetMaximum()"
         (click)="setMaximum()"
       >
-        <svg class="size-3.5" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="size-3.5 max-[34rem]:size-3" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M5 5h2v14H5V5Zm4.2 2.2L14 12l-4.8 4.8 1.4 1.4 6.2-6.2-6.2-6.2-1.4 1.4ZM18 5h2v14h-2V5Z"
             fill="currentColor"
@@ -134,7 +138,9 @@
     </button>
   </div>
 } @else {
-  <div class="grid min-w-0 grid-cols-[1.75rem_minmax(3.2rem,1fr)_1.75rem] items-center gap-1">
+  <div
+    class="grid min-w-0 grid-cols-[1.75rem_minmax(3.2rem,1fr)_1.75rem] items-center gap-1 max-[34rem]:grid-cols-[1.75rem_minmax(2.8rem,1fr)_1.75rem] max-[34rem]:gap-0.5"
+  >
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"
@@ -144,9 +150,10 @@
     >
       −
     </button>
-    <strong class="min-w-0 text-center text-sm text-[var(--gh-text)] tabular-nums">{{
-      displayValue()
-    }}</strong>
+    <strong
+      class="min-w-0 text-center text-sm text-[var(--gh-text)] tabular-nums max-[34rem]:text-xs"
+      >{{ displayValue() }}</strong
+    >
     <button
       class="gh-control min-h-7 min-w-7 cursor-pointer rounded px-1 text-xs font-extrabold text-[var(--gh-gold)]"
       type="button"

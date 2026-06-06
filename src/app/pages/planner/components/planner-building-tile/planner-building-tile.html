@@ -2,10 +2,10 @@
   class="gh-panel grid content-start gap-2 rounded-md p-2.5 max-[76rem]:p-2 max-[34rem]:gap-1.5 max-[34rem]:p-1.5"
 >
   <div
-    class="grid min-w-0 grid-cols-[4.2rem_minmax(0,1fr)] gap-x-2.5 gap-y-1.5 max-[76rem]:grid-cols-[3.65rem_minmax(0,1fr)] max-[76rem]:gap-x-2 max-[34rem]:grid-cols-[3.35rem_minmax(0,1fr)] max-[34rem]:gap-x-1.5"
+    class="grid min-w-0 grid-cols-[4.2rem_minmax(0,1fr)] gap-x-2.5 gap-y-1.5 max-[76rem]:grid-cols-[3.65rem_minmax(0,1fr)] max-[76rem]:gap-x-2 max-[34rem]:grid-cols-[3rem_minmax(0,1fr)] max-[34rem]:gap-x-1"
   >
     <div
-      class="gh-icon-box row-span-2 grid aspect-square w-16 place-items-center overflow-hidden rounded-md max-[76rem]:w-14 max-[34rem]:w-12"
+      class="gh-icon-box row-span-2 grid aspect-square w-16 place-items-center overflow-hidden rounded-md max-[76rem]:w-14 max-[34rem]:w-11"
     >
       @if (building().imagePath) {
         <img
@@ -58,13 +58,13 @@
     >
       @for (stat of building().stats; track stat.labelKey) {
         <span
-          class="group relative inline-flex h-7 min-w-0 shrink-0 items-center gap-1 rounded-full border border-[rgba(212,160,55,0.16)] bg-[rgba(255,255,255,0.035)] px-2 py-1 outline-none max-[34rem]:h-6 max-[34rem]:px-1.5"
+          class="group relative inline-flex h-7 min-w-0 shrink-0 items-center gap-1 rounded-full border border-[rgba(212,160,55,0.16)] bg-[rgba(255,255,255,0.035)] px-2 py-1 outline-none max-[34rem]:h-5 max-[34rem]:px-1"
           tabindex="0"
           [attr.aria-label]="stat.labelKey | translate: stat.fallback"
         >
           @if (stat.iconPath) {
             <img
-              class="size-4 shrink-0 object-contain"
+              class="size-4 shrink-0 object-contain max-[34rem]:size-3.5"
               [src]="stat.iconPath"
               [alt]="stat.labelKey | translate: stat.fallback"
               loading="lazy"
@@ -103,7 +103,7 @@
                   <span class="grid grid-cols-[1rem_minmax(0,1fr)_auto] items-center gap-2 text-xs">
                     @if (item.iconPath) {
                       <img
-                        class="size-4 shrink-0 object-contain"
+                        class="size-4 shrink-0 object-contain max-[34rem]:size-3.5"
                         [src]="item.iconPath"
                         [alt]="item.labelKey | translate: item.fallback"
                         loading="lazy"
