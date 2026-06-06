@@ -14,7 +14,7 @@ The current app already includes the main MVP foundation:
 - Local plan persistence, JSON import/export, and readable TXT/CSV/BBCode exports.
 - Static data and translation audits.
 - Static-hosting readiness checks for metadata, favicon, SPA fallback assumptions, and security headers.
-- Release hardening for CSP, safe local storage access, safer CSV exports, duplicate import IDs, and small-screen layout messaging.
+- Release hardening for CSP, safe local storage access, safer CSV exports, duplicate import IDs, and narrow-screen layout behavior.
 
 ## Current release-prep focus
 

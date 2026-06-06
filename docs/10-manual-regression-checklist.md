@@ -110,7 +110,7 @@ Test at least a normal desktop width and a narrow browser window.
 
 ```text
 [ ] Main planner layout does not overflow horizontally
-[ ] Narrow viewport shows the small-screen notice
+[ ] Narrow viewport keeps the planner usable without horizontal page overflow
 [ ] Sidebar remains usable
 [ ] Popups fit within the viewport
 [ ] Unit/building tiles wrap cleanly at desktop, compact, and narrow widths

@@ -9,7 +9,7 @@ The planner shell uses three conceptual layout modes:
 ```txt
 wide/desktop   toolbox | planner workspace | summary sidebar
 compact        collapsed toolbox | planner workspace
-mobile         planner workspace only, with a small-screen notice
+mobile         planner workspace only, no desktop recommendation banner
 ```
 
 The current breakpoint intent is:
@@ -89,7 +89,7 @@ touch target sizes
 sticky actions
 scroll behavior
 portrait and landscape behavior
-small-screen notice removal or reduction
+small-screen spacing and control density
 ```
 
 ## First implementation target
@@ -120,7 +120,7 @@ A responsive patch is ready when:
 npm run release:check passes
 normal desktop layout is unchanged or intentionally improved
 compact width does not show horizontal page overflow
-mobile width shows either usable controls or the known small-screen notice
+mobile width shows usable controls without horizontal page overflow
 unit/building tiles wrap without clipping important controls
 Cloudflare preview/root refresh still works
 ```

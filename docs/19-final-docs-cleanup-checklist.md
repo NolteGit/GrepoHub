@@ -72,7 +72,7 @@ Tester-facing docs should be practical and not overly technical.
 
 - Smoke checklist is easy to follow.
 - Feedback template asks for browser/device/deployment URL.
-- Known mobile limitation is stated clearly.
+- Known mobile scope is stated clearly without adding an in-app warning banner.
 - Import/export/localStorage flows are included.
 - Accessibility/keyboard checks are included at a basic level.
 

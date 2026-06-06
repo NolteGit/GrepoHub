@@ -55,10 +55,10 @@ CSP changes should be tested with a production build and browser console open. I
 
 ## Small-screen behavior
 
-The planner is currently optimized for desktop and medium-width screens. Narrow screens show a notice because toolbox and summary areas are intentionally hidden at small widths.
+The planner is currently optimized for desktop and medium-width screens. Narrow screens keep the main planner workspace usable while toolbox and summary areas are intentionally hidden at small widths.
 
 ```text
-[ ] Narrow viewport shows the small-screen notice
+[ ] Narrow viewport keeps the planner usable without horizontal page overflow
 [ ] Core planner content remains readable
 [ ] No horizontal page overflow appears
 [ ] Hidden toolbox/sidebar functionality is still acceptable for the release target
@@ -91,7 +91,7 @@ Run:
 npm run pages:audit
 ```
 
-This checks the local source files for the expected page shell, static-hosting headers, route fallback, CSP baseline, small-screen notice, and missing favicon references.
+This checks the local source files for the expected page shell, static-hosting headers, route fallback, CSP baseline, narrow-screen shell, and missing favicon references.
 
 For a full release gate, run:
 

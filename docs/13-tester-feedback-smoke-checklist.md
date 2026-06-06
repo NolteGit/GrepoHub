@@ -23,7 +23,7 @@ This checklist is intended for a first tester feedback round. It focuses on the 
 - Confirm the main planner layout looks correct on a normal desktop width.
 - Confirm the toolbox, planner area, and summary area are aligned.
 - Resize to a compact/tablet width and confirm the layout remains usable.
-- Confirm the small-screen/mobile limitation notice is visible where expected.
+- Confirm the planner remains usable at narrow widths without horizontal page overflow.
 - Confirm no old GrepoHub/planner-v2 naming appears in visible UI unless intentionally kept as legacy wording.
 
 ## 4. Language and localization

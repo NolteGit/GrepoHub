@@ -93,20 +93,20 @@ if (exists('public/404.html')) {
   warn('public/404.html exists. For Cloudflare Pages SPA fallback, keep no top-level 404.html unless routing is intentionally changed.');
 }
 
-const plannerV2TemplatePath = 'src/app/pages/planner/planner.html';
-if (!exists(plannerV2TemplatePath)) {
+const plannerTemplatePath = 'src/app/pages/planner/planner.html';
+if (!exists(plannerTemplatePath)) {
   warn('Missing src/app/pages/planner/planner.html.');
 } else {
-  const plannerV2Template = readText(plannerV2TemplatePath);
+  const plannerTemplate = readText(plannerTemplatePath);
   assertIncludes(
-    plannerV2Template,
-    'plannerV2.mobileNotice.title',
-    'Planner V2 should keep a small-screen notice because the toolbox and sidebar are intentionally hidden on narrow screens.',
+    plannerTemplate,
+    'max-[46rem]:col-start-1',
+    'Planner should keep the narrow-screen one-column shell class for mobile usability.',
   );
   assertIncludes(
-    plannerV2Template,
-    'plannerV2.mobileNotice.detail',
-    'Planner V2 should explain the limited small-screen layout.',
+    plannerTemplate,
+    '<app-planner-mode-switch',
+    'Planner should keep the mode switch visible in the main workspace.',
   );
 }
 
