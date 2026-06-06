@@ -21,7 +21,7 @@
           <rect width="12" height="12" x="8" y="8" rx="2" />
           <path d="M4 16c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2" />
         </svg>
-        <span class="whitespace-nowrap">{{
+        <span class="whitespace-nowrap max-[34rem]:sr-only">{{
           newPlanLabelKey | translate: newPlanLabelFallback
         }}</span>
       </app-gh-button>
@@ -45,11 +45,13 @@
           <path d="m7 10 5 5 5-5" />
           <path d="M12 15V3" />
         </svg>
-        <span class="whitespace-nowrap">{{ importLabelKey | translate: importLabelFallback }}</span>
+        <span class="whitespace-nowrap max-[34rem]:sr-only">{{
+          importLabelKey | translate: importLabelFallback
+        }}</span>
       </app-gh-button>
     </div>
 
-    <div class="w-[22rem] min-w-[14rem] max-w-full max-[34rem]:min-w-full">
+    <div class="w-[22rem] min-w-[14rem] max-w-full max-[34rem]:order-first max-[34rem]:min-w-full">
       <app-gh-select-field
         [ariaLabel]="planLabelKey | translate: planLabelFallback"
         [value]="activePlanId()"
@@ -79,7 +81,9 @@
           <path d="m17 8-5-5-5 5" />
           <path d="M12 3v12" />
         </svg>
-        <span class="whitespace-nowrap">{{ exportLabelKey | translate: exportLabelFallback }}</span>
+        <span class="whitespace-nowrap max-[34rem]:sr-only">{{
+          exportLabelKey | translate: exportLabelFallback
+        }}</span>
       </app-gh-button>
 
       <details #moreMenu class="group relative">
@@ -87,8 +91,21 @@
           class="gh-button inline-flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-4 text-sm font-bold transition marker:hidden max-[34rem]:px-3 [&::-webkit-details-marker]:hidden"
           [attr.aria-label]="moreLabelKey | translate: moreLabelFallback"
         >
-          <span class="whitespace-nowrap">{{ moreLabelKey | translate: moreLabelFallback }}</span>
-          <span class="text-xs leading-none text-[var(--gh-gold)]" aria-hidden="true">▾</span>
+          <span
+            class="hidden text-base leading-none text-[var(--gh-gold)] max-[34rem]:inline"
+            aria-hidden="true"
+          >
+            ⋯
+          </span>
+          <span class="whitespace-nowrap max-[34rem]:sr-only">{{
+            moreLabelKey | translate: moreLabelFallback
+          }}</span>
+          <span
+            class="text-xs leading-none text-[var(--gh-gold)] max-[34rem]:hidden"
+            aria-hidden="true"
+          >
+            ▾
+          </span>
         </summary>
 
         <div
