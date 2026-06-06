@@ -168,7 +168,6 @@
     class="col-start-2 row-start-1 min-w-0 border-b border-[var(--gh-border-soft)] max-[46rem]:col-start-1 max-[46rem]:p-1.5"
     [activePlanId]="activePlan().id"
     [canDeletePlan]="canDeleteActivePlan()"
-    [compactActions]="!toolboxCollapsed()"
     [plans]="plans()"
     (actionSelected)="handlePlanAction($event, planImportInput)"
     (planSelected)="selectPlan($event)"
@@ -194,7 +193,6 @@
         [activeMode]="activeMode()"
         [cityDetailsVisible]="buildingTileDetailsVisible()"
         [troopDetailsVisible]="unitTileDetailsVisible()"
-        [compactDetailsLabels]="!toolboxCollapsed()"
         (detailsToggled)="setTileDetailsVisible($event.mode, $event.visible)"
         (modeSelected)="selectMode($event)"
       />
