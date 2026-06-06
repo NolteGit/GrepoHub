@@ -177,22 +177,30 @@
     class="col-start-2 row-start-2 flex min-h-0 min-w-0 flex-col gap-2 p-2 max-[46rem]:col-start-1 max-[46rem]:p-1.5"
   >
     <aside
-      class="hidden rounded-xl border border-[rgba(246,195,67,0.24)] bg-[rgba(246,195,67,0.07)] px-3 py-2 text-sm leading-6 text-[var(--gh-muted)] max-[46rem]:block max-[34rem]:rounded-lg max-[34rem]:px-2.5 max-[34rem]:py-2 max-[34rem]:text-xs max-[34rem]:leading-5"
+      class="hidden items-start gap-2 rounded-xl border border-[rgba(246,195,67,0.24)] bg-[rgba(246,195,67,0.07)] px-3 py-1.5 text-sm leading-5 text-[var(--gh-muted)] max-[46rem]:flex max-[34rem]:gap-1.5 max-[34rem]:rounded-lg max-[34rem]:px-2 max-[34rem]:py-1.5 max-[34rem]:text-xs"
       role="note"
       aria-labelledby="planner-mobile-notice-title"
     >
-      <strong
-        id="planner-mobile-notice-title"
-        class="block text-[0.72rem] font-black uppercase tracking-[0.14em] text-[var(--gh-gold)] max-[34rem]:text-[0.62rem] max-[34rem]:tracking-[0.1em]"
+      <span
+        class="grid size-6 shrink-0 place-items-center rounded-full bg-[rgba(246,195,67,0.12)] text-sm font-black text-[var(--gh-gold)] max-[34rem]:size-5 max-[34rem]:text-xs"
+        aria-hidden="true"
       >
-        {{ 'plannerV2.mobileNotice.title' | translate: 'Desktop layout recommended' }}
-      </strong>
-      <span>
-        {{
-          'plannerV2.mobileNotice.detail'
-            | translate
-              : 'Planning works on small screens, but the toolbox and summary sidebar are hidden. Use a wider screen for the full planner.'
-        }}
+        ↔
+      </span>
+      <span class="grid min-w-0 gap-0.5">
+        <strong
+          id="planner-mobile-notice-title"
+          class="truncate text-[0.72rem] font-black uppercase tracking-[0.14em] text-[var(--gh-gold)] max-[34rem]:text-[0.62rem] max-[34rem]:tracking-[0.1em]"
+        >
+          {{ 'plannerV2.mobileNotice.title' | translate: 'Desktop layout recommended' }}
+        </strong>
+        <span class="min-w-0 text-[0.8rem] leading-5 max-[34rem]:sr-only">
+          {{
+            'plannerV2.mobileNotice.detail'
+              | translate
+                : 'Planning works on small screens, but the toolbox and summary sidebar are hidden. Use a wider screen for the full planner.'
+          }}
+        </span>
       </span>
     </aside>
 
