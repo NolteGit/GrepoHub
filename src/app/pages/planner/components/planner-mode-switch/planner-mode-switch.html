@@ -1,38 +1,38 @@
 <nav
-  class="grid w-full max-w-full grid-cols-2 overflow-hidden rounded-xl border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.66)] p-1 max-[34rem]:rounded-lg max-[34rem]:p-0.5"
+  class="grid w-full max-w-full grid-cols-2 overflow-hidden rounded-xl border border-[var(--gh-border-soft)] bg-[rgba(2,12,22,0.66)] p-1 max-[105rem]:rounded-lg max-[105rem]:p-0.5"
   [attr.aria-label]="ariaLabelKey | translate: ariaLabelFallback"
 >
   @for (option of options; track option.id) {
     <div class="relative grid min-w-0 rounded-lg">
       <button
         type="button"
-        class="inline-flex min-h-12 w-full min-w-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent px-16 text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] max-[42rem]:px-5 max-[34rem]:min-h-10 max-[34rem]:justify-end max-[34rem]:px-2 max-[34rem]:pl-9"
+        class="inline-flex min-h-12 w-full min-w-0 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent px-16 text-[var(--gh-text)] transition hover:text-[var(--gh-gold)] max-[105rem]:px-7 max-[42rem]:px-5 max-[34rem]:min-h-10 max-[34rem]:justify-end max-[34rem]:px-2 max-[34rem]:pl-9"
         [class.gh-gold-fill]="activeMode() === option.id"
         [attr.aria-pressed]="activeMode() === option.id"
         (click)="selectMode(option.id)"
       >
         <span
-          class="inline-flex min-w-0 max-w-full items-center justify-center gap-2.5 max-[34rem]:gap-1"
+          class="inline-flex min-w-0 max-w-full items-center justify-center gap-2.5 max-[105rem]:gap-1.5 max-[34rem]:gap-1"
         >
           <span
-            class="grid size-9 shrink-0 place-items-center max-[34rem]:size-7 max-[30rem]:hidden"
+            class="grid size-9 shrink-0 place-items-center max-[105rem]:size-8 max-[34rem]:size-7 max-[30rem]:hidden"
             aria-hidden="true"
           >
             <img
-              class="max-h-[1.75rem] max-w-[1.75rem] object-contain max-[34rem]:max-h-5 max-[34rem]:max-w-5"
+              class="max-h-[1.75rem] max-w-[1.75rem] object-contain max-[105rem]:max-h-6 max-[105rem]:max-w-6 max-[34rem]:max-h-5 max-[34rem]:max-w-5"
               [src]="option.iconPath"
               alt=""
               loading="lazy"
             />
           </span>
           <strong
-            class="min-w-0 truncate text-[0.95rem] leading-[1.18] font-extrabold tracking-[0.035em] max-[42rem]:text-sm max-[34rem]:text-[0.76rem] max-[34rem]:tracking-[0.01em]"
+            class="min-w-0 truncate text-[0.95rem] leading-[1.18] font-extrabold tracking-[0.035em] max-[105rem]:text-sm max-[105rem]:tracking-[0.02em] max-[34rem]:text-[0.76rem] max-[34rem]:tracking-[0.01em]"
             [attr.title]="option.labelKey | translate: option.fallback"
           >
-            <span class="block truncate max-[34rem]:hidden">
+            <span class="block truncate max-[105rem]:hidden">
               {{ option.labelKey | translate: option.fallback }}
             </span>
-            <span class="hidden truncate max-[34rem]:block">
+            <span class="hidden truncate max-[105rem]:block">
               {{ option.shortLabelKey | translate: option.shortFallback }}
             </span>
           </strong>
@@ -40,7 +40,7 @@
       </button>
 
       <label
-        class="absolute left-4 top-1/2 z-10 inline-flex -translate-y-1/2 cursor-pointer items-center gap-1.5 text-[0.58rem] font-black uppercase tracking-[0.12em] opacity-70 transition hover:opacity-100 focus-within:opacity-100 max-[42rem]:left-2 max-[42rem]:gap-1 max-[34rem]:left-1.5"
+        class="absolute left-4 top-1/2 z-10 inline-flex -translate-y-1/2 cursor-pointer items-center gap-1.5 text-[0.58rem] font-black uppercase tracking-[0.12em] opacity-70 transition hover:opacity-100 focus-within:opacity-100 max-[105rem]:left-2 max-[105rem]:gap-1 max-[34rem]:left-1.5"
         [attr.title]="
           detailsVisibleForMode(option.id)
             ? ('plannerV2.tile.hideDetails' | translate: 'Hide details')
@@ -60,11 +60,11 @@
           (change)="toggleDetails(option.id, $event)"
         />
         <span
-          class="relative h-4 w-8 rounded-full border border-[var(--gh-border-soft)] bg-black/25 transition peer-checked:border-[rgba(212,160,55,0.45)] peer-checked:bg-[rgba(212,160,55,0.16)] after:absolute after:top-[0.1875rem] after:left-[0.1875rem] after:h-2.5 after:w-2.5 after:rounded-full after:bg-[var(--gh-muted)] after:transition after:content-[''] peer-checked:after:translate-x-4 peer-checked:after:bg-[var(--gh-gold)] max-[34rem]:h-3.5 max-[34rem]:w-7 max-[34rem]:after:top-[0.15625rem] max-[34rem]:after:left-[0.15625rem] max-[34rem]:after:h-2 max-[34rem]:after:w-2 max-[34rem]:peer-checked:after:translate-x-3.5 max-[30rem]:h-3 max-[30rem]:w-6 max-[30rem]:after:top-0.5 max-[30rem]:after:left-0.5 max-[30rem]:after:size-1.5 max-[30rem]:peer-checked:after:translate-x-3"
+          class="relative h-4 w-8 rounded-full border border-[var(--gh-border-soft)] bg-black/25 transition peer-checked:border-[rgba(212,160,55,0.45)] peer-checked:bg-[rgba(212,160,55,0.16)] after:absolute after:top-[0.1875rem] after:left-[0.1875rem] after:h-2.5 after:w-2.5 after:rounded-full after:bg-[var(--gh-muted)] after:transition after:content-[''] peer-checked:after:translate-x-4 peer-checked:after:bg-[var(--gh-gold)] max-[105rem]:h-3.5 max-[105rem]:w-7 max-[105rem]:after:top-[0.15625rem] max-[105rem]:after:left-[0.15625rem] max-[105rem]:after:h-2 max-[105rem]:after:w-2 max-[105rem]:peer-checked:after:translate-x-3.5 max-[30rem]:h-3 max-[30rem]:w-6 max-[30rem]:after:top-0.5 max-[30rem]:after:left-0.5 max-[30rem]:after:size-1.5 max-[30rem]:peer-checked:after:translate-x-3"
           aria-hidden="true"
         ></span>
         <span
-          class="max-[92rem]:sr-only"
+          class="max-[105rem]:sr-only"
           [style.color]="activeMode() === option.id ? 'rgba(2,13,23,0.72)' : 'var(--gh-muted)'"
         >
           {{ 'plannerV2.mode.details' | translate: 'Details' }}
